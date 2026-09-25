@@ -9,7 +9,11 @@ import (
 
 // Deps carries service-layer dependencies. Handlers stay thin.
 type Deps struct {
-	Health *service.HealthService
+	Health     *service.HealthService
+	Property   *service.PropertyService
+	Tenancy    *service.TenancyService
+	Inspection *service.InspectionService
+	Room       *service.RoomService
 }
 
 // NewRouter wires MVP routes.
@@ -18,6 +22,21 @@ func NewRouter(d Deps) *http.ServeMux {
 	hh := NewHealthHandler(d.Health)
 	mux.HandleFunc("GET /healthz", hh.Live)
 	mux.HandleFunc("GET /readyz", hh.Ready)
+
+	ph := NewPropertyHandler(d.Property)
+	mux.HandleFunc("POST /api/v1/properties", ph.Create)
+
+	th := NewTenancyHandler(d.Tenancy)
+	mux.HandleFunc("POST /api/v1/properties/{id}/tenancies", th.Create)
+
+	ih := NewInspectionHandler(d.Inspection)
+	mux.HandleFunc("POST /api/v1/tenancies/{id}/inspections", ih.Create)
+
+	rh := NewRoomHandler(d.Room)
+	mux.HandleFunc("POST /api/v1/inspections/{id}/rooms", rh.Create)
+	mux.HandleFunc("GET /api/v1/inspections/{id}/rooms", rh.List)
+	mux.HandleFunc("POST /api/v1/inspections/{id}/rooms:ensure-template", rh.EnsureTemplate)
+
 	mux.HandleFunc("GET /v/{code}", handleVerify)
 	mux.HandleFunc("GET /api/v1/ping", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"ping": "pong"})

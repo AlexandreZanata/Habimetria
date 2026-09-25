@@ -35,8 +35,13 @@ func main() {
 		log.Fatalf("apply migrations: %v", err)
 	}
 
-	health := service.NewHealth(pool)
-	mux := httpapi.NewRouter(httpapi.Deps{Health: health})
+	mux := httpapi.NewRouter(httpapi.Deps{
+		Health:     service.NewHealth(pool),
+		Property:   service.NewProperty(pool),
+		Tenancy:    service.NewTenancy(pool),
+		Inspection: service.NewInspection(pool),
+		Room:       service.NewRoom(pool),
+	})
 
 	srv := &http.Server{Addr: ":" + cfg.Port, Handler: mux}
 	go func() {
