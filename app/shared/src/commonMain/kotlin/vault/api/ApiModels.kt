@@ -91,4 +91,12 @@ data class Finding(
     @SerialName("evidence_id") val evidenceId: String,
     val preset: String,
     val note: String? = null,
+    @SerialName("created_at") val createdAt: String = "",
+)
+
+@Serializable
+data class FindingBody(
+    @SerialName("evidence_id") val evidenceId: String,
+    val preset: String,
+    val note: String? = null,
 )

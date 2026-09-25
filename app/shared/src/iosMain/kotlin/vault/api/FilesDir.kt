@@ -8,7 +8,7 @@ import platform.Foundation.NSUserDomainMask
 @OptIn(ExperimentalForeignApi::class)
 actual fun appFilesDir(): String {
     val docs = NSFileManager.defaultManager.URLForDirectory(
-        NSDocumentDirectory, NSUserDomainMask, null, null, null,
+        NSDocumentDirectory, NSUserDomainMask, null, false, null,
     )!!.path() + "/vault"
     return docs
 }

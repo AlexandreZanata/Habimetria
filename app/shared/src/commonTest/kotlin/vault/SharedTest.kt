@@ -45,8 +45,18 @@ class VaultApiTest {
     }
 
     @Test
-    fun findingParsesPreset() = runTest {
-        val api = mockApi("""{"id":"f1","room_id":"r1","evidence_id":"e1","preset":"crack","note":"n"}""")
-        assertEquals("crack", api.createFinding("r1", "e1", "crack", "n").preset)
+    fun createFindingParsesPreset() = runTest {
+        val api = mockApi("""{"id":"f1","room_id":"r1","evidence_id":"e1","preset":"crack","note":"hairline","created_at":"2026-09-25T10:00:00Z"}""")
+        val finding = api.createFinding("r1", "e1", "crack", "hairline")
+        assertEquals("crack", finding.preset)
+        assertEquals("hairline", finding.note)
+    }
+
+    @Test
+    fun listFindingsParsesArray() = runTest {
+        val api = mockApi("""[{"id":"f1","room_id":"r1","evidence_id":"e1","preset":"stain","note":null,"created_at":"2026-09-25T10:00:00Z"}]""")
+        val findings = api.listFindings("r1")
+        assertEquals(1, findings.size)
+        assertEquals("stain", findings.single().preset)
     }
 }

@@ -20,6 +20,7 @@ kotlin {
             implementation(compose.components.resources)
             implementation(libs.okio)
             implementation(libs.ktor.client.core)
+            implementation(libs.coil.compose)
         }
         androidMain.dependencies {
             implementation(libs.activity.compose)

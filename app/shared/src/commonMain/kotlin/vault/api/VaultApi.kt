@@ -22,12 +22,7 @@ import vault.queue.EvidenceRemote
 // VaultApi talks to the Go backend. Engine is platform-provided
 // (CIO on Android/JVM, Darwin on iOS) for a light footprint.
 class VaultApi private constructor(baseUrl: String, private val client: HttpClient) : EvidenceRemote {
-    private var base = baseUrl.trimEnd('/')
-
-    // retarget switches server at runtime (dev: emulator vs LAN device).
-    fun retarget(baseUrl: String) {
-        base = baseUrl.trimEnd('/')
-    }
+    private val base = baseUrl.trimEnd('/')
 
     constructor(baseUrl: String, engineFactory: HttpClientEngineFactory<*>) :
         this(baseUrl, HttpClient(engineFactory) { installJson() })
@@ -58,19 +53,14 @@ class VaultApi private constructor(baseUrl: String, private val client: HttpClie
     suspend fun coverage(inspectionId: String): Coverage =
         getJson("api/v1/inspections/$inspectionId/coverage")
 
-    suspend fun createFinding(roomId: String, evidenceId: String, preset: String, note: String?): Finding {
-        val safeNote = (note ?: "").replace("\"", "'")
-        return postJson(
+    suspend fun createFinding(roomId: String, evidenceId: String, preset: String, note: String?): Finding =
+        postJson(
             "api/v1/rooms/$roomId/findings",
-            """{"evidence_id":"$evidenceId","preset":"$preset","note":"$safeNote"}""",
+            Json.encodeToString(FindingBody(evidenceId, preset, note?.takeIf { it.isNotBlank() })),
         )
-    }
 
     suspend fun listFindings(roomId: String): List<Finding> =
         getJson("api/v1/rooms/$roomId/findings")
-
-    suspend fun reportDetail(reportId: String): ReportDetail =
-        getJson("api/v1/reports/$reportId")
 
     override suspend fun uploadPhoto(
         inspectionId: String,
