@@ -19,6 +19,7 @@ type Deps struct {
 	Coverage   *service.CoverageService
 	Seal       *service.SealService
 	Report     *service.ReportService
+	Share      *service.ShareService
 	HMACKey    string
 }
 
@@ -64,6 +65,12 @@ func NewRouter(d Deps) *http.ServeMux {
 
 	vh := NewVerifyHandler(d.Report, d.HMACKey)
 	mux.HandleFunc("GET /v/{code}", vh.Verify)
+
+	shr := NewShareHandler(d.Share)
+	mux.HandleFunc("POST /api/v1/reports/{id}/shares", shr.Create)
+	mux.HandleFunc("GET /api/v1/reports/{id}/shares", shr.Timeline)
+	mux.HandleFunc("GET /s/{token}", shr.Open)
+	mux.HandleFunc("GET /s/{token}/pdf", shr.DownloadPDF)
 
 	mux.HandleFunc("GET /api/v1/ping", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"ping": "pong"})

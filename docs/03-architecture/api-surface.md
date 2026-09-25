@@ -34,7 +34,10 @@ Preset enum: `stain | scratch | crack | broken | moisture | hole | other`.
 - `POST /reports/{id}/pdf` (S7) — two-pass final PDF attach, returns report_sha256
 - `GET /reports/{id}/download-url` (S7) — signed 5min PDF URL
 - `GET /v/{code}` (S7) — public, no auth: { authentic, sealed_at, evidence_count, manifest_sha256, signature_valid, report_sha256 }
-- `POST /reports/{id}/shares` (S8, planned) — { channel: whatsapp|email|link }
+- `POST /reports/{id}/shares` (S8) — { channel } → { share, url }; logs created
+- `GET /reports/{id}/shares` (S8) — timeline with created/accessed/downloaded counts
+- `GET /s/{token}` (S8) — public recipient view + fresh PDF URL; logs accessed
+- `GET /s/{token}/pdf` (S8) — 302 to signed PDF; logs downloaded
 
 ## Occurrences (V1.1, schema-ready)
 
