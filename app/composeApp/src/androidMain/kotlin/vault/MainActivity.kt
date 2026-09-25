@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import vault.api.AppContext
 import vault.api.appFilesDir
+import vault.pdf.AndroidPlatformPdf
 import vault.ui.AndroidPhotoCapture
 import vault.ui.App
 import vault.ui.UploadWorker
@@ -31,6 +32,7 @@ class MainActivity : ComponentActivity() {
             baseUrl = baseUrl,
             filesDir = appFilesDir(),
             photoCapture = AndroidPhotoCapture(),
+            platformPdf = AndroidPlatformPdf(),
             onQueued = { UploadWorker.schedule(applicationContext, baseUrl) },
         )
         UploadWorker.schedule(applicationContext, baseUrl)

@@ -70,6 +70,25 @@ class VaultApi private constructor(baseUrl: String, private val client: HttpClie
     suspend fun reportDetail(reportId: String): ReportDetail =
         getJson("api/v1/reports/$reportId")
 
+    suspend fun attachPdf(reportId: String, pdf: ByteArray): Report {
+        val text = client.post("$base/api/v1/reports/$reportId/pdf") {
+            setBody(
+                MultiPartFormDataContent(
+                    formData {
+                        append("file", pdf, HeadersBuilder().apply {
+                            append(HttpHeaders.ContentType, "application/pdf")
+                            append(HttpHeaders.ContentDisposition, "filename=\"report.pdf\"")
+                        }.build())
+                    },
+                ),
+            )
+        }.bodyAsText()
+        return Json.decodeFromString(text)
+    }
+
+    suspend fun verify(code: String): VerifyResult =
+        getJson("v/$code")
+
     override suspend fun uploadPhoto(
         inspectionId: String,
         roomId: String?,

@@ -24,6 +24,7 @@ import vault.api.SealResult
 fun SealScreen(
     container: AppContainer,
     inspectionId: String,
+    onPdf: (reportId: String, verifyCode: String) -> Unit,
     onBack: () -> Unit,
 ) {
     var result by remember { mutableStateOf<SealResult?>(null) }
@@ -41,6 +42,12 @@ fun SealScreen(
             Text("Sealed ✓")
             Text("Code: ${it.verifyCode}")
             Text("Evidence: ${it.evidenceCount}")
+            Button(
+                onClick = { onPdf(it.reportId, it.verifyCode) },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Generate PDF")
+            }
         }
         error?.let { Text("Error: $it") }
         if (result == null) {

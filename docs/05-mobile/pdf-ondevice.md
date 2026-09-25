@@ -6,8 +6,9 @@ Follows `docs/03-architecture/client-processing.md`. Server never renders.
 
 1. App lays out cover + per-room photos + findings + device-claim disclaimers.
 2. Android: `android.graphics.pdf.PdfDocument` (zero deps).
-   iOS: `PDFKit` via `expect/actual` interface. Common layout model in
-   `commonMain` (`vault.pdf` package); platform code only draws.
+   iOS: Swift host implements `PlatformPdf` (PDFKit, CoreImage QR,
+   share sheet); shared code owns the layout model + flow, never pixels.
+   (Linux klib checks the Kotlin side; Swift compiles on macOS/Xcode.)
 3. Photos embedded at ≤1280px JPEG to bound render time and file size.
 
 ## Pass 2 — seal + final

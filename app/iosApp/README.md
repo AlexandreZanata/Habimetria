@@ -8,3 +8,6 @@ Kotlin side for iOS targets (`compileKotlinIosSimulatorArm64`).
 
 - `iOSApp.swift` — app entry.
 - `ContentView.swift` — `MainViewController` bridge from `:composeApp`.
+- `SwiftPdfRenderer.swift` — `PlatformPdf` in Swift (PDFKit render,
+  CoreImage QR, share sheet). Same pages as Android.
+- Full Xcode project assembly lands in M5 with a macOS runner.

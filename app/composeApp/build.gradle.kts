@@ -28,6 +28,7 @@ kotlin {
             implementation(libs.camera.lifecycle)
             implementation(libs.camera.view)
             implementation(libs.listenablefuture)
+            implementation(libs.zxing.core)
             implementation(libs.lifecycle.process)
             implementation(libs.lifecycle.compose)
             implementation(libs.work.runtime)

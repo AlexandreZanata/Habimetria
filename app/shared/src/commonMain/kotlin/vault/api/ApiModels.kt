@@ -58,6 +58,10 @@ data class Report(
     @SerialName("verify_code") val verifyCode: String,
     @SerialName("report_sha256") val reportSha256: String? = null,
     @SerialName("pdf_ready") val pdfReady: Boolean = false,
+    @SerialName("sealed_at") val sealedAt: String = "",
+    @SerialName("evidence_count") val evidenceCount: Int = 0,
+    @SerialName("manifest_sha256") val manifestSha256: String = "",
+    val signature: String = "",
 )
 
 @Serializable
@@ -99,4 +103,16 @@ data class FindingBody(
     @SerialName("evidence_id") val evidenceId: String,
     val preset: String,
     val note: String? = null,
+)
+
+@Serializable
+data class VerifyResult(
+    val authentic: Boolean,
+    @SerialName("verify_code") val verifyCode: String,
+    @SerialName("sealed_at") val sealedAt: String,
+    @SerialName("evidence_count") val evidenceCount: Int,
+    @SerialName("manifest_sha256") val manifestSha256: String,
+    @SerialName("signature_valid") val signatureValid: Boolean,
+    @SerialName("report_sha256") val reportSha256: String? = null,
+    @SerialName("pdf_ready") val pdfReady: Boolean = false,
 )

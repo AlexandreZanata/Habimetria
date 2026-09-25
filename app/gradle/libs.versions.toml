@@ -31,6 +31,7 @@ work-runtime = { module = "androidx.work:work-runtime-ktx", version.ref = "work"
 lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "lifecycle" }
 lifecycle-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 listenablefuture = "com.google.guava:guava:33.3.1-android"
+zxing-core = "com.google.zxing:core:3.5.3"
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

@@ -6,13 +6,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
-// M3 navigation: Home → Rooms → Room → Review → Seal.
+// M4 navigation: Home → Rooms → Room → Review → Seal → PDF.
 private sealed interface Route {
     data object Home : Route
     data class Rooms(val inspectionId: String) : Route
     data class Room(val inspectionId: String, val roomId: String, val label: String) : Route
     data class Review(val inspectionId: String) : Route
     data class Seal(val inspectionId: String) : Route
+    data class Pdf(val inspectionId: String, val reportId: String, val verifyCode: String) : Route
 }
 
 @Composable
@@ -44,7 +45,15 @@ fun App(container: AppContainer) {
             is Route.Seal -> SealScreen(
                 container = container,
                 inspectionId = r.inspectionId,
+                onPdf = { reportId, code -> route = Route.Pdf(r.inspectionId, reportId, code) },
                 onBack = { route = Route.Review(r.inspectionId) },
+            )
+            is Route.Pdf -> PdfScreen(
+                container = container,
+                inspectionId = r.inspectionId,
+                reportId = r.reportId,
+                verifyCode = r.verifyCode,
+                onBack = { route = Route.Seal(r.inspectionId) },
             )
         }
     }

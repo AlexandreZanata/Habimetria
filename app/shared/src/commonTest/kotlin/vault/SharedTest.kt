@@ -59,4 +59,20 @@ class VaultApiTest {
         assertEquals(1, findings.size)
         assertEquals("stain", findings.single().preset)
     }
+
+    @Test
+    fun attachPdfParsesSha() = runTest {
+        val api = mockApi("""{"report_id":"r1","inspection_id":"i1","verify_code":"ABC","report_sha256":"deadbeef","pdf_ready":true}""")
+        val rep = api.attachPdf("r1", "%PDF-1.4".encodeToByteArray())
+        assertEquals("deadbeef", rep.reportSha256)
+    }
+
+    @Test
+    fun verifyParsesAuthentic() = runTest {
+        val api = mockApi("""{"authentic":true,"verify_code":"ABC","sealed_at":"2026-09-25T14:00:00Z","evidence_count":2,"manifest_sha256":"m","signature_valid":true,"report_sha256":"r","pdf_ready":true}""")
+        val out = api.verify("ABC")
+        assertEquals(true, out.authentic)
+        assertEquals(true, out.signatureValid)
+        assertEquals(2, out.evidenceCount)
+    }
 }
