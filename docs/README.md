@@ -31,10 +31,14 @@ All product, architecture, and execution docs. Small files, one topic each.
 
 - `05-mobile/kmp-layout.md` — Kotlin Multiplatform module layout
 - `05-mobile/offline-upload.md` — queue, IndexedDB/DataStore, retry
+- `05-mobile/app-performance.md` — budgets, 2026 stack, size/speed discipline
+- `05-mobile/capture-ux.md` — photo-first flow, zero friction rules
+- `05-mobile/pdf-ondevice.md` — two-pass seal PDF, QR, budgets
 
 ## 06 Roadmap
 
 - `06-roadmap/mvp-01.md` — frozen MVP 0.1 checklist
+- `06-roadmap/mobile-phases.md` — M1→M5 app plan (MVP = photos + evidence + PDF)
 - `06-roadmap/evolution.md` — V1.1 → V1.5 without ERP creep
 
 ## 07 AI Ops
