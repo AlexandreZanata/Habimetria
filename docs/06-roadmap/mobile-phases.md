@@ -4,9 +4,10 @@ Backend S1–S7 is done; mobile consumes it. Auth/users/billing stay future.
 
 ## M1 — Scaffold + design system
 
-- KMP template (androidApp, iosApp, shared UI+logic), CI builds both.
+- KMP template (composeApp, shared, iosApp host), CI builds Android APK
+  + shared-for-iOS (full iOS assembly in M2, needs macOS runner).
 - 3-color theme, system fonts, Home + Room placeholder screens.
-- Networking (Ktor) against staging; feature flags file.
+- VaultApi (Ktor, CIO/Darwin) with MockEngine tests; feature flags file.
 - DoD: release AAB < 12 MB baseline, cold start measured.
 
 ## M2 — Guided capture (core value)

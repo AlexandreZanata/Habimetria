@@ -3,3 +3,6 @@ bin/
 build/
 .idea/
 *.local
+.gradle/
+local.properties
+*.hprof
