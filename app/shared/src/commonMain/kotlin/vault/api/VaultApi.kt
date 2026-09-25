@@ -22,7 +22,12 @@ import vault.queue.EvidenceRemote
 // VaultApi talks to the Go backend. Engine is platform-provided
 // (CIO on Android/JVM, Darwin on iOS) for a light footprint.
 class VaultApi private constructor(baseUrl: String, private val client: HttpClient) : EvidenceRemote {
-    private val base = baseUrl.trimEnd('/')
+    private var base = baseUrl.trimEnd('/')
+
+    // retarget switches server at runtime (dev: emulator vs LAN device).
+    fun retarget(baseUrl: String) {
+        base = baseUrl.trimEnd('/')
+    }
 
     constructor(baseUrl: String, engineFactory: HttpClientEngineFactory<*>) :
         this(baseUrl, HttpClient(engineFactory) { installJson() })
@@ -61,6 +66,9 @@ class VaultApi private constructor(baseUrl: String, private val client: HttpClie
 
     suspend fun listFindings(roomId: String): List<Finding> =
         getJson("api/v1/rooms/$roomId/findings")
+
+    suspend fun reportDetail(reportId: String): ReportDetail =
+        getJson("api/v1/reports/$reportId")
 
     override suspend fun uploadPhoto(
         inspectionId: String,

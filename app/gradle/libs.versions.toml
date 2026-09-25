@@ -6,7 +6,6 @@ coroutines = "1.10.2"
 serialization = "1.8.1"
 ktor = "3.0.3"
 activity-compose = "1.10.1"
-coil = "3.0.0"
 okio = "3.9.0"
 camerax = "1.6.0"
 work = "2.9.0"
@@ -23,7 +22,6 @@ ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 ktor-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-serialization = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
-coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 camera-core = { module = "androidx.camera:camera-core", version.ref = "camerax" }
 camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "camerax" }
