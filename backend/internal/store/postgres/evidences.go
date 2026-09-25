@@ -62,6 +62,8 @@ type EvidenceInput struct {
 	StorageKey       string
 	SHA256           string
 	CapturedAtDevice *time.Time
+	Latitude         *float64
+	Longitude        *float64
 }
 
 // CreateEvidence inserts the row in a transaction: locks the inspection,
@@ -92,14 +94,14 @@ func CreateEvidence(ctx context.Context, pool *pgxpool.Pool, in EvidenceInput) (
 
 	var e Evidence
 	err = tx.QueryRow(ctx,
-		`INSERT INTO evidences (id, inspection_id, room_id, type, mime, size, storage_key, sha256, captured_at_device, sequence)
-		 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+		`INSERT INTO evidences (id, inspection_id, room_id, type, mime, size, storage_key, sha256, captured_at_device, latitude, longitude, sequence)
+		 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
 		 RETURNING id::text, inspection_id::text, room_id::text, type, mime, size,
-		           storage_key, sha256, captured_at_device, received_at_server, sequence`,
+		           storage_key, sha256, captured_at_device, latitude, longitude, received_at_server, sequence`,
 		in.ID, in.InspectionID, in.RoomID, in.Type, in.Mime, in.Size,
-		in.StorageKey, in.SHA256, in.CapturedAtDevice, seq,
+		in.StorageKey, in.SHA256, in.CapturedAtDevice, in.Latitude, in.Longitude, seq,
 	).Scan(&e.ID, &e.InspectionID, &e.RoomID, &e.Type, &e.Mime, &e.Size,
-		&e.StorageKey, &e.SHA256, &e.CapturedAtDevice, &e.ReceivedAtServer, &e.Sequence)
+		&e.StorageKey, &e.SHA256, &e.CapturedAtDevice, &e.Latitude, &e.Longitude, &e.ReceivedAtServer, &e.Sequence)
 	if err != nil {
 		return Evidence{}, fmt.Errorf("insert evidence: %w", err)
 	}
@@ -114,11 +116,11 @@ func GetEvidence(ctx context.Context, pool *pgxpool.Pool, inspectionID, evidence
 	var e Evidence
 	err := pool.QueryRow(ctx,
 		`SELECT id::text, inspection_id::text, room_id::text, type, mime, size,
-		        storage_key, sha256, captured_at_device, received_at_server, sequence
+		        storage_key, sha256, captured_at_device, latitude, longitude, received_at_server, sequence
 		 FROM evidences WHERE id=$1 AND inspection_id=$2`,
 		evidenceID, inspectionID,
 	).Scan(&e.ID, &e.InspectionID, &e.RoomID, &e.Type, &e.Mime, &e.Size,
-		&e.StorageKey, &e.SHA256, &e.CapturedAtDevice, &e.ReceivedAtServer, &e.Sequence)
+		&e.StorageKey, &e.SHA256, &e.CapturedAtDevice, &e.Latitude, &e.Longitude, &e.ReceivedAtServer, &e.Sequence)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return Evidence{}, fmt.Errorf("evidence %s: %w", evidenceID, ErrNotFound)

@@ -31,6 +31,9 @@ func (s *EvidenceService) Upload(ctx context.Context, in UploadInput) (UploadRes
 	if err != nil {
 		return UploadResult{}, err
 	}
+	if err := checkGeo(in.Latitude, in.Longitude); err != nil {
+		return UploadResult{}, err
+	}
 
 	uc, err := s.store.UploadContext(ctx, in.InspectionID)
 	if err != nil {
@@ -80,6 +83,7 @@ func (s *EvidenceService) Upload(ctx context.Context, in UploadInput) (UploadRes
 		ID: id, InspectionID: in.InspectionID, RoomID: in.RoomID,
 		Type: typ, Mime: in.Mime, Size: size,
 		StorageKey: key, SHA256: sha, CapturedAtDevice: in.CapturedAtDevice,
+		Latitude: in.Latitude, Longitude: in.Longitude,
 	})
 	if err != nil {
 		_ = s.storage.Delete(ctx, key) // orphan hygiene, best-effort
@@ -128,6 +132,22 @@ func checkCountQuota(typ string, uc postgres.UploadContext) error {
 	return nil
 }
 
+// checkGeo validates device-reported coordinates. Nil means absent.
+func checkGeo(lat, lng *float64) error {
+	if lat == nil && lng == nil {
+		return nil
+	}
+	if lat == nil || lng == nil {
+		return fmt.Errorf("latitude and longitude go together: %w", ErrInvalid)
+	}
+	if *lat < -90 || *lat > 90 {
+		return fmt.Errorf("latitude out of range: %w", ErrInvalid)
+	}
+	if *lng < -180 || *lng > 180 {
+		return fmt.Errorf("longitude out of range: %w", ErrInvalid)
+	}
+	return nil
+}
 // bufferAndHash streams content to a temp file while hashing.
 // Returns hex SHA-256, byte size, and the open temp file.
 func bufferAndHash(r io.Reader) (string, int64, *os.File, error) {

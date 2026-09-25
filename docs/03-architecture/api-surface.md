@@ -17,9 +17,13 @@ Base: `/api/v1`. Auth: magic-link JWT (Bearer). Public: `/v/{code}`.
 ## Rooms & evidence
 
 - `POST /inspections/{id}/rooms` — { key, label }
-- `POST /inspections/{id}/evidences` (S3, multipart: file + type + room_id? + captured_at_device?) — 201 { evidence_id, sha256, received_at_server, sequence }
+- `POST /inspections/{id}/rooms:ensure-template` — default 5 rooms, idempotent
+- `GET /inspections/{id}/rooms` — ordered list
+- `POST /inspections/{id}/evidences` (S3, multipart: file + type + room_id? + captured_at_device? + latitude? + longitude?) — 201 { evidence_id, sha256, received_at_server, sequence }
 - `GET /inspections/{id}/evidences/download-url?evidence_id=` — signed 5min URL (S3)
-- `POST /rooms/{id}/findings` — { evidence_id, preset, note? }
+- `POST /rooms/{id}/findings` (S4) — { evidence_id, preset, note? }
+- `GET /rooms/{id}/findings` (S4) — list
+- `GET /inspections/{id}/coverage` (S4) — { total_percent, rooms[] }
 
 Preset enum: `stain | scratch | crack | broken | moisture | hole | other`.
 

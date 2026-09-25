@@ -19,6 +19,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `03-architecture/evidence-protocol.md` — hash + timestamp + manifest + seal + verify
 - `03-architecture/api-surface.md` — REST surface for MVP
 - `03-architecture/storage-media.md` — originals, previews, signed URLs, video limits
+- `03-architecture/client-processing.md` — app does the work, server keeps trust
 
 ## 04 Backend
 

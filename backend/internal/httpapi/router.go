@@ -15,6 +15,8 @@ type Deps struct {
 	Inspection *service.InspectionService
 	Room       *service.RoomService
 	Evidence   *service.EvidenceService
+	Finding    *service.FindingService
+	Coverage   *service.CoverageService
 }
 
 // NewRouter wires MVP routes.
@@ -41,6 +43,13 @@ func NewRouter(d Deps) *http.ServeMux {
 	eh := NewEvidenceHandler(d.Evidence)
 	mux.HandleFunc("POST /api/v1/inspections/{id}/evidences", eh.Upload)
 	mux.HandleFunc("GET /api/v1/inspections/{id}/evidences/download-url", eh.DownloadURL)
+
+	fh := NewFindingHandler(d.Finding)
+	mux.HandleFunc("POST /api/v1/rooms/{id}/findings", fh.Create)
+	mux.HandleFunc("GET /api/v1/rooms/{id}/findings", fh.List)
+
+	ch := NewCoverageHandler(d.Coverage)
+	mux.HandleFunc("GET /api/v1/inspections/{id}/coverage", ch.Get)
 
 	mux.HandleFunc("GET /v/{code}", handleVerify)
 	mux.HandleFunc("GET /api/v1/ping", func(w http.ResponseWriter, r *http.Request) {

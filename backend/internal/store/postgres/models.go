@@ -13,6 +13,10 @@ var ErrNotFound = errors.New("not found")
 // Handlers map it to HTTP 409.
 var ErrRoomExists = errors.New("room already exists")
 
+// ErrMismatch is returned when an evidence does not belong to the
+// finding's inspection. Handlers map it to HTTP 400.
+var ErrMismatch = errors.New("evidence does not belong to inspection")
+
 // Property is a rental address owned by a tenant user.
 type Property struct {
 	ID        string    `json:"id"`
@@ -47,6 +51,7 @@ type Room struct {
 }
 
 // Evidence is one sealed file: original bytes + server-side hash + timestamp.
+// Geolocation and device time are device-reported claims, not certified facts.
 type Evidence struct {
 	ID                string     `json:"id"`
 	InspectionID      string     `json:"inspection_id"`
@@ -57,6 +62,18 @@ type Evidence struct {
 	StorageKey        string     `json:"storage_key"`
 	SHA256            string     `json:"sha256"`
 	CapturedAtDevice  *time.Time `json:"captured_at_device"`
+	Latitude          *float64   `json:"latitude"`
+	Longitude         *float64   `json:"longitude"`
 	ReceivedAtServer  time.Time  `json:"received_at_server"`
 	Sequence          int        `json:"sequence"`
+}
+
+// Finding is one reported defect: photo evidence + preset + optional note.
+type Finding struct {
+	ID         string    `json:"id"`
+	RoomID     string    `json:"room_id"`
+	EvidenceID string    `json:"evidence_id"`
+	Preset     string    `json:"preset"`
+	Note       *string   `json:"note"`
+	CreatedAt  time.Time `json:"created_at"`
 }

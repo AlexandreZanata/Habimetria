@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 
 	"vault/internal/service"
@@ -45,6 +46,22 @@ func (h *EvidenceHandler) Upload(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		in.CapturedAtDevice = &ts
+	}
+	if v := r.FormValue("latitude"); v != "" {
+		lat, err := strconv.ParseFloat(v, 64)
+		if err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "latitude must be a number"})
+			return
+		}
+		in.Latitude = &lat
+	}
+	if v := r.FormValue("longitude"); v != "" {
+		lng, err := strconv.ParseFloat(v, 64)
+		if err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "longitude must be a number"})
+			return
+		}
+		in.Longitude = &lng
 	}
 	if in.Mime == "" {
 		in.Mime = "application/octet-stream"

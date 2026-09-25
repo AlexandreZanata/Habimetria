@@ -51,6 +51,8 @@ func main() {
 		Inspection: service.NewInspection(pool),
 		Room:       service.NewRoom(pool),
 		Evidence:   service.NewEvidence(pool, store),
+		Finding:    service.NewFinding(pool),
+		Coverage:   service.NewCoverage(pool),
 	})
 
 	srv := &http.Server{Addr: ":" + cfg.Port, Handler: mux}

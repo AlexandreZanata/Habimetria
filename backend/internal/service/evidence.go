@@ -49,7 +49,8 @@ type EvidenceStorage interface {
 }
 
 // UploadInput carries one file plus client metadata. Hash and
-// server timestamp are always computed server-side.
+// server timestamp are always computed server-side. Geolocation and
+// device time are device-reported claims.
 type UploadInput struct {
 	InspectionID     string
 	RoomID           *string
@@ -57,6 +58,8 @@ type UploadInput struct {
 	Filename         string
 	Mime             string
 	CapturedAtDevice *time.Time
+	Latitude         *float64
+	Longitude        *float64
 	Content          io.Reader
 }
 
