@@ -17,6 +17,10 @@ func writeError(w http.ResponseWriter, err error) {
 		writeJSON(w, http.StatusRequestEntityTooLarge, map[string]string{"error": err.Error()})
 	case errors.Is(err, service.ErrQuota):
 		writeJSON(w, http.StatusUnprocessableEntity, map[string]string{"error": err.Error()})
+	case errors.Is(err, postgres.ErrEmpty):
+		writeJSON(w, http.StatusUnprocessableEntity, map[string]string{"error": err.Error()})
+	case errors.Is(err, postgres.ErrChanged):
+		writeJSON(w, http.StatusConflict, map[string]string{"error": err.Error()})
 	case errors.Is(err, postgres.ErrNotFound):
 		writeJSON(w, http.StatusNotFound, map[string]string{"error": "not found"})
 	case errors.Is(err, postgres.ErrMismatch):

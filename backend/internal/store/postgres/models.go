@@ -17,6 +17,14 @@ var ErrRoomExists = errors.New("room already exists")
 // finding's inspection. Handlers map it to HTTP 400.
 var ErrMismatch = errors.New("evidence does not belong to inspection")
 
+// ErrEmpty is returned when sealing an inspection without evidences.
+// Handlers map it to HTTP 422.
+var ErrEmpty = errors.New("cannot seal inspection without evidences")
+
+// ErrChanged is returned when the evidence set changes mid-seal.
+// The caller rebuilds the manifest and retries. Maps to HTTP 409.
+var ErrChanged = errors.New("evidence set changed during seal, retry")
+
 // Property is a rental address owned by a tenant user.
 type Property struct {
 	ID        string    `json:"id"`

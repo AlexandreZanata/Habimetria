@@ -53,6 +53,7 @@ func main() {
 		Evidence:   service.NewEvidence(pool, store),
 		Finding:    service.NewFinding(pool),
 		Coverage:   service.NewCoverage(pool),
+		Seal:       service.NewSeal(pool, service.StubPayment{}, cfg.HMACKey),
 	})
 
 	srv := &http.Server{Addr: ":" + cfg.Port, Handler: mux}

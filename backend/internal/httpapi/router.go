@@ -17,6 +17,7 @@ type Deps struct {
 	Evidence   *service.EvidenceService
 	Finding    *service.FindingService
 	Coverage   *service.CoverageService
+	Seal       *service.SealService
 }
 
 // NewRouter wires MVP routes.
@@ -50,6 +51,9 @@ func NewRouter(d Deps) *http.ServeMux {
 
 	ch := NewCoverageHandler(d.Coverage)
 	mux.HandleFunc("GET /api/v1/inspections/{id}/coverage", ch.Get)
+
+	sh := NewSealHandler(d.Seal)
+	mux.HandleFunc("POST /api/v1/inspections/{id}/seal", sh.Seal)
 
 	mux.HandleFunc("GET /v/{code}", handleVerify)
 	mux.HandleFunc("GET /api/v1/ping", func(w http.ResponseWriter, r *http.Request) {

@@ -29,7 +29,7 @@ Preset enum: `stain | scratch | crack | broken | moisture | hole | other`.
 
 ## Seal, report, share, verify
 
-- `POST /inspections/{id}:seal` — requires payment proof, returns { manifest_sha256, report_id }
+- `POST /inspections/{id}/seal` (S5) — payment stub, returns { manifest_sha256, signature, report_id, verify_code }; 404 missing, 409 sealed/changed, 422 empty
 - `GET /reports/{id}.pdf` — signed URL to PDF
 - `POST /reports/{id}/shares` — { channel: whatsapp|email|link }
 - `GET /v/{code}` — public, no auth: { authentic, sealed_at, evidence_count, report_sha256 }
