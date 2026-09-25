@@ -1,9 +1,11 @@
 package service
 
 import (
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"strings"
 	"testing"
 	"time"
@@ -72,5 +74,19 @@ func TestSealHMACVerifies(t *testing.T) {
 	mac.Write([]byte("manifest-sha"))
 	if want := hex.EncodeToString(mac.Sum(nil)); sig != want {
 		t.Fatalf("hmac mismatch: %s vs %s", sig, want)
+	}
+}
+
+type denyPayment struct{}
+
+func (denyPayment) Verify(context.Context, string) error { return ErrPayment }
+
+func TestSealDeniesUnpaid(t *testing.T) {
+	svc := NewSeal(nil, denyPayment{}, "k")
+	_, err := svc.Seal(context.Background(), SealInput{
+		InspectionID: "123e4567-e89b-12d3-a456-426614174000",
+	})
+	if !errors.Is(err, ErrPayment) {
+		t.Fatalf("want ErrPayment, got %v", err)
 	}
 }

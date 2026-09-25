@@ -29,7 +29,7 @@ Preset enum: `stain | scratch | crack | broken | moisture | hole | other`.
 
 ## Seal, report, share, verify
 
-- `POST /inspections/{id}/seal` (S5) — payment stub, returns { manifest_sha256, signature, report_id, verify_code }; 404 missing, 409 sealed/changed, 422 empty
+- `POST /inspections/{id}/seal` (S5, S6-basic) — returns { manifest_sha256, signature, report_id, verify_code }; paywall off by default, live mode enforces Stripe/Asaas proof (402); 404 missing, 409 sealed/changed, 422 empty
 - `GET /reports/{id}` (S7) — report + QR-ready verify_url
 - `POST /reports/{id}/pdf` (S7) — two-pass final PDF attach, returns report_sha256
 - `GET /reports/{id}/download-url` (S7) — signed 5min PDF URL

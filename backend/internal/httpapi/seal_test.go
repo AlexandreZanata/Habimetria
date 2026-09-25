@@ -53,13 +53,23 @@ func TestSealEmptyMaps422(t *testing.T) {
 	}
 }
 
-func TestSealMissingMaps404(t *testing.T) {
-	h := NewSealHandler(stubSeal{err: postgres.ErrNotFound})
+func TestSealMissingMaps404(t *testing.T) {	h := NewSealHandler(stubSeal{err: postgres.ErrNotFound})
 	req := httptest.NewRequest("POST", "/api/v1/inspections/x:seal", strings.NewReader(`{}`))
 	req.SetPathValue("id", "x")
 	rec := httptest.NewRecorder()
 	h.Seal(rec, req)
 	if rec.Code != http.StatusNotFound {
 		t.Fatalf("want 404, got %d", rec.Code)
+	}
+}
+
+func TestSealUnpaidMaps402(t *testing.T) {
+	h := NewSealHandler(stubSeal{err: service.ErrPayment})
+	req := httptest.NewRequest("POST", "/api/v1/inspections/x/seal", strings.NewReader(`{}`))
+	req.SetPathValue("id", "x")
+	rec := httptest.NewRecorder()
+	h.Seal(rec, req)
+	if rec.Code != http.StatusPaymentRequired {
+		t.Fatalf("want 402, got %d", rec.Code)
 	}
 }

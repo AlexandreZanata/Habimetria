@@ -18,6 +18,18 @@ type Config struct {
 	LocalDir       string
 
 	VerifyBaseURL string // public origin embedded in QR codes
+
+	// Paywall (S6-basic). MVP default is off: photos + evidence + PDF
+	// stay frictionless. Auth, users and billing ship only if the
+	// project moves forward. See docs/03-architecture/payments.md.
+	PaymentsMode     string // off | live
+	PaymentsProvider string // stripe | asaas
+	StripeSecretKey  string
+	StripeAPIBase    string
+	AsaasAPIKey      string
+	AsaasAPIBase     string
+	SealPriceCents   string
+	SealCurrency     string
 }
 
 func FromEnv() Config {
@@ -36,6 +48,15 @@ func FromEnv() Config {
 		LocalDir:       envOr("LOCAL_STORAGE_DIR", "/tmp/vault-storage"),
 
 		VerifyBaseURL: envOr("VERIFY_BASE_URL", "http://localhost:8080"),
+
+		PaymentsMode:     envOr("PAYMENTS_MODE", "off"),
+		PaymentsProvider: envOr("PAYMENTS_PROVIDER", "stripe"),
+		StripeSecretKey:  envOr("STRIPE_SECRET_KEY", ""),
+		StripeAPIBase:    envOr("STRIPE_API_BASE", "https://api.stripe.com"),
+		AsaasAPIKey:      envOr("ASAAS_API_KEY", ""),
+		AsaasAPIBase:     envOr("ASAAS_API_BASE", "https://sandbox.asaas.com/api/v3"),
+		SealPriceCents:   envOr("SEAL_PRICE_CENTS", "2990"),
+		SealCurrency:     envOr("SEAL_CURRENCY", "BRL"),
 	}
 }
 
