@@ -16,6 +16,8 @@ type Config struct {
 	S3SecretKey    string
 	S3PathStyle    bool
 	LocalDir       string
+
+	VerifyBaseURL string // public origin embedded in QR codes
 }
 
 func FromEnv() Config {
@@ -32,6 +34,8 @@ func FromEnv() Config {
 		S3SecretKey:    envOr("S3_SECRET_KEY", "minio12345"),
 		S3PathStyle:    envOr("S3_PATH_STYLE", "true") == "true",
 		LocalDir:       envOr("LOCAL_STORAGE_DIR", "/tmp/vault-storage"),
+
+		VerifyBaseURL: envOr("VERIFY_BASE_URL", "http://localhost:8080"),
 	}
 }
 

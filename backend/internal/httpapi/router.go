@@ -18,6 +18,8 @@ type Deps struct {
 	Finding    *service.FindingService
 	Coverage   *service.CoverageService
 	Seal       *service.SealService
+	Report     *service.ReportService
+	HMACKey    string
 }
 
 // NewRouter wires MVP routes.
@@ -55,24 +57,18 @@ func NewRouter(d Deps) *http.ServeMux {
 	sh := NewSealHandler(d.Seal)
 	mux.HandleFunc("POST /api/v1/inspections/{id}/seal", sh.Seal)
 
-	mux.HandleFunc("GET /v/{code}", handleVerify)
+	rp := NewReportHandler(d.Report)
+	mux.HandleFunc("GET /api/v1/reports/{id}", rp.Detail)
+	mux.HandleFunc("POST /api/v1/reports/{id}/pdf", rp.Attach)
+	mux.HandleFunc("GET /api/v1/reports/{id}/download-url", rp.DownloadURL)
+
+	vh := NewVerifyHandler(d.Report, d.HMACKey)
+	mux.HandleFunc("GET /v/{code}", vh.Verify)
+
 	mux.HandleFunc("GET /api/v1/ping", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"ping": "pong"})
 	})
 	return mux
-}
-
-// handleVerify is the public verification contract (no auth).
-// Full impl in S8: lookup reports by verify_code, return hashes.
-func handleVerify(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]any{
-		"authentic":       false,
-		"verify_code":     r.PathValue("code"),
-		"note":            "S8: lookup report_sha256 + manifest_sha256 + sealed_at",
-		"evidence_count":  0,
-		"report_sha256":   nil,
-		"manifest_sha256": nil,
-	})
 }
 
 func writeJSON(w http.ResponseWriter, code int, v any) {

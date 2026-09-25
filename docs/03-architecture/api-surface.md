@@ -30,9 +30,11 @@ Preset enum: `stain | scratch | crack | broken | moisture | hole | other`.
 ## Seal, report, share, verify
 
 - `POST /inspections/{id}/seal` (S5) — payment stub, returns { manifest_sha256, signature, report_id, verify_code }; 404 missing, 409 sealed/changed, 422 empty
-- `GET /reports/{id}.pdf` — signed URL to PDF
-- `POST /reports/{id}/shares` — { channel: whatsapp|email|link }
-- `GET /v/{code}` — public, no auth: { authentic, sealed_at, evidence_count, report_sha256 }
+- `GET /reports/{id}` (S7) — report + QR-ready verify_url
+- `POST /reports/{id}/pdf` (S7) — two-pass final PDF attach, returns report_sha256
+- `GET /reports/{id}/download-url` (S7) — signed 5min PDF URL
+- `GET /v/{code}` (S7) — public, no auth: { authentic, sealed_at, evidence_count, manifest_sha256, signature_valid, report_sha256 }
+- `POST /reports/{id}/shares` (S8, planned) — { channel: whatsapp|email|link }
 
 ## Occurrences (V1.1, schema-ready)
 

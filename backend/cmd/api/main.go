@@ -54,6 +54,8 @@ func main() {
 		Finding:    service.NewFinding(pool),
 		Coverage:   service.NewCoverage(pool),
 		Seal:       service.NewSeal(pool, service.StubPayment{}, cfg.HMACKey),
+		Report:     service.NewReport(pool, store, cfg.VerifyBaseURL),
+		HMACKey:    cfg.HMACKey,
 	})
 
 	srv := &http.Server{Addr: ":" + cfg.Port, Handler: mux}
