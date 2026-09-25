@@ -43,4 +43,10 @@ class VaultApiTest {
         val api = mockApi("""{"inspection_id":"i1","status":"SEALED","manifest_sha256":"m","signature":"s","report_id":"r","verify_code":"ABC123","evidence_count":2}""")
         assertEquals("ABC123", api.seal("i1").verifyCode)
     }
+
+    @Test
+    fun findingParsesPreset() = runTest {
+        val api = mockApi("""{"id":"f1","room_id":"r1","evidence_id":"e1","preset":"crack","note":"n"}""")
+        assertEquals("crack", api.createFinding("r1", "e1", "crack", "n").preset)
+    }
 }

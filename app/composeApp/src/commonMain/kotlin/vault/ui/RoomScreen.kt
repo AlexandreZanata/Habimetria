@@ -30,6 +30,8 @@ import vault.queue.QueueStatus
 fun RoomScreen(
     container: AppContainer,
     inspectionId: String,
+    roomId: String,
+    roomLabel: String,
     onBack: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -49,14 +51,16 @@ fun RoomScreen(
 
     LaunchedEffect(inspectionId) { refresh() }
 
-    val confirmed = queue.count { it.status == QueueStatus.CONFIRMED }
-    val sending = queue.count { it.status == QueueStatus.UPLOADING || it.status == QueueStatus.QUEUED }
-    val failed = queue.count { it.status == QueueStatus.FAILED }
+    val mine = queue.filter { it.inspectionId == inspectionId }
+    val confirmed = mine.count { it.status == QueueStatus.CONFIRMED }
+    val sending = mine.count { it.status == QueueStatus.UPLOADING || it.status == QueueStatus.QUEUED }
+    val failed = mine.count { it.status == QueueStatus.FAILED }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        Text(roomLabel)
         CameraPreview(modifier = Modifier.fillMaxWidth().height(280.dp))
         Button(
             onClick = {
@@ -68,7 +72,7 @@ fun RoomScreen(
                         if (shot == null) {
                             error = "Camera unavailable"
                         } else {
-                            val name = "cap-${queue.size + 1}.jpg"
+                            val name = "cap-${mine.size + 1}-${roomId.take(4)}.jpg"
                             val path = "${container.filesDir}/photos/$name"
                             FileSystem.SYSTEM.createDirectories("${container.filesDir}/photos".toPath())
                             FileSystem.SYSTEM.write(path.toPath()) { write(shot.bytes) }
@@ -76,8 +80,8 @@ fun RoomScreen(
                                 QueueItem(
                                     localId = name,
                                     inspectionId = inspectionId,
-                                    roomId = null,
-                                    roomKey = "kitchen",
+                                    roomId = roomId,
+                                    roomKey = roomLabel,
                                     filePath = path,
                                     mime = shot.mime,
                                 ),

@@ -83,3 +83,12 @@ data class Coverage(
     @SerialName("total_percent") val totalPercent: Int,
     val rooms: List<RoomCoverageView>,
 )
+
+@Serializable
+data class Finding(
+    val id: String,
+    @SerialName("room_id") val roomId: String,
+    @SerialName("evidence_id") val evidenceId: String,
+    val preset: String,
+    val note: String? = null,
+)
