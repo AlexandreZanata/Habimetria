@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -12,6 +13,9 @@ import (
 	"vault/internal/config"
 	"vault/internal/httpapi"
 	"vault/internal/service"
+	"vault/internal/storage"
+	"vault/internal/storage/localstore"
+	"vault/internal/storage/s3store"
 	"vault/internal/store/postgres"
 	"vault/migrations"
 )
@@ -35,12 +39,18 @@ func main() {
 		log.Fatalf("apply migrations: %v", err)
 	}
 
+	store, err := openStorage(dbCtx, cfg)
+	if err != nil {
+		log.Fatalf("open storage: %v", err)
+	}
+
 	mux := httpapi.NewRouter(httpapi.Deps{
 		Health:     service.NewHealth(pool),
 		Property:   service.NewProperty(pool),
 		Tenancy:    service.NewTenancy(pool),
 		Inspection: service.NewInspection(pool),
 		Room:       service.NewRoom(pool),
+		Evidence:   service.NewEvidence(pool, store),
 	})
 
 	srv := &http.Server{Addr: ":" + cfg.Port, Handler: mux}
@@ -57,4 +67,23 @@ func main() {
 	if err := srv.Shutdown(shutdownCtx); err != nil {
 		log.Printf("shutdown: %v", err)
 	}
+}
+
+// openStorage selects the S3 or local backend from env.
+func openStorage(ctx context.Context, cfg config.Config) (storage.Port, error) {
+	if cfg.StorageBackend == "local" {
+		return localstore.New(cfg.LocalDir), nil
+	}
+	s := s3store.New(s3store.Config{
+		Endpoint:     cfg.S3Endpoint,
+		Region:       cfg.S3Region,
+		Bucket:       cfg.S3Bucket,
+		AccessKey:    cfg.S3AccessKey,
+		SecretKey:    cfg.S3SecretKey,
+		UsePathStyle: cfg.S3PathStyle,
+	})
+	if err := s.EnsureBucket(ctx); err != nil {
+		return nil, fmt.Errorf("ensure bucket: %w", err)
+	}
+	return s, nil
 }

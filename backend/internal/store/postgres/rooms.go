@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -93,4 +94,17 @@ func EnsureTemplate(ctx context.Context, pool *pgxpool.Pool, inspectionID string
 		}
 	}
 	return ListRooms(ctx, pool, inspectionID)
+}
+
+// RoomBelongsTo reports whether a room lives inside an inspection.
+func RoomBelongsTo(ctx context.Context, pool *pgxpool.Pool, inspectionID, roomID string) (bool, error) {
+	var one int
+	err := pool.QueryRow(ctx, `SELECT 1 FROM rooms WHERE id=$1 AND inspection_id=$2`, roomID, inspectionID).Scan(&one)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return false, nil
+		}
+		return false, fmt.Errorf("check room: %w", err)
+	}
+	return true, nil
 }

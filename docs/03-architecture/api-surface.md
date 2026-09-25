@@ -17,8 +17,8 @@ Base: `/api/v1`. Auth: magic-link JWT (Bearer). Public: `/v/{code}`.
 ## Rooms & evidence
 
 - `POST /inspections/{id}/rooms` — { key, label }
-- `POST /inspections/{id}/evidences:upload` — multipart, returns { evidence_id, received_at_server }
-- `GET /inspections/{id}/evidences:download-url?evidence_id=` — signed 5min URL
+- `POST /inspections/{id}/evidences` (S3, multipart: file + type + room_id? + captured_at_device?) — 201 { evidence_id, sha256, received_at_server, sequence }
+- `GET /inspections/{id}/evidences/download-url?evidence_id=` — signed 5min URL (S3)
 - `POST /rooms/{id}/findings` — { evidence_id, preset, note? }
 
 Preset enum: `stain | scratch | crack | broken | moisture | hole | other`.

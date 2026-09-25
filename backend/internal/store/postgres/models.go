@@ -45,3 +45,18 @@ type Room struct {
 	Label        string `json:"label"`
 	Sort         int    `json:"sort"`
 }
+
+// Evidence is one sealed file: original bytes + server-side hash + timestamp.
+type Evidence struct {
+	ID                string     `json:"id"`
+	InspectionID      string     `json:"inspection_id"`
+	RoomID            *string    `json:"room_id"`
+	Type              string     `json:"type"`
+	Mime              string     `json:"mime"`
+	Size              int64      `json:"size"`
+	StorageKey        string     `json:"storage_key"`
+	SHA256            string     `json:"sha256"`
+	CapturedAtDevice  *time.Time `json:"captured_at_device"`
+	ReceivedAtServer  time.Time  `json:"received_at_server"`
+	Sequence          int        `json:"sequence"`
+}
