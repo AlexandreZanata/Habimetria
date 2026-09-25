@@ -14,4 +14,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "vault"
-include(":shared", ":composeApp")
+include(":shared", ":composeApp", ":baselineprofile")

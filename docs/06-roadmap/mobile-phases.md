@@ -33,8 +33,14 @@ Backend S1–S7 is done; mobile consumes it. Auth/users/billing stay future.
 
 ## M5 — Perf pass + beta
 
-- Baseline Profiles, R8 audit, size audit, startup trace, 60 fps audit.
-- Closed beta (100 users), crash-free > 99.5%, ANR < 0.5%.
+- Baseline Profiles (`app/baselineprofile`, journey: cold start → Home),
+  R8 audit, size audit, startup trace, 60 fps audit.
+- Done locally: release R8 APK **2.27 MB** (budget 15 MB), native libs are
+  CameraX-only, profile module compiles.
+  (`./gradlew :composeApp:assembleRelease`,
+  `:baselineprofile:assembleAndroidTest`.)
+- Pending a device pass: `generateBaselineProfile`, cold-start measure,
+  closed beta (100 users), crash-free > 99.5%, ANR < 0.5%.
 - DoD: all budgets in `app-performance.md` green on 2 mid-range devices.
 
 ## Explicit non-goals
