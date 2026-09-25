@@ -1,0 +1,35 @@
+# API Surface — MVP REST
+
+Base: `/api/v1`. Auth: magic-link JWT (Bearer). Public: `/v/{code}`.
+
+## Ops (S1, implemented)
+
+- `GET /healthz` — always 200: { status, database, uptime }
+- `GET /readyz` — 200 when DB pings, else 503
+- `GET /api/v1/ping` — pong
+
+## Properties & tenancies
+
+- `POST /properties` — { address, complement? }
+- `POST /properties/{id}/tenancies` — { type: entry }
+- `POST /tenancies/{id}/inspections` — creates DRAFT
+
+## Rooms & evidence
+
+- `POST /inspections/{id}/rooms` — { key, label }
+- `POST /inspections/{id}/evidences:upload` — multipart, returns { evidence_id, received_at_server }
+- `GET /inspections/{id}/evidences:download-url?evidence_id=` — signed 5min URL
+- `POST /rooms/{id}/findings` — { evidence_id, preset, note? }
+
+Preset enum: `stain | scratch | crack | broken | moisture | hole | other`.
+
+## Seal, report, share, verify
+
+- `POST /inspections/{id}:seal` — requires payment proof, returns { manifest_sha256, report_id }
+- `GET /reports/{id}.pdf` — signed URL to PDF
+- `POST /reports/{id}/shares` — { channel: whatsapp|email|link }
+- `GET /v/{code}` — public, no auth: { authentic, sealed_at, evidence_count, report_sha256 }
+
+## Occurrences (V1.1, schema-ready)
+
+- `POST /properties/{id}/occurrences` — { title, body? } + evidence upload reuse.
