@@ -18,9 +18,19 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
+            implementation(libs.okio)
+            implementation(libs.ktor.client.core)
         }
         androidMain.dependencies {
             implementation(libs.activity.compose)
+            implementation(libs.camera.core)
+            implementation(libs.camera.camera2)
+            implementation(libs.camera.lifecycle)
+            implementation(libs.camera.view)
+            implementation(libs.listenablefuture)
+            implementation(libs.lifecycle.process)
+            implementation(libs.lifecycle.compose)
+            implementation(libs.work.runtime)
         }
     }
 }

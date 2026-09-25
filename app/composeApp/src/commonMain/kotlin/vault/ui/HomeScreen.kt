@@ -6,27 +6,65 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
-// Home: property entry point. Capture-first; address inline, no signup.
+// Home: address → property → tenancy → inspection → template.
+// No signup, no login. Errors shown inline, never blocking.
 @Composable
 fun HomeScreen(
-    coverage: Int,
-    onStartRoom: () -> Unit,
+    container: AppContainer,
+    onReady: (inspectionId: String) -> Unit,
 ) {
+    var address by remember { mutableStateOf("") }
+    var busy by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text("Don't pay for what you didn't break.")
-        LinearProgressIndicator(progress = { coverage / 100f }, modifier = Modifier.fillMaxWidth())
-        Text("Coverage: $coverage%")
-        Button(onClick = onStartRoom, modifier = Modifier.fillMaxWidth()) {
-            Text("Photograph kitchen")
+        TextField(
+            value = address,
+            onValueChange = { address = it },
+            label = { Text("Property address") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+        )
+        error?.let { Text("Error: $it") }
+        Button(
+            onClick = {
+                busy = true
+                error = null
+                scope.launch {
+                    try {
+                        val prop = container.api.createProperty(address.trim())
+                        val ten = container.api.createTenancy(prop.id)
+                        val ins = container.api.createInspection(ten.id)
+                        container.api.ensureTemplate(ins.id)
+                        onReady(ins.id)
+                    } catch (e: Exception) {
+                        error = e.message?.take(160)
+                    } finally {
+                        busy = false
+                    }
+                }
+            },
+            enabled = !busy && address.trim().length >= 3,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(if (busy) "Starting…" else "Protect this tenancy")
         }
     }
 }

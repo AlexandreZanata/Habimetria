@@ -12,8 +12,9 @@ Backend S1–S7 is done; mobile consumes it. Auth/users/billing stay future.
 
 ## M2 — Guided capture (core value)
 
-- Camera (CameraX / AVFoundation), room checklist, local queue
-  (Room KMP + DataStore), background upload vs S3 endpoints.
+- Camera (CameraX MINIMIZE_LATENCY / AVFoundation host in M3),
+  room checklist, local queue (atomic JSON via okio; Room if it outgrows),
+  WorkManager background upload vs S3 endpoints.
 - Coverage ring UI fed by `GET /coverage`. Offline-first states.
 - DoD: shutter→preview < 300 ms on mid-range device, airplane-mode
   capture with later auto-sync.

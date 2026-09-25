@@ -9,14 +9,19 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
 import io.ktor.http.ContentType
+import io.ktor.http.HeadersBuilder
+import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import vault.queue.EvidenceRemote
 
 // VaultApi talks to the Go backend. Engine is platform-provided
 // (CIO on Android/JVM, Darwin on iOS) for a light footprint.
-class VaultApi private constructor(baseUrl: String, private val client: HttpClient) {
+class VaultApi private constructor(baseUrl: String, private val client: HttpClient) : EvidenceRemote {
     private val base = baseUrl.trimEnd('/')
 
     constructor(baseUrl: String, engineFactory: HttpClientEngineFactory<*>) :
@@ -39,6 +44,37 @@ class VaultApi private constructor(baseUrl: String, private val client: HttpClie
 
     suspend fun seal(inspectionId: String): SealResult =
         postJson("api/v1/inspections/$inspectionId/seal", "{}")
+
+    suspend fun ensureTemplate(inspectionId: String): List<Room> {
+        val text = client.post("$base/api/v1/inspections/$inspectionId/rooms:ensure-template").bodyAsText()
+        return Json.decodeFromString(text)
+    }
+
+    suspend fun coverage(inspectionId: String): Coverage =
+        getJson("api/v1/inspections/$inspectionId/coverage")
+
+    override suspend fun uploadPhoto(
+        inspectionId: String,
+        roomId: String?,
+        bytes: ByteArray,
+        mime: String,
+    ): Evidence {
+        val text = client.post("$base/api/v1/inspections/$inspectionId/evidences") {
+            setBody(
+                MultiPartFormDataContent(
+                    formData {
+                        append("file", bytes, HeadersBuilder().apply {
+                            append(HttpHeaders.ContentType, mime)
+                            append(HttpHeaders.ContentDisposition, "filename=\"photo.jpg\"")
+                        }.build())
+                        append("type", "photo")
+                        if (roomId != null) append("room_id", roomId)
+                    },
+                ),
+            )
+        }.bodyAsText()
+        return Json.decodeFromString(text)
+    }
 
     private suspend inline fun <reified T> postJson(path: String, body: String): T {
         val text = client.post("$base/$path") {

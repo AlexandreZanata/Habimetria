@@ -17,6 +17,7 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.negotiation)
             implementation(libs.ktor.serialization)
+            implementation(libs.okio)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

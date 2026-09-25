@@ -6,26 +6,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
-// M1 navigation: explicit state, zero navigation deps (lightest option).
+// M2 navigation: Home → Room. Review + seal arrive in M3.
 private sealed interface Route {
     data object Home : Route
-    data class Room(val label: String) : Route
+    data class Room(val inspectionId: String) : Route
 }
 
 @Composable
-fun App() {
+fun App(container: AppContainer) {
     var route: Route by remember { mutableStateOf(Route.Home) }
     VaultTheme {
         when (val r = route) {
-            Route.Home -> HomeScreen(coverage = 0, onStartRoom = { route = Route.Room("Kitchen") })
-            is Route.Room -> RoomScreen(
-                roomLabel = r.label,
-                shotIndex = 1,
-                shotTotal = 4,
-                shotHint = "Photograph the whole room",
-                onShutter = {},
-                onBack = { route = Route.Home },
-            )
+            Route.Home -> HomeScreen(container, onReady = { route = Route.Room(it) })
+            is Route.Room -> RoomScreen(container, r.inspectionId, onBack = { route = Route.Home })
         }
     }
 }

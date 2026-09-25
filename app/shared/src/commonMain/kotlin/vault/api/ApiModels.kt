@@ -59,3 +59,27 @@ data class Report(
     @SerialName("report_sha256") val reportSha256: String? = null,
     @SerialName("pdf_ready") val pdfReady: Boolean = false,
 )
+
+@Serializable
+data class Evidence(
+    val id: String,
+    @SerialName("inspection_id") val inspectionId: String,
+    @SerialName("received_at_server") val receivedAtServer: String,
+    val sequence: Int,
+)
+
+@Serializable
+data class RoomCoverageView(
+    @SerialName("room_id") val roomId: String,
+    val key: String,
+    val label: String,
+    val photos: Int,
+    val percent: Int,
+)
+
+@Serializable
+data class Coverage(
+    @SerialName("inspection_id") val inspectionId: String,
+    @SerialName("total_percent") val totalPercent: Int,
+    val rooms: List<RoomCoverageView>,
+)
