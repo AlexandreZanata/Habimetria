@@ -19,6 +19,8 @@ type stubEvidence struct {
 	upErr  error
 	url    string
 	urlErr error
+	lines  []postgres.EvidenceLine
+	listErr error
 }
 
 func (s stubEvidence) Upload(context.Context, service.UploadInput) (service.UploadResult, error) {
@@ -27,6 +29,10 @@ func (s stubEvidence) Upload(context.Context, service.UploadInput) (service.Uplo
 
 func (s stubEvidence) DownloadURL(context.Context, string, string) (string, time.Time, error) {
 	return s.url, time.Now(), s.urlErr
+}
+
+func (s stubEvidence) List(context.Context, string) ([]postgres.EvidenceLine, error) {
+	return s.lines, s.listErr
 }
 
 func multipartBody(t *testing.T, withFile bool) (*bytes.Buffer, string) {
@@ -109,5 +115,16 @@ func TestEvidenceDownloadNotFound(t *testing.T) {
 	h.DownloadURL(rec, req)
 	if rec.Code != http.StatusNotFound {
 		t.Fatalf("want 404, got %d: %v", rec.Code, errors.New(rec.Body.String()))
+	}
+}
+
+func TestEvidenceListNotFound(t *testing.T) {
+	h := NewEvidenceHandler(stubEvidence{listErr: postgres.ErrNotFound})
+	req := httptest.NewRequest("GET", "/api/v1/inspections/x/evidences", nil)
+	req.SetPathValue("id", "x")
+	rec := httptest.NewRecorder()
+	h.List(rec, req)
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("want 404, got %d", rec.Code)
 	}
 }

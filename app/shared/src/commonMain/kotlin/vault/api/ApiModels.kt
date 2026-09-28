@@ -95,6 +95,19 @@ data class Coverage(
     val rooms: List<RoomCoverageView>,
 )
 
+// EvidenceLine is one sealed manifest line: identity + integrity
+// metadata. Bytes flow through signed download URLs.
+@Serializable
+data class EvidenceLine(
+    val id: String,
+    val sequence: Int,
+    val sha256: String,
+    val mime: String,
+    val size: Long,
+    @SerialName("room_id") val roomId: String? = null,
+    @SerialName("received_at_server") val receivedAtServer: String = "",
+)
+
 @Serializable
 data class Finding(
     val id: String,

@@ -28,6 +28,7 @@ import vault.pdf.DocPhoto
 import vault.pdf.PdfDoc
 import vault.pdf.RoomSection
 import vault.pdf.SealBlock
+import vault.api.groupEvidences
 import vault.queue.QueueStatus
 
 // Pdf: two-pass seal flow. Generates on-device, uploads the final,
@@ -76,20 +77,42 @@ fun PdfScreen(
                 error = null
                 scope.launch {
                     try {
-                        status = "Reading photos…"
+                        status = "Reading sealed photos…"
                         val rooms = container.api.listRooms(inspectionId)
-                        val queue = container.store.load().filter {
-                            it.inspectionId == inspectionId && it.status == QueueStatus.CONFIRMED
+                        val lines = container.api.evidences(inspectionId)
+                        if (lines.isEmpty()) {
+                            error = "No sealed photos — capture and confirm first."
+                            status = "Failed."
+                            return@launch
                         }
-                        val sections = rooms.map { room ->
-                            val photos = queue.filter { it.roomId == room.id }.map { item ->
+                        // Local-first: confirmed queue files by evidence_id,
+                        // else download the sealed original via signed URL.
+                        val localByEvidence = withContext(Dispatchers.Default) {
+                            container.store.load()
+                                .filter { it.inspectionId == inspectionId && it.evidenceId != null }
+                                .associate { it.evidenceId!! to it.filePath }
+                        }
+                        var skipped = 0
+                        val sections = groupEvidences(rooms, lines).map { group ->
+                            val photos = group.lines.mapNotNull { line ->
                                 val bytes = withContext(Dispatchers.Default) {
-                                    FileSystem.SYSTEM.read(item.filePath.toPath()) { readByteArray() }
+                                    readPhotoBytes(localByEvidence[line.id], container, inspectionId, line.id)
                                 }
-                                DocPhoto(bytes, "${room.label} — confirmed")
+                                if (bytes == null) {
+                                    skipped++
+                                    null
+                                } else {
+                                    DocPhoto(bytes, "${group.room.label} — seq ${line.sequence}")
+                                }
                             }
-                            RoomSection(room.label, photos, container.api.listFindings(room.id))
+                            RoomSection(group.room.label, photos, container.api.listFindings(group.room.id))
                         }
+                        if (sections.sumOf { it.photos.size } == 0) {
+                            error = "No photo bytes available ($skipped skipped)."
+                            status = "Failed."
+                            return@launch
+                        }
+                        if (skipped > 0) status = "$skipped photos unavailable, skipped."
                         val doc = PdfDoc(
                             title = "Rental Evidence Report",
                             verifyCode = verifyCode,
@@ -156,4 +179,22 @@ fun PdfScreen(
             Text("Back")
         }
     }
+}
+
+// readPhotoBytes prefers the local confirmed file, else downloads the
+// sealed original through a fresh signed URL. Null when unavailable.
+private suspend fun readPhotoBytes(
+    localPath: String?,
+    container: AppContainer,
+    inspectionId: String,
+    evidenceId: String,
+): ByteArray? = try {
+    if (localPath != null && FileSystem.SYSTEM.exists(localPath.toPath())) {
+        FileSystem.SYSTEM.read(localPath.toPath()) { readByteArray() }
+    } else {
+        val url = container.api.evidenceDownloadUrl(inspectionId, evidenceId)
+        container.api.downloadBytes(url)
+    }
+} catch (_: Exception) {
+    null
 }

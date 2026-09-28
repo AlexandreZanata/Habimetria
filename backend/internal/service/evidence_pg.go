@@ -59,3 +59,12 @@ func (s *EvidenceService) DownloadURL(ctx context.Context, inspectionID, evidenc
 	}
 	return url, time.Now().Add(DownloadTTL), nil
 }
+
+// List returns the evidence set ordered by sequence. The PDF renderer
+// consumes this server-side set, never the phone's local queue.
+func (s *EvidenceService) List(ctx context.Context, inspectionID string) ([]postgres.EvidenceLine, error) {
+	if err := checkUUID(inspectionID, "inspection_id"); err != nil {
+		return nil, err
+	}
+	return postgres.ListEvidences(ctx, s.pool, inspectionID)
+}

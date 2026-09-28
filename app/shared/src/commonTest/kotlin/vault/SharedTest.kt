@@ -81,4 +81,27 @@ class VaultApiTest {
         assertEquals(true, out.signatureValid)
         assertEquals(2, out.evidenceCount)
     }
+
+    @Test
+    fun evidencesParseInSequence() = runTest {
+        val api = mockApi("""[{"id":"e2","sequence":2,"sha256":"bb","mime":"image/jpeg","size":200,"room_id":"r1","received_at_server":"2026-09-25T10:00:00Z"},{"id":"e1","sequence":1,"sha256":"aa","mime":"image/jpeg","size":100,"room_id":null,"received_at_server":"2026-09-25T10:00:00Z"}]""")
+        val lines = api.evidences("i1")
+        assertEquals(2, lines.size)
+        assertEquals("r1", lines[0].roomId)
+    }
+
+    @Test
+    fun groupEvidencesByRoom() {
+        val rooms = listOf(
+            vault.api.Room("r1", "i1", "kitchen", "Kitchen", 1),
+            vault.api.Room("r2", "i1", "living", "Living", 2),
+        )
+        val lines = listOf(
+            vault.api.EvidenceLine("e1", 1, "aa", "image/jpeg", 100, "r1", ""),
+            vault.api.EvidenceLine("e2", 2, "bb", "image/jpeg", 100, null, ""),
+        )
+        val groups = vault.api.groupEvidences(rooms, lines)
+        assertEquals(1, groups[0].lines.size)
+        assertEquals(0, groups[1].lines.size)
+    }
 }

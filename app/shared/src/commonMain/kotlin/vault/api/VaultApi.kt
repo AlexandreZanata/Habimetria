@@ -5,6 +5,7 @@ import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.HttpClientEngineFactory
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -89,6 +90,17 @@ class VaultApi private constructor(baseUrl: String, private val client: HttpClie
 
     suspend fun verify(code: String): VerifyResult =
         getJson("v/$code")
+
+    suspend fun evidences(inspectionId: String): List<EvidenceLine> =
+        getJson("api/v1/inspections/$inspectionId/evidences")
+
+    suspend fun evidenceDownloadUrl(inspectionId: String, evidenceId: String): String {
+        val text = client.get("$base/api/v1/inspections/$inspectionId/evidences/download-url?evidence_id=$evidenceId").bodyAsText()
+        return json.decodeFromString<Map<String, String>>(text)["url"] ?: error("no url")
+    }
+
+    suspend fun downloadBytes(url: String): ByteArray =
+        client.get(url).body()
 
     override suspend fun uploadPhoto(
         inspectionId: String,

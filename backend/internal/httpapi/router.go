@@ -46,6 +46,7 @@ func NewRouter(d Deps) *http.ServeMux {
 
 	eh := NewEvidenceHandler(d.Evidence)
 	mux.HandleFunc("POST /api/v1/inspections/{id}/evidences", eh.Upload)
+	mux.HandleFunc("GET /api/v1/inspections/{id}/evidences", eh.List)
 	mux.HandleFunc("GET /api/v1/inspections/{id}/evidences/download-url", eh.DownloadURL)
 
 	fh := NewFindingHandler(d.Finding)

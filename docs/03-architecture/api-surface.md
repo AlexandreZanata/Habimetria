@@ -20,6 +20,7 @@ Base: `/api/v1`. Auth: magic-link JWT (Bearer). Public: `/v/{code}`.
 - `POST /inspections/{id}/rooms:ensure-template` — default 5 rooms, idempotent
 - `GET /inspections/{id}/rooms` — ordered list
 - `POST /inspections/{id}/evidences` (S3, multipart: file + type + room_id? + captured_at_device? + latitude? + longitude?) — 201 { evidence_id, sha256, received_at_server, sequence }
+- `GET /inspections/{id}/evidences` — sealed set ordered by sequence (PDF source)
 - `GET /inspections/{id}/evidences/download-url?evidence_id=` — signed 5min URL (S3)
 - `POST /rooms/{id}/findings` (S4) — { evidence_id, preset, note? }
 - `GET /rooms/{id}/findings` (S4) — list

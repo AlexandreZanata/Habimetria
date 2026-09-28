@@ -18,7 +18,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import vault.queue.QueueItem
@@ -43,8 +45,8 @@ fun RoomScreen(
     var error by remember { mutableStateOf<String?>(null) }
 
     fun refresh() {
-        queue = container.store.load()
         scope.launch {
+            queue = withContext(Dispatchers.Default) { container.store.load() }
             try {
                 coverage = container.api.coverage(inspectionId)
             } catch (_: Exception) { /* offline: keep last */ }
@@ -76,18 +78,22 @@ fun RoomScreen(
                         } else {
                             val name = "cap-${mine.size + 1}-${roomId.take(4)}.jpg"
                             val path = "${container.filesDir}/photos/$name"
-                            FileSystem.SYSTEM.createDirectories("${container.filesDir}/photos".toPath())
-                            FileSystem.SYSTEM.write(path.toPath()) { write(shot.bytes) }
-                            container.store.enqueue(
-                                QueueItem(
-                                    localId = name,
-                                    inspectionId = inspectionId,
-                                    roomId = roomId,
-                                    roomKey = roomLabel,
-                                    filePath = path,
-                                    mime = shot.mime,
-                                ),
-                            )
+                            withContext(Dispatchers.Default) {
+                                FileSystem.SYSTEM.createDirectories("${container.filesDir}/photos".toPath())
+                                FileSystem.SYSTEM.write(path.toPath()) { write(shot.bytes) }
+                            }
+                            withContext(Dispatchers.Default) {
+                                container.store.enqueue(
+                                    QueueItem(
+                                        localId = name,
+                                        inspectionId = inspectionId,
+                                        roomId = roomId,
+                                        roomKey = roomLabel,
+                                        filePath = path,
+                                        mime = shot.mime,
+                                    ),
+                                )
+                            }
                             container.onQueued()
                         }
                     } catch (e: Exception) {
