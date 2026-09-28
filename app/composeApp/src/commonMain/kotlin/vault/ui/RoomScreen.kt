@@ -36,7 +36,7 @@ fun RoomScreen(
 ) {
     val scope = rememberCoroutineScope()
     var queue by remember { mutableStateOf(container.store.load()) }
-    var coverage by remember { mutableStateOf(0) }
+    var coverage by remember { mutableStateOf<vault.api.Coverage?>(null) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
 
@@ -44,7 +44,7 @@ fun RoomScreen(
         queue = container.store.load()
         scope.launch {
             try {
-                coverage = container.api.coverage(inspectionId).totalPercent
+                coverage = container.api.coverage(inspectionId)
             } catch (_: Exception) { /* offline: keep last */ }
         }
     }
@@ -103,8 +103,12 @@ fun RoomScreen(
         }
         error?.let { Text("Error: $it") }
         Text("✓ $confirmed confirmed · ↑ $sending sending · ! $failed waiting")
-        LinearProgressIndicator(progress = { coverage / 100f }, modifier = Modifier.fillMaxWidth())
-        Text("Coverage: $coverage%")
+        val total = coverage?.totalPercent ?: 0
+        LinearProgressIndicator(progress = { total / 100f }, modifier = Modifier.fillMaxWidth())
+        Text("Coverage: $total%")
+        coverage?.rooms?.forEach { room ->
+            Text("${room.label}: ${room.percent}% (${room.photos} photos)")
+        }
         Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
             Text("Back")
         }
