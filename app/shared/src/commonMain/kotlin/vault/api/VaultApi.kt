@@ -23,6 +23,7 @@ import vault.queue.EvidenceRemote
 // (CIO on Android/JVM, Darwin on iOS) for a light footprint.
 class VaultApi private constructor(baseUrl: String, private val client: HttpClient) : EvidenceRemote {
     private var base = baseUrl.trimEnd('/')
+    private val json = Json { ignoreUnknownKeys = true }
 
     // retarget switches server at runtime (dev: emulator vs LAN device).
     fun retarget(baseUrl: String) {
@@ -52,7 +53,7 @@ class VaultApi private constructor(baseUrl: String, private val client: HttpClie
 
     suspend fun ensureTemplate(inspectionId: String): List<Room> {
         val text = client.post("$base/api/v1/inspections/$inspectionId/rooms:ensure-template").bodyAsText()
-        return Json.decodeFromString(text)
+        return json.decodeFromString(text)
     }
 
     suspend fun coverage(inspectionId: String): Coverage =
@@ -61,7 +62,7 @@ class VaultApi private constructor(baseUrl: String, private val client: HttpClie
     suspend fun createFinding(roomId: String, evidenceId: String, preset: String, note: String?): Finding =
         postJson(
             "api/v1/rooms/$roomId/findings",
-            Json.encodeToString(FindingBody(evidenceId, preset, note?.takeIf { it.isNotBlank() })),
+            json.encodeToString(FindingBody(evidenceId, preset, note?.takeIf { it.isNotBlank() })),
         )
 
     suspend fun listFindings(roomId: String): List<Finding> =
@@ -83,7 +84,7 @@ class VaultApi private constructor(baseUrl: String, private val client: HttpClie
                 ),
             )
         }.bodyAsText()
-        return Json.decodeFromString(text)
+        return json.decodeFromString(text)
     }
 
     suspend fun verify(code: String): VerifyResult =
@@ -109,7 +110,7 @@ class VaultApi private constructor(baseUrl: String, private val client: HttpClie
                 ),
             )
         }.bodyAsText()
-        return Json.decodeFromString(text)
+        return json.decodeFromString(text)
     }
 
     private suspend inline fun <reified T> postJson(path: String, body: String): T {
@@ -117,12 +118,12 @@ class VaultApi private constructor(baseUrl: String, private val client: HttpClie
             contentType(ContentType.Application.Json)
             if (body.isNotEmpty()) setBody(body)
         }.bodyAsText()
-        return Json.decodeFromString(text)
+        return json.decodeFromString(text)
     }
 
     private suspend inline fun <reified T> getJson(path: String): T {
         val text = client.get("$base/$path").bodyAsText()
-        return Json.decodeFromString(text)
+        return json.decodeFromString(text)
     }
 }
 

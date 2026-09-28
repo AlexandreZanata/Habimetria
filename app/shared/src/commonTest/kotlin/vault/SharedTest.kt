@@ -39,6 +39,12 @@ class VaultApiTest {
     }
 
     @Test
+    fun tenancyWithCreatedAtParses() = runTest {
+        val api = mockApi("""{"id":"t1","property_id":"p1","type":"entry","created_at":"2026-09-25T10:00:00Z"}""")
+        assertEquals("t1", api.createTenancy("p1").id)
+    }
+
+    @Test
     fun sealParsesVerifyCode() = runTest {
         val api = mockApi("""{"inspection_id":"i1","status":"SEALED","manifest_sha256":"m","signature":"s","report_id":"r","verify_code":"ABC123","evidence_count":2}""")
         assertEquals("ABC123", api.seal("i1").verifyCode)

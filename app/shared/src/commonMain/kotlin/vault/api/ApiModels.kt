@@ -15,6 +15,7 @@ data class Tenancy(
     val id: String,
     @SerialName("property_id") val propertyId: String,
     val type: String,
+    @SerialName("created_at") val createdAt: String = "",
 )
 
 @Serializable
@@ -23,6 +24,7 @@ data class Inspection(
     @SerialName("tenancy_id") val tenancyId: String,
     val kind: String,
     val status: String,
+    @SerialName("created_at") val createdAt: String = "",
 )
 
 @Serializable
@@ -70,6 +72,11 @@ data class Evidence(
     @SerialName("inspection_id") val inspectionId: String,
     @SerialName("received_at_server") val receivedAtServer: String,
     val sequence: Int,
+    @SerialName("room_id") val roomId: String? = null,
+    val type: String = "",
+    val mime: String = "",
+    val size: Long = 0,
+    val sha256: String = "",
 )
 
 @Serializable
