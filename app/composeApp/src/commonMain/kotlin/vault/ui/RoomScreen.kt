@@ -32,6 +32,8 @@ fun RoomScreen(
     inspectionId: String,
     roomId: String,
     roomLabel: String,
+    onOpenRoom: (roomId: String, label: String) -> Unit,
+    onReview: () -> Unit,
     onBack: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -108,6 +110,23 @@ fun RoomScreen(
         Text("Coverage: $total%")
         coverage?.rooms?.forEach { room ->
             Text("${room.label}: ${room.percent}% (${room.photos} photos)")
+        }
+        // Primary action: next room in template order, Review on the last.
+        // Coverage rooms come ordered by sort from the backend.
+        val order = coverage?.rooms ?: emptyList()
+        val nextIdx = order.indexOfFirst { it.roomId == roomId } + 1
+        if (nextIdx in order.indices) {
+            val next = order[nextIdx]
+            Button(
+                onClick = { onOpenRoom(next.roomId, next.label) },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Next: ${next.label} →")
+            }
+        } else if (order.isNotEmpty()) {
+            Button(onClick = onReview, modifier = Modifier.fillMaxWidth()) {
+                Text("Review and seal →")
+            }
         }
         Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
             Text("Back")

@@ -34,6 +34,8 @@ fun App(container: AppContainer) {
                 inspectionId = r.inspectionId,
                 roomId = r.roomId,
                 roomLabel = r.label,
+                onOpenRoom = { nextId, nextLabel -> route = Route.Room(r.inspectionId, nextId, nextLabel) },
+                onReview = { route = Route.Review(r.inspectionId) },
                 onBack = { route = Route.Rooms(r.inspectionId) },
             )
             is Route.Review -> ReviewScreen(
