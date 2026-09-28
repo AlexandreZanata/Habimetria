@@ -12,11 +12,12 @@ import vault.api.appFilesDir
 import vault.pdf.AndroidPlatformPdf
 import vault.ui.AndroidPhotoCapture
 import vault.ui.App
+import vault.ui.ServerConfig
 import vault.ui.UploadWorker
 import vault.ui.createContainer
 
 class MainActivity : ComponentActivity() {
-    private val baseUrl = "http://10.0.2.2:8080" // host backend from emulator
+    private val baseUrl = ServerConfig.DEFAULT_BASE_URL
 
     private val permission = registerForActivityResult(
         ActivityResultContracts.RequestPermission(),

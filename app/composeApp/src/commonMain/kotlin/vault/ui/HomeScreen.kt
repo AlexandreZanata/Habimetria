@@ -18,14 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
-// Home: server + address → property → tenancy → inspection → template.
-// No signup, no login. Errors shown inline, never blocking.
+// Home: address → property → tenancy → inspection → template.
+// Direct entry, no server step, no signup, no login.
 @Composable
 fun HomeScreen(
     container: AppContainer,
     onReady: (inspectionId: String) -> Unit,
 ) {
-    var server by remember { mutableStateOf("http://10.0.2.2:8080") }
     var address by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -36,13 +35,6 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text("Don't pay for what you didn't break.")
-        TextField(
-            value = server,
-            onValueChange = { server = it },
-            label = { Text("Server (emulator: 10.0.2.2, device: LAN IP)") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-        )
         TextField(
             value = address,
             onValueChange = { address = it },
@@ -57,7 +49,6 @@ fun HomeScreen(
                 error = null
                 scope.launch {
                     try {
-                        container.api.retarget(server.trim())
                         val prop = container.api.createProperty(address.trim())
                         val ten = container.api.createTenancy(prop.id)
                         val ins = container.api.createInspection(ten.id)
