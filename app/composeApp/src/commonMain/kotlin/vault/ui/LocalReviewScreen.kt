@@ -43,6 +43,7 @@ fun LocalReviewScreen(
     session: LocalSession,
     inspectionId: String,
     onSeal: () -> Unit,
+    onCompare: () -> Unit,
     onBack: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -52,10 +53,12 @@ fun LocalReviewScreen(
     var percents by remember { mutableStateOf(mapOf<String, Int>()) }
     var sheetFor by remember { mutableStateOf<LocalEvidence?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
+    var kind by remember { mutableStateOf("entry") }
 
     fun refresh() {
         scope.launch {
             try {
+                kind = session.repository.getInspection(inspectionId)?.kind ?: "entry"
                 val roomList = session.repository.roomsFor(inspectionId)
                 rooms = roomList
                 evidences = session.repository.evidencesFor(inspectionId)
@@ -93,6 +96,9 @@ fun LocalReviewScreen(
             }
         }
         VaultButton(text = "${Strings.sealNow} →", onClick = onSeal)
+        if (kind == "exit") {
+            VaultButton(text = "${Strings.compareTitle} →", onClick = onCompare)
+        }
         VaultButton(text = Strings.back, onClick = onBack)
     }
 
