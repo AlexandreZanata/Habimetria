@@ -5,8 +5,8 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 
-// Schema v7 (v6 + room source links for exit pairing). Schema JSON
-// exports to shared/schemas; every bump ships an explicit Migration.
+// Schema v8 (v7 + entry/exit comparisons). Schema JSON exports to
+// shared/schemas; every bump ships an explicit Migration.
 @Database(
     entities = [
         LocalProperty::class,
@@ -20,8 +20,9 @@ import androidx.room.RoomDatabaseConstructor
         TrustedIssuer::class,
         LocalOccurrence::class,
         OccurrenceAttachment::class,
+        Comparison::class,
     ],
-    version = 7,
+    version = 8,
 )
 @ConstructedBy(VaultDatabaseConstructor::class)
 abstract class VaultDatabase : RoomDatabase() {
@@ -36,6 +37,7 @@ abstract class VaultDatabase : RoomDatabase() {
     abstract fun trustDao(): TrustDao
     abstract fun occurrenceDao(): OccurrenceDao
     abstract fun occurrenceAttachmentDao(): OccurrenceAttachmentDao
+    abstract fun comparisonDao(): ComparisonDao
 }
 
 @Suppress("KotlinNoActualForExpect")

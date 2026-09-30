@@ -140,6 +140,18 @@ interface OccurrenceAttachmentDao {
 }
 
 @Dao
+interface ComparisonDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(comparison: Comparison)
+
+    @Query("SELECT * FROM comparisons WHERE exitRoomId = :exitRoomId AND shotCategory = :shotCategory")
+    suspend fun get(exitRoomId: String, shotCategory: String): Comparison?
+
+    @Query("SELECT * FROM comparisons WHERE tenancyId = :tenancyId")
+    suspend fun listForTenancy(tenancyId: String): List<Comparison>
+}
+
+@Dao
 interface TrustDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(issuer: TrustedIssuer)

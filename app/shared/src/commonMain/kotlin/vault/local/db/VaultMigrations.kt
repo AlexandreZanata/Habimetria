@@ -81,6 +81,24 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
     }
 }
 
+// v7 → v8: entry/exit comparisons. Tags are user-confirmed state;
+// no backfill, nothing inferred.
+val MIGRATION_7_8 = object : Migration(7, 8) {
+    override fun migrate(connection: SQLiteConnection) {
+        connection.execSQL(
+            "CREATE TABLE IF NOT EXISTS `comparisons` (`id` TEXT NOT NULL, " +
+                "`tenancyId` TEXT NOT NULL, `entryRoomId` TEXT NOT NULL, " +
+                "`exitRoomId` TEXT NOT NULL, `shotCategory` TEXT NOT NULL, " +
+                "`entryEvidenceId` TEXT, `exitEvidenceId` TEXT, `tag` TEXT NOT NULL, " +
+                "`createdAtDevice` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        )
+        connection.execSQL(
+            "CREATE UNIQUE INDEX IF NOT EXISTS `index_comparisons_exitRoomId_shotCategory` " +
+                "ON `comparisons` (`exitRoomId`, `shotCategory`)",
+        )
+    }
+}
+
 // v5 → v6: occurrences timeline per property. No backfill; new rows
 // only. Sealed inspections are untouched by definition.
 val MIGRATION_5_6 = object : Migration(5, 6) {

@@ -218,6 +218,26 @@ data class OccurrenceAttachment(
     val note: String?,
 )
 
+// Entry-vs-exit tags per room position. The pair references the latest
+// photo of each side at tagging time; retakes don't rewrite history,
+// they just become the new latest for the next tag.
+@Entity(
+    tableName = "comparisons",
+    indices = [Index(value = ["exitRoomId", "shotCategory"], unique = true)],
+)
+data class Comparison(
+    @PrimaryKey val id: String,
+    val tenancyId: String,
+    val entryRoomId: String,
+    val exitRoomId: String,
+    val shotCategory: String,
+    val entryEvidenceId: String?,
+    val exitEvidenceId: String?,
+    // no_change | changed | wear. Never liability, only visual state.
+    val tag: String,
+    val createdAtDevice: String,
+)
+
 // Trust roots the user explicitly accepted: pinned fingerprints or
 // publisher-certified installers. Unknown by default; nothing here is
 // ever provisioned silently by imported content.
