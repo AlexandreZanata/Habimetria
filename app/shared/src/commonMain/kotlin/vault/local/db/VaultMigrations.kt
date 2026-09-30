@@ -122,6 +122,30 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
     }
 }
 
+// v9 → v10: V1.5 visual diffs. The list starts empty; nothing is
+// inferred by migration. Unique (exit room, category) keeps repeated
+// diff runs idempotent.
+val MIGRATION_9_10 = object : Migration(9, 10) {
+    override fun migrate(connection: SQLiteConnection) {
+        connection.execSQL(
+            "CREATE TABLE IF NOT EXISTS `visual_diffs` (`id` TEXT NOT NULL, " +
+                "`tenancyId` TEXT NOT NULL, `exitInspectionId` TEXT NOT NULL, " +
+                "`entryRoomId` TEXT NOT NULL, `exitRoomId` TEXT NOT NULL, " +
+                "`shotCategory` TEXT NOT NULL, `entryEvidenceId` TEXT NOT NULL, " +
+                "`exitEvidenceId` TEXT NOT NULL, `signals` TEXT NOT NULL, " +
+                "`status` TEXT NOT NULL, `createdAtDevice` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        )
+        connection.execSQL(
+            "CREATE INDEX IF NOT EXISTS `index_visual_diffs_exitInspectionId` " +
+                "ON `visual_diffs` (`exitInspectionId`)",
+        )
+        connection.execSQL(
+            "CREATE UNIQUE INDEX IF NOT EXISTS `index_visual_diffs_exitRoomId_shotCategory` " +
+                "ON `visual_diffs` (`exitRoomId`, `shotCategory`)",
+        )
+    }
+}
+
 // v5 → v6: occurrences timeline per property. No backfill; new rows
 // only. Sealed inspections are untouched by definition.
 val MIGRATION_5_6 = object : Migration(5, 6) {

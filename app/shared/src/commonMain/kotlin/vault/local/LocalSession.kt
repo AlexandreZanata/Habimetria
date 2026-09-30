@@ -60,6 +60,7 @@ class LocalSession(
     val occurrences = LocalOccurrenceRepository(db)
     val compare = CompareRepository(db)
     val inspector = AiInspectorRepository(db)
+    val diff = VisualDiffRepository(db)
 
     val uploadsAllowed: Boolean get() = uploadsEnabled(syncMode)
 
