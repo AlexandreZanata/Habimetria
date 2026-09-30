@@ -106,6 +106,15 @@ class ReportGenerator(
     suspend fun manifestFor(inspectionId: String) =
         db.manifestDao().getByInspection(inspectionId)
 
+    suspend fun reportById(reportId: String) = db.reportDao().get(reportId)
+
+    suspend fun exportPackage(reportId: String): String {
+        val report = db.reportDao().get(reportId)
+            ?: throw LocalValidationException("report not found")
+        val exporter = PackageExporter(db, filesDir, originals, signer, fs)
+        return exporter.export(report.id)
+    }
+
     // Finalizes in architecture order: render snapshot → save bytes →
     // hash → sign detached receipt → commit. Cancellation and missing
     // originals fail the job without touching SEALED.

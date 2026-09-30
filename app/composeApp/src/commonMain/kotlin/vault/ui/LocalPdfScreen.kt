@@ -31,6 +31,7 @@ fun LocalPdfScreen(
     renderer: PlanRenderer,
     inspectionId: String,
     onSharePdf: (path: String) -> Unit,
+    onVerify: () -> Unit,
     onBack: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -128,6 +129,11 @@ fun LocalPdfScreen(
             text = Strings.sharePdf,
             onClick = { current?.let { onSharePdf(generator.pdfPath(it.id)) } },
             enabled = !busy && current?.pdfSha256 != null,
+        )
+        VaultButton(
+            text = Strings.verifyTitle,
+            onClick = onVerify,
+            enabled = !busy,
         )
         VaultButton(
             text = Strings.pdfVerify,

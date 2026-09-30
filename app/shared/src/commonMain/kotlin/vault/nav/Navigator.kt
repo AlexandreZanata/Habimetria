@@ -14,6 +14,7 @@ sealed interface Route {
     data class Seal(val inspectionId: String) : Route
     data class Pdf(val inspectionId: String, val reportId: String, val verifyCode: String) : Route
     data class LocalPdf(val inspectionId: String) : Route
+    data class LocalVerify(val inspectionId: String) : Route
 }
 
 class VaultNavigator(initial: Route = Route.Home) {

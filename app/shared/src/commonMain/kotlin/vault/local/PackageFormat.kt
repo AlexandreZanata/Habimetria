@@ -8,6 +8,21 @@ import okio.FileSystem
 import okio.Path.Companion.toPath
 import vault.local.db.VaultDatabase
 
+// QR reference: identity triple for lookup and local import. Scanning
+// it never certifies bytes or photos; only package verification does.
+data class QrRef(val reportId: String, val manifestSha256: String)
+
+fun parseQrIdentity(raw: String): QrRef? {
+    val trimmed = raw.trim()
+    val prefix = "vault-report/v1/"
+    if (!trimmed.startsWith(prefix)) return null
+    val rest = trimmed.removePrefix(prefix).split("/")
+    if (rest.size != 2 || rest[0].isBlank()) return null
+    val manifest = rest[1]
+    if (manifest.length != 64 || manifest.any { it !in '0'..'9' && it !in 'a'..'f' }) return null
+    return QrRef(rest[0], manifest)
+}
+
 // Offline evidence package (directory). The published format both the app
 // and the independent verifier implement:
 //

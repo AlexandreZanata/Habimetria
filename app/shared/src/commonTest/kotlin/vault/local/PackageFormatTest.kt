@@ -117,6 +117,19 @@ class PackageFormatTest {
     }
 }
 
+class QrIdentityTest {
+
+    @Test
+    fun parsesCanonicalShapeOnly() {
+        val sha = "a".repeat(64)
+        assertEquals(QrRef("rep1", sha), parseQrIdentity("vault-report/v1/rep1/$sha"))
+        assertEquals(null, parseQrIdentity("vault-report/v1/rep1/short"))
+        assertEquals(null, parseQrIdentity("https://example.com/v/rep1"))
+        assertEquals(null, parseQrIdentity("vault-report/v1//" + sha))
+        assertEquals(null, parseQrIdentity(""))
+    }
+}
+
 // Fixture dump for the independent Go verifier: run jvmTest with
 // -Dvault.fixture.dir=<target> to copy a real exported package there.
 // JVM-only API in a JVM-run test (native test compilations don't run).
