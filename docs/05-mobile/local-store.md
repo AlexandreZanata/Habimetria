@@ -50,6 +50,22 @@ Normative for the on-device core. Code: `vault.local.db` in `:shared`.
 - Per-screen `LocalSession` injection completes with the L2/L3 rewiring;
   `AppContainer` already carries `syncMode` and the optional session.
 
+## Capture claims and derivatives (L4)
+
+- Schema v2 adds shutter-time details to `evidences`: `fixAgeMs`,
+  `provider`, `accuracyLevel`, `isMocked`, plus a separate EXIF claim
+  (`exifLatitude`, `exifLongitude`). Migration v1→v2 is pure ADD COLUMN;
+  `MigrationTest` replays a real v1 file through it.
+- `LocationTracker` (shared interface; LocationManager on Android,
+  Core Location on iOS) reads only the cached fix — capture never waits
+  for GPS. Statuses: precise, approximate, denied, unavailable.
+  Fixes older than 30 s stay labeled stale; absent stays absent.
+- EXIF GPS is parsed from JPEG bytes in shared code (`ExifClaim`) and
+  never overwrites the fix; gaps over 100 m surface in review.
+- Derivatives (`derivatives/<id>_thumb.jpg`, `<id>_preview.jpg`) are
+  produced at capture from the original, which is never recompressed
+  or rotated by the process. Grids decode thumbs with original fallback.
+
 ## Verification
 
 - `LocalDatabaseTest` reopens a file-backed DB (force-stop analogue)

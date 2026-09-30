@@ -37,11 +37,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import vault.local.LocalSession
+import vault.local.LocationClaim
 import vault.local.STATUS_DRAFT
 import vault.local.ShotCategory
 import vault.local.db.LocalEvidence
 import vault.local.newLocalId
 import vault.local.parseNaCategories
+import vault.local.platformLocationTracker
+import vault.local.readExifGps
 import vault.nav.useSideBySide
 import vault.nav.windowClassFor
 import vault.rooms.RoomCoverage
@@ -68,6 +71,8 @@ fun LocalRoomScreen(
     onBack: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
+    val tracker = remember { platformLocationTracker() }
+    var lastClaim by remember { mutableStateOf<LocationClaim?>(null) }
     var evidences by remember { mutableStateOf<List<LocalEvidence>>(emptyList()) }
     var coverage by remember { mutableStateOf<RoomCoverage?>(null) }
     var na by remember { mutableStateOf(setOf<ShotCategory>()) }
@@ -108,6 +113,10 @@ fun LocalRoomScreen(
                     is CaptureResult.Photo -> result
                 }
                 val evidenceId = newLocalId("ev")
+                // Location reads the cached fix and returns immediately:
+                // the photo never waits for GPS.
+                val claim = tracker.lastClaim().also { lastClaim = it }
+                val exif = withContext(Dispatchers.Default) { readExifGps(shot.bytes) }
                 val stored = withContext(Dispatchers.Default) {
                     session.originals.storeOriginal(evidenceId, shot.bytes)
                 }
@@ -121,7 +130,17 @@ fun LocalRoomScreen(
                         sha256 = stored.sha256,
                         shotCategory = selected,
                         evidenceId = evidenceId,
+                        location = claim,
+                        exif = exif,
                     )
+                }
+                // Best-effort: a codec failure here never loses the photo;
+                // views fall back to the original and retry lazily.
+                withContext(Dispatchers.Default) {
+                    try {
+                        session.derivatives.ensureDerivatives(evidenceId, shot.bytes)
+                    } catch (_: Exception) {
+                    }
                 }
             } catch (e: Exception) {
                 error = e.message?.take(160)
@@ -160,7 +179,7 @@ fun LocalRoomScreen(
                 ) {
                     LocalRoomControls(
                         session, evidences, coverage, na, selected,
-                        { selected = it }, busy, error, ::toggleNa, ::capture, onReview, onBack,
+                        { selected = it }, busy, error, lastClaim, ::toggleNa, ::capture, onReview, onBack,
                     )
                 }
             }
@@ -173,7 +192,7 @@ fun LocalRoomScreen(
                 )
                 LocalRoomControls(
                     session, evidences, coverage, na, selected,
-                    { selected = it }, busy, error, ::toggleNa, ::capture, onReview, onBack,
+                    { selected = it }, busy, error, lastClaim, ::toggleNa, ::capture, onReview, onBack,
                 )
             }
         }
@@ -190,6 +209,7 @@ private fun ColumnScope.LocalRoomControls(
     onSelect: (ShotCategory) -> Unit,
     busy: Boolean,
     error: String?,
+    lastClaim: LocationClaim?,
     onToggleNa: (ShotCategory) -> Unit,
     onCapture: () -> Unit,
     onReview: () -> Unit,
@@ -214,6 +234,14 @@ private fun ColumnScope.LocalRoomControls(
         enabled = !busy,
     )
     ErrorText(error)
+    lastClaim?.let { claim ->
+        Text(
+            "${Strings.locationLabel}: " + claimSummary(
+                claim.status.name, claim.accuracyM, claim.fixAgeMs, claim.isMocked,
+            ),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+    }
     val percent = coverage?.percent() ?: 0
     LinearProgressIndicator(progress = { percent / 100f }, modifier = Modifier.fillMaxWidth())
     Text("${Strings.coverage}: $percent%")
@@ -237,7 +265,10 @@ private fun ColumnScope.LocalRoomControls(
     Text("${Strings.evidenceList} (${evidences.size})")
     evidences.forEach { evidence ->
         val thumb = remember(evidence.id) {
-            runCatching { decodeThumbnail(session.originals.originalPath(evidence.id)) }.getOrNull()
+            val path = session.derivatives.ensureForDisplay(
+                evidence.id, session.originals.originalPath(evidence.id),
+            )
+            runCatching { decodeThumbnail(path) }.getOrNull()
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (thumb != null) {

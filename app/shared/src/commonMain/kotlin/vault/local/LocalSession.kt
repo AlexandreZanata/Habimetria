@@ -51,6 +51,7 @@ class LocalSession(
     val repository = LocalVaultRepository(db)
     val coverage = VaultCoverage(db)
     val originals = OriginalStore(fs, filesDir)
+    val derivatives = DerivativeStore(fs, filesDir, platformScaler())
     val navigation = NavigationStore(fs, filesDir)
 
     val uploadsAllowed: Boolean get() = uploadsEnabled(syncMode)
@@ -60,7 +61,7 @@ class LocalSession(
     suspend fun startup(): SessionStartup {
         val queue = CaptureStore(fs, "$filesDir/queue")
         val migration = if (queue.load().isNotEmpty()) {
-            QueueMigration(fs, filesDir).migrate(queue, db, originals)
+            QueueMigration(fs, filesDir).migrate(queue, db, originals, derivatives)
         } else {
             null
         }

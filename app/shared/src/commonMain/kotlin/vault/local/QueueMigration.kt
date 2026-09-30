@@ -39,6 +39,7 @@ class QueueMigration(
         queue: CaptureStore,
         db: VaultDatabase,
         originals: OriginalStore,
+        derivatives: DerivativeStore? = null,
     ): QueueMigrationReport {
         if (alreadyMigrated()) {
             val marker = json.decodeFromString<QueueMigrationMarker>(
@@ -70,6 +71,12 @@ class QueueMigration(
             }
             val evidenceId = newLocalId("ev")
             val stored = originals.storeOriginal(evidenceId, bytes)
+            try {
+                derivatives?.ensureDerivatives(evidenceId, bytes)
+            } catch (_: Exception) {
+                // Thumb failure never loses the photo; views fall back
+                // to the original and retry lazily.
+            }
             repo.recordEvidence(
                 inspectionId = inspection.id,
                 roomId = roomId,

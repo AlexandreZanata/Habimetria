@@ -31,17 +31,23 @@ import vault.ui.createContainer
 class MainActivity : ComponentActivity() {
     private val baseUrl = ServerConfig.DEFAULT_BASE_URL
 
-    private val permission = registerForActivityResult(
-        ActivityResultContracts.RequestPermission(),
-    ) { /* preview shows fallback text when denied */ }
+    // Camera is blocking; location is best-effort (denied still captures).
+    private val permissions = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions(),
+    ) { /* denial surfaces per-photo as explicit status, never a block */ }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         AppContext.app = applicationContext
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            permission.launch(Manifest.permission.CAMERA)
-        }
+        val missing = arrayOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+        ).filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }.toTypedArray()
+        if (missing.isNotEmpty()) permissions.launch(missing)
         val filesDir = appFilesDir()
         val session = openLocalSession(filesDir, SyncMode.LOCAL_ONLY)
         lifecycleScope.launch {

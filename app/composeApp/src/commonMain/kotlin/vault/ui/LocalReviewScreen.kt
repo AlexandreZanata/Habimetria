@@ -26,8 +26,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import vault.findings.FindingPreset
+import vault.local.ExifGps
 import vault.local.LocalSession
 import vault.local.db.LocalEvidence
+import vault.local.distanceMeters
+import vault.local.exifDisagrees
 import vault.local.db.LocalFinding
 import vault.local.db.LocalRoom
 
@@ -113,7 +116,10 @@ private fun LocalEvidenceRow(
     onIssue: () -> Unit,
 ) {
     val thumb = remember(evidence.id) {
-        runCatching { decodeThumbnail(session.originals.originalPath(evidence.id)) }.getOrNull()
+        val path = session.derivatives.ensureForDisplay(
+            evidence.id, session.originals.originalPath(evidence.id),
+        )
+        runCatching { decodeThumbnail(path) }.getOrNull()
     }
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         if (thumb != null) {
@@ -126,9 +132,22 @@ private fun LocalEvidenceRow(
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text("#${evidence.sequence} ${evidence.shotCategory ?: "?"}")
             Text(
-                if (evidence.locationStatus == "unavailable") Strings.noLocation else evidence.locationStatus,
+                claimSummary(
+                    evidence.locationStatus, evidence.accuracyM,
+                    evidence.fixAgeMs, evidence.isMocked,
+                ),
                 style = MaterialTheme.typography.bodyMedium,
             )
+            val fixLat = evidence.latitude
+            val fixLon = evidence.longitude
+            val exifLat = evidence.exifLatitude
+            val exifLon = evidence.exifLongitude
+            if (fixLat != null && fixLon != null && exifLat != null && exifLon != null &&
+                exifDisagrees(fixLat, fixLon, ExifGps(exifLat, exifLon))
+            ) {
+                val gap = distanceMeters(fixLat, fixLon, exifLat, exifLon).toInt()
+                Text("EXIF ⚠ $gap m", style = MaterialTheme.typography.bodyMedium)
+            }
             if (findingCount > 0) Text("$findingCount ${Strings.findingsList.lowercase()}")
         }
         Button(onClick = onIssue) { Text(Strings.reportIssue) }

@@ -22,5 +22,8 @@ side for iOS targets (`compileKotlinIosSimulatorArm64`).
 3. `xcodebuild -scheme iosApp -sdk iphonesimulator build`
    then run simulator/device tests. Record Xcode version,
    iOS version, device and output in the L8 acceptance report.
+4. Add `Info.plist` usage keys (required for capture/location):
+   `NSCameraUsageDescription` and `NSLocationWhenInUseUsageDescription`.
+   Without them the OS denies silently at runtime.
 4. Swift does not compile on Linux; `xcodebuild`/`swift` absent
    here is expected, not a failure.
