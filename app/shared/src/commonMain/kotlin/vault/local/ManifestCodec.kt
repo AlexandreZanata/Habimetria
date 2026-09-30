@@ -12,7 +12,8 @@ import kotlin.math.round
 // explicit sequence ordering and deterministic number formatting.
 // The SHA-256 over these bytes is the snapshot identity; signatures
 // cover exactly these bytes with format version and purpose bound in.
-const val MANIFEST_FORMAT_VERSION = 1
+// v2 binds the inspection kind so entry and exit snapshots differ.
+const val MANIFEST_FORMAT_VERSION = 2
 const val MANIFEST_PURPOSE = "local-seal/v1"
 
 data class ManifestInput(
@@ -97,6 +98,8 @@ fun canonicalManifestJson(input: ManifestInput): String {
     sb.append(MANIFEST_FORMAT_VERSION)
     sb.append(",\"inspectionId\":")
     sb.appendQuoted(input.inspection.id)
+    sb.append(",\"kind\":")
+    sb.appendQuoted(input.inspection.kind)
     sb.append(",\"propertyId\":")
     sb.appendQuoted(input.propertyId)
     sb.append(",\"purpose\":")

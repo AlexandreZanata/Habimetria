@@ -5,8 +5,8 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 
-// Schema v6 (v5 + occurrences). Schema JSON exports to
-// shared/schemas; every version bump ships an explicit Migration.
+// Schema v7 (v6 + room source links for exit pairing). Schema JSON
+// exports to shared/schemas; every bump ships an explicit Migration.
 @Database(
     entities = [
         LocalProperty::class,
@@ -21,7 +21,7 @@ import androidx.room.RoomDatabaseConstructor
         LocalOccurrence::class,
         OccurrenceAttachment::class,
     ],
-    version = 6,
+    version = 7,
 )
 @ConstructedBy(VaultDatabaseConstructor::class)
 abstract class VaultDatabase : RoomDatabase() {

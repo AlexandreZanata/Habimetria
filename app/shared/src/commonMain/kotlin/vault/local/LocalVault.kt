@@ -42,6 +42,43 @@ class LocalVaultRepository(private val db: VaultDatabase) {
         return row
     }
 
+    suspend fun inspectionsForTenancy(tenancyId: String): List<LocalInspection> =
+        db.inspectionDao().listForTenancy(tenancyId)
+
+    suspend fun entryInspectionFor(tenancyId: String): LocalInspection? =
+        db.inspectionDao().listForTenancy(tenancyId).firstOrNull { it.kind == "entry" }
+
+    suspend fun exitInspectionFor(tenancyId: String): LocalInspection? =
+        db.inspectionDao().listForTenancy(tenancyId).firstOrNull { it.kind == "exit" }
+
+    // Exit inspection: allowed only after the entry is sealed, only once
+    // per tenancy. Rooms mirror the entry (labels, order, N/A) with fresh
+    // ids linked for V1.3 pairing; photos repeat per room/position.
+    suspend fun startExitInspection(tenancyId: String): LocalInspection {
+        requireTenancy(tenancyId)
+        val entry = entryInspectionFor(tenancyId)
+            ?: throw LocalValidationException("sealed entry required first")
+        if (entry.status != STATUS_SEALED) {
+            throw LocalValidationException("entry must be sealed first")
+        }
+        if (exitInspectionFor(tenancyId) != null) {
+            throw LocalValidationException("exit already exists")
+        }
+        val exit = LocalInspection(newLocalId("ins"), tenancyId, "exit", STATUS_DRAFT, deviceNowIso(), null)
+        db.inspectionDao().insert(exit)
+        for (source in db.roomDao().listForInspection(entry.id)) {
+            db.roomDao().insert(
+                LocalRoom(
+                    id = newLocalId("room"), inspectionId = exit.id,
+                    roomKey = "room_" + newLocalId("k").substringAfter("_"),
+                    label = source.label, sort = source.sort,
+                    naCategories = source.naCategories, sourceRoomId = source.id,
+                ),
+            )
+        }
+        return exit
+    }
+
     suspend fun addRoom(inspectionId: String, label: String, sortHint: Int? = null): LocalRoom {
         val inspection = requireDraft(inspectionId)
         val clean = validLabel(label)

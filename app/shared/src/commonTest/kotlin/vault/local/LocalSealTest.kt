@@ -60,7 +60,7 @@ class LocalSealTest {
         val outcome = sealer.seal(inspectionId)
         assertIs<SealOutcome.Sealed>(outcome)
         val manifest = outcome.manifest
-        assertEquals(1, manifest.formatVersion)
+        assertEquals(2, manifest.formatVersion)
         assertEquals(signer.keyId, manifest.signerKeyId)
         assertEquals(SEAL_ALGORITHM, manifest.algorithm)
         assertTrue(manifest.canonicalJson.contains("Suíte principal"))

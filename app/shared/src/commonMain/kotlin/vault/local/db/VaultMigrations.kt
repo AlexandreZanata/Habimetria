@@ -73,6 +73,14 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
     }
 }
 
+// v6 → v7: exit pairing link on rooms. Null for every existing row;
+// V1.2 fills it only on newly mirrored exit rooms.
+val MIGRATION_6_7 = object : Migration(6, 7) {
+    override fun migrate(connection: SQLiteConnection) {
+        connection.execSQL("ALTER TABLE rooms ADD COLUMN sourceRoomId TEXT")
+    }
+}
+
 // v5 → v6: occurrences timeline per property. No backfill; new rows
 // only. Sealed inspections are untouched by definition.
 val MIGRATION_5_6 = object : Migration(5, 6) {

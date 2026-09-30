@@ -70,6 +70,9 @@ data class LocalRoom(
     val label: String,
     val sort: Int,
     val naCategories: String,
+    // Exit inspections mirror entry rooms: same labels/positions, new
+    // ids, linked here for V1.3 side-by-side pairing.
+    val sourceRoomId: String? = null,
 )
 
 @Entity(
