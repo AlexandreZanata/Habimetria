@@ -1,6 +1,21 @@
 # Capture Flow — Entry and Exit
 
-## Entry flow (MVP)
+## Local journey (L0 authority)
+
+1. `Start inspection` (no signup, no payment, no network).
+2. Property address (minimal) + Tenancy + Inspection created locally.
+3. Rooms typed manually by the user (for example "Suite principal").
+   Automatic templates are not part of the primary flow.
+4. Per room guided checklist, five categories:
+   overview → walls → openings → floor → ceiling.
+5. `+ Report issue` or `All good`.
+6. Review → coverage % → seal locally → PDF on-device → share via system UI.
+
+Coverage counts distinct applicable categories, never photo count.
+Repeated photos of the same category do not complete the checklist.
+Non-applicable categories are recorded explicitly.
+
+## API-dependent flow (optional integration)
 
 1. `Start inspection` (no signup wall)
 2. Property address (minimal)

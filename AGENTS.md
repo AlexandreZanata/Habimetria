@@ -31,15 +31,23 @@ Types: `feat, fix, docs, chore, db, api, app, infra`.
 - Layout in `docs/04-backend/go-layout.md`. Respect package boundaries:
   `handler -> service -> store`. No DB in handlers. No HTTP in store.
 - Errors: explicit, wrapped with context. Never swallow.
-- Hash + timestamp are server-side only. Never trust device clock.
-- SEALED is terminal. No `SEALED -> DRAFT`. Use addendum/occurrence.
+- Server hash + timestamp are server-side only. Never trust device clock.
+  Local SHA-256 is an integrity measurement; local time is a device claim.
+  Never write local values into `received_at_server` or certified `sealed_at`.
+- SEALED is terminal in every mode. No `SEALED -> DRAFT`. Use addendum/occurrence.
 
 ## 5. Mobile rules (KMP)
 
-- Layout in `docs/05-mobile/kmp-layout.md`.
-- Offline-first: capture → local queue → background upload → server ack → ✓.
-- Never show "saved" before server confirmation. States: `queued | uploading | confirmed | failed`.
+- Layout in `docs/05-mobile/kmp-layout.md`. Local authority in
+  `docs/03-architecture/local_validation_architecture.md`.
+- Local-first: capture → durable storage → review → seal → PDF → share.
+  UI never calls `VaultApi` directly; API sync stays optional.
+- "Salvo neste dispositivo" means local durability only.
+  Server states `queued | uploading | confirmed | failed` mean server sync.
+  Never show server-confirmed before server ack.
+  Never fabricate confirmation offline.
 - Minimal mandatory text. Photo + preset + optional note.
+- Manually named Rooms; coverage from distinct shot categories, not counts.
 
 ## 6. Database rules
 
