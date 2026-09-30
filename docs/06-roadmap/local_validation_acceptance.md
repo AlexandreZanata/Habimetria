@@ -105,11 +105,18 @@ do not claim a target as achieved until measured. Limit peak image memory.
 
 ## Checks and proof artifacts
 
-`make verify` currently covers Go only. L0 adds documented mobile gates:
-shared JVM tests, Android lint/build, UI/device tests, iOS framework/Swift
-build and simulator/device tests on macOS. Mobile checks must not be silently
-skipped. Backend database integration also requires an explicit configured
-PostgreSQL run; an unconfigured passing suite does not prove DB integration.
+`make verify` covers Go only. L0 mobile gates:
+
+- `make verify-mobile` (Linux OK): shared JVM tests, shared Kotlin
+  for iOS compile, Android debug build.
+- `make verify-ios-macos` (macOS/Xcode only): Kotlin framework export
+  plus `xcodebuild` host build. Fails on Linux by design; record it as
+  unverified here, never as passed.
+- `make verify-all`: Go plus Linux-capable mobile checks.
+
+Mobile checks must not be silently skipped. Backend database integration
+also requires an explicit configured PostgreSQL run; an unconfigured
+passing suite does not prove DB integration.
 Run the applicable checks per slice, with full L8 acceptance before beta.
 
 Record a reproducible acceptance report containing commit/build ID,

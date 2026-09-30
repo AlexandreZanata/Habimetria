@@ -1,6 +1,15 @@
-.PHONY: verify up down test vet
+.PHONY: verify verify-mobile verify-ios-macos verify-all up down test vet
 
 verify: vet test
+
+verify-mobile:
+	cd app && ./gradlew :shared:jvmTest :shared:compileKotlinIosSimulatorArm64 :composeApp:assembleDebug
+
+verify-ios-macos:
+	cd app && ./gradlew :shared:linkDebugFrameworkIosSimulatorArm64
+	xcodebuild -scheme iosApp -sdk iphonesimulator build
+
+verify-all: verify verify-mobile
 
 vet:
 	cd backend && go vet ./...
