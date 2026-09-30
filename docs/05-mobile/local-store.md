@@ -1,18 +1,34 @@
-# Local Store — SQLite Schema and Files (L1)
+# Local Store — SQLite Schema and Files (L1/L4/L5)
 
 Normative for the on-device core. Code: `vault.local.db` in `:shared`.
 
 ## Database
 
-- Room KMP, `VaultDatabase`, schema v1, entities:
-  `properties → tenancies → inspections → rooms → evidences → findings`.
+- Room KMP, `VaultDatabase`, schema v3, entities:
+  `properties → tenancies → inspections → rooms → evidences → findings`
+  plus `manifests` (unique per inspection).
 - Schema JSON exports to `app/shared/schemas/` and is committed.
   Version bumps require explicit `Migration` SQL; destructive
   migration is forbidden (photos must survive upgrades).
-- v1 covers the capture core only. Manifest/Report tables arrive
-  with L5 as migration v2.
+- v1 capture core → v2 location/EXIF columns → v3 manifests.
+  Report rows land with L6.
 - Device time and GPS stay device claims. No `received_at_server`,
   no certified `sealed_at` columns exist locally.
+
+## Seal (L5)
+
+- Eligibility shows rooms/evidence/findings, per-room coverage gaps
+  and unreadable originals. Gaps display honestly without blocking;
+  empty inspections and unreadable originals block with reason codes.
+- `LocalSealer` validates originals (hash recompute), freezes the
+  canonical Manifest, signs with the installation key and commits
+  manifest + terminal SEALED in one `@Transaction`. Retries and
+  double taps return the same snapshot (identity = manifest hash).
+- Signatures: ECDSA P-256/SHA-256, raw 64-byte R||S wire format,
+  uncompressed 65-byte public keys, keyId = SHA-256 hex. Keystore /
+  Secure Enclave when present, labeled software keys otherwise.
+- `sealedAtDevice` is a device claim. Post-seal changes use
+  Occurrence/Addendum (later phase), never reopening.
 
 ## Files
 

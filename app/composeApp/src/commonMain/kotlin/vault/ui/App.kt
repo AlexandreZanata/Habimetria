@@ -76,6 +76,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                         container = container,
                         session = local,
                         inspectionId = r.inspectionId,
+                        onSeal = { navigator.navigate(Route.Seal(r.inspectionId)) },
                         onBack = { navigator.goBack() },
                     )
                 } else {
@@ -88,14 +89,23 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                 }
             }
             is Route.Seal -> VaultShell(Strings.sealTitle, true, { navigator.goBack() }) {
-                SealScreen(
-                    container = container,
-                    inspectionId = r.inspectionId,
-                    onPdf = { reportId, code ->
-                        navigator.navigate(Route.Pdf(r.inspectionId, reportId, code))
-                    },
-                    onBack = { navigator.goBack() },
-                )
+                val local = container.local
+                if (local != null) {
+                    LocalSealScreen(
+                        session = local,
+                        inspectionId = r.inspectionId,
+                        onBack = { navigator.goBack() },
+                    )
+                } else {
+                    SealScreen(
+                        container = container,
+                        inspectionId = r.inspectionId,
+                        onPdf = { reportId, code ->
+                            navigator.navigate(Route.Pdf(r.inspectionId, reportId, code))
+                        },
+                        onBack = { navigator.goBack() },
+                    )
+                }
             }
             is Route.Pdf -> VaultShell(Strings.reportPdf, true, { navigator.goBack() }) {
                 PdfScreen(

@@ -42,6 +42,7 @@ fun LocalReviewScreen(
     container: AppContainer,
     session: LocalSession,
     inspectionId: String,
+    onSeal: () -> Unit,
     onBack: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -91,6 +92,7 @@ fun LocalReviewScreen(
                 }
             }
         }
+        VaultButton(text = "${Strings.sealNow} →", onClick = onSeal)
         VaultButton(text = Strings.back, onClick = onBack)
     }
 
