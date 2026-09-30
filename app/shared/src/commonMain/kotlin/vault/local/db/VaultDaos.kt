@@ -99,6 +99,20 @@ interface ManifestDao {
 
     @Query("SELECT * FROM manifests WHERE id = :id")
     suspend fun get(id: String): LocalManifest?
+
+    @Query(
+        "UPDATE inspections SET status = 'SEALED', sealedAtDevice = :sealedAt " +
+            "WHERE id = :inspectionId AND status = 'DRAFT'",
+    )
+    suspend fun markSealed(inspectionId: String, sealedAt: String): Int
+
+    // Atomic freeze: manifest row + terminal SEALED in one transaction.
+    // Returns rows marked; 0 means a concurrent seal won the race.
+    @Transaction
+    suspend fun commitSeal(manifest: LocalManifest, inspectionId: String, sealedAt: String): Int {
+        insert(manifest)
+        return markSealed(inspectionId, sealedAt)
+    }
 }
 
 @Dao
