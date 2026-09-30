@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 
-// Schema v8 (v7 + entry/exit comparisons). Schema JSON exports to
+// Schema v9 (v8 + V1.4 inspector suggestions). Schema JSON exports to
 // shared/schemas; every bump ships an explicit Migration.
 @Database(
     entities = [
@@ -21,8 +21,9 @@ import androidx.room.RoomDatabaseConstructor
         LocalOccurrence::class,
         OccurrenceAttachment::class,
         Comparison::class,
+        AiSuggestion::class,
     ],
-    version = 8,
+    version = 9,
 )
 @ConstructedBy(VaultDatabaseConstructor::class)
 abstract class VaultDatabase : RoomDatabase() {
@@ -38,6 +39,7 @@ abstract class VaultDatabase : RoomDatabase() {
     abstract fun occurrenceDao(): OccurrenceDao
     abstract fun occurrenceAttachmentDao(): OccurrenceAttachmentDao
     abstract fun comparisonDao(): ComparisonDao
+    abstract fun aiSuggestionDao(): AiSuggestionDao
 }
 
 @Suppress("KotlinNoActualForExpect")

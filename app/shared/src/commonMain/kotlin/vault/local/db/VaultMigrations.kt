@@ -99,6 +99,29 @@ val MIGRATION_7_8 = object : Migration(7, 8) {
     }
 }
 
+// v8 → v9: V1.4 inspector suggestions. Hints start empty; nothing is
+// inferred by migration. Unique (room, evidence, kind, detail) keeps
+// repeated inspector runs idempotent.
+val MIGRATION_8_9 = object : Migration(8, 9) {
+    override fun migrate(connection: SQLiteConnection) {
+        connection.execSQL(
+            "CREATE TABLE IF NOT EXISTS `ai_suggestions` (`id` TEXT NOT NULL, " +
+                "`inspectionId` TEXT NOT NULL, `roomId` TEXT NOT NULL, " +
+                "`evidenceId` TEXT NOT NULL, `kind` TEXT NOT NULL, " +
+                "`detail` TEXT NOT NULL, `status` TEXT NOT NULL, " +
+                "`createdAtDevice` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        )
+        connection.execSQL(
+            "CREATE INDEX IF NOT EXISTS `index_ai_suggestions_inspectionId` " +
+                "ON `ai_suggestions` (`inspectionId`)",
+        )
+        connection.execSQL(
+            "CREATE UNIQUE INDEX IF NOT EXISTS `index_ai_suggestions_roomId_evidenceId_kind_detail` " +
+                "ON `ai_suggestions` (`roomId`, `evidenceId`, `kind`, `detail`)",
+        )
+    }
+}
+
 // v5 → v6: occurrences timeline per property. No backfill; new rows
 // only. Sealed inspections are untouched by definition.
 val MIGRATION_5_6 = object : Migration(5, 6) {

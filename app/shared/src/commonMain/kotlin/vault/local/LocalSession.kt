@@ -59,6 +59,7 @@ class LocalSession(
     val trust = TrustStore(db)
     val occurrences = LocalOccurrenceRepository(db)
     val compare = CompareRepository(db)
+    val inspector = AiInspectorRepository(db)
 
     val uploadsAllowed: Boolean get() = uploadsEnabled(syncMode)
 
