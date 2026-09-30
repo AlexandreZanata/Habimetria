@@ -34,6 +34,22 @@ Normative for the on-device core. Code: `vault.local.db` in `:shared`.
 - Existing `queue.json` records migrate into `evidences` without
   discarding photos (L1.3); the old queue file is then retired.
 
+## Session and sync isolation
+
+- `LocalSession` bundles database, repository, coverage, originals,
+  navigation progress and the sync policy. Open via `openLocalSession`;
+  `startup()` migrates any legacy queue then reconciles files vs rows.
+- `SyncMode.LOCAL_ONLY` (default) disables every network worker through
+  the single `uploadsEnabled` gate (`UploadWorker.scheduleIfAllowed`).
+  `WITH_SERVER_SYNC` keeps the optional API integration.
+- UI indicators stay split: `storedLocally` means durable on-device;
+  `SyncIndicator (QUEUED | UPLOADING | CONFIRMED | FAILED)` means server
+  sync only. `LOCAL_ONLY` never shows a server state.
+- `NavigationStore` (`vault/progress.json`, atomic write) restores the
+  last inspection/room after process death, outside domain tables.
+- Per-screen `LocalSession` injection completes with the L2/L3 rewiring;
+  `AppContainer` already carries `syncMode` and the optional session.
+
 ## Verification
 
 - `LocalDatabaseTest` reopens a file-backed DB (force-stop analogue)
