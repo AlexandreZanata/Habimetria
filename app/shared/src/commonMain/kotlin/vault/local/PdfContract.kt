@@ -123,7 +123,27 @@ sealed interface PageItem {
     data class Text(val kind: TextKind, val text: String) : PageItem
     data class Finding(val entry: PdfFindingEntry) : PageItem
     data class HashRow(val label: String, val hex: String) : PageItem
+    // QR identifies Report/Manifest/format for local import. It never
+    // certifies bytes on its own; the detached receipt does that.
+    data class Qr(val content: String) : PageItem
 }
+
+class RenderCancelledException : IllegalStateException("render cancelled")
+
+// Platform drawing port. Photos arrive through loadPhoto (preview bytes
+// preferred, bounded decode inside). Cancellation is cooperative.
+interface PlanRenderer {
+    suspend fun render(
+        pages: List<RenderPage>,
+        loadPhoto: suspend (evidenceId: String) -> ByteArray?,
+        onProgress: (done: Int, total: Int) -> Unit,
+        isCancelled: () -> Boolean,
+    ): ByteArray
+}
+
+// QR payload: identity triple, never a LAN URL, never proof of integrity.
+fun qrContent(reportId: String, manifestSha256: String): String =
+    "vault-report/v1/$reportId/$manifestSha256"
 
 enum class TextKind { TITLE, HEADING, BODY, SMALL }
 
@@ -162,6 +182,13 @@ fun paginateModel(
     current.add(PageItem.Text(TextKind.BODY, "Lacrado (dispositivo): ${model.sealedAtDevice}"))
     current.add(PageItem.Text(TextKind.BODY, "Manifesto ${model.manifestSha256.take(16)}…"))
     current.add(PageItem.Text(TextKind.BODY, "Chave ${model.signerKeyId.take(16)}…"))
+    current.add(PageItem.Qr(qrContent(model.reportId, model.manifestSha256)))
+    current.add(
+        PageItem.Text(
+            TextKind.SMALL,
+            "O QR identifica o relatório. A integridade se verifica no app com o recibo assinado.",
+        ),
+    )
     flush()
     // Rooms.
     for (room in model.rooms) {
@@ -182,7 +209,8 @@ fun paginateModel(
                     PdfRect(PDF_MARGIN_LEFT_PT, cursorY, width, height),
                 ),
             )
-            cursorY += height + 18.0
+            // Image plus single-line caption and claim (drawn by platform).
+            cursorY += height + 30.0
         }
         for (finding in room.findings) current.add(PageItem.Finding(finding))
         if (current.isNotEmpty()) flush()
