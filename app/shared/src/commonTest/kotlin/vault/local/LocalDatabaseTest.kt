@@ -57,6 +57,7 @@ class LocalDatabaseTest {
         assertEquals("Suíte principal", assertNotNull(second.roomDao().get("r1")).label)
         assertEquals(listOf("e1"), second.evidenceDao().listForInspection("i1").map { it.id })
         assertEquals(listOf("f1"), second.findingDao().listForRoom("r1").map { it.id })
+        assertEquals(listOf("f1"), second.findingDao().listForEvidence("e1").map { it.id })
         assertEquals(listOf("i1"), second.inspectionDao().listDrafts().map { it.id })
         assertEquals(1, second.evidenceDao().maxSequence("i1"))
         second.close()

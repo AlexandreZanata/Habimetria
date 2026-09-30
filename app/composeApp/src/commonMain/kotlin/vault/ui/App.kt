@@ -44,25 +44,48 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                 }
             }
             is Route.Room -> VaultShell(r.label, true, { navigator.goBack() }) {
-                RoomScreen(
-                    container = container,
-                    inspectionId = r.inspectionId,
-                    roomId = r.roomId,
-                    roomLabel = r.label,
-                    onOpenRoom = { nextId, nextLabel ->
-                        navigator.navigate(Route.Room(r.inspectionId, nextId, nextLabel))
-                    },
-                    onReview = { navigator.navigate(Route.Review(r.inspectionId)) },
-                    onBack = { navigator.goBack() },
-                )
+                val local = container.local
+                if (local != null) {
+                    LocalRoomScreen(
+                        session = local,
+                        photoCapture = container.photoCapture,
+                        inspectionId = r.inspectionId,
+                        roomId = r.roomId,
+                        roomLabel = r.label,
+                        onReview = { navigator.navigate(Route.Review(r.inspectionId)) },
+                        onBack = { navigator.goBack() },
+                    )
+                } else {
+                    RoomScreen(
+                        container = container,
+                        inspectionId = r.inspectionId,
+                        roomId = r.roomId,
+                        roomLabel = r.label,
+                        onOpenRoom = { nextId, nextLabel ->
+                            navigator.navigate(Route.Room(r.inspectionId, nextId, nextLabel))
+                        },
+                        onReview = { navigator.navigate(Route.Review(r.inspectionId)) },
+                        onBack = { navigator.goBack() },
+                    )
+                }
             }
             is Route.Review -> VaultShell(Strings.review, true, { navigator.goBack() }) {
-                ReviewScreen(
-                    container = container,
-                    inspectionId = r.inspectionId,
-                    onSeal = { navigator.navigate(Route.Seal(r.inspectionId)) },
-                    onBack = { navigator.goBack() },
-                )
+                val local = container.local
+                if (local != null) {
+                    LocalReviewScreen(
+                        container = container,
+                        session = local,
+                        inspectionId = r.inspectionId,
+                        onBack = { navigator.goBack() },
+                    )
+                } else {
+                    ReviewScreen(
+                        container = container,
+                        inspectionId = r.inspectionId,
+                        onSeal = { navigator.navigate(Route.Seal(r.inspectionId)) },
+                        onBack = { navigator.goBack() },
+                    )
+                }
             }
             is Route.Seal -> VaultShell(Strings.sealTitle, true, { navigator.goBack() }) {
                 SealScreen(
