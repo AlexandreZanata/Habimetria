@@ -34,6 +34,7 @@ import vault.local.db.LocalEvidence
 fun LocalCompareScreen(
     session: LocalSession,
     exitInspectionId: String,
+    onDiff: () -> Unit,
     onBack: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -81,6 +82,7 @@ fun LocalCompareScreen(
                 }
             }
         }
+        VaultButton(text = "${Strings.diffTitle} →", onClick = onDiff)
         VaultButton(text = Strings.back, onClick = onBack)
     }
 }

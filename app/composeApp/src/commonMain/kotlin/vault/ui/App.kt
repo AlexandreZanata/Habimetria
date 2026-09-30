@@ -143,6 +143,22 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     LocalCompareScreen(
                         session = local,
                         exitInspectionId = r.exitInspectionId,
+                        onDiff = { navigator.navigate(Route.LocalDiff(r.exitInspectionId)) },
+                        onBack = { navigator.goBack() },
+                    )
+                } else {
+                    ScreenColumn {
+                        ErrorText(Strings.pdfSealFirst)
+                        VaultButton(text = Strings.back, onClick = { navigator.goBack() })
+                    }
+                }
+            }
+            is Route.LocalDiff -> VaultShell(Strings.diffTitle, true, { navigator.goBack() }) {
+                val local = container.local
+                if (local != null) {
+                    LocalDiffScreen(
+                        session = local,
+                        exitInspectionId = r.exitInspectionId,
                         onBack = { navigator.goBack() },
                     )
                 } else {

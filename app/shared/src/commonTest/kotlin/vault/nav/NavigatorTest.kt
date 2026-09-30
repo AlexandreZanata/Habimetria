@@ -40,6 +40,17 @@ class NavigatorTest {
     }
 
     @Test
+    fun diffRoutePushAndBack() {
+        val nav = VaultNavigator()
+        nav.startInspection("ins9")
+        nav.navigate(Route.LocalCompare("ins9"))
+        nav.navigate(Route.LocalDiff("ins9"))
+        assertEquals(Route.LocalDiff("ins9"), nav.route.value)
+        assertTrue(nav.goBack())
+        assertEquals(Route.LocalCompare("ins9"), nav.route.value)
+    }
+
+    @Test
     fun newInspectionResetsStack() {
         val nav = VaultNavigator()
         nav.startInspection("a")
