@@ -1,0 +1,11 @@
+package vault.local.db
+
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import kotlinx.coroutines.Dispatchers
+
+actual fun localDatabaseBuilder(path: String): RoomDatabase.Builder<VaultDatabase> =
+    Room.databaseBuilder<VaultDatabase>(name = path)
+        .setDriver(BundledSQLiteDriver())
+        .setQueryCoroutineContext(Dispatchers.IO)

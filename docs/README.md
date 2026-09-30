@@ -36,6 +36,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `05-mobile/app-performance.md` — budgets, 2026 stack, size/speed discipline
 - `05-mobile/capture-ux.md` — photo-first flow, zero friction rules
 - `05-mobile/pdf-ondevice.md` — two-pass seal PDF, QR, budgets
+- `05-mobile/local-store.md` — L1 SQLite schema, files, migration rules
 
 ## 06 Roadmap
 

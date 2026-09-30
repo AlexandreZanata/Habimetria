@@ -9,6 +9,7 @@ Android SDK platforms 34/35/36/36.1 present; build-tools up to 37.0.0.
 - `compileSdk 36`, `targetSdk 36`, `minSdk 26`, Java 17.
 - CameraX `1.6.0`, Ktor `3.0.3`, coroutines `1.10.2`,
   serialization `1.8.1`, okio `3.9.0`, work `2.9.0`, lifecycle `2.8.7`.
+- Room `2.8.5`, sqlite-bundled `2.6.2`, KSP `2.3.10` (L1 local core).
 
 ## Verified on Linux
 
