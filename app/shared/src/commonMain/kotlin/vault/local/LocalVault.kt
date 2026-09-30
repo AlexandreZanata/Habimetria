@@ -81,6 +81,20 @@ class LocalVaultRepository(private val db: VaultDatabase) {
         db.roomDao().delete(roomId)
     }
 
+    // Reordering is DRAFT-only and renormalizes sort to 0..n-1.
+    // Out-of-range targets clamp; sealed inspections refuse.
+    suspend fun moveRoom(roomId: String, newIndex: Int): List<LocalRoom> {
+        val room = requireRoom(roomId)
+        requireDraft(room.inspectionId)
+        val rooms = db.roomDao().listForInspection(room.inspectionId).toMutableList()
+        rooms.removeAll { it.id == roomId }
+        rooms.add(newIndex.coerceIn(0, rooms.size), room)
+        rooms.forEachIndexed { index, current ->
+            if (current.sort != index) db.roomDao().update(current.copy(sort = index))
+        }
+        return db.roomDao().listForInspection(room.inspectionId)
+    }
+
     suspend fun setRoomNotApplicable(roomId: String, na: Set<ShotCategory>): LocalRoom {
         val room = requireRoom(roomId)
         requireDraft(room.inspectionId)

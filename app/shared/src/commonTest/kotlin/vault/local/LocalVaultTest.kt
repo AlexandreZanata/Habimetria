@@ -100,6 +100,24 @@ class LocalVaultTest {
     }
 
     @Test
+    fun reorderNormalizesSortOrder() = runTest {
+        val (db, repo) = freshVault()
+        val inspectionId = seedInspection(repo)
+        val a = repo.addRoom(inspectionId, "A")
+        val b = repo.addRoom(inspectionId, "B")
+        val c = repo.addRoom(inspectionId, "C")
+
+        val moved = repo.moveRoom(c.id, 0)
+        assertEquals(listOf(c.id, a.id, b.id), moved.map { it.id })
+        assertEquals(listOf(0, 1, 2), moved.map { it.sort })
+
+        val clamped = repo.moveRoom(a.id, 99)
+        assertEquals(listOf(c.id, b.id, a.id), clamped.map { it.id })
+        assertEquals(listOf(0, 1, 2), clamped.map { it.sort })
+        db.close()
+    }
+
+    @Test
     fun sealedInspectionFreezesEdits() = runTest {
         val (db, repo) = freshVault()
         val inspectionId = seedInspection(repo)
@@ -109,6 +127,7 @@ class LocalVaultTest {
         )
         assertFailsWith<SealedModificationException> { repo.renameRoom(room.id, "Nova") }
         assertFailsWith<SealedModificationException> { repo.addRoom(inspectionId, "Outra") }
+        assertFailsWith<SealedModificationException> { repo.moveRoom(room.id, 0) }
         assertFailsWith<SealedModificationException> {
             repo.recordEvidence(inspectionId, room.id, "x.bin", "image/jpeg", 1, "dd".repeat(32))
         }
