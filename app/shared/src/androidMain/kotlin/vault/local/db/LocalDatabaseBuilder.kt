@@ -10,5 +10,5 @@ import vault.api.AppContext
 actual fun localDatabaseBuilder(path: String): RoomDatabase.Builder<VaultDatabase> =
     Room.databaseBuilder<VaultDatabase>(context = AppContext.app, name = path)
         .setDriver(BundledSQLiteDriver())
-        .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+        .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
         .setQueryCoroutineContext(Dispatchers.IO)

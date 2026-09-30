@@ -123,7 +123,7 @@ class PackageFormatTest {
 class PackageFixtureTest {
     @Test
     fun dumpFixture() = runTest {
-        val target = System.getProperty("vault.fixture.dir") ?: return@runTest
+        val target = System.getProperty("vault.fixture.dir")?.takeIf { it.isNotBlank() } ?: return@runTest
         val (db, session, signer) = packageHarness(photos = 2)
         val reportId = readyReport(session, signer)
         val dir = PackageExporter(db, session.filesDir, session.originals, signer).export(reportId)

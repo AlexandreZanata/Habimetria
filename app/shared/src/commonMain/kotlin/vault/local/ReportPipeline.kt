@@ -53,7 +53,7 @@ fun receiptBytes(
     append("}")
 }.encodeToByteArray()
 
-private fun quote(raw: String): String = buildString {
+internal fun quoteJsonString(raw: String): String = buildString {
     append('"')
     for (ch in raw) {
         when (ch) {
@@ -71,6 +71,8 @@ private fun quote(raw: String): String = buildString {
     }
     append('"')
 }
+
+private fun quote(raw: String): String = quoteJsonString(raw)
 
 data class ReportVerification(
     val pdfIntact: Boolean,

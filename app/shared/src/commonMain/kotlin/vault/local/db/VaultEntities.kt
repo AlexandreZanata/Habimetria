@@ -171,6 +171,18 @@ data class LocalReport(
     val completedAtDevice: String?,
 )
 
+// Trust roots the user explicitly accepted: pinned fingerprints or
+// publisher-certified installers. Unknown by default; nothing here is
+// ever provisioned silently by imported content.
+@Entity(tableName = "trusted_issuers")
+data class TrustedIssuer(
+    @PrimaryKey val keyId: String,
+    val label: String,
+    // PINNED (compared fingerprint) or CERTIFIED (publisher certificate).
+    val source: String,
+    val addedAtDevice: String,
+)
+
 @Entity(
     tableName = "findings",
     foreignKeys = [

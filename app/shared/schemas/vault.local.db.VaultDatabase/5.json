@@ -1,0 +1,756 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 5,
+    "identityHash": "e32bb199e733cd61434d2943c0c2b1d6",
+    "entities": [
+      {
+        "tableName": "properties",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `address` TEXT NOT NULL, `createdAtDevice` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "address",
+            "columnName": "address",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAtDevice",
+            "columnName": "createdAtDevice",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "tenancies",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `propertyId` TEXT NOT NULL, `type` TEXT NOT NULL, `createdAtDevice` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`propertyId`) REFERENCES `properties`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "propertyId",
+            "columnName": "propertyId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAtDevice",
+            "columnName": "createdAtDevice",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_tenancies_propertyId",
+            "unique": false,
+            "columnNames": [
+              "propertyId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tenancies_propertyId` ON `${TABLE_NAME}` (`propertyId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "properties",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "propertyId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "inspections",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `tenancyId` TEXT NOT NULL, `kind` TEXT NOT NULL, `status` TEXT NOT NULL, `createdAtDevice` TEXT NOT NULL, `sealedAtDevice` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`tenancyId`) REFERENCES `tenancies`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tenancyId",
+            "columnName": "tenancyId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kind",
+            "columnName": "kind",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAtDevice",
+            "columnName": "createdAtDevice",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sealedAtDevice",
+            "columnName": "sealedAtDevice",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_inspections_tenancyId",
+            "unique": false,
+            "columnNames": [
+              "tenancyId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_inspections_tenancyId` ON `${TABLE_NAME}` (`tenancyId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "tenancies",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "tenancyId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "rooms",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `inspectionId` TEXT NOT NULL, `roomKey` TEXT NOT NULL, `label` TEXT NOT NULL, `sort` INTEGER NOT NULL, `naCategories` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`inspectionId`) REFERENCES `inspections`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inspectionId",
+            "columnName": "inspectionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "roomKey",
+            "columnName": "roomKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "label",
+            "columnName": "label",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sort",
+            "columnName": "sort",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "naCategories",
+            "columnName": "naCategories",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_rooms_inspectionId",
+            "unique": false,
+            "columnNames": [
+              "inspectionId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_rooms_inspectionId` ON `${TABLE_NAME}` (`inspectionId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "inspections",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "inspectionId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "evidences",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `inspectionId` TEXT NOT NULL, `roomId` TEXT, `fileName` TEXT NOT NULL, `mime` TEXT NOT NULL, `size` INTEGER NOT NULL, `sha256` TEXT NOT NULL, `sequence` INTEGER NOT NULL, `capturedAtDevice` TEXT NOT NULL, `origin` TEXT NOT NULL, `shotCategory` TEXT, `latitude` REAL, `longitude` REAL, `accuracyM` REAL, `locationStatus` TEXT NOT NULL, `fixAgeMs` INTEGER, `provider` TEXT, `accuracyLevel` TEXT, `isMocked` INTEGER NOT NULL, `exifLatitude` REAL, `exifLongitude` REAL, PRIMARY KEY(`id`), FOREIGN KEY(`inspectionId`) REFERENCES `inspections`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`roomId`) REFERENCES `rooms`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inspectionId",
+            "columnName": "inspectionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "roomId",
+            "columnName": "roomId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fileName",
+            "columnName": "fileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mime",
+            "columnName": "mime",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "size",
+            "columnName": "size",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sha256",
+            "columnName": "sha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sequence",
+            "columnName": "sequence",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "capturedAtDevice",
+            "columnName": "capturedAtDevice",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "origin",
+            "columnName": "origin",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shotCategory",
+            "columnName": "shotCategory",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "latitude",
+            "columnName": "latitude",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "longitude",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "accuracyM",
+            "columnName": "accuracyM",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "locationStatus",
+            "columnName": "locationStatus",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fixAgeMs",
+            "columnName": "fixAgeMs",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "provider",
+            "columnName": "provider",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "accuracyLevel",
+            "columnName": "accuracyLevel",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "isMocked",
+            "columnName": "isMocked",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "exifLatitude",
+            "columnName": "exifLatitude",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "exifLongitude",
+            "columnName": "exifLongitude",
+            "affinity": "REAL"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_evidences_inspectionId",
+            "unique": false,
+            "columnNames": [
+              "inspectionId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_evidences_inspectionId` ON `${TABLE_NAME}` (`inspectionId`)"
+          },
+          {
+            "name": "index_evidences_roomId",
+            "unique": false,
+            "columnNames": [
+              "roomId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_evidences_roomId` ON `${TABLE_NAME}` (`roomId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "inspections",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "inspectionId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "rooms",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "roomId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "findings",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `roomId` TEXT NOT NULL, `evidenceId` TEXT NOT NULL, `preset` TEXT NOT NULL, `note` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`roomId`) REFERENCES `rooms`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`evidenceId`) REFERENCES `evidences`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "roomId",
+            "columnName": "roomId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "evidenceId",
+            "columnName": "evidenceId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "preset",
+            "columnName": "preset",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "note",
+            "columnName": "note",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_findings_roomId",
+            "unique": false,
+            "columnNames": [
+              "roomId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_findings_roomId` ON `${TABLE_NAME}` (`roomId`)"
+          },
+          {
+            "name": "index_findings_evidenceId",
+            "unique": false,
+            "columnNames": [
+              "evidenceId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_findings_evidenceId` ON `${TABLE_NAME}` (`evidenceId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "rooms",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "roomId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "evidences",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "evidenceId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "manifests",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `inspectionId` TEXT NOT NULL, `formatVersion` INTEGER NOT NULL, `canonicalSha256` TEXT NOT NULL, `canonicalJson` TEXT NOT NULL, `sealedAtDevice` TEXT NOT NULL, `signerKeyId` TEXT NOT NULL, `algorithm` TEXT NOT NULL, `hardwareBacked` INTEGER NOT NULL, `signature` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`inspectionId`) REFERENCES `inspections`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inspectionId",
+            "columnName": "inspectionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "formatVersion",
+            "columnName": "formatVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "canonicalSha256",
+            "columnName": "canonicalSha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "canonicalJson",
+            "columnName": "canonicalJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sealedAtDevice",
+            "columnName": "sealedAtDevice",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "signerKeyId",
+            "columnName": "signerKeyId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "algorithm",
+            "columnName": "algorithm",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hardwareBacked",
+            "columnName": "hardwareBacked",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "signature",
+            "columnName": "signature",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_manifests_inspectionId",
+            "unique": true,
+            "columnNames": [
+              "inspectionId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_manifests_inspectionId` ON `${TABLE_NAME}` (`inspectionId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "inspections",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "inspectionId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "reports",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `inspectionId` TEXT NOT NULL, `manifestId` TEXT NOT NULL, `manifestSha256` TEXT NOT NULL, `status` TEXT NOT NULL, `pdfSha256` TEXT, `pdfFileName` TEXT, `receiptSignature` TEXT, `signerKeyId` TEXT NOT NULL, `algorithm` TEXT NOT NULL, `hardwareBacked` INTEGER NOT NULL, `createdAtDevice` TEXT NOT NULL, `completedAtDevice` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`inspectionId`) REFERENCES `inspections`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`manifestId`) REFERENCES `manifests`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inspectionId",
+            "columnName": "inspectionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "manifestId",
+            "columnName": "manifestId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "manifestSha256",
+            "columnName": "manifestSha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pdfSha256",
+            "columnName": "pdfSha256",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "pdfFileName",
+            "columnName": "pdfFileName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "receiptSignature",
+            "columnName": "receiptSignature",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "signerKeyId",
+            "columnName": "signerKeyId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "algorithm",
+            "columnName": "algorithm",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hardwareBacked",
+            "columnName": "hardwareBacked",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAtDevice",
+            "columnName": "createdAtDevice",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "completedAtDevice",
+            "columnName": "completedAtDevice",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_reports_manifestId",
+            "unique": true,
+            "columnNames": [
+              "manifestId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_reports_manifestId` ON `${TABLE_NAME}` (`manifestId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "inspections",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "inspectionId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "manifests",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "manifestId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "trusted_issuers",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`keyId` TEXT NOT NULL, `label` TEXT NOT NULL, `source` TEXT NOT NULL, `addedAtDevice` TEXT NOT NULL, PRIMARY KEY(`keyId`))",
+        "fields": [
+          {
+            "fieldPath": "keyId",
+            "columnName": "keyId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "label",
+            "columnName": "label",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "addedAtDevice",
+            "columnName": "addedAtDevice",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "keyId"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e32bb199e733cd61434d2943c0c2b1d6')"
+    ]
+  }
+}
