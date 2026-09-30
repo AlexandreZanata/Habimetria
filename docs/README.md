@@ -31,6 +31,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 ## 05 Mobile
 
 - `05-mobile/kmp-layout.md` — Kotlin Multiplatform module layout
+- `05-mobile/toolchain.md` — pinned toolchain after L0 build audit
 - `05-mobile/offline-upload.md` — queue, IndexedDB/DataStore, retry
 - `05-mobile/app-performance.md` — budgets, 2026 stack, size/speed discipline
 - `05-mobile/capture-ux.md` — photo-first flow, zero friction rules

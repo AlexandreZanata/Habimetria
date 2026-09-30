@@ -16,10 +16,11 @@ app/
 ```bash
 ./gradlew :shared:jvmTest                        # common tests on JVM
 ./gradlew :shared:compileKotlinIosSimulatorArm64 # shared Kotlin for iOS
-./gradlew :composeApp:assembleDebug              # Android APK (~12.7 MB debug)
+./gradlew :composeApp:assembleDebug              # Android APK
 ```
 
 iOS linking needs Xcode (macOS). CI validates shared-for-iOS + Android.
+Pinned versions and L0 audit: `docs/05-mobile/toolchain.md`.
 
 ## M1 budgets
 
