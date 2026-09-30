@@ -40,6 +40,9 @@ interface InspectionDao {
 
     @Query("SELECT * FROM inspections WHERE status = 'DRAFT' ORDER BY createdAtDevice DESC")
     suspend fun listDrafts(): List<LocalInspection>
+
+    @Query("SELECT * FROM inspections ORDER BY createdAtDevice DESC")
+    suspend fun listAll(): List<LocalInspection>
 }
 
 @Dao

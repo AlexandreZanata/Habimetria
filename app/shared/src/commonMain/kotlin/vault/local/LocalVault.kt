@@ -89,6 +89,8 @@ class LocalVaultRepository(private val db: VaultDatabase) {
         return updated
     }
 
+    // Production flow stores the original first (size+sha known), then
+    // records the row with the same id so DB and files stay bound.
     suspend fun recordEvidence(
         inspectionId: String,
         roomId: String?,
@@ -99,6 +101,7 @@ class LocalVaultRepository(private val db: VaultDatabase) {
         origin: String = "capture",
         shotCategory: ShotCategory? = null,
         capturedAtDevice: String = deviceNowIso(),
+        evidenceId: String = newLocalId("ev"),
     ): LocalEvidence {
         requireDraft(inspectionId)
         if (roomId != null) requireRoom(roomId)
@@ -106,7 +109,7 @@ class LocalVaultRepository(private val db: VaultDatabase) {
         if (size <= 0) throw LocalValidationException("size must be positive")
         return db.evidenceDao().insertSequenced(inspectionId) { sequence ->
             LocalEvidence(
-                id = newLocalId("ev"), inspectionId = inspectionId, roomId = roomId,
+                id = evidenceId, inspectionId = inspectionId, roomId = roomId,
                 fileName = fileName, mime = mime, size = size, sha256 = sha256,
                 sequence = sequence, capturedAtDevice = capturedAtDevice, origin = origin,
                 shotCategory = shotCategory?.name, latitude = null, longitude = null,
