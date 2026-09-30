@@ -47,7 +47,9 @@ class QueueMigration(
             )
             return QueueMigrationReport(marker.inspectionId, 0, emptyList(), true)
         }
-        val items = queue.load()
+        // Strict: a corrupt queue throws instead of silently skipping
+        // photos that may still sit on disk.
+        val items = queue.loadStrict()
         if (items.isEmpty()) return QueueMigrationReport("", 0, emptyList())
 
         val repo = LocalVaultRepository(db)

@@ -111,6 +111,8 @@ class OfflineJourneyTest {
     fun concurrentCapturesNeverShareSequence() = runTest {
         journeySeq++
         val dir = FileSystem.SYSTEM_TEMPORARY_DIRECTORY.resolve("vault-conc-$journeySeq").toString()
+        FileSystem.SYSTEM.deleteRecursively(dir.toPath())
+        FileSystem.SYSTEM.createDirectories(dir.toPath())
         val db = localDatabaseBuilder("$dir/vault.db").build()
         val repo = LocalVaultRepository(db)
         val inspection = repo.createInspection(repo.createTenancy(repo.createProperty("Rua").id).id).id

@@ -37,6 +37,9 @@ fun uploadsEnabled(mode: SyncMode): Boolean = mode == SyncMode.WITH_SERVER_SYNC
 data class SessionStartup(
     val migration: QueueMigrationReport?,
     val reconcile: ReconcileReport,
+    // Corrupt-queue failures land here instead of crashing startup or
+    // silently skipping photos. The UI must surface this string.
+    val migrationError: String? = null,
 )
 
 // LocalSession is the local application core: database, repositories,
@@ -58,15 +61,28 @@ class LocalSession(
     val uploadsAllowed: Boolean get() = uploadsEnabled(syncMode)
 
     // Startup: import any legacy queue, then reconcile files against rows.
-    // Works with the API stopped and networking blocked.
+    // Works with the API stopped and networking blocked. Queue corruption
+    // is reported, never thrown and never hidden.
     suspend fun startup(): SessionStartup {
         val queue = CaptureStore(fs, "$filesDir/queue")
-        val migration = if (queue.load().isNotEmpty()) {
-            QueueMigration(fs, filesDir).migrate(queue, db, originals, derivatives)
-        } else {
+        var migrationError: String? = null
+        val migration = try {
+            if (queue.load().isNotEmpty()) {
+                QueueMigration(fs, filesDir).migrate(queue, db, originals, derivatives)
+            } else {
+                try {
+                    queue.loadStrict()
+                    null
+                } catch (e: Exception) {
+                    migrationError = e.message?.take(200)
+                    null
+                }
+            }
+        } catch (e: Exception) {
+            migrationError = e.message?.take(200)
             null
         }
-        return SessionStartup(migration, originals.reconcile(db))
+        return SessionStartup(migration, originals.reconcile(db), migrationError)
     }
 
     fun close() {
