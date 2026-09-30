@@ -95,6 +95,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                         session = local,
                         inspectionId = r.inspectionId,
                         onPdf = { navigator.navigate(Route.LocalPdf(r.inspectionId)) },
+                        onOccurrence = { navigator.navigate(Route.LocalOccurrence(r.inspectionId)) },
                         onBack = { navigator.goBack() },
                     )
                 } else {
@@ -116,6 +117,22 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     verifyCode = r.verifyCode,
                     onBack = { navigator.goBack() },
                 )
+            }
+            is Route.LocalOccurrence -> VaultShell(Strings.occurrenceTitle, true, { navigator.goBack() }) {
+                val local = container.local
+                if (local != null) {
+                    LocalOccurrenceScreen(
+                        session = local,
+                        photoCapture = container.photoCapture,
+                        inspectionId = r.inspectionId,
+                        onBack = { navigator.goBack() },
+                    )
+                } else {
+                    ScreenColumn {
+                        ErrorText(Strings.pdfSealFirst)
+                        VaultButton(text = Strings.back, onClick = { navigator.goBack() })
+                    }
+                }
             }
             is Route.LocalVerify -> VaultShell(Strings.verifyTitle, true, { navigator.goBack() }) {
                 val local = container.local

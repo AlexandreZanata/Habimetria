@@ -30,6 +30,7 @@ fun LocalSealScreen(
     session: LocalSession,
     inspectionId: String,
     onPdf: () -> Unit,
+    onOccurrence: () -> Unit,
     onBack: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -87,6 +88,7 @@ fun LocalSealScreen(
             Text("${Strings.sealManifestLabel}: ${it.canonicalSha256.take(16)}…")
             VaultButton(text = "${Strings.generatePdf} →", onClick = onPdf)
         }
+        VaultButton(text = "${Strings.newOccurrence} →", onClick = onOccurrence)
         ErrorText(error)
         if (sealed == null && eligibility?.alreadySealed != true) {
             VaultButton(

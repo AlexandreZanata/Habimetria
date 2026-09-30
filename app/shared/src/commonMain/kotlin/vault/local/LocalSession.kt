@@ -57,6 +57,7 @@ class LocalSession(
     val derivatives = DerivativeStore(fs, filesDir, platformScaler())
     val navigation = NavigationStore(fs, filesDir)
     val trust = TrustStore(db)
+    val occurrences = LocalOccurrenceRepository(db)
 
     val uploadsAllowed: Boolean get() = uploadsEnabled(syncMode)
 
