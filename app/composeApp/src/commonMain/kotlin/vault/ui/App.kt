@@ -1,62 +1,73 @@
 package vault.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import vault.nav.Route
+import vault.nav.VaultNavigator
 
-// M4 navigation: Home → Rooms → Room → Review → Seal → PDF.
-private sealed interface Route {
-    data object Home : Route
-    data class Rooms(val inspectionId: String) : Route
-    data class Room(val inspectionId: String, val roomId: String, val label: String) : Route
-    data class Review(val inspectionId: String) : Route
-    data class Seal(val inspectionId: String) : Route
-    data class Pdf(val inspectionId: String, val reportId: String, val verifyCode: String) : Route
-}
-
+// App owns the navigator; screens receive callbacks and stay stateless
+// about navigation. One shell per route: insets applied once at the edge.
 @Composable
-fun App(container: AppContainer) {
-    var route: Route by remember { mutableStateOf(Route.Home) }
+fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNavigator() }) {
+    val route by navigator.route.collectAsState()
     VaultTheme {
         when (val r = route) {
-            Route.Home -> HomeScreen(container, onReady = { route = Route.Rooms(it) })
-            is Route.Rooms -> RoomsScreen(
-                container = container,
-                inspectionId = r.inspectionId,
-                onOpenRoom = { roomId, label -> route = Route.Room(r.inspectionId, roomId, label) },
-                onReview = { route = Route.Review(r.inspectionId) },
-                onBack = { route = Route.Home },
-            )
-            is Route.Room -> RoomScreen(
-                container = container,
-                inspectionId = r.inspectionId,
-                roomId = r.roomId,
-                roomLabel = r.label,
-                onOpenRoom = { nextId, nextLabel -> route = Route.Room(r.inspectionId, nextId, nextLabel) },
-                onReview = { route = Route.Review(r.inspectionId) },
-                onBack = { route = Route.Rooms(r.inspectionId) },
-            )
-            is Route.Review -> ReviewScreen(
-                container = container,
-                inspectionId = r.inspectionId,
-                onSeal = { route = Route.Seal(r.inspectionId) },
-                onBack = { route = Route.Rooms(r.inspectionId) },
-            )
-            is Route.Seal -> SealScreen(
-                container = container,
-                inspectionId = r.inspectionId,
-                onPdf = { reportId, code -> route = Route.Pdf(r.inspectionId, reportId, code) },
-                onBack = { route = Route.Review(r.inspectionId) },
-            )
-            is Route.Pdf -> PdfScreen(
-                container = container,
-                inspectionId = r.inspectionId,
-                reportId = r.reportId,
-                verifyCode = r.verifyCode,
-                onBack = { route = Route.Seal(r.inspectionId) },
-            )
+            Route.Home -> VaultShell(Strings.appName, false, {}) {
+                HomeScreen(container, onReady = { navigator.startInspection(it) })
+            }
+            is Route.Rooms -> VaultShell(Strings.rooms, true, { navigator.goBack() }) {
+                RoomsScreen(
+                    container = container,
+                    inspectionId = r.inspectionId,
+                    onOpenRoom = { roomId, label ->
+                        navigator.navigate(Route.Room(r.inspectionId, roomId, label))
+                    },
+                    onReview = { navigator.navigate(Route.Review(r.inspectionId)) },
+                    onBack = { navigator.goBack() },
+                )
+            }
+            is Route.Room -> VaultShell(r.label, true, { navigator.goBack() }) {
+                RoomScreen(
+                    container = container,
+                    inspectionId = r.inspectionId,
+                    roomId = r.roomId,
+                    roomLabel = r.label,
+                    onOpenRoom = { nextId, nextLabel ->
+                        navigator.navigate(Route.Room(r.inspectionId, nextId, nextLabel))
+                    },
+                    onReview = { navigator.navigate(Route.Review(r.inspectionId)) },
+                    onBack = { navigator.goBack() },
+                )
+            }
+            is Route.Review -> VaultShell(Strings.review, true, { navigator.goBack() }) {
+                ReviewScreen(
+                    container = container,
+                    inspectionId = r.inspectionId,
+                    onSeal = { navigator.navigate(Route.Seal(r.inspectionId)) },
+                    onBack = { navigator.goBack() },
+                )
+            }
+            is Route.Seal -> VaultShell(Strings.sealTitle, true, { navigator.goBack() }) {
+                SealScreen(
+                    container = container,
+                    inspectionId = r.inspectionId,
+                    onPdf = { reportId, code ->
+                        navigator.navigate(Route.Pdf(r.inspectionId, reportId, code))
+                    },
+                    onBack = { navigator.goBack() },
+                )
+            }
+            is Route.Pdf -> VaultShell(Strings.reportPdf, true, { navigator.goBack() }) {
+                PdfScreen(
+                    container = container,
+                    inspectionId = r.inspectionId,
+                    reportId = r.reportId,
+                    verifyCode = r.verifyCode,
+                    onBack = { navigator.goBack() },
+                )
+            }
         }
     }
 }

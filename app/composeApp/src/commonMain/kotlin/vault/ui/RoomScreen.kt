@@ -1,12 +1,7 @@
 package vault.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -60,13 +55,11 @@ fun RoomScreen(
     val sending = mine.count { it.status == QueueStatus.UPLOADING || it.status == QueueStatus.QUEUED }
     val failed = mine.count { it.status == QueueStatus.FAILED }
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Text(roomLabel)
+    ScreenColumn {
+        ScreenTitle(roomLabel)
         CameraPreview(modifier = Modifier.fillMaxWidth().height(280.dp))
-        Button(
+        VaultButton(
+            text = if (busy) Strings.saving else Strings.capture,
             onClick = {
                 busy = true
                 error = null
@@ -74,7 +67,7 @@ fun RoomScreen(
                     try {
                         val shot = container.photoCapture.capture()
                         if (shot == null) {
-                            error = "Camera unavailable"
+                            error = Strings.cameraUnavailable
                         } else {
                             val name = "cap-${mine.size + 1}-${roomId.take(4)}.jpg"
                             val path = "${container.filesDir}/photos/$name"
@@ -105,17 +98,14 @@ fun RoomScreen(
                 }
             },
             enabled = !busy,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(if (busy) "Saving…" else "Capture")
-        }
-        error?.let { Text("Error: $it") }
-        Text("✓ $confirmed confirmed · ↑ $sending sending · ! $failed waiting")
+        )
+        ErrorText(error)
+        Text("✓ $confirmed ${Strings.queueConfirmed} · ↑ $sending ${Strings.queueSending} · ! $failed ${Strings.queueWaiting}")
         val total = coverage?.totalPercent ?: 0
         LinearProgressIndicator(progress = { total / 100f }, modifier = Modifier.fillMaxWidth())
-        Text("Coverage: $total%")
+        Text("${Strings.coverage}: $total%")
         coverage?.rooms?.forEach { room ->
-            Text("${room.label}: ${room.percent}% (${room.photos} photos)")
+            Text("${room.label}: ${room.percent}% (${room.photos} ${Strings.photosSuffix})")
         }
         // Primary action: next room in template order, Review on the last.
         // Coverage rooms come ordered by sort from the backend.
@@ -123,19 +113,13 @@ fun RoomScreen(
         val nextIdx = order.indexOfFirst { it.roomId == roomId } + 1
         if (nextIdx in order.indices) {
             val next = order[nextIdx]
-            Button(
+            VaultButton(
+                text = "${Strings.next}: ${next.label} →",
                 onClick = { onOpenRoom(next.roomId, next.label) },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text("Next: ${next.label} →")
-            }
+            )
         } else if (order.isNotEmpty()) {
-            Button(onClick = onReview, modifier = Modifier.fillMaxWidth()) {
-                Text("Review and seal →")
-            }
+            VaultButton(text = "${Strings.review} →", onClick = onReview)
         }
-        Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
-            Text("Back")
-        }
+        VaultButton(text = Strings.back, onClick = onBack)
     }
 }

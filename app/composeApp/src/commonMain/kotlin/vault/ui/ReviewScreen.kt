@@ -4,9 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -42,8 +40,8 @@ fun ReviewScreen(
 
     LaunchedEffect(inspectionId) { refresh() }
 
-    Column(modifier = Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Review — ${items.size} photos")
+    ScreenColumn {
+        ScreenTitle("${Strings.review} — ${items.size} ${Strings.photosSuffix}")
         LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(items, key = { it.localId }) { item ->
                 ReviewRow(
@@ -53,12 +51,8 @@ fun ReviewScreen(
                 )
             }
         }
-        Button(onClick = onSeal, modifier = Modifier.fillMaxWidth()) {
-            Text("Seal inspection")
-        }
-        Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
-            Text("Back")
-        }
+        VaultButton(text = Strings.sealTitle, onClick = onSeal)
+        VaultButton(text = Strings.back, onClick = onBack)
     }
     sheetFor?.let { item ->
         val evidenceId = item.evidenceId
@@ -88,20 +82,24 @@ private fun ReviewRow(
     val thumb = remember(item.filePath) { decodeThumbnail(item.filePath) }
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         if (thumb != null) {
-            Image(bitmap = thumb, contentDescription = null, modifier = Modifier.size(72.dp))
+            Image(
+                bitmap = thumb,
+                contentDescription = "${Strings.photosSuffix}: ${item.roomKey}",
+                modifier = Modifier.size(72.dp),
+            )
         }
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(item.roomKey)
             val state = when (item.status) {
-                QueueStatus.CONFIRMED -> "✓ confirmed #${item.evidenceId?.take(8)}"
-                QueueStatus.UPLOADING, QueueStatus.QUEUED -> "↑ sending…"
-                QueueStatus.FAILED -> "! tap capture to retry"
+                QueueStatus.CONFIRMED -> "✓ ${Strings.queueConfirmed} #${item.evidenceId?.take(8)}"
+                QueueStatus.UPLOADING, QueueStatus.QUEUED -> "↑ ${Strings.queueSending}…"
+                QueueStatus.FAILED -> "! ${Strings.queueWaiting}"
             }
             Text(state)
-            if (hasFinding) Text("Issue recorded")
+            if (hasFinding) Text(Strings.issueRecorded)
         }
         if (item.evidenceId != null && item.roomId != null && !hasFinding) {
-            Button(onClick = onIssue) { Text("Issue") }
+            Button(onClick = onIssue) { Text(Strings.reportIssue) }
         }
     }
 }

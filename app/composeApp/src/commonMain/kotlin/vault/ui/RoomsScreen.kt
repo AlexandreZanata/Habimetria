@@ -2,12 +2,10 @@ package vault.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,26 +39,22 @@ fun RoomsScreen(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Text("Rooms")
-        error?.let { Text("Error: $it") }
+    ScreenColumn {
+        ScreenTitle(Strings.rooms)
+        ErrorText(error)
         rooms.forEach { room ->
             Row(
                 modifier = Modifier.fillMaxWidth().clickable { onOpenRoom(room.id, room.label) }.padding(8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text(room.label)
-                Text("${counts[room.id] ?: 0} photos")
+                Text(room.label, style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    "${counts[room.id] ?: 0} ${Strings.photosSuffix}",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
             }
         }
-        Button(onClick = onReview, modifier = Modifier.fillMaxWidth()) {
-            Text("Review and seal")
-        }
-        Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
-            Text("Back")
-        }
+        VaultButton(text = Strings.review, onClick = onReview)
+        VaultButton(text = Strings.back, onClick = onBack)
     }
 }

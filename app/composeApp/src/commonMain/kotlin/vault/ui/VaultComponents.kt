@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.LinearProgressIndicator
@@ -27,7 +28,7 @@ fun ScreenColumn(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
-        modifier = modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 16.dp),
+        modifier = modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 16.dp).imePadding(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         content = content,
     )

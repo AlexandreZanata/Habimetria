@@ -5,12 +5,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,10 +38,10 @@ fun FindingSheet(
 
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(24.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("What did you find?")
+            ScreenTitle(Strings.whatFound)
             presets.chunked(4).forEach { row ->
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     row.forEach { p ->
@@ -55,14 +53,15 @@ fun FindingSheet(
                     }
                 }
             }
-            TextField(
+            VaultTextField(
                 value = note,
                 onValueChange = { note = it },
-                label = { Text("Note (optional)") },
-                modifier = Modifier.fillMaxWidth(),
+                label = Strings.noteOptional,
+                singleLine = false,
             )
-            error?.let { Text("Error: $it") }
-            Button(
+            ErrorText(error)
+            VaultButton(
+                text = if (busy) Strings.savingFinding else Strings.saveFinding,
                 onClick = {
                     busy = true
                     scope.launch {
@@ -77,10 +76,7 @@ fun FindingSheet(
                     }
                 },
                 enabled = !busy,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(if (busy) "Saving…" else "Save finding")
-            }
+            )
         }
     }
 }
