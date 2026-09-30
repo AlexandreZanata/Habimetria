@@ -116,6 +116,27 @@ interface ManifestDao {
 }
 
 @Dao
+interface OccurrenceDao {
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insert(occurrence: LocalOccurrence)
+
+    @Query("SELECT * FROM occurrences WHERE id = :id")
+    suspend fun get(id: String): LocalOccurrence?
+
+    @Query("SELECT * FROM occurrences WHERE propertyId = :propertyId ORDER BY createdAtDevice DESC")
+    suspend fun listForProperty(propertyId: String): List<LocalOccurrence>
+}
+
+@Dao
+interface OccurrenceAttachmentDao {
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insert(attachment: OccurrenceAttachment)
+
+    @Query("SELECT * FROM occurrence_attachments WHERE occurrenceId = :occurrenceId")
+    suspend fun listForOccurrence(occurrenceId: String): List<OccurrenceAttachment>
+}
+
+@Dao
 interface TrustDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(issuer: TrustedIssuer)

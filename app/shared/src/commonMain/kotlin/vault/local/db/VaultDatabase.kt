@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 
-// Schema v5 (v4 + trusted issuers). Schema JSON exports to
+// Schema v6 (v5 + occurrences). Schema JSON exports to
 // shared/schemas; every version bump ships an explicit Migration.
 @Database(
     entities = [
@@ -18,8 +18,10 @@ import androidx.room.RoomDatabaseConstructor
         LocalManifest::class,
         LocalReport::class,
         TrustedIssuer::class,
+        LocalOccurrence::class,
+        OccurrenceAttachment::class,
     ],
-    version = 5,
+    version = 6,
 )
 @ConstructedBy(VaultDatabaseConstructor::class)
 abstract class VaultDatabase : RoomDatabase() {
@@ -32,6 +34,8 @@ abstract class VaultDatabase : RoomDatabase() {
     abstract fun manifestDao(): ManifestDao
     abstract fun reportDao(): ReportDao
     abstract fun trustDao(): TrustDao
+    abstract fun occurrenceDao(): OccurrenceDao
+    abstract fun occurrenceAttachmentDao(): OccurrenceAttachmentDao
 }
 
 @Suppress("KotlinNoActualForExpect")

@@ -171,6 +171,50 @@ data class LocalReport(
     val completedAtDevice: String?,
 )
 
+// Post-seal changes live here, never in the sealed inspection.
+// Occurrences belong to the Property, so they survive across
+// inspections and never reopen a terminal SEALED state.
+@Entity(
+    tableName = "occurrences",
+    foreignKeys = [
+        ForeignKey(
+            entity = LocalProperty::class,
+            parentColumns = ["id"],
+            childColumns = ["propertyId"],
+        ),
+    ],
+    indices = [Index("propertyId")],
+)
+data class LocalOccurrence(
+    @PrimaryKey val id: String,
+    val propertyId: String,
+    val title: String,
+    val body: String?,
+    val createdAtDevice: String,
+)
+
+@Entity(
+    tableName = "occurrence_attachments",
+    foreignKeys = [
+        ForeignKey(
+            entity = LocalOccurrence::class,
+            parentColumns = ["id"],
+            childColumns = ["occurrenceId"],
+        ),
+    ],
+    indices = [Index("occurrenceId")],
+)
+data class OccurrenceAttachment(
+    @PrimaryKey val id: String,
+    val occurrenceId: String,
+    val fileName: String,
+    val mime: String,
+    val size: Long,
+    val sha256: String,
+    val capturedAtDevice: String,
+    val note: String?,
+)
+
 // Trust roots the user explicitly accepted: pinned fingerprints or
 // publisher-certified installers. Unknown by default; nothing here is
 // ever provisioned silently by imported content.
