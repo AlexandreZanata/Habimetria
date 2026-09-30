@@ -2,6 +2,12 @@
 
 Backend S1–S7 is done; mobile consumes it. Auth/users/billing stay future.
 
+Next requested scope: [local validation roadmap](local_validation_plan.md).
+It plans complete on-device operation, Material 3, manually named rooms,
+real iOS capture, adaptive safe areas and offline PDF verification.
+The phases below describe the earlier API-dependent delivery scope;
+their completion labels do not establish the new local acceptance gates.
+
 ## M1 — Scaffold + design system
 
 - KMP template (composeApp, shared, iosApp host), CI builds Android APK

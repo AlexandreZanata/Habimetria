@@ -21,6 +21,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `03-architecture/storage-media.md` — originals, previews, signed URLs, video limits
 - `03-architecture/client-processing.md` — app does the work, server keeps trust
 - `03-architecture/payments.md` — Stripe + Asaas seam, off by default in MVP
+- `03-architecture/local_validation_architecture.md` — planned local authority, immutable snapshots and offline verification
 
 ## 04 Backend
 
@@ -40,6 +41,8 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `06-roadmap/mvp-01.md` — frozen MVP 0.1 checklist
 - `06-roadmap/mobile-phases.md` — M1→M5 app plan (MVP = photos + evidence + PDF)
 - `06-roadmap/evolution.md` — V1.1 → V1.5 without ERP creep
+- `06-roadmap/local_validation_plan.md` — next phases: Material 3, manual rooms, local capture/seal/PDF on Android and iOS
+- `06-roadmap/local_validation_acceptance.md` — planned device matrix, failure cases and functional-proof gates
 
 ## 07 AI Ops
 
