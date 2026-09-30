@@ -104,6 +104,13 @@ data class LocalEvidence(
     val longitude: Double?,
     val accuracyM: Float?,
     val locationStatus: String,
+    // v2: shutter-time claim details. EXIF stays a separate device claim.
+    val fixAgeMs: Long? = null,
+    val provider: String? = null,
+    val accuracyLevel: String? = null,
+    val isMocked: Boolean = false,
+    val exifLatitude: Double? = null,
+    val exifLongitude: Double? = null,
 )
 
 @Entity(

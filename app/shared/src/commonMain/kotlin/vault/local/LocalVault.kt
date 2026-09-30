@@ -105,6 +105,8 @@ class LocalVaultRepository(private val db: VaultDatabase) {
 
     // Production flow stores the original first (size+sha known), then
     // records the row with the same id so DB and files stay bound.
+    // Location and EXIF ride along as device claims; a null claim keeps
+    // the row explicitly without location.
     suspend fun recordEvidence(
         inspectionId: String,
         roomId: String?,
@@ -116,18 +118,29 @@ class LocalVaultRepository(private val db: VaultDatabase) {
         shotCategory: ShotCategory? = null,
         capturedAtDevice: String = deviceNowIso(),
         evidenceId: String = newLocalId("ev"),
+        location: LocationClaim? = null,
+        exif: ExifGps? = null,
     ): LocalEvidence {
         requireDraft(inspectionId)
         if (roomId != null) requireRoom(roomId)
         if (fileName.isBlank()) throw LocalValidationException("fileName required")
         if (size <= 0) throw LocalValidationException("size must be positive")
+        location?.validate()
         return db.evidenceDao().insertSequenced(inspectionId) { sequence ->
             LocalEvidence(
                 id = evidenceId, inspectionId = inspectionId, roomId = roomId,
                 fileName = fileName, mime = mime, size = size, sha256 = sha256,
                 sequence = sequence, capturedAtDevice = capturedAtDevice, origin = origin,
-                shotCategory = shotCategory?.name, latitude = null, longitude = null,
-                accuracyM = null, locationStatus = "unavailable",
+                shotCategory = shotCategory?.name,
+                latitude = location?.latitude, longitude = location?.longitude,
+                accuracyM = location?.accuracyM,
+                locationStatus = location?.status?.name ?: LocationStatus.UNAVAILABLE.name,
+                fixAgeMs = location?.fixAgeMs,
+                provider = location?.provider,
+                accuracyLevel = location?.accuracyLevel,
+                isMocked = location?.isMocked == true,
+                exifLatitude = exif?.latitude,
+                exifLongitude = exif?.longitude,
             )
         }
     }
