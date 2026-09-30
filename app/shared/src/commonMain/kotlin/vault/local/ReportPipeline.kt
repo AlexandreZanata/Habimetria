@@ -99,6 +99,11 @@ class ReportGenerator(
     suspend fun existingReport(manifestId: String): LocalReport? =
         db.reportDao().getByManifest(manifestId)
 
+    // UI entry points stay on this class so screens never touch the
+    // database type directly (keeps the UI module Room-free).
+    suspend fun manifestFor(inspectionId: String) =
+        db.manifestDao().getByInspection(inspectionId)
+
     // Finalizes in architecture order: render snapshot → save bytes →
     // hash → sign detached receipt → commit. Cancellation and missing
     // originals fail the job without touching SEALED.

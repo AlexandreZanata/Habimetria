@@ -94,6 +94,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     LocalSealScreen(
                         session = local,
                         inspectionId = r.inspectionId,
+                        onPdf = { navigator.navigate(Route.LocalPdf(r.inspectionId)) },
                         onBack = { navigator.goBack() },
                     )
                 } else {
@@ -115,6 +116,24 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     verifyCode = r.verifyCode,
                     onBack = { navigator.goBack() },
                 )
+            }
+            is Route.LocalPdf -> VaultShell(Strings.reportPdf, true, { navigator.goBack() }) {
+                val local = container.local
+                val renderer = container.planRenderer
+                if (local != null && renderer != null) {
+                    LocalPdfScreen(
+                        session = local,
+                        renderer = renderer,
+                        inspectionId = r.inspectionId,
+                        onSharePdf = { path -> container.platformPdf.share(path, "application/pdf") },
+                        onBack = { navigator.goBack() },
+                    )
+                } else {
+                    ScreenColumn {
+                        ErrorText(Strings.pdfSealFirst)
+                        VaultButton(text = Strings.back, onClick = { navigator.goBack() })
+                    }
+                }
             }
         }
     }

@@ -18,6 +18,7 @@ import vault.local.SyncMode
 import vault.local.openLocalSession
 import vault.nav.Route
 import vault.nav.VaultNavigator
+import vault.pdf.AndroidPlanRenderer
 import vault.pdf.AndroidPlatformPdf
 import vault.ui.AndroidPhotoCapture
 import vault.ui.App
@@ -61,6 +62,7 @@ class MainActivity : ComponentActivity() {
             onQueued = { UploadWorker.scheduleIfAllowed(applicationContext, baseUrl, SyncMode.LOCAL_ONLY) },
             syncMode = SyncMode.LOCAL_ONLY,
             local = session,
+            planRenderer = AndroidPlanRenderer(),
         )
         setContent { App(container, resumeNavigator(session)) }
     }

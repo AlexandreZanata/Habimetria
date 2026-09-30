@@ -10,8 +10,8 @@ Normative for the on-device core. Code: `vault.local.db` in `:shared`.
 - Schema JSON exports to `app/shared/schemas/` and is committed.
   Version bumps require explicit `Migration` SQL; destructive
   migration is forbidden (photos must survive upgrades).
-- v1 capture core → v2 location/EXIF columns → v3 manifests.
-  Report rows land with L6.
+- v1 capture core → v2 location/EXIF columns → v3 manifests →
+  v4 reports with detached receipts.
 - Device time and GPS stay device claims. No `received_at_server`,
   no certified `sealed_at` columns exist locally.
 

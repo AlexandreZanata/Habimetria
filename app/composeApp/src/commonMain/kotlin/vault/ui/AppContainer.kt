@@ -7,6 +7,7 @@ import okio.FileSystem
 import vault.api.VaultApi
 import vault.api.platformEngine
 import vault.local.LocalSession
+import vault.local.PlanRenderer
 import vault.local.SyncMode
 import vault.queue.CaptureStore
 import vault.queue.UploadPump
@@ -29,6 +30,7 @@ class AppContainer(
     val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
     val syncMode: SyncMode = SyncMode.WITH_SERVER_SYNC,
     val local: LocalSession? = null,
+    val planRenderer: PlanRenderer? = null,
 )
 
 fun createContainer(
@@ -40,9 +42,13 @@ fun createContainer(
     fs: FileSystem = FileSystem.SYSTEM,
     syncMode: SyncMode = SyncMode.WITH_SERVER_SYNC,
     local: LocalSession? = null,
+    planRenderer: PlanRenderer? = null,
 ): AppContainer {
     val api = VaultApi(baseUrl, platformEngine())
     val store = CaptureStore(fs, "$filesDir/queue")
     val pump = UploadPump(store, api, fs)
-    return AppContainer(api, store, pump, filesDir, photoCapture, platformPdf, onQueued, syncMode = syncMode, local = local)
+    return AppContainer(
+        api, store, pump, filesDir, photoCapture, platformPdf, onQueued,
+        syncMode = syncMode, local = local, planRenderer = planRenderer,
+    )
 }

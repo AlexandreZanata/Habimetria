@@ -2,6 +2,7 @@ package vault
 
 import androidx.compose.ui.window.ComposeUIViewController
 import vault.api.appFilesDir
+import vault.pdf.IosPlanRenderer
 import vault.pdf.PlatformPdf
 import vault.ui.App
 import vault.ui.IosPhotoCapture
@@ -16,6 +17,7 @@ fun MainViewController(platformPdf: PlatformPdf) = ComposeUIViewController {
             filesDir = appFilesDir(),
             photoCapture = IosPhotoCapture(),
             platformPdf = platformPdf,
+            planRenderer = IosPlanRenderer(),
         ),
     )
 }

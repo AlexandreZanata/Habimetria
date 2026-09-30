@@ -31,6 +31,23 @@ Follows `docs/03-architecture/client-processing.md`. Server never renders.
 5. QR is a lookup/import aid for Report/Manifest identity, never proof
    of byte integrity and never a LAN/localhost URL.
 
+## Local pipeline (L6)
+
+- Shared contract in `vault.local` (`PdfContract`): content model from
+  the sealed snapshot, exact photo pagination from aspect rects, style
+  tokens. Photo slots fit their page; continuation pages keep the
+  no-drop invariant on font-metric drift.
+- Platform ports: `AndroidPlanRenderer` (PdfDocument, sampled decode,
+  StaticLayout wrap, zxing QR) and `IosPlanRenderer` (UIKit PDF,
+  thumbnail decode, CoreText measure, CoreImage QR). Logical contents
+  match; bytes need not.
+- `ReportGenerator` runs architecture order: pre-check originals →
+  paginate → render with progress/cancel → save bytes → hash → sign
+  receipt (`local-receipt/v1`) → commit READY. Missing originals fail
+  finalization instead of silent omission; cancel/retry keep SEALED.
+- Reports persist (`reports`, unique per manifest) with the receipt;
+  `LocalPdfScreen` shows progress, hashes, share and verification.
+
 ## Budgets
 
 - Final PDF ≤ 50 MB (server cap). Target < 10 MB per 100 photos.
