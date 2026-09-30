@@ -138,6 +138,40 @@ data class LocalManifest(
 )
 
 @Entity(
+    tableName = "reports",
+    foreignKeys = [
+        ForeignKey(
+            entity = LocalInspection::class,
+            parentColumns = ["id"],
+            childColumns = ["inspectionId"],
+        ),
+        ForeignKey(
+            entity = LocalManifest::class,
+            parentColumns = ["id"],
+            childColumns = ["manifestId"],
+        ),
+    ],
+    indices = [Index(value = ["manifestId"], unique = true)],
+)
+data class LocalReport(
+    @PrimaryKey val id: String,
+    val inspectionId: String,
+    val manifestId: String,
+    val manifestSha256: String,
+    // RENDERING | READY | FAILED. Retries update the same row;
+    // SEALED never reopens.
+    val status: String,
+    val pdfSha256: String?,
+    val pdfFileName: String?,
+    val receiptSignature: String?,
+    val signerKeyId: String,
+    val algorithm: String,
+    val hardwareBacked: Boolean,
+    val createdAtDevice: String,
+    val completedAtDevice: String?,
+)
+
+@Entity(
     tableName = "findings",
     foreignKeys = [
         ForeignKey(

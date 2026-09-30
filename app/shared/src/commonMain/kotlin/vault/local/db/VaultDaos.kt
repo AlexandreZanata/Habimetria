@@ -116,6 +116,21 @@ interface ManifestDao {
 }
 
 @Dao
+interface ReportDao {
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insert(report: LocalReport)
+
+    @Update
+    suspend fun update(report: LocalReport)
+
+    @Query("SELECT * FROM reports WHERE manifestId = :manifestId")
+    suspend fun getByManifest(manifestId: String): LocalReport?
+
+    @Query("SELECT * FROM reports WHERE id = :id")
+    suspend fun get(id: String): LocalReport?
+}
+
+@Dao
 interface FindingDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(finding: LocalFinding)

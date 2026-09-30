@@ -8,5 +8,5 @@ import kotlinx.coroutines.Dispatchers
 actual fun localDatabaseBuilder(path: String): RoomDatabase.Builder<VaultDatabase> =
     Room.databaseBuilder<VaultDatabase>(name = path)
         .setDriver(BundledSQLiteDriver())
-        .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+        .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
         .setQueryCoroutineContext(Dispatchers.Default)
