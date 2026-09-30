@@ -1,13 +1,7 @@
 package vault.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,7 +9,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
 // Home: address → property → tenancy → inspection → template.
@@ -30,20 +23,18 @@ fun HomeScreen(
     var error by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        Text("Don't pay for what you didn't break.")
-        TextField(
+    ScreenColumn {
+        ScreenTitle(Strings.appName)
+        Text(Strings.tagline)
+        VaultTextField(
             value = address,
             onValueChange = { address = it },
-            label = { Text("Property address") },
+            label = Strings.addressLabel,
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
         )
-        error?.let { Text("Error: $it") }
-        Button(
+        ErrorText(error)
+        VaultButton(
+            text = if (busy) Strings.starting else Strings.start,
             onClick = {
                 busy = true
                 error = null
@@ -62,9 +53,6 @@ fun HomeScreen(
                 }
             },
             enabled = !busy && address.trim().length >= 3,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(if (busy) "Starting…" else "Protect this tenancy")
-        }
+        )
     }
 }

@@ -37,6 +37,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `05-mobile/capture-ux.md` — photo-first flow, zero friction rules
 - `05-mobile/pdf-ondevice.md` — two-pass seal PDF, QR, budgets
 - `05-mobile/local-store.md` — L1 SQLite schema, files, migration rules
+- `05-mobile/design-system.md` — L2 Material 3 tokens, components, pt-BR
 
 ## 06 Roadmap
 
