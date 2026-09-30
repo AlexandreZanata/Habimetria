@@ -29,6 +29,17 @@ class NavigatorTest {
     }
 
     @Test
+    fun inspectorRoutePushAndBack() {
+        val nav = VaultNavigator()
+        nav.startInspection("ins9")
+        nav.navigate(Route.Review("ins9"))
+        nav.navigate(Route.LocalInspector("ins9"))
+        assertEquals(Route.LocalInspector("ins9"), nav.route.value)
+        assertTrue(nav.goBack())
+        assertEquals(Route.Review("ins9"), nav.route.value)
+    }
+
+    @Test
     fun newInspectionResetsStack() {
         val nav = VaultNavigator()
         nav.startInspection("a")

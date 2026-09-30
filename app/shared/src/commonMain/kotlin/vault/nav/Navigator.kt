@@ -17,6 +17,7 @@ sealed interface Route {
     data class LocalVerify(val inspectionId: String) : Route
     data class LocalOccurrence(val inspectionId: String) : Route
     data class LocalCompare(val exitInspectionId: String) : Route
+    data class LocalInspector(val inspectionId: String) : Route
 }
 
 class VaultNavigator(initial: Route = Route.Home) {

@@ -78,6 +78,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                         inspectionId = r.inspectionId,
                         onSeal = { navigator.navigate(Route.Seal(r.inspectionId)) },
                         onCompare = { navigator.navigate(Route.LocalCompare(r.inspectionId)) },
+                        onInspector = { navigator.navigate(Route.LocalInspector(r.inspectionId)) },
                         onBack = { navigator.goBack() },
                     )
                 } else {
@@ -142,6 +143,21 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     LocalCompareScreen(
                         session = local,
                         exitInspectionId = r.exitInspectionId,
+                        onBack = { navigator.goBack() },
+                    )
+                } else {
+                    ScreenColumn {
+                        ErrorText(Strings.pdfSealFirst)
+                        VaultButton(text = Strings.back, onClick = { navigator.goBack() })
+                    }
+                }
+            }
+            is Route.LocalInspector -> VaultShell(Strings.inspectorTitle, true, { navigator.goBack() }) {
+                val local = container.local
+                if (local != null) {
+                    LocalInspectorScreen(
+                        session = local,
+                        inspectionId = r.inspectionId,
                         onBack = { navigator.goBack() },
                     )
                 } else {

@@ -44,6 +44,7 @@ fun LocalReviewScreen(
     inspectionId: String,
     onSeal: () -> Unit,
     onCompare: () -> Unit,
+    onInspector: () -> Unit,
     onBack: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -96,6 +97,7 @@ fun LocalReviewScreen(
             }
         }
         VaultButton(text = "${Strings.sealNow} →", onClick = onSeal)
+        VaultButton(text = "${Strings.inspectorTitle} →", onClick = onInspector)
         if (kind == "exit") {
             VaultButton(text = "${Strings.compareTitle} →", onClick = onCompare)
         }
