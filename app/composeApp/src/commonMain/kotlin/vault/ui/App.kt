@@ -96,6 +96,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                         inspectionId = r.inspectionId,
                         onPdf = { navigator.navigate(Route.LocalPdf(r.inspectionId)) },
                         onOccurrence = { navigator.navigate(Route.LocalOccurrence(r.inspectionId)) },
+                        onExitReady = { navigator.startInspection(it) },
                         onBack = { navigator.goBack() },
                     )
                 } else {

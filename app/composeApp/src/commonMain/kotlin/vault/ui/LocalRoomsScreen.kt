@@ -44,10 +44,12 @@ fun LocalRoomsScreen(
     var renameText by remember { mutableStateOf("") }
     var deleting by remember { mutableStateOf<LocalRoom?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
+    var kind by remember { mutableStateOf("entry") }
 
     fun refresh() {
         scope.launch {
             try {
+                kind = session.repository.getInspection(inspectionId)?.kind ?: "entry"
                 val list = session.repository.roomsFor(inspectionId)
                 rooms = list
                 percents = list.associate { it.id to session.coverage.roomCoverage(it.id).percent() }
@@ -62,7 +64,7 @@ fun LocalRoomsScreen(
     LaunchedEffect(inspectionId) { refresh() }
 
     ScreenColumn {
-        ScreenTitle(Strings.rooms)
+        ScreenTitle(Strings.rooms + if (kind == "exit") " — ${Strings.exitKind}" else "")
         ErrorText(error)
         Row(
             modifier = Modifier.fillMaxWidth(),

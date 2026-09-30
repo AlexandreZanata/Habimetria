@@ -117,6 +117,8 @@ object Strings {
     const val occurrenceAttach = "Anexar foto"
     const val occurrenceEmpty = "Nenhuma ocorrência registrada."
     const val occurrenceSealedNote = "A vistoria lacrada não muda: o registro vai para a linha do tempo."
+    const val exitStart = "Iniciar vistoria de saída"
+    const val exitKind = "Saída"
     const val queueConfirmed = "confirmadas"
     const val queueSending = "enviando"
     const val queueWaiting = "na fila"

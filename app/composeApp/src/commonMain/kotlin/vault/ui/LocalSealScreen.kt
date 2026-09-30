@@ -31,6 +31,7 @@ fun LocalSealScreen(
     inspectionId: String,
     onPdf: () -> Unit,
     onOccurrence: () -> Unit,
+    onExitReady: (exitId: String) -> Unit,
     onBack: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -87,6 +88,25 @@ fun LocalSealScreen(
             Text("${Strings.sealed} ✓")
             Text("${Strings.sealManifestLabel}: ${it.canonicalSha256.take(16)}…")
             VaultButton(text = "${Strings.generatePdf} →", onClick = onPdf)
+            VaultButton(
+                text = "${Strings.exitStart} →",
+                onClick = {
+                    scope.launch {
+                        try {
+                            val inspection = session.repository.getInspection(inspectionId)
+                                ?: return@launch
+                            val exit = session.repository.startExitInspection(inspection.tenancyId)
+                            session.navigation.save(
+                                vault.local.NavigationProgress(exit.id),
+                            )
+                            onExitReady(exit.id)
+                        } catch (e: Exception) {
+                            error = e.message?.take(200)
+                        }
+                    }
+                },
+                enabled = !busy,
+            )
         }
         VaultButton(text = "${Strings.newOccurrence} →", onClick = onOccurrence)
         ErrorText(error)
