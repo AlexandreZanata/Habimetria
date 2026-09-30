@@ -10,9 +10,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.launch
+import vault.local.NavigationProgress
 
-// Home: address → property → tenancy → inspection → template.
-// Direct entry, no server step, no signup, no login.
+// Home: address → property → tenancy → inspection.
+// Local session present: full offline journey, no templates.
+// Otherwise the optional API integration with template rooms.
 @Composable
 fun HomeScreen(
     container: AppContainer,
@@ -40,11 +42,20 @@ fun HomeScreen(
                 error = null
                 scope.launch {
                     try {
-                        val prop = container.api.createProperty(address.trim())
-                        val ten = container.api.createTenancy(prop.id)
-                        val ins = container.api.createInspection(ten.id)
-                        container.api.ensureTemplate(ins.id)
-                        onReady(ins.id)
+                        val local = container.local
+                        if (local != null) {
+                            val prop = local.repository.createProperty(address.trim())
+                            val ten = local.repository.createTenancy(prop.id)
+                            val ins = local.repository.createInspection(ten.id)
+                            local.navigation.save(NavigationProgress(ins.id))
+                            onReady(ins.id)
+                        } else {
+                            val prop = container.api.createProperty(address.trim())
+                            val ten = container.api.createTenancy(prop.id)
+                            val ins = container.api.createInspection(ten.id)
+                            container.api.ensureTemplate(ins.id)
+                            onReady(ins.id)
+                        }
                     } catch (e: Exception) {
                         error = e.message?.take(160)
                     } finally {

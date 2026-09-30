@@ -11,6 +11,7 @@ import okio.Path.Companion.toPath
 data class NavigationProgress(
     val inspectionId: String? = null,
     val roomId: String? = null,
+    val roomLabel: String? = null,
 )
 
 class NavigationStore(

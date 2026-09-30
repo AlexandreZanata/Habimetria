@@ -164,6 +164,9 @@ class LocalVaultRepository(private val db: VaultDatabase) {
     suspend fun evidencesFor(inspectionId: String): List<LocalEvidence> =
         db.evidenceDao().listForInspection(inspectionId)
 
+    suspend fun evidencesForRoom(roomId: String): List<LocalEvidence> =
+        db.evidenceDao().listForRoom(roomId)
+
     private suspend fun requireProperty(id: String) {
         if (db.propertyDao().get(id) == null) throw LocalValidationException("property not found")
     }

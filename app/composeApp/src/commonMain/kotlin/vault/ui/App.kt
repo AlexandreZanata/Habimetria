@@ -18,15 +18,30 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                 HomeScreen(container, onReady = { navigator.startInspection(it) })
             }
             is Route.Rooms -> VaultShell(Strings.rooms, true, { navigator.goBack() }) {
-                RoomsScreen(
-                    container = container,
-                    inspectionId = r.inspectionId,
-                    onOpenRoom = { roomId, label ->
-                        navigator.navigate(Route.Room(r.inspectionId, roomId, label))
-                    },
-                    onReview = { navigator.navigate(Route.Review(r.inspectionId)) },
-                    onBack = { navigator.goBack() },
-                )
+                val local = container.local
+                if (local != null) {
+                    LocalRoomsScreen(
+                        session = local,
+                        inspectionId = r.inspectionId,
+                        onOpenRoom = { roomId, label ->
+                            local.navigation.save(
+                                vault.local.NavigationProgress(r.inspectionId, roomId, label),
+                            )
+                            navigator.navigate(Route.Room(r.inspectionId, roomId, label))
+                        },
+                        onBack = { navigator.goBack() },
+                    )
+                } else {
+                    RoomsScreen(
+                        container = container,
+                        inspectionId = r.inspectionId,
+                        onOpenRoom = { roomId, label ->
+                            navigator.navigate(Route.Room(r.inspectionId, roomId, label))
+                        },
+                        onReview = { navigator.navigate(Route.Review(r.inspectionId)) },
+                        onBack = { navigator.goBack() },
+                    )
+                }
             }
             is Route.Room -> VaultShell(r.label, true, { navigator.goBack() }) {
                 RoomScreen(
