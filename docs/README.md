@@ -22,6 +22,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `03-architecture/client-processing.md` — app does the work, server keeps trust
 - `03-architecture/payments.md` — Stripe + Asaas seam, off by default in MVP
 - `03-architecture/local_validation_architecture.md` — planned local authority, immutable snapshots and offline verification
+- `03-architecture/offline-package.md` — L7 published package/verify format
 
 ## 04 Backend
 
