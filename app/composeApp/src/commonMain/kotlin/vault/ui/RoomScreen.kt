@@ -72,33 +72,35 @@ fun RoomScreen(
     val capture: () -> Unit = {
         busy = true
         error = null
-        scope.launch {
-            try {
-                val shot = container.photoCapture.capture()
-                if (shot == null) {
-                    error = Strings.cameraUnavailable
-                } else {
-                    val name = "cap-${mine.size + 1}-${roomId.take(4)}.jpg"
-                    val path = "${container.filesDir}/photos/$name"
-                    withContext(Dispatchers.Default) {
-                        FileSystem.SYSTEM.createDirectories("${container.filesDir}/photos".toPath())
-                        FileSystem.SYSTEM.write(path.toPath()) { write(shot.bytes) }
-                    }
-                    withContext(Dispatchers.Default) {
-                        container.store.enqueue(
-                            QueueItem(
-                                localId = name,
-                                inspectionId = inspectionId,
-                                roomId = roomId,
-                                roomKey = roomLabel,
-                                filePath = path,
-                                mime = shot.mime,
-                            ),
-                        )
-                    }
-                    container.onQueued()
-                }
-            } catch (e: Exception) {
+                scope.launch {
+                    try {
+                        val shot = when (val result = container.photoCapture.captureDetailed()) {
+                            is CaptureResult.Failure -> {
+                                error = captureErrorString(result.reason)
+                                return@launch
+                            }
+                            is CaptureResult.Photo -> result
+                        }
+                        val name = "cap-${mine.size + 1}-${roomId.take(4)}.jpg"
+                        val path = "${container.filesDir}/photos/$name"
+                        withContext(Dispatchers.Default) {
+                            FileSystem.SYSTEM.createDirectories("${container.filesDir}/photos".toPath())
+                            FileSystem.SYSTEM.write(path.toPath()) { write(shot.bytes) }
+                        }
+                        withContext(Dispatchers.Default) {
+                            container.store.enqueue(
+                                QueueItem(
+                                    localId = name,
+                                    inspectionId = inspectionId,
+                                    roomId = roomId,
+                                    roomKey = roomLabel,
+                                    filePath = path,
+                                    mime = shot.mime,
+                                ),
+                            )
+                        }
+                        container.onQueued()
+                    } catch (e: Exception) {
                 error = e.message?.take(160)
             } finally {
                 busy = false

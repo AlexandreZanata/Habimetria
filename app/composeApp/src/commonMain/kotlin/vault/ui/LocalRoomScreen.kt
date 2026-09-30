@@ -100,10 +100,12 @@ fun LocalRoomScreen(
                     error = Strings.sealed
                     return@launch
                 }
-                val shot = photoCapture.capture()
-                if (shot == null) {
-                    error = Strings.cameraUnavailable
-                    return@launch
+                val shot = when (val result = photoCapture.captureDetailed()) {
+                    is CaptureResult.Failure -> {
+                        error = captureErrorString(result.reason)
+                        return@launch
+                    }
+                    is CaptureResult.Photo -> result
                 }
                 val evidenceId = newLocalId("ev")
                 val stored = withContext(Dispatchers.Default) {
