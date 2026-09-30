@@ -17,3 +17,23 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
         connection.execSQL("ALTER TABLE evidences ADD COLUMN exifLongitude REAL")
     }
 }
+
+// v2 → v3: manifests table with a unique inspection binding. Existing
+// inspections stay DRAFT; nothing is sealed by the migration itself.
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(connection: SQLiteConnection) {
+        connection.execSQL(
+            "CREATE TABLE IF NOT EXISTS `manifests` (`id` TEXT NOT NULL, `inspectionId` TEXT NOT NULL, " +
+                "`formatVersion` INTEGER NOT NULL, `canonicalSha256` TEXT NOT NULL, " +
+                "`canonicalJson` TEXT NOT NULL, `sealedAtDevice` TEXT NOT NULL, " +
+                "`signerKeyId` TEXT NOT NULL, `algorithm` TEXT NOT NULL, " +
+                "`hardwareBacked` INTEGER NOT NULL, `signature` TEXT NOT NULL, PRIMARY KEY(`id`), " +
+                "FOREIGN KEY(`inspectionId`) REFERENCES `inspections`(`id`) " +
+                "ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        )
+        connection.execSQL(
+            "CREATE UNIQUE INDEX IF NOT EXISTS `index_manifests_inspectionId` " +
+                "ON `manifests` (`inspectionId`)",
+        )
+    }
+}

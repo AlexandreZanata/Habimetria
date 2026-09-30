@@ -5,9 +5,9 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 
-// Schema v2 (v1 + location/EXIF columns on evidences). Manifest/Report
-// tables land with L5. Schema JSON exports to shared/schemas; every
-// version bump ships an explicit Migration — never destructive.
+// Schema v3 (v2 + manifests). Report rows land with L6. Schema JSON
+// exports to shared/schemas; every version bump ships an explicit
+// Migration — never destructive.
 @Database(
     entities = [
         LocalProperty::class,
@@ -16,8 +16,9 @@ import androidx.room.RoomDatabaseConstructor
         LocalRoom::class,
         LocalEvidence::class,
         LocalFinding::class,
+        LocalManifest::class,
     ],
-    version = 2,
+    version = 3,
 )
 @ConstructedBy(VaultDatabaseConstructor::class)
 abstract class VaultDatabase : RoomDatabase() {
@@ -27,6 +28,7 @@ abstract class VaultDatabase : RoomDatabase() {
     abstract fun roomDao(): RoomDao
     abstract fun evidenceDao(): EvidenceDao
     abstract fun findingDao(): FindingDao
+    abstract fun manifestDao(): ManifestDao
 }
 
 @Suppress("KotlinNoActualForExpect")

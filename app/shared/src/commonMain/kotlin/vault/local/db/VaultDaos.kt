@@ -90,6 +90,18 @@ interface EvidenceDao {
 }
 
 @Dao
+interface ManifestDao {
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insert(manifest: LocalManifest)
+
+    @Query("SELECT * FROM manifests WHERE inspectionId = :inspectionId")
+    suspend fun getByInspection(inspectionId: String): LocalManifest?
+
+    @Query("SELECT * FROM manifests WHERE id = :id")
+    suspend fun get(id: String): LocalManifest?
+}
+
+@Dao
 interface FindingDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(finding: LocalFinding)
