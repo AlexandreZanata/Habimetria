@@ -52,6 +52,12 @@ room {
     schemaDirectory("$projectDir/schemas")
 }
 
+// Fixture dump for the independent verifier:
+// ./gradlew :shared:jvmTest -Dvault.fixture.dir=/tmp/vault-fixture
+tasks.withType<Test> {
+    systemProperty("vault.fixture.dir", System.getProperty("vault.fixture.dir", ""))
+}
+
 android {
     namespace = "vault.shared"
     compileSdk = 36
