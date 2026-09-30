@@ -76,6 +76,14 @@ interface EvidenceDao {
 
     @Query("SELECT COALESCE(MAX(sequence), 0) FROM evidences WHERE inspectionId = :inspectionId")
     suspend fun maxSequence(inspectionId: String): Int
+
+    // Atomic sequence assignment: concurrent captures never share a number.
+    @Transaction
+    suspend fun insertSequenced(inspectionId: String, build: (Int) -> LocalEvidence): LocalEvidence {
+        val row = build(maxSequence(inspectionId) + 1)
+        insert(row)
+        return row
+    }
 }
 
 @Dao
