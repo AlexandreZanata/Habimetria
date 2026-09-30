@@ -15,6 +15,8 @@ object Strings {
     const val capture = "Capturar"
     const val saving = "Salvando…"
     const val cameraUnavailable = "Câmera indisponível"
+    const val cameraPreview = "Pré-visualização da câmera"
+    const val cameraComingSoon = "Câmera em breve"
     const val coverage = "Cobertura"
     const val reviewTitle = "Revisão"
     const val photosSuffix = "fotos"
