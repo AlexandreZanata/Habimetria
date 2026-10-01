@@ -41,6 +41,9 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-      - uses: android-actions/setup-android@v3
       - uses: gradle/actions/setup-gradle@v4
+      # No setup-android step: ubuntu-latest runners already ship the
+      # Android SDK (ANDROID_SDK_ROOT preset, licenses accepted).
+      # android-actions/setup-android@v3 runs `sdkmanager tools`, which
+      # no longer exists and fails every mobile-linux run.
       - run: make verify-mobile
