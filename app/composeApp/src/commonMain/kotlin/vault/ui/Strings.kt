@@ -35,6 +35,7 @@ object Strings {
     const val sealTitle = "Lacrar esta vistoria"
     const val sealWarning = "Fotos lacradas não podem ser trocadas. Novos problemas viram ocorrências."
     const val sealed = "Lacrado ✓"
+    const val sealedLocked = "Vistoria lacrada. Novos registros entram como ocorrência."
     const val code = "Código"
     const val evidence = "Evidências"
     const val generatePdf = "Gerar PDF"

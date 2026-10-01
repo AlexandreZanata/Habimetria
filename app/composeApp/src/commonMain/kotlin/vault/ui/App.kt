@@ -35,6 +35,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                             )
                             navigator.navigate(Route.Room(r.inspectionId, roomId, label))
                         },
+                        onSealed = { navigator.openSealedReview(r.inspectionId) },
                         onBack = { navigator.goBackOr(Route.Home) },
                     )
                 } else {
@@ -64,6 +65,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                             )
                             navigator.navigate(Route.Room(r.inspectionId, nextId, nextLabel))
                         },
+                        onSealed = { navigator.openSealedReview(r.inspectionId) },
                         onReview = { navigator.navigate(Route.Review(r.inspectionId)) },
                         onBack = { navigator.goBackOr(Route.Rooms(r.inspectionId)) },
                     )

@@ -65,6 +65,7 @@ fun LocalRoomScreen(
     roomId: String,
     roomLabel: String,
     onOpenRoom: (roomId: String, label: String) -> Unit,
+    onSealed: () -> Unit,
     onReview: () -> Unit,
     onBack: () -> Unit,
 ) {
@@ -79,10 +80,17 @@ fun LocalRoomScreen(
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var viewing by remember { mutableStateOf<LocalEvidence?>(null) }
+    var sealedRedirected by remember { mutableStateOf(false) }
 
     fun refresh() {
         scope.launch {
             try {
+                val inspection = session.repository.getInspection(inspectionId)
+                if (inspection != null && inspection.status != STATUS_DRAFT && !sealedRedirected) {
+                    sealedRedirected = true
+                    onSealed()
+                    return@launch
+                }
                 val allRooms = session.repository.roomsFor(inspectionId)
                 val room = allRooms.firstOrNull { it.id == roomId }
                 na = parseNaCategories(room?.naCategories.orEmpty())
