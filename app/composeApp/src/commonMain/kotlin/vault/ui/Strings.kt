@@ -5,7 +5,10 @@ package vault.ui
 object Strings {
     const val appName = "Cofre de Vistoria"
     const val tagline = "Não pague pelo que você não quebrou."
-    const val addressLabel = "Endereço do imóvel"
+    const val streetLabel = "Rua / Avenida"
+    const val numberLabel = "Número"
+    const val complementLabel = "Complemento (opcional)"
+    const val neighborhoodLabel = "Bairro"
     const val start = "Proteger esta locação"
     const val starting = "Iniciando…"
     const val rooms = "Cômodos"

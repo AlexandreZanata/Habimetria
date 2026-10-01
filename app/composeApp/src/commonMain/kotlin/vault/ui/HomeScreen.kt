@@ -17,7 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import vault.local.AddressParts
 import vault.local.NavigationProgress
+import vault.local.formatAddress
 
 private data class DraftResume(
     val id: String,
@@ -26,17 +28,20 @@ private data class DraftResume(
     val kind: String,
 )
 
-// Home: address → property → tenancy → inspection.
+// Home: checkout-style address → property → tenancy → inspection.
 // Local session present: full offline journey, no templates.
-// Unfinished DRAFT inspections are listed first: going back never
-// loses rooms, the same inspection resumes with its data intact.
+// Unfinished DRAFT inspections are listed first and the form prefills
+// from the latest one: going back never loses rooms or address data.
 // Otherwise the optional API integration with template rooms.
 @Composable
 fun HomeScreen(
     container: AppContainer,
     onReady: (inspectionId: String) -> Unit,
 ) {
-    var address by remember { mutableStateOf("") }
+    var street by remember { mutableStateOf("") }
+    var number by remember { mutableStateOf("") }
+    var complement by remember { mutableStateOf("") }
+    var neighborhood by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var drafts by remember { mutableStateOf<List<DraftResume>?>(null) }
@@ -46,7 +51,18 @@ fun HomeScreen(
     LaunchedEffect(local) {
         val repo = local?.repository ?: return@LaunchedEffect
         drafts = try {
-            repo.listDrafts().map { inspection ->
+            val list = repo.listDrafts()
+            // Prefill the form from the latest draft so data entered
+            // before going to the rooms screen survives coming back.
+            if (street.isBlank() && number.isBlank() && neighborhood.isBlank()) {
+                list.firstOrNull()?.let { repo.addressPartsFor(it.id) }?.let { parts: AddressParts ->
+                    street = parts.street
+                    number = parts.number
+                    complement = parts.complement
+                    neighborhood = parts.neighborhood
+                }
+            }
+            list.map { inspection ->
                 DraftResume(
                     id = inspection.id,
                     address = repo.addressFor(inspection.id) ?: "—",
@@ -94,12 +110,38 @@ fun HomeScreen(
             }
         }
         VaultTextField(
-            value = address,
-            onValueChange = { address = it },
-            label = Strings.addressLabel,
+            value = street,
+            onValueChange = { street = it },
+            label = Strings.streetLabel,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            VaultTextField(
+                value = number,
+                onValueChange = { number = it },
+                label = Strings.numberLabel,
+                modifier = Modifier.weight(1f),
+            )
+            VaultTextField(
+                value = complement,
+                onValueChange = { complement = it },
+                label = Strings.complementLabel,
+                modifier = Modifier.weight(2f),
+            )
+        }
+        VaultTextField(
+            value = neighborhood,
+            onValueChange = { neighborhood = it },
+            label = Strings.neighborhoodLabel,
             modifier = Modifier.fillMaxWidth(),
         )
         ErrorText(error)
+        val formValid = street.trim().length >= 3 &&
+            number.trim().isNotEmpty() &&
+            neighborhood.trim().length >= 2
         VaultButton(
             text = if (busy) Strings.starting else Strings.start,
             onClick = {
@@ -109,13 +151,22 @@ fun HomeScreen(
                     try {
                         val local = container.local
                         if (local != null) {
-                            val prop = local.repository.createProperty(address.trim())
+                            val prop = local.repository.createPropertyStructured(
+                                street = street,
+                                number = number,
+                                complement = complement.ifBlank { null },
+                                neighborhood = neighborhood,
+                            )
                             val ten = local.repository.createTenancy(prop.id)
                             val ins = local.repository.createInspection(ten.id)
                             local.navigation.save(NavigationProgress(ins.id))
                             onReady(ins.id)
                         } else {
-                            val prop = container.api.createProperty(address.trim())
+                            val line = formatAddress(
+                                street.trim(), number.trim(),
+                                complement.trim(), neighborhood.trim(),
+                            )
+                            val prop = container.api.createProperty(line)
                             val ten = container.api.createTenancy(prop.id)
                             val ins = container.api.createInspection(ten.id)
                             container.api.ensureTemplate(ins.id)
@@ -128,7 +179,7 @@ fun HomeScreen(
                     }
                 }
             },
-            enabled = !busy && address.trim().length >= 3,
+            enabled = !busy && formValid,
         )
     }
 }
