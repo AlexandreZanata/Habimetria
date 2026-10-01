@@ -1,96 +1,58 @@
 package vault.ui
 
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.ProcessLifecycleOwner
+import android.net.Uri
+import androidx.activity.result.ActivityResultLauncher
+import androidx.core.content.FileProvider
+import java.io.File
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
 import vault.api.AppContext
-import java.io.File
-import java.util.concurrent.Executor
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
-// AndroidPhotoCapture uses the shared ImageCapture (no preview needed for
-// capture) with latency-first settings per docs/05-mobile/capture-ux.md.
-// The camera provider is awaited asynchronously: blocking .get() on the
-// main thread freezes input (ANR) and eats taps.
+// System-camera capture (ACTION_IMAGE_CAPTURE via TakePicture). No
+// embedded preview, no CameraX lifecycle to leak: the user taps
+// Fotografar, the camera opens full-screen, and the exact JPEG bytes
+// come back through the FileProvider cache file (removed after reading).
+// Location stays best-effort at shutter time; denial never blocks.
 //
-// Reliability (L4): permission is checked before touching the camera,
-// target rotation follows the current display so landscape shots keep
-// their orientation, failures carry explicit reasons, and the exact
-// captured bytes are returned without re-encoding (the temp file is
-// removed after reading). The use case is bound only when no screen
-// holds it: with the preview open, CameraPreview already bound the
-// shared instance and capture reuses it without rebinding.
+// Reliability (L4): the launcher is registered by MainActivity (an
+// Activity contract cannot start from an application context). A missing
+// camera app or a cancelled shot maps to explicit failures; the pending
+// continuation resumes exactly once.
 class AndroidPhotoCapture : PhotoCapture {
-    private val executor: Executor by lazy {
-        ContextCompat.getMainExecutor(AppContext.app)
-    }
-    private val imageCapture: ImageCapture
-        get() = SharedCamera.imageCapture
+    private var launcher: ActivityResultLauncher<Uri>? = null
+    private var pending: Continuation<Boolean>? = null
+    private var pendingFile: File? = null
 
-    private fun hasPermission(): Boolean =
-        ContextCompat.checkSelfPermission(AppContext.app, Manifest.permission.CAMERA) ==
-            PackageManager.PERMISSION_GRANTED
-
-    private suspend fun provider(): ProcessCameraProvider = suspendCancellableCoroutine { cont ->
-        val future = ProcessCameraProvider.getInstance(AppContext.app)
-        future.addListener(
-            {
-                try {
-                    cont.resume(future.get())
-                } catch (e: Exception) {
-                    if (cont.isActive) cont.resumeWithException(e)
-                }
-            },
-            executor,
-        )
+    fun attach(launcher: ActivityResultLauncher<Uri>) {
+        this.launcher = launcher
     }
 
-    private suspend fun ensureBound() {
-        val cameraProvider = provider()
-        if (cameraProvider.isBound(imageCapture)) return
-        try {
-            cameraProvider.bindToLifecycle(
-                ProcessLifecycleOwner.get(),
-                SharedCamera.selector,
-                imageCapture,
-            )
-        } catch (_: IllegalArgumentException) {
-            // Raced with a screen bind holding the same instance.
+    fun onTakePictureResult(success: Boolean) {
+        pending?.let { cont ->
+            pending = null
+            cont.resume(success)
         }
     }
 
     override suspend fun captureDetailed(): CaptureResult {
-        if (!hasPermission()) return CaptureResult.Failure(CaptureFailure.PERMISSION_DENIED)
-        try {
-            ensureBound()
-        } catch (_: Exception) {
-            return CaptureResult.Failure(CaptureFailure.NOT_READY)
+        val takePicture = launcher ?: return CaptureResult.Failure(CaptureFailure.UNAVAILABLE)
+        val out = File(AppContext.app.cacheDir, "cap-${System.nanoTime()}.jpg")
+        val uri = FileProvider.getUriForFile(AppContext.app, "vault.app.fileprovider", out)
+        pendingFile = out
+        val success = suspendCancellableCoroutine { cont ->
+            pending?.let { old -> old.resume(false) }
+            pending = cont
+            takePicture.launch(uri)
         }
-        imageCapture.targetRotation = ContextCompat.getDisplayOrDefault(AppContext.app).rotation
-        return suspendCancellableCoroutine { cont ->
-            val out = File(AppContext.app.cacheDir, "cap-${System.nanoTime()}.jpg")
-            imageCapture.takePicture(
-                ImageCapture.OutputFileOptions.Builder(out).build(),
-                executor,
-                object : ImageCapture.OnImageSavedCallback {
-                    override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                        val bytes = out.readBytes()
-                        out.delete()
-                        cont.resume(CaptureResult.Photo(bytes))
-                    }
-
-                    override fun onError(exc: ImageCaptureException) {
-                        out.delete()
-                        if (cont.isActive) cont.resume(CaptureResult.Failure(CaptureFailure.CAPTURE_FAILED))
-                    }
-                },
-            )
+        pendingFile = null
+        if (!success || !out.exists()) {
+            out.delete()
+            return CaptureResult.Failure(CaptureFailure.CAPTURE_FAILED)
         }
+        val bytes = out.readBytes()
+        out.delete()
+        if (bytes.isEmpty()) return CaptureResult.Failure(CaptureFailure.CAPTURE_FAILED)
+        return CaptureResult.Photo(bytes)
     }
 }

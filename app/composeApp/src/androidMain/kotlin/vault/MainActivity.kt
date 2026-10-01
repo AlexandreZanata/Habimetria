@@ -31,8 +31,16 @@ import vault.ui.createContainer
 // stays compiled and tested as an optional path (ServerConfig origin).
 class MainActivity : ComponentActivity() {
     private val baseUrl = ServerConfig.DEFAULT_BASE_URL
+    private val photoCapture = AndroidPhotoCapture()
 
-    // Camera is blocking; location is best-effort (denied still captures).
+    // Capture delegates to the system camera (no in-app preview), so no
+    // CAMERA permission is needed here; location is best-effort per photo
+    // (denied still captures).
+    private val takePicture = registerForActivityResult(
+        ActivityResultContracts.TakePicture(),
+    ) { success -> photoCapture.onTakePictureResult(success) }
+
+    // Location is best-effort (denied still captures).
     private val permissions = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
     ) { /* denial surfaces per-photo as explicit status, never a block */ }
@@ -41,8 +49,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         AppContext.app = applicationContext
+        photoCapture.attach(takePicture)
         val missing = arrayOf(
-            Manifest.permission.CAMERA,
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION,
         ).filter {
@@ -57,7 +65,7 @@ class MainActivity : ComponentActivity() {
         val container = createContainer(
             baseUrl = baseUrl,
             filesDir = filesDir,
-            photoCapture = AndroidPhotoCapture(),
+            photoCapture = photoCapture,
             platformPdf = AndroidPlatformPdf(),
             onQueued = { UploadWorker.scheduleIfAllowed(applicationContext, baseUrl, SyncMode.LOCAL_ONLY) },
             syncMode = SyncMode.LOCAL_ONLY,
