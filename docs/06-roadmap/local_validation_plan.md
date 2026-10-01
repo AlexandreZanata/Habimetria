@@ -1,6 +1,7 @@
 # Local Validation Roadmap — Android and iOS
 
-Status: planned, not implemented. Requested on 2026-09-30.
+Status: implemented on `codex/local-validation-roadmap` (Linux pass 2026-10-01, HEAD `f8a06d8`, including V1.1-V1.5 and V-sync). Requested on 2026-09-30.
+Physical-device, emulator/simulator, and macOS/Xcode gates remain explicitly unverified per the acceptance report.
 This is the next delivery scope after the existing M1–M5 work. It expands
 the earlier template-room and phone-only scope; it does not claim those
 features or device checks are complete.
