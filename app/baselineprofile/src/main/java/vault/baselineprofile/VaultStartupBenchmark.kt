@@ -31,6 +31,6 @@ class VaultStartupBenchmark {
     ) {
         pressHome()
         startActivityAndWait()
-        device.wait(Until.hasObject(By.text("Cofre de Vistoria")), 5_000)
+        device.wait(Until.hasObject(By.text("Vistoria de Imóveis")), 5_000)
     }
 }

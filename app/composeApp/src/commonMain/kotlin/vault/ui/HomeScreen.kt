@@ -90,7 +90,7 @@ fun HomeScreen(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text(Strings.appName, style = MaterialTheme.typography.headlineMedium)
+        Text(Strings.appName, style = MaterialTheme.typography.headlineSmall)
         Text(
             Strings.tagline,
             style = MaterialTheme.typography.bodyLarge,

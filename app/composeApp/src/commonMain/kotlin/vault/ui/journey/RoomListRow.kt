@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import vault.local.db.LocalRoom
@@ -36,6 +37,7 @@ fun RoomListRow(
     Row(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onOpen).padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             "${room.label} · $percent% · $evidenceCount ${Strings.photosSuffix}",
@@ -53,6 +55,8 @@ fun RoomListRow(
             }
         }
         TextButton(onClick = onRename) { Text(Strings.rename) }
-        TextButton(onClick = onDelete) { Text(Strings.delete) }
+        TextButton(onClick = onDelete) {
+            Text(Strings.delete, color = MaterialTheme.colorScheme.error)
+        }
     }
 }

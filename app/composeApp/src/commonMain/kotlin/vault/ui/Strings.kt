@@ -3,7 +3,8 @@ package vault.ui
 // pt-BR UI strings in one place. Screens reference this object;
 // no user-facing literal lives inline in a screen.
 object Strings {
-    const val appName = "Cofre de Vistoria"
+    const val appName = "Vistoria de Imóveis"
+    const val technicalDetails = "Detalhes técnicos"
     const val tagline = "Não pague pelo que você não quebrou."
     const val streetLabel = "Rua / Avenida"
     const val numberLabel = "Número"
