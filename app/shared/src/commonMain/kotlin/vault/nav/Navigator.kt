@@ -48,4 +48,12 @@ class VaultNavigator(initial: Route = Route.Home) {
         _route.value = stack.last()
         return true
     }
+
+    // Back with a floor: resuming straight into a screen leaves a
+    // single-route stack where goBack() dies. The floor keeps the
+    // bottom Voltar identical to the header back in every entry point:
+    // first room → rooms list, rooms list → home.
+    fun goBackOr(fallback: Route) {
+        if (!goBack()) navigate(fallback)
+    }
 }

@@ -61,4 +61,20 @@ class NavigatorTest {
         assertEquals(Route.Home, nav.route.value)
         assertFalse(nav.canGoBack)
     }
+
+    @Test
+    fun backOrFallsBackOnSingleRouteStack() {
+        // Resume straight into a room: stack holds one route.
+        val resumed = VaultNavigator(Route.Room("ins1", "r1", "Sala"))
+        resumed.goBackOr(Route.Rooms("ins1"))
+        assertEquals(Route.Rooms("ins1"), resumed.route.value)
+
+        // Normal stack pops instead of jumping to the fallback.
+        val nav = VaultNavigator()
+        nav.startInspection("ins1")
+        nav.navigate(Route.Room("ins1", "r1", "Sala"))
+        nav.navigate(Route.Room("ins1", "r2", "Cozinha"))
+        nav.goBackOr(Route.Rooms("ins1"))
+        assertEquals(Route.Room("ins1", "r1", "Sala"), nav.route.value)
+    }
 }
