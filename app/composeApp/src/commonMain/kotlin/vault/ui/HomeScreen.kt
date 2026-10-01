@@ -28,11 +28,19 @@ private data class DraftResume(
     val kind: String,
 )
 
-// Home: checkout-style address → property → tenancy → inspection.
-// Local session present: full offline journey, no templates.
-// Unfinished DRAFT inspections are listed first and the form prefills
-// from the latest one: going back never loses rooms or address data.
-// Otherwise the optional API integration with template rooms.
+private data class PropertyCard(
+    val id: String,
+    val title: String,
+    val address: String?,
+    val drafts: List<DraftResume>,
+)
+
+// Home: properties with nicknames → inspections. Local session present:
+// full offline journey, no templates. Each property card lists its
+// unfinished DRAFT inspections (going back never loses rooms or address
+// data) plus a new-inspection shortcut; "＋ Novo imóvel" opens the
+// checkout-style address form. Otherwise the optional API integration
+// with template rooms.
 @Composable
 fun HomeScreen(
     container: AppContainer,
@@ -42,32 +50,45 @@ fun HomeScreen(
     var number by remember { mutableStateOf("") }
     var complement by remember { mutableStateOf("") }
     var neighborhood by remember { mutableStateOf("") }
+    var nickname by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
-    var drafts by remember { mutableStateOf<List<DraftResume>?>(null) }
+    var cards by remember { mutableStateOf<List<PropertyCard>?>(null) }
+    var showForm by remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
     val local = container.local
 
     LaunchedEffect(local) {
         val repo = local?.repository ?: return@LaunchedEffect
-        drafts = try {
-            val list = repo.listDrafts()
-            // Prefill the form from the latest draft so data entered
-            // before going to the rooms screen survives coming back.
-            if (street.isBlank() && number.isBlank() && neighborhood.isBlank()) {
-                list.firstOrNull()?.let { repo.addressPartsFor(it.id) }?.let { parts: AddressParts ->
-                    street = parts.street
-                    number = parts.number
-                    complement = parts.complement
-                    neighborhood = parts.neighborhood
-                }
-            }
-            list.map { inspection ->
-                DraftResume(
+        cards = try {
+            val properties = repo.listProperties()
+            val drafts = repo.listDrafts().map { inspection ->
+                val propertyId = repo.propertyFor(inspection.id)?.id
+                propertyId to DraftResume(
                     id = inspection.id,
                     address = repo.addressFor(inspection.id) ?: "—",
                     rooms = repo.roomsFor(inspection.id).size,
                     kind = inspection.kind,
+                )
+            }.groupBy({ it.first }, { it.second })
+            if (properties.isNotEmpty()) showForm = false
+            // Prefill the new-property form from the latest draft so data
+            // entered before going to the rooms screen survives coming back.
+            if (street.isBlank() && number.isBlank() && neighborhood.isBlank()) {
+                repo.listDrafts().firstOrNull()?.let { repo.addressPartsFor(it.id) }
+                    ?.let { parts: AddressParts ->
+                        street = parts.street
+                        number = parts.number
+                        complement = parts.complement
+                        neighborhood = parts.neighborhood
+                    }
+            }
+            properties.map { property ->
+                PropertyCard(
+                    id = property.id,
+                    title = property.nickname.ifBlank { property.address },
+                    address = property.address.takeIf { property.nickname.isNotBlank() },
+                    drafts = drafts[property.id].orEmpty(),
                 )
             }
         } catch (_: Exception) {
@@ -86,28 +107,65 @@ fun HomeScreen(
         }
     }
 
+    fun startOnProperty(propertyId: String) {
+        scope.launch {
+            busy = true
+            error = null
+            try {
+                val repo = local?.repository ?: return@launch
+                val ten = repo.createTenancy(propertyId)
+                val ins = repo.createInspection(ten.id)
+                local.navigation.save(NavigationProgress(ins.id))
+                onReady(ins.id)
+            } catch (e: Exception) {
+                error = userErrorMessage(e)
+            } finally {
+                busy = false
+            }
+        }
+    }
+
     ScreenColumn {
         ScreenTitle(Strings.appName)
         Text(Strings.tagline)
-        val pending = drafts
-        if (local != null && pending != null && pending.isNotEmpty()) {
-            Text(Strings.resumeTitle, style = MaterialTheme.typography.titleMedium)
-            pending.forEach { draft ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = draft.address +
-                            (if (draft.kind == "exit") " — ${Strings.exitKind}" else "") +
-                            " · ${draft.rooms} ${Strings.roomsSuffix}",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.weight(1f),
-                    )
-                    TextButton(onClick = { resume(draft.id) }) { Text(Strings.continueAction) }
+        val propertyCards = cards
+        if (local != null && propertyCards != null && propertyCards.isNotEmpty()) {
+            Text(Strings.myProperties, style = MaterialTheme.typography.titleMedium)
+            propertyCards.forEach { card ->
+                Text(card.title, style = MaterialTheme.typography.titleSmall)
+                card.address?.let {
+                    Text(it, style = MaterialTheme.typography.bodyMedium)
                 }
+                card.drafts.forEach { draft ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = (if (draft.kind == "exit") "${Strings.exitKind} · " else "") +
+                                "${draft.rooms} ${Strings.roomsSuffix}",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(1f),
+                        )
+                        TextButton(onClick = { resume(draft.id) }) { Text(Strings.continueAction) }
+                    }
+                }
+                TextButton(
+                    onClick = { startOnProperty(card.id) },
+                    enabled = !busy,
+                ) { Text(Strings.newInspection) }
             }
+            TextButton(onClick = { showForm = !showForm }) { Text(Strings.newProperty) }
+        }
+        if (local == null || showForm || propertyCards?.isEmpty() == true) {
+        if (local != null) {
+            VaultTextField(
+                value = nickname,
+                onValueChange = { nickname = it },
+                label = Strings.nicknameLabel,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
         VaultTextField(
             value = street,
@@ -156,6 +214,7 @@ fun HomeScreen(
                                 number = number,
                                 complement = complement.ifBlank { null },
                                 neighborhood = neighborhood,
+                                nickname = nickname,
                             )
                             val ten = local.repository.createTenancy(prop.id)
                             val ins = local.repository.createInspection(ten.id)
@@ -181,5 +240,6 @@ fun HomeScreen(
             },
             enabled = !busy && formValid,
         )
+        }
     }
 }
