@@ -52,6 +52,7 @@ object Strings {
     const val moveUp = "Mover para cima"
     const val moveDown = "Mover para baixo"
     const val noRoomsYet = "Nenhum cômodo ainda. Digite o nome acima."
+    const val startInspection = "Iniciar vistoria"
     const val deleteRoomTitle = "Excluir cômodo?"
     const val deleteRoomHasEvidence = "Este cômodo tem evidências. Remova-as antes de excluir."
     const val reviewChecklist = "Faltam fotos de"

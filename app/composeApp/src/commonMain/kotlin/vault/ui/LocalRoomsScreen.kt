@@ -33,6 +33,7 @@ fun LocalRoomsScreen(
     session: LocalSession,
     inspectionId: String,
     onOpenRoom: (roomId: String, label: String) -> Unit,
+    onStartCapture: (roomId: String, label: String) -> Unit,
     onBack: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -117,6 +118,14 @@ fun LocalRoomsScreen(
                 )
             }
         }
+        VaultButton(
+            text = Strings.startInspection,
+            onClick = {
+                val first = rooms.firstOrNull() ?: return@VaultButton
+                onStartCapture(first.id, first.label)
+            },
+            enabled = rooms.isNotEmpty(),
+        )
         VaultButton(text = Strings.back, onClick = onBack)
     }
 

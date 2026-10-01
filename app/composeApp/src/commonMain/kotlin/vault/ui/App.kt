@@ -29,6 +29,12 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                             )
                             navigator.navigate(Route.Room(r.inspectionId, roomId, label))
                         },
+                        onStartCapture = { roomId, label ->
+                            local.navigation.save(
+                                vault.local.NavigationProgress(r.inspectionId, roomId, label),
+                            )
+                            navigator.navigate(Route.Room(r.inspectionId, roomId, label))
+                        },
                         onBack = { navigator.goBack() },
                     )
                 } else {
