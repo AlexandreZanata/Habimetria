@@ -15,13 +15,13 @@ import vault.api.AppContext
 import vault.api.appFilesDir
 import vault.local.LocalSession
 import vault.local.NavigationProgress
-import vault.local.STATUS_SEALED
 import vault.local.SyncMode
 import vault.local.openLocalSession
 import vault.nav.RestoreFacts
 import vault.nav.Route
 import vault.nav.VaultNavigator
 import vault.nav.trailFor
+import vault.nav.validatedTrail
 import vault.pdf.AndroidPlanRenderer
 import vault.pdf.AndroidPlatformPdf
 import vault.ui.AndroidPhotoCapture
@@ -142,30 +142,7 @@ class MainActivity : ComponentActivity() {
         return navigator
     }
 
-    private suspend fun validatedTrail(session: LocalSession): List<Route> {
-        val progress: NavigationProgress = session.navigation.load()
-        val inspectionId = progress.inspectionId?.takeIf { it.isNotBlank() }
-        val inspection = inspectionId?.let { session.repository.getInspection(it) }
-        val roomId = progress.roomId?.takeIf { it.isNotBlank() }
-        val roomExists = if (inspectionId == null || roomId == null) {
-            false
-        } else {
-            session.repository.roomsFor(inspectionId).any { it.id == roomId }
-        }
-        val propertyId = progress.propertyId?.takeIf { it.isNotBlank() }
-        val propertyExists = if (propertyId == null) {
-            false
-        } else {
-            session.repository.listProperties().any { it.id == propertyId }
-        }
-        return trailFor(
-            progress,
-            RestoreFacts(
-                inspectionExists = inspectionId == null || inspection != null,
-                inspectionSealed = inspection?.status == STATUS_SEALED,
-                roomExists = roomExists,
-                propertyExists = propertyExists,
-            ),
-        )
-    }
+    // Startup revalidation lives in shared vault.nav.validatedTrail so
+    // JVM tests cover the stale-route fallbacks (deleted vs archived,
+    // missing vs sealed); the activity only restores the returned trail.
 }

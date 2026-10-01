@@ -42,7 +42,11 @@ delete, populated ones archive/restore with sealed hashes unchanged.
 The Imóveis list confirms through `PropertyRemovalHost` (fresh eligibility
 wording in `PropertyRemovalDialog`, busy-guarded commit, live-region
 feedback) with labeled menus in `PropertyCards`; navigation refs revalidate
-in `PropertyActions`.
+in `PropertyActions`. Archived history filters through `PropertyVisibility`
+(Ativos/Arquivados, badge, restore keeping stable IDs); Home hides
+archived, creation requires restore, Vistorias/Relatórios label archived
+rows via overview flags, and startup revalidates stale trails through
+shared `vault.nav.validatedTrail`.
 
 ## Local verification (Linux)
 
