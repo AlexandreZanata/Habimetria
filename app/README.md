@@ -48,6 +48,18 @@ archived, creation requires restore, Vistorias/Relatórios label archived
 rows via overview flags, and startup revalidates stale trails through
 shared `vault.nav.validatedTrail`.
 
+## Accessibility (U10)
+
+Every action is a labeled button with no time limit: `ScreenTitle` announces
+as a heading, errors/success/loading announce via polite live regions
+(`ErrorText`, `RemovalFeedback`, `ProgressStatus`), decorative glyphs stay
+hidden from assistive tech, and touch targets keep the Material 3 48dp
+minimum (no overrides). No operation auto-cancels on inactivity; the only
+delays are background upload backoffs (server sync, off in LOCAL_ONLY).
+Light and dark schemes are independent theme roles with no hardcoded
+screen colors; status always pairs text/shape with color. Device
+TalkBack/switch/keyboard pass stays gated on hardware (U10 accept).
+
 ## Local verification (Linux)
 
 ```bash
