@@ -26,7 +26,8 @@ section), `PropertyForm` (address form, creation block),
 Journey destinations read bulk overviews from `LocalOverviewRepository`
 (`shared/.../vault/local/LocalOverviews.kt`, queries in `ListingDaos`):
 `vault/ui/inspection/` (`InspectionListScreen` with Em andamento/Selada
-filters; DRAFT resumes, SEALED opens read-only review) and
+filters; `InspectionRows` options menu per state plus `InspectionDeleteHost`
+confirmation; DRAFT resumes, SEALED opens read-only review) and
 `vault/ui/report/` (`ReportListScreen` with finalized READY reports
 plus explicit pending "Gerar PDF" entries; DRAFT never offers
 generation, pending never claims an existing report; `ReportRows`

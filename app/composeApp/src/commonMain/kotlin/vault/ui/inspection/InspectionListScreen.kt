@@ -34,6 +34,7 @@ import vault.ui.ProgressStatus
 import vault.ui.Strings
 import vault.ui.VaultTextField
 import vault.ui.property.PropertyStrings
+import vault.ui.property.RemovalFeedback
 import vault.ui.userErrorMessage
 
 // Vistorias grouped by property with Em andamento/Selada filters.
@@ -51,6 +52,9 @@ fun InspectionListScreen(
     var rows by remember { mutableStateOf<List<InspectionOverview>?>(null) }
     var loadError by rememberSaveable { mutableStateOf<String?>(null) }
     var actionError by rememberSaveable { mutableStateOf<String?>(null) }
+    var deleting by remember { mutableStateOf<InspectionOverview?>(null) }
+    var feedback by rememberSaveable { mutableStateOf<String?>(null) }
+    var busy by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
     val local = container.local
@@ -65,6 +69,7 @@ fun InspectionListScreen(
             }
             rows = overviews.inspectionOverviews(status = status, limit = 100)
             loadError = null
+            feedback = null
         } catch (e: Exception) {
             loadError = userErrorMessage(e)
         }
@@ -132,6 +137,10 @@ fun InspectionListScreen(
                 label = InspectionStrings.search,
             )
         }
+        val done = feedback
+        if (done != null) {
+            item { RemovalFeedback(done) }
+        }
         when {
             loadError != null -> {
                 item {
@@ -164,8 +173,10 @@ fun InspectionListScreen(
                     items(group, key = { it.inspection.id }) { overview ->
                         InspectionRow(
                             overview = overview,
+                            busy = busy,
                             onResume = { resume(overview.inspection.id) },
                             onReview = { review(overview.inspection.id) },
+                            onDelete = { deleting = overview },
                         )
                     }
                 }
@@ -173,27 +184,19 @@ fun InspectionListScreen(
         }
         item { ErrorText(actionError) }
     }
-}
 
-@Composable
-private fun InspectionRow(
-    overview: InspectionOverview,
-    onResume: () -> Unit,
-    onReview: () -> Unit,
-) {
-    val sealed = overview.inspection.status == STATUS_SEALED
-    val kind = if (overview.inspection.kind == "exit") InspectionStrings.kindExit else InspectionStrings.kindEntry
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(
-            "$kind · ${if (sealed) PropertyStrings.sealedLabel else PropertyStrings.draftLabel}",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+    deleting?.let { target ->
+        InspectionDeleteHost(
+            container = container,
+            overview = target,
+            onCommitted = { message ->
+                scope.launch {
+                    load()
+                    feedback = message
+                    deleting = null
+                }
+            },
+            onDismiss = { deleting = null },
         )
-        OutlinedButton(onClick = { if (sealed) onReview() else onResume() }) {
-            Text(if (sealed) Strings.review else Strings.continueAction)
-        }
     }
 }
