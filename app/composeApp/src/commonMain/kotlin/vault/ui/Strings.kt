@@ -13,6 +13,7 @@ object Strings {
     const val starting = "Iniciando…"
     const val rooms = "Cômodos"
     const val review = "Revisar e lacrar"
+    const val reviewShort = "Revisão"
     const val back = "Voltar"
     const val next = "Avançar"
     const val capture = "Capturar"

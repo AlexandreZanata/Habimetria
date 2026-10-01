@@ -1,14 +1,11 @@
 package vault.ui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -25,6 +22,10 @@ import vault.local.LocalSession
 import vault.local.LocalValidationException
 import vault.local.STATUS_DRAFT
 import vault.local.db.LocalRoom
+import vault.ui.journey.JourneyShortcuts
+import vault.ui.journey.RoomDeleteDialog
+import vault.ui.journey.RoomListRow
+import vault.ui.journey.RoomRenameDialog
 
 // LocalRoomsScreen: manually named rooms, offline. Add, rename, reorder
 // and delete in DRAFT; labels freeze when sealed. Unicode preserved.
@@ -36,7 +37,7 @@ fun LocalRoomsScreen(
     onOpenRoom: (roomId: String, label: String) -> Unit,
     onStartCapture: (roomId: String, label: String) -> Unit,
     onSealed: () -> Unit,
-    onBack: () -> Unit,
+    onReviewShortcut: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     var rooms by remember { mutableStateOf<List<LocalRoom>>(emptyList()) }
@@ -75,6 +76,7 @@ fun LocalRoomsScreen(
 
     ScreenColumn {
         ScreenTitle(Strings.rooms + if (kind == "exit") " — ${Strings.exitKind}" else "")
+        JourneyShortcuts(onRooms = null, onReview = onReviewShortcut)
         ErrorText(error)
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -104,7 +106,7 @@ fun LocalRoomsScreen(
         if (rooms.isEmpty()) BodyText(Strings.noRoomsYet)
         LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             items(rooms, key = { it.id }) { room ->
-                LocalRoomRow(
+                RoomListRow(
                     room = room,
                     percent = percents[room.id] ?: 0,
                     evidenceCount = counts[room.id] ?: 0,
@@ -135,87 +137,46 @@ fun LocalRoomsScreen(
             },
             enabled = rooms.isNotEmpty(),
         )
-        VaultButton(text = Strings.back, onClick = onBack)
     }
 
     renaming?.let { room ->
-        AlertDialog(
-            onDismissRequest = { renaming = null },
-            title = { Text(Strings.rename) },
-            text = {
-                VaultTextField(value = renameText, onValueChange = { renameText = it }, label = room.label)
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    scope.launch {
-                        try {
-                            session.repository.renameRoom(room.id, renameText)
-                            renaming = null
-                            refresh()
-                        } catch (e: Exception) {
-                            error = userErrorMessage(e)
-                        }
+        RoomRenameDialog(
+            room = room,
+            text = renameText,
+            onText = { renameText = it },
+            onConfirm = {
+                scope.launch {
+                    try {
+                        session.repository.renameRoom(room.id, renameText)
+                        renaming = null
+                        refresh()
+                    } catch (e: Exception) {
+                        error = userErrorMessage(e)
                     }
-                }) { Text(Strings.save) }
+                }
             },
-            dismissButton = { TextButton(onClick = { renaming = null }) { Text(Strings.cancel) } },
+            onDismiss = { renaming = null },
         )
     }
 
     deleting?.let { room ->
-        val attached = counts[room.id] ?: 0
-        AlertDialog(
-            onDismissRequest = { deleting = null },
-            title = { Text(Strings.deleteRoomTitle) },
-            text = {
-                Text(if (attached > 0) Strings.deleteRoomHasEvidence else room.label)
+        RoomDeleteDialog(
+            roomLabel = room.label,
+            attached = counts[room.id] ?: 0,
+            onConfirm = {
+                scope.launch {
+                    try {
+                        session.repository.deleteRoom(room.id)
+                        deleting = null
+                        refresh()
+                    } catch (e: LocalValidationException) {
+                        error = userErrorMessage(e)
+                        deleting = null
+                    }
+                }
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        scope.launch {
-                            try {
-                                session.repository.deleteRoom(room.id)
-                                deleting = null
-                                refresh()
-                            } catch (e: LocalValidationException) {
-                                error = userErrorMessage(e)
-                                deleting = null
-                            }
-                        }
-                    },
-                    enabled = attached == 0,
-                ) { Text(Strings.delete) }
-            },
-            dismissButton = { TextButton(onClick = { deleting = null }) { Text(Strings.cancel) } },
+            onDismiss = { deleting = null },
         )
     }
 }
 
-@Composable
-private fun LocalRoomRow(
-    room: LocalRoom,
-    percent: Int,
-    evidenceCount: Int,
-    canMoveUp: Boolean,
-    canMoveDown: Boolean,
-    onOpen: () -> Unit,
-    onRename: () -> Unit,
-    onMove: (Int) -> Unit,
-    onDelete: () -> Unit,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onOpen).padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(
-            "${room.label} · $percent% · $evidenceCount ${Strings.photosSuffix}",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.weight(1f),
-        )
-        if (canMoveUp) TextButton(onClick = { onMove(-1) }) { Text("↑") }
-        if (canMoveDown) TextButton(onClick = { onMove(1) }) { Text("↓") }
-        TextButton(onClick = onRename) { Text(Strings.rename) }
-        TextButton(onClick = onDelete) { Text(Strings.delete) }
-    }
-}
