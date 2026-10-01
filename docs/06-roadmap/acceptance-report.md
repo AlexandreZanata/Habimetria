@@ -1,16 +1,18 @@
 # Acceptance Report — Local Validation (L8, Linux Pass)
 
 First executable pass of [the acceptance matrix](local_validation_acceptance.md).
-Build: `a4603ab` on `codex/local-validation-roadmap`, 2026-09-30.
+Build: `f8a06d8` on `codex/local-validation-roadmap`, 2026-09-30 (code HEAD).
+Consolidation refresh: docs status updated 2026-10-01 (no code change); validation below was executed against `f8a06d8`.
+Scope since `a4603ab` adds V1.1 occurrences, V1.2 exit, V1.3 compare, V1.4 inspector, V1.5 visual diff, and optional V-sync server mirror.
 Host: Linux x86_64, JDK 21 Temurin, Gradle 8.14.3, Android SDK
-(platforms 34/35/36/36.1), Go 1.22.2, Kotlin 2.3.10, AGP 8.13.2,
+(platforms 34/35/36/36.1), Go 1.25.0, Kotlin 2.3.10, AGP 8.13.2,
 Room 2.8.5, Compose Multiplatform 1.11.1.
 
 ## Executed checks (all green)
 
 - `make verify`: Go vet + `go test ./...` — `cmd/verify` (5),
   `internal/httpapi`, `internal/service` pass.
-- `make verify-mobile`: 75/75 JVM tests pass (suites below),
+- `make verify-mobile`: 109/109 JVM tests pass (35 suites: 26 `vault.local` plus `vault.nav`, `vault.sync`, `QueueTest`, `RoomCoverageTest`, `VaultApiTest` incl. exit/comparison/occurrence),
   `:shared:compileKotlinIosSimulatorArm64`,
   `:composeApp:assembleDebug` green.
 - `make verify-all`: green.
@@ -19,7 +21,7 @@ Room 2.8.5, Compose Multiplatform 1.11.1.
   issuer `UNKNOWN` (fixture key unpinned, as designed).
 - `make bench`: `canonicalManifest+sha(100ev)` 2 ms,
   `paginateModel(100photos)` <1 ms (JVM host-relative, not device claims).
-- `make bench-apk`: release R8 APK **8.5 MB unsigned** vs 15 MB budget.
+- `make bench-apk`: release R8 APK **8.5 MB unsigned** vs 15 MB budget (measured at `a4603ab`; not re-measured in this consolidation pass).
 
 ## Automated regression map
 
@@ -36,6 +38,11 @@ Room 2.8.5, Compose Multiplatform 1.11.1.
   `cmd/verify` (same five, independent runtime).
 - Network independence: `OfflineJourneyTest` (LOCAL_ONLY, no API in
   path), `LocationTest` (no fabricated coordinates).
+- Evolution and mirror: `OccurrenceTest`, `ExitInspectionTest`,
+  `CompareTest`, `AiInspectorTest`, `AiDiffTest`, `ServerMirrorTest`
+  (LOCAL_ONLY skip, explicit failure, no `VaultApi` from screens),
+  `DbMirrorStoreTest` (first-write-wins links); API `occurrence`,
+  `comparison`, and exit-kind guard covered by Go tests.
 
 ## Defects found and fixed in L8
 
@@ -50,7 +57,7 @@ Room 2.8.5, Compose Multiplatform 1.11.1.
 
 - `backend/testdata/fixture-package/` — 2-photo package exported by
   the app, accepted by both verifiers.
-- `app/shared/schemas/.../{1..5}.json` — schema history with migrations.
+- `app/shared/schemas/.../{1..11}.json` — schema history with migrations (v11 adds `mirror_links`).
 
 ## Explicitly unverified (not claimed)
 
