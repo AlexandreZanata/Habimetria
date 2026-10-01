@@ -8,6 +8,17 @@ No new scope; Linux green is the entry ticket, devices are the exam.
 
 ## Entry gates (must already be green)
 
+- `.github/workflows/verify.yml` green on the release commit:
+  `make vet test`, `make test-integration` (Postgres 18.6 service),
+  independent verifier on `backend/testdata/fixture-package/`,
+  plus `make verify-mobile` on Linux.
+- `make test-integration` passes against a real PostgreSQL 18.6;
+  an unconfigured suite (skip) never counts as DB integration.
+- `infra/.env.example` matches `config.FromEnv` defaults;
+  `docker compose -f infra/docker-compose.yml config` renders with
+  `postgres`/`minio` healthy dependencies and the API `/healthz` gate.
+- Live boot fails fast without a real `HMAC_KEY`
+  (`config.Validate`, covered by `internal/config` tests).
 - `make verify-all` green on the release commit.
 - `make bench-apk` release APK vs 15 MB budget recorded.
 - Independent verifier accepts `backend/testdata/fixture-package/`.
