@@ -32,6 +32,7 @@ generation, pending never claims an existing report).
 The capture journey (`LocalRoomsScreen`, `LocalRoomScreen`,
 `LocalReviewScreen`, `LocalSealScreen`, `LocalPdfScreen`) shares
 `vault/ui/journey/`: `JourneyShortcuts` (Cômodos/Revisão entries),
+`RoomSetup` (info card, labeled input, text-only empty state),
 room rows/dialogs, capture controls, photo viewer and finding input.
 Journey screens keep one header Back control (no bottom Voltar),
 saveable input (category, finding note/preset) and busy-guarded

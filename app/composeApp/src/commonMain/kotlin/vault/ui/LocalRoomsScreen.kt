@@ -1,13 +1,10 @@
 package vault.ui
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,7 +21,10 @@ import vault.local.STATUS_DRAFT
 import vault.local.db.LocalRoom
 import vault.ui.journey.JourneyShortcuts
 import vault.ui.journey.RoomDeleteDialog
+import vault.ui.journey.RoomEmptyState
+import vault.ui.journey.RoomInfoCard
 import vault.ui.journey.RoomListRow
+import vault.ui.journey.RoomNameInput
 import vault.ui.journey.RoomRenameDialog
 
 // LocalRoomsScreen: manually named rooms, offline. Add, rename, reorder
@@ -76,34 +76,31 @@ fun LocalRoomsScreen(
 
     ScreenColumn {
         ScreenTitle(Strings.rooms + if (kind == "exit") " — ${Strings.exitKind}" else "")
+        Text(
+            Strings.roomsSubtitle,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        RoomInfoCard()
         JourneyShortcuts(onRooms = null, onReview = onReviewShortcut)
         ErrorText(error)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            VaultTextField(
-                value = newLabel,
-                onValueChange = { newLabel = it },
-                label = Strings.roomNameHint,
-                modifier = Modifier.weight(1f),
-            )
-            TextButton(
-                onClick = {
-                    scope.launch {
-                        try {
-                            session.repository.addRoom(inspectionId, newLabel)
-                            newLabel = ""
-                            refresh()
-                        } catch (e: Exception) {
-                            error = userErrorMessage(e)
-                        }
+        RoomNameInput(
+            value = newLabel,
+            onValue = { newLabel = it },
+            enabled = newLabel.isNotBlank(),
+            onAdd = {
+                scope.launch {
+                    try {
+                        session.repository.addRoom(inspectionId, newLabel)
+                        newLabel = ""
+                        refresh()
+                    } catch (e: Exception) {
+                        error = userErrorMessage(e)
                     }
-                },
-                modifier = Modifier.padding(top = 8.dp),
-            ) { Text(Strings.add) }
-        }
-        if (rooms.isEmpty()) BodyText(Strings.noRoomsYet)
+                }
+            },
+        )
+        if (rooms.isEmpty()) RoomEmptyState()
         LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             items(rooms, key = { it.id }) { room ->
                 RoomListRow(

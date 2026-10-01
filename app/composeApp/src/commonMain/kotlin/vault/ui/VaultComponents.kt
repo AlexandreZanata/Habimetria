@@ -9,12 +9,14 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -105,11 +107,19 @@ fun VaultTextField(
     label: String,
     modifier: Modifier = Modifier,
     singleLine: Boolean = true,
+    placeholder: String? = null,
+    leadingIcon: ImageVector? = null,
 ) {
     TextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
+        placeholder = if (placeholder != null) { { Text(placeholder) } } else null,
+        leadingIcon = if (leadingIcon != null) {
+            { Icon(leadingIcon, contentDescription = null) }
+        } else {
+            null
+        },
         singleLine = singleLine,
         modifier = modifier.fillMaxWidth(),
     )
