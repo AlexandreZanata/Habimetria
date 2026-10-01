@@ -21,6 +21,7 @@ type Deps struct {
 	Report     *service.ReportService
 	Share      *service.ShareService
 	Occurrence *service.OccurrenceService
+	Compare    *service.CompareService
 	HMACKey    string
 }
 
@@ -79,6 +80,10 @@ func NewRouter(d Deps) *http.ServeMux {
 	mux.HandleFunc("GET /api/v1/properties/{id}/occurrences", oc.List)
 	mux.HandleFunc("POST /api/v1/occurrences/{id}/evidences", oc.Attach)
 	mux.HandleFunc("GET /api/v1/occurrences/{id}/evidences", oc.ListEvidences)
+
+	cmp := NewCompareHandler(d.Compare)
+	mux.HandleFunc("POST /api/v1/tenancies/{id}/comparisons", cmp.Upsert)
+	mux.HandleFunc("GET /api/v1/tenancies/{id}/comparisons", cmp.List)
 
 	mux.HandleFunc("GET /api/v1/ping", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"ping": "pong"})

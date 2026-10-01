@@ -48,3 +48,10 @@ Preset enum: `stain | scratch | crack | broken | moisture | hole | other`.
 - `POST /occurrences/{id}/evidences` — { evidence_id } → 201; evidence must belong to the occurrence's property (400), re-link is 409.
 - `GET /occurrences/{id}/evidences` — photo proof, oldest received first; 404 unknown occurrence.
 - Post-seal only by convention: occurrences never mutate inspections.
+
+## Comparisons (V1.3, S9)
+
+- `POST /tenancies/{id}/comparisons` — { entry_room_id, exit_room_id, shot_category, entry_evidence_id?, exit_evidence_id?, tag } → 200 upsert; retags overwrite, history stays on device.
+- `GET /tenancies/{id}/comparisons` — tags, oldest first; 404 unknown tenancy.
+- Closed vocabularies: tag `no_change|changed|wear`, category `overview|walls|openings|floor|ceiling`.
+- Rooms must sit on the tenancy's entry/exit inspections (400); tags describe visual state only, never liability.
