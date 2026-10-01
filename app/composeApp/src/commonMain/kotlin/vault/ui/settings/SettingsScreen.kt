@@ -24,7 +24,10 @@ import vault.ui.Strings
 // finding problems, future additions). Every entry navigates; there
 // are no placeholder actions.
 @Composable
-fun SettingsScreen(onOpenReports: () -> Unit) {
+fun SettingsScreen(
+    onOpenReports: () -> Unit,
+    onOpenProblems: () -> Unit,
+) {
     Column(
         modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 16.dp)
             .verticalScroll(rememberScrollState()),
@@ -52,6 +55,27 @@ fun SettingsScreen(onOpenReports: () -> Unit) {
                 )
                 Text(
                     Strings.settingsReportsBody,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        Card(
+            onClick = onOpenProblems,
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+            ),
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(
+                    SettingsStrings.problemsTitle,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Text(
+                    SettingsStrings.problemsBody,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

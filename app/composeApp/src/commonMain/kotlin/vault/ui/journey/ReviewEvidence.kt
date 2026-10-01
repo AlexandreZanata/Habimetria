@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +28,7 @@ import vault.findings.FindingPreset
 import vault.findings.label
 import vault.local.ExifGps
 import vault.local.LocalSession
+import vault.local.ProblemOption
 import vault.local.distanceMeters
 import vault.local.exifDisagrees
 import vault.local.db.LocalEvidence
@@ -104,23 +106,35 @@ fun FindingInputSheet(
 ) {
     ModalBottomSheet(onDismissRequest = onDismiss) {
         val scope = rememberCoroutineScope()
-        var presetName by rememberSaveable { mutableStateOf(FindingPreset.STAIN.name) }
+        var options by remember { mutableStateOf<List<ProblemOption>?>(null) }
+        var presetCode by rememberSaveable { mutableStateOf(FindingPreset.STAIN.name) }
         var note by rememberSaveable { mutableStateOf("") }
         var busy by remember { mutableStateOf(false) }
         var error by remember { mutableStateOf<String?>(null) }
-        val preset = FindingPreset.valueOf(presetName)
+        LaunchedEffect(session) {
+            options = try {
+                session.findingProblems.listActive()
+            } catch (_: Exception) {
+                null
+            }
+        }
+        // Customized problems (or loading fallback to built-ins); codes
+        // stay stable while labels evolve.
+        val rows = (options ?: FindingPreset.entries.map {
+            ProblemOption(it.name, it.label(), active = true, builtin = true)
+        }).chunked(4)
         Column(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             ScreenTitle(Strings.whatFound)
-            FindingPreset.entries.chunked(4).forEach { row ->
+            rows.forEach { row ->
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    row.forEach { p ->
+                    row.forEach { option ->
                         FilterChip(
-                            selected = preset == p,
-                            onClick = { presetName = p.name },
-                            label = { Text(p.label()) },
+                            selected = presetCode == option.code,
+                            onClick = { presetCode = option.code },
+                            label = { Text(option.label) },
                         )
                     }
                 }
@@ -133,7 +147,9 @@ fun FindingInputSheet(
                     busy = true
                     scope.launch {
                         try {
-                            session.repository.addFinding(roomId, evidenceId, preset, note.ifBlank { null })
+                            session.repository.addFindingWithCode(
+                                roomId, evidenceId, presetCode, note.ifBlank { null },
+                            )
                             onDone()
                         } catch (e: Exception) {
                             error = userErrorMessage(e)

@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import vault.nav.Route
 import vault.nav.VaultNavigator
+import vault.ui.settings.SettingsStrings
 
 // App owns the navigator; screens receive callbacks and stay stateless
 // about navigation. One shell per route: insets applied once at the edge.
@@ -60,7 +61,13 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
             Route.Settings -> ChromeShell(r, container, navigator, Strings.settings, false, {}) {
                 vault.ui.settings.SettingsScreen(
                     onOpenReports = { navigator.navigate(Route.Reports) },
+                    onOpenProblems = { navigator.navigate(Route.FindingProblems) },
                 )
+            }
+            Route.FindingProblems -> ChromeShell(r, container, navigator, SettingsStrings.problemsTitle, true, {
+                navigator.goBackOr(Route.Settings)
+            }) {
+                vault.ui.settings.FindingProblemsScreen(container)
             }
             Route.Reports -> ChromeShell(r, container, navigator, Strings.reports, true, {
                 navigator.goBackOr(Route.Settings)

@@ -32,7 +32,10 @@ plus explicit pending "Gerar PDF" entries; DRAFT never offers
 generation, pending never claims an existing report; `ReportRows`
 with red delete plus `ReportDeleteHost` confirmation).
 `vault/ui/settings/` (`SettingsScreen`: device-local sections; reports
-live here as a detail route under Configurações).
+live here as a detail route under Configurações; `FindingProblemsScreen`
+toggles built-ins and manages customs, `SettingsStrings` owns the copy).
+Finding display labels live in `shared/.../vault/findings/FindingLabels.kt`
+(`label()` per `AppLocale`); stored codes never change.
 Generated-report removal lives in `shared/.../vault/local/ReportGenerator.kt`
 (`deleteReport` removes row, PDF and receipt; sealed data regenerates).
 The capture journey (`LocalRoomsScreen`, `LocalRoomScreen`,
