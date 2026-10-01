@@ -25,6 +25,7 @@ fun HomePropertyStates(
     onResume: (String) -> Unit,
     onNewInspection: (String) -> Unit,
     onRename: (PropertyOverview) -> Unit,
+    onRemove: ((PropertyOverview) -> Unit)? = null,
 ) {
     when {
         loadError != null -> {
@@ -56,6 +57,7 @@ fun HomePropertyStates(
                     onResume = onResume,
                     onNewInspection = { onNewInspection(overview.property.id) },
                     onRename = { onRename(overview) },
+                    onRemove = onRemove?.let { remove -> { remove(overview) } },
                 )
             }
         }

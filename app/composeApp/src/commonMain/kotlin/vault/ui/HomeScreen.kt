@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -23,7 +24,9 @@ import vault.local.NavigationProgress
 import vault.local.PropertyOverview
 import vault.ui.property.HeroNewInspection
 import vault.ui.property.HomePropertyStates
+import vault.ui.property.PropertyRemovalHost
 import vault.ui.property.PropertyRenameDialog
+import vault.ui.property.RemovalFeedback
 import vault.ui.property.startOnProperty
 
 // Home prioritizes new/resume: hero entry to the dedicated address
@@ -43,6 +46,8 @@ fun HomeScreen(
     var cards by remember { mutableStateOf<List<PropertyOverview>?>(null) }
     var renaming by remember { mutableStateOf<PropertyOverview?>(null) }
     var renameText by remember { mutableStateOf("") }
+    var removing by remember { mutableStateOf<PropertyOverview?>(null) }
+    var feedback by rememberSaveable { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     val local = container.local
 
@@ -53,6 +58,7 @@ fun HomeScreen(
             cards = repo.propertyOverviews(limit = 100)
                 .filter { !it.property.archived }
             loadError = null
+            feedback = null
         } catch (e: Exception) {
             loadError = userErrorMessage(e)
         }
@@ -106,9 +112,27 @@ fun HomeScreen(
                 onResume = ::resume,
                 onNewInspection = ::startProperty,
                 onRename = { renaming = it; renameText = "" },
+                onRemove = { removing = it },
             )
         }
         ErrorText(error)
+        val done = feedback
+        if (done != null) RemovalFeedback(done)
+    }
+
+    removing?.let { target ->
+        PropertyRemovalHost(
+            container = container,
+            overview = target,
+            onCommitted = { message ->
+                scope.launch {
+                    load()
+                    feedback = message
+                    removing = null
+                }
+            },
+            onDismiss = { removing = null },
+        )
     }
 
     renaming?.let { overview ->
