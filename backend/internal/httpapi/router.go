@@ -77,6 +77,8 @@ func NewRouter(d Deps) *http.ServeMux {
 	oc := NewOccurrenceHandler(d.Occurrence)
 	mux.HandleFunc("POST /api/v1/properties/{id}/occurrences", oc.Create)
 	mux.HandleFunc("GET /api/v1/properties/{id}/occurrences", oc.List)
+	mux.HandleFunc("POST /api/v1/occurrences/{id}/evidences", oc.Attach)
+	mux.HandleFunc("GET /api/v1/occurrences/{id}/evidences", oc.ListEvidences)
 
 	mux.HandleFunc("GET /api/v1/ping", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"ping": "pong"})

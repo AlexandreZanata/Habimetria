@@ -45,4 +45,6 @@ Preset enum: `stain | scratch | crack | broken | moisture | hole | other`.
 
 - `POST /properties/{id}/occurrences` — { title, body? } → 201; 404 unknown property.
 - `GET /properties/{id}/occurrences` — timeline, newest first; 404 unknown property.
+- `POST /occurrences/{id}/evidences` — { evidence_id } → 201; evidence must belong to the occurrence's property (400), re-link is 409.
+- `GET /occurrences/{id}/evidences` — photo proof, oldest received first; 404 unknown occurrence.
 - Post-seal only by convention: occurrences never mutate inspections.
