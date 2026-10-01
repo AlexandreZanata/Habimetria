@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
@@ -72,7 +73,38 @@ class MainActivity : ComponentActivity() {
             local = session,
             planRenderer = AndroidPlanRenderer(),
         )
-        setContent { App(container, resumeNavigator(session)) }
+        val navigator = resumeNavigator(session)
+        wireSystemBack(navigator)
+        setContent { App(container, navigator) }
+    }
+
+    // System back mirrors the in-app Voltar (same floors): it never
+    // kills the app mid-journey, only Home exits.
+    private fun wireSystemBack(navigator: VaultNavigator) {
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    val exit = when (val r = navigator.route.value) {
+                        Route.Home -> true
+                        is Route.Rooms -> {
+                            navigator.goBackOr(Route.Home)
+                            false
+                        }
+                        is Route.Room -> {
+                            navigator.goBackOr(Route.Rooms(r.inspectionId))
+                            false
+                        }
+                        else -> !navigator.goBack()
+                    }
+                    if (exit) {
+                        isEnabled = false
+                        onBackPressedDispatcher.onBackPressed()
+                        isEnabled = true
+                    }
+                }
+            },
+        )
     }
 
     // Resume where the user stopped; falls back to Home on fresh installs
