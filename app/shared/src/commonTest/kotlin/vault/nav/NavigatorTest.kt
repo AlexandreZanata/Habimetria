@@ -188,4 +188,38 @@ class NavigatorTest {
         )
         assertEquals(listOf(Route.Home), trailFor(NavigationProgress(), alive))
     }
+
+    @Test
+    fun everyRouteMapsToOneDestination() {
+        assertEquals(Route.Home, Route.Home.destination())
+        assertEquals(Route.Properties, Route.Properties.destination())
+        assertEquals(Route.Properties, Route.PropertyDetail("p1").destination())
+        assertEquals(Route.Inspections, Route.Inspections.destination())
+        assertEquals(Route.Reports, Route.Reports.destination())
+        val journey: List<Route> = listOf(
+            Route.Rooms("i"),
+            Route.Room("i", "r", "Sala"),
+            Route.Review("i"),
+            Route.Seal("i"),
+            Route.LocalPdf("i"),
+            Route.Pdf("i", "rep", "code"),
+            Route.LocalVerify("i"),
+            Route.LocalOccurrence("i"),
+            Route.LocalCompare("i"),
+            Route.LocalInspector("i"),
+            Route.LocalDiff("i"),
+        )
+        journey.forEach { assertEquals(Route.Inspections, it.destination()) }
+    }
+
+    @Test
+    fun destinationCodesRoundTrip() {
+        assertEquals(Destinations.PROPERTIES, Destinations.codeFor(Route.Properties))
+        assertEquals(Destinations.INSPECTIONS, Destinations.codeFor(Route.Inspections))
+        assertEquals(Destinations.REPORTS, Destinations.codeFor(Route.Reports))
+        assertEquals(Destinations.HOME, Destinations.codeFor(Route.Home))
+        assertEquals(Route.Properties, Destinations.rootFor(Destinations.PROPERTIES))
+        assertEquals(Route.Home, Destinations.rootFor("unknown"))
+        assertEquals(Route.Home, Destinations.rootFor(""))
+    }
 }

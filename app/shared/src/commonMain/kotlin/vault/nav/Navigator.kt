@@ -42,11 +42,30 @@ object Destinations {
         REPORTS -> Route.Reports
         else -> Route.Home
     }
+
+    fun codeFor(route: Route): String = when (route) {
+        Route.Properties -> PROPERTIES
+        Route.Inspections -> INSPECTIONS
+        Route.Reports -> REPORTS
+        else -> HOME
+    }
 }
 
 fun Route.isDestinationRoot(): Boolean = when (this) {
     Route.Home, Route.Properties, Route.Inspections, Route.Reports -> true
     else -> false
+}
+
+// Destination owning a route, for bar/rail highlight. The whole
+// capture → seal → PDF journey belongs to Inspections; property
+// screens belong to Properties. Every route maps to exactly one root,
+// so the bar always shows a meaningful selection.
+fun Route.destination(): Route = when (this) {
+    Route.Home -> Route.Home
+    Route.Properties, is Route.PropertyDetail -> Route.Properties
+    Route.Inspections -> Route.Inspections
+    Route.Reports -> Route.Reports
+    else -> Route.Inspections
 }
 
 // Repository facts needed to validate a stored trail. Callers read these
