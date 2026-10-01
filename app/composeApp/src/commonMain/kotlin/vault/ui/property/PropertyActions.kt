@@ -1,5 +1,6 @@
 package vault.ui.property
 
+import vault.local.LocalSession
 import vault.local.NavigationProgress
 import vault.local.formatAddress
 import vault.ui.AppContainer
@@ -48,4 +49,25 @@ suspend fun createPropertyAndStart(
         container.api.ensureTemplate(ins.id)
         onReady(ins.id)
     }
+}
+
+// After a committed deletion, drop only stale navigation references to the
+// removed Property or to inspections that no longer exist. Unrelated
+// Inspection progress is preserved; DB and progress.json stay separate.
+suspend fun revalidateNavigationAfterDelete(session: LocalSession, deletedPropertyId: String) {
+    val progress = session.navigation.load()
+    val inspectionId = progress.inspectionId
+    val inspectionGone = inspectionId != null && session.repository.getInspection(inspectionId) == null
+    val propertyId = progress.propertyId
+    val propertyGone = propertyId != null &&
+        (propertyId == deletedPropertyId || session.repository.getProperty(propertyId) == null)
+    if (!inspectionGone && !propertyGone) return
+    session.navigation.save(
+        progress.copy(
+            inspectionId = inspectionId.takeUnless { inspectionGone },
+            roomId = progress.roomId.takeUnless { inspectionGone },
+            roomLabel = progress.roomLabel.takeUnless { inspectionGone },
+            propertyId = propertyId.takeUnless { propertyGone },
+        ),
+    )
 }

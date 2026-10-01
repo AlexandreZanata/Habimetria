@@ -39,6 +39,10 @@ Property removal use cases live in `shared/.../vault/local/PropertyRemoval.kt`
 (`PropertyRemovalRepository` via `LocalSession.propertyRemoval`, transactional
 queries in `vault/local/db/PropertyRemovalDao.kt`): empty unlinked Properties
 delete, populated ones archive/restore with sealed hashes unchanged.
+The Imóveis list confirms through `PropertyRemovalHost` (fresh eligibility
+wording in `PropertyRemovalDialog`, busy-guarded commit, live-region
+feedback) with labeled menus in `PropertyCards`; navigation refs revalidate
+in `PropertyActions`.
 
 ## Local verification (Linux)
 

@@ -49,6 +49,8 @@ fun PropertyListScreen(
     var cards by mutableStateOf<List<PropertyOverview>?>(null)
     var renaming by mutableStateOf<PropertyOverview?>(null)
     var renameText by rememberSaveable { mutableStateOf("") }
+    var removing by mutableStateOf<PropertyOverview?>(null)
+    var feedback by rememberSaveable { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
     val local = container.local
@@ -58,6 +60,7 @@ fun PropertyListScreen(
         try {
             cards = repo.propertyOverviews(limit = 100)
             loadError = null
+            feedback = null
         } catch (e: Exception) {
             loadError = userErrorMessage(e)
         }
@@ -85,6 +88,10 @@ fun PropertyListScreen(
                 onValueChange = { query = it },
                 label = PropertyStrings.search,
             )
+        }
+        val done = feedback
+        if (done != null) {
+            item { RemovalFeedback(done) }
         }
         when {
             loadError != null -> {
@@ -135,6 +142,7 @@ fun PropertyListScreen(
                             }
                         },
                         onRename = { renaming = overview; renameText = "" },
+                        onRemove = { removing = overview },
                     )
                     OutlinedButton(
                         onClick = { onOpenDetail(overview.property.id) },
@@ -195,6 +203,21 @@ fun PropertyListScreen(
                 }
             },
             onDismiss = { renaming = null },
+        )
+    }
+
+    removing?.let { target ->
+        PropertyRemovalHost(
+            container = container,
+            overview = target,
+            onCommitted = { message ->
+                scope.launch {
+                    load()
+                    feedback = message
+                    removing = null
+                }
+            },
+            onDismiss = { removing = null },
         )
     }
 }

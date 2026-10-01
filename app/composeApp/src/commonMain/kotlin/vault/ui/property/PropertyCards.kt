@@ -26,6 +26,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -79,6 +81,7 @@ fun PropertyCardView(
     onResume: (inspectionId: String) -> Unit,
     onNewInspection: () -> Unit,
     onRename: () -> Unit,
+    onRemove: (() -> Unit)? = null,
 ) {
     var menu by remember { mutableStateOf(false) }
     val property = overview.property
@@ -117,7 +120,14 @@ fun PropertyCardView(
                     )
                 }
                 Box {
-                    TextButton(onClick = { menu = true }) {
+                    TextButton(
+                        onClick = { menu = true },
+                        enabled = !busy,
+                        modifier = Modifier.semantics {
+                            contentDescription =
+                                "${PropertyStrings.removeMenuDescription}: $title"
+                        },
+                    ) {
                         Text(
                             "⋮",
                             fontSize = 20.sp,
@@ -126,13 +136,41 @@ fun PropertyCardView(
                     }
                     DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                         DropdownMenuItem(
-                            text = { Text(Strings.newInspection) },
+                            text = {
+                                Text(
+                                    Strings.newInspection,
+                                    modifier = Modifier.semantics {
+                                        contentDescription = "${Strings.newInspection}: $title"
+                                    },
+                                )
+                            },
                             onClick = { menu = false; onNewInspection() },
                         )
                         DropdownMenuItem(
-                            text = { Text(Strings.renameNickname) },
+                            text = {
+                                Text(
+                                    Strings.renameNickname,
+                                    modifier = Modifier.semantics {
+                                        contentDescription = "${Strings.renameNickname}: $title"
+                                    },
+                                )
+                            },
                             onClick = { menu = false; onRename() },
                         )
+                        if (onRemove != null) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        PropertyStrings.removeMenu,
+                                        modifier = Modifier.semantics {
+                                            contentDescription =
+                                                "${PropertyStrings.removeMenuDescription}: $title"
+                                        },
+                                    )
+                                },
+                                onClick = { menu = false; onRemove() },
+                            )
+                        }
                     }
                 }
             }

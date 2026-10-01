@@ -15,4 +15,23 @@ object PropertyStrings {
     const val noMatch = "Nenhuma vistoria neste filtro."
     const val openDetail = "Abrir"
     const val search = "Buscar imóvel"
+    const val removeMenu = "Remover imóvel…"
+    const val removeMenuDescription = "Opções de remoção do imóvel"
+    const val deleteTitle = "Excluir imóvel?"
+    const val deleteBody =
+        "O cadastro vazio deste imóvel será apagado neste dispositivo. " +
+            "Não há vistorias, fotos ou relatórios aqui — nada mais muda."
+    const val deleteConfirm = "Excluir"
+    const val deletedOk = "Imóvel excluído."
+    const val archiveTitle = "Arquivar imóvel?"
+    const val archiveBody =
+        "O imóvel sai das listas ativas, mas vistorias, fotos e relatórios " +
+            "ficam guardados neste dispositivo e podem ser restaurados. " +
+            "Nada é apagado."
+    const val archiveConfirm = "Arquivar"
+    const val archivedOk = "Imóvel arquivado."
+    const val blockedByHistory =
+        "Este imóvel ganhou histórico e não pode mais ser excluído. " +
+            "Ele pode ser arquivado."
+    const val removeFailed = "Não foi possível remover. Tente de novo."
 }
