@@ -22,6 +22,9 @@ interface PropertyDao {
 
     @Query("SELECT * FROM properties ORDER BY createdAtDevice DESC")
     suspend fun listAll(): List<LocalProperty>
+
+    @Query("SELECT * FROM properties ORDER BY createdAtDevice DESC LIMIT :limit OFFSET :offset")
+    suspend fun listPaged(limit: Int, offset: Int): List<LocalProperty>
 }
 
 @Dao
@@ -31,6 +34,12 @@ interface TenancyDao {
 
     @Query("SELECT * FROM tenancies WHERE id = :id")
     suspend fun get(id: String): LocalTenancy?
+
+    @Query("SELECT * FROM tenancies WHERE propertyId = :propertyId ORDER BY createdAtDevice DESC")
+    suspend fun listForProperty(propertyId: String): List<LocalTenancy>
+
+    @Query("SELECT * FROM tenancies WHERE propertyId IN (:propertyIds)")
+    suspend fun listForProperties(propertyIds: List<String>): List<LocalTenancy>
 }
 
 @Dao
@@ -52,7 +61,23 @@ interface InspectionDao {
 
     @Query("SELECT * FROM inspections ORDER BY createdAtDevice DESC")
     suspend fun listAll(): List<LocalInspection>
+
+    @Query(
+        "SELECT inspections.* FROM inspections " +
+            "JOIN tenancies ON tenancies.id = inspections.tenancyId " +
+            "WHERE tenancies.propertyId = :propertyId " +
+            "ORDER BY inspections.createdAtDevice DESC LIMIT :limit",
+    )
+    suspend fun listForProperty(propertyId: String, limit: Int): List<LocalInspection>
+
+    @Query("SELECT * FROM inspections WHERE tenancyId IN (:tenancyIds) ORDER BY createdAtDevice DESC")
+    suspend fun listForTenancies(tenancyIds: List<String>): List<LocalInspection>
 }
+
+data class RoomCount(
+    val inspectionId: String,
+    val count: Int,
+)
 
 @Dao
 interface RoomDao {
@@ -70,6 +95,12 @@ interface RoomDao {
 
     @Query("DELETE FROM rooms WHERE id = :id")
     suspend fun delete(id: String)
+
+    @Query(
+        "SELECT inspectionId AS inspectionId, COUNT(*) AS count FROM rooms " +
+            "WHERE inspectionId IN (:inspectionIds) GROUP BY inspectionId",
+    )
+    suspend fun countsForInspections(inspectionIds: List<String>): List<RoomCount>
 }
 
 @Dao

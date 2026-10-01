@@ -202,6 +202,37 @@ class LocalVaultTest {
     }
 
     @Test
+    fun propertyOverviewsAggregateWithoutPerCardQueries() = runTest {
+        val (db, repo) = freshVault()
+        val beach = repo.createPropertyStructured("Rua A", "1", null, "Centro", "Casa da praia")
+        val north = repo.createPropertyStructured("Rua B", "2", null, "Norte")
+        val draft = repo.createInspection(repo.createTenancy(beach.id).id)
+        repo.addRoom(draft.id, "Sala")
+        repo.addRoom(draft.id, "Cozinha")
+        val sealedTenancy = repo.createTenancy(north.id).id
+        val sealed = repo.createInspection(sealedTenancy)
+        repo.addRoom(sealed.id, "Quarto")
+        db.inspectionDao().update(db.inspectionDao().get(sealed.id)!!.copy(status = STATUS_SEALED))
+
+        val overviews = repo.propertyOverviews(limit = 100)
+        assertEquals(2, overviews.size)
+        val beachRow = overviews.first { it.property.id == beach.id }
+        assertEquals(1, beachRow.draftCount)
+        assertEquals(0, beachRow.sealedCount)
+        assertEquals(2, beachRow.totalRooms)
+        assertEquals(draft.id, beachRow.latestDraftId)
+        val northRow = overviews.first { it.property.id == north.id }
+        assertEquals(0, northRow.draftCount)
+        assertEquals(1, northRow.sealedCount)
+        assertEquals(1, northRow.totalRooms)
+
+        val history = repo.inspectionsForProperty(north.id)
+        assertEquals(listOf(sealed.id), history.map { it.id })
+        assertTrue(repo.propertyOverviews(limit = 1, offset = 10).isEmpty())
+        db.close()
+    }
+
+    @Test
     fun propertiesCarryNicknamesForThePicker() = runTest {
         val (db, repo) = freshVault()
         val beach = repo.createPropertyStructured("Rua A", "1", null, "Centro", "Casa da praia")
