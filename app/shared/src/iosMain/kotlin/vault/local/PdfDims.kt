@@ -58,8 +58,8 @@ actual fun formatSealedAtDevice(iso: String): String {
             platform.Foundation.NSISO8601DateFormatWithFractionalSeconds
     }.dateFromString(iso) ?: return iso
     val formatter = platform.Foundation.NSDateFormatter().apply {
-        locale = platform.Foundation.NSLocale("pt_BR")
-        timeZone = platform.Foundation.NSTimeZone.localTimeZone
+        locale = platform.Foundation.NSLocale(localeIdentifier = "pt_BR")
+        // System timezone by default: the seal reads in device-local time.
         dateFormat = "dd/MM/yyyy 'às' HH:mm"
     }
     return formatter.stringFromDate(parsed) ?: iso
