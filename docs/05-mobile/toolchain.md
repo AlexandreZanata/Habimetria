@@ -24,9 +24,11 @@ Android SDK platforms 34/35/36/36.1 present; build-tools up to 37.0.0.
 - Xcode/Swift toolchain: absent (`xcodebuild`, `swift` missing).
   iOS host assembly, Swift compilation, framework export and
   simulator/device tests require macOS. See `app/iosApp/README.md`.
-- Release R8/AAB size, Baseline Profiles and cold-start numbers
-  are not re-established by this audit. Previous M5 numbers stay
-  historical until re-measured on device.
+- Release R8/AAB size re-established on Linux 2026-10-01 at `a7fdb25`:
+  `composeApp-release-unsigned.apk` **8.5 MB** vs 15 MB budget.
+  Baseline Profiles, cold-start numbers and store-signed size remain
+  device/macOS work until measured there.
+- Previous M5 historical numbers stay historical until re-measured on device.
 
 ## Policy
 

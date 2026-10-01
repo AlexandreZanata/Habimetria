@@ -3,6 +3,12 @@
 First executable pass of [the acceptance matrix](local_validation_acceptance.md).
 Build: `f8a06d8` on `codex/local-validation-roadmap`, 2026-09-30 (code HEAD).
 Consolidation refresh: docs status updated 2026-10-01 (no code change); validation below was executed against `f8a06d8`.
+Re-measurement: 2026-10-01 on `a7fdb25` (merge of the above, no code change):
+`make verify-all` green, `:shared:jvmTest` 109/109 across 35 suites,
+`PerfProbe` best-of-3 `canonicalManifest+sha(100ev)` 1 ms /
+`paginateModel(100photos)` 0 ms (JVM host-relative),
+release APK `composeApp-release-unsigned.apk` **8.5 MB**,
+independent verifier `accepted: true` (2 evidences, issuer `UNKNOWN`).
 Scope since `a4603ab` adds V1.1 occurrences, V1.2 exit, V1.3 compare, V1.4 inspector, V1.5 visual diff, and optional V-sync server mirror.
 Host: Linux x86_64, JDK 21 Temurin, Gradle 8.14.3, Android SDK
 (platforms 34/35/36/36.1), Go 1.25.0, Kotlin 2.3.10, AGP 8.13.2,
@@ -19,9 +25,11 @@ Room 2.8.5, Compose Multiplatform 1.11.1.
 - Independent cross-check: `go run ./cmd/verify --format json
   testdata/fixture-package` → `accepted: true`, evidences 2 checked,
   issuer `UNKNOWN` (fixture key unpinned, as designed).
-- `make bench`: `canonicalManifest+sha(100ev)` 2 ms,
-  `paginateModel(100photos)` <1 ms (JVM host-relative, not device claims).
-- `make bench-apk`: release R8 APK **8.5 MB unsigned** vs 15 MB budget (measured at `a4603ab`; not re-measured in this consolidation pass).
+- `make bench`: `canonicalManifest+sha(100ev)` 1 ms,
+  `paginateModel(100photos)` 0 ms on 2026-10-01 re-measurement at `a7fdb25`
+  (earlier Linux pass: 2 ms / <1 ms; JVM host-relative, not device claims).
+- `make bench-apk`: release R8 APK **8.5 MB unsigned** vs 15 MB budget
+  (re-measured 2026-10-01 at `a7fdb25`; same size as the `a4603ab` reading).
 
 ## Automated regression map
 
