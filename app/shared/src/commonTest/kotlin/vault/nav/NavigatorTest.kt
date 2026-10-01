@@ -197,6 +197,7 @@ class NavigatorTest {
         assertEquals(Route.Inspections, Route.Inspections.destination())
         assertEquals(Route.Settings, Route.Reports.destination())
         assertEquals(Route.Settings, Route.Settings.destination())
+        assertEquals(Route.Settings, Route.FindingProblems.destination())
         val journey: List<Route> = listOf(
             Route.Rooms("i"),
             Route.Room("i", "r", "Sala"),
