@@ -49,7 +49,7 @@ private val destinations = listOf(
 
 @Composable
 fun DestinationsBar(selected: Route, onSelect: (Route) -> Unit) {
-    NavigationBar {
+    NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainer) {
         destinations.forEach { item ->
             NavigationBarItem(
                 selected = selected == item.root,
@@ -71,7 +71,7 @@ fun DestinationsBar(selected: Route, onSelect: (Route) -> Unit) {
 
 @Composable
 fun DestinationsRail(selected: Route, onSelect: (Route) -> Unit) {
-    NavigationRail {
+    NavigationRail(containerColor = MaterialTheme.colorScheme.surfaceContainer) {
         destinations.forEach { item ->
             NavigationRailItem(
                 selected = selected == item.root,

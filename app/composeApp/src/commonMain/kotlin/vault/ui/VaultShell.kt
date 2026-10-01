@@ -10,11 +10,13 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,33 +49,44 @@ fun VaultShell(
         val windowClass = windowClassFor(maxWidth.value.toInt())
         Scaffold(
             topBar = {
-                TopAppBar(
-                    title = {
-                        Column {
-                            Text(title, maxLines = 1)
-                            if (subtitle.isNotBlank()) {
-                                Text(
-                                    subtitle,
-                                    maxLines = 1,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
+                Column {
+                    TopAppBar(
+                        title = {
+                            Column {
+                                Text(title, maxLines = 1)
+                                if (subtitle.isNotBlank()) {
+                                    Text(
+                                        subtitle,
+                                        maxLines = 1,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
                             }
-                        }
-                    },
-                    navigationIcon = {
-                        if (canGoBack) {
-                            TextButton(
-                                onClick = onBack,
-                                modifier = Modifier.heightIn(min = 48.dp),
-                            ) { Text(Strings.back) }
-                        }
-                    },
-                )
+                        },
+                        navigationIcon = {
+                            if (canGoBack) {
+                                TextButton(
+                                    onClick = onBack,
+                                    modifier = Modifier.heightIn(min = 48.dp),
+                                ) { Text(Strings.back) }
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        ),
+                    )
+                    // Header and destination bar share the darker container
+                    // with a hairline, so chrome reads apart from content.
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                }
             },
             bottomBar = {
                 if (windowClass == WindowClass.COMPACT) {
-                    DestinationsBar(selected = destination, onSelect = onSelect)
+                    Column {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        DestinationsBar(selected = destination, onSelect = onSelect)
+                    }
                 }
             },
         ) { inner ->
