@@ -14,28 +14,27 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
     val route by navigator.route.collectAsState()
     VaultTheme {
         when (val r = route) {
-            Route.Home -> VaultShell("", false, {}) {
+            Route.Home -> ChromeShell(r, container, navigator, Strings.home, false, {}) {
                 HomeScreen(container, onReady = { navigator.startInspection(it) })
             }
-            // U02 wiring: destinations exist in the navigator with bounded
-            // selection; dedicated list/detail screens arrive in U04/U05
-            // and the selection bar in U03. Until then they reuse Home,
-            // which already manages properties and draft resume locally.
-            Route.Properties -> VaultShell(Strings.properties, false, {}) {
+            // Dedicated property/inspection/report screens arrive in
+            // U04/U05. Until then destinations reuse Home, which already
+            // manages properties and draft resume locally.
+            Route.Properties -> ChromeShell(r, container, navigator, Strings.properties, false, {}) {
                 HomeScreen(container, onReady = { navigator.startInspection(it) })
             }
-            is Route.PropertyDetail -> VaultShell(Strings.properties, true, {
+            is Route.PropertyDetail -> ChromeShell(r, container, navigator, Strings.properties, true, {
                 navigator.goBackOr(Route.Properties)
             }) {
                 HomeScreen(container, onReady = { navigator.startInspection(it) })
             }
-            Route.Inspections -> VaultShell(Strings.inspections, false, {}) {
+            Route.Inspections -> ChromeShell(r, container, navigator, Strings.inspections, false, {}) {
                 HomeScreen(container, onReady = { navigator.startInspection(it) })
             }
-            Route.Reports -> VaultShell(Strings.reports, false, {}) {
+            Route.Reports -> ChromeShell(r, container, navigator, Strings.reports, false, {}) {
                 HomeScreen(container, onReady = { navigator.startInspection(it) })
             }
-            is Route.Rooms -> VaultShell(Strings.rooms, true, { navigator.goBackOr(Route.Home) }) {
+            is Route.Rooms -> ChromeShell(r, container, navigator, Strings.rooms, true, { navigator.goBackOr(Route.Home) }) {
                 val local = container.local
                 if (local != null) {
                     LocalRoomsScreen(
@@ -68,7 +67,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     )
                 }
             }
-            is Route.Room -> VaultShell(r.label, true, { navigator.goBackOr(Route.Rooms(r.inspectionId)) }) {
+            is Route.Room -> ChromeShell(r, container, navigator, r.label, true, { navigator.goBackOr(Route.Rooms(r.inspectionId)) }) {
                 val local = container.local
                 if (local != null) {
                     LocalRoomScreen(
@@ -101,7 +100,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     )
                 }
             }
-            is Route.Review -> VaultShell(Strings.review, true, { navigator.goBack() }) {
+            is Route.Review -> ChromeShell(r, container, navigator, Strings.review, true, { navigator.goBack() }) {
                 val local = container.local
                 if (local != null) {
                     LocalReviewScreen(
@@ -122,7 +121,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     )
                 }
             }
-            is Route.Seal -> VaultShell(Strings.sealTitle, true, { navigator.goBack() }) {
+            is Route.Seal -> ChromeShell(r, container, navigator, Strings.sealTitle, true, { navigator.goBack() }) {
                 val local = container.local
                 if (local != null) {
                     LocalSealScreen(
@@ -144,7 +143,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     )
                 }
             }
-            is Route.Pdf -> VaultShell(Strings.reportPdf, true, { navigator.goBack() }) {
+            is Route.Pdf -> ChromeShell(r, container, navigator, Strings.reportPdf, true, { navigator.goBack() }) {
                 PdfScreen(
                     container = container,
                     inspectionId = r.inspectionId,
@@ -153,7 +152,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     onBack = { navigator.goBack() },
                 )
             }
-            is Route.LocalOccurrence -> VaultShell(Strings.occurrenceTitle, true, { navigator.goBack() }) {
+            is Route.LocalOccurrence -> ChromeShell(r, container, navigator, Strings.occurrenceTitle, true, { navigator.goBack() }) {
                 val local = container.local
                 if (local != null) {
                     LocalOccurrenceScreen(
@@ -169,7 +168,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     }
                 }
             }
-            is Route.LocalCompare -> VaultShell(Strings.compareTitle, true, { navigator.goBack() }) {
+            is Route.LocalCompare -> ChromeShell(r, container, navigator, Strings.compareTitle, true, { navigator.goBack() }) {
                 val local = container.local
                 if (local != null) {
                     LocalCompareScreen(
@@ -185,7 +184,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     }
                 }
             }
-            is Route.LocalDiff -> VaultShell(Strings.diffTitle, true, { navigator.goBack() }) {
+            is Route.LocalDiff -> ChromeShell(r, container, navigator, Strings.diffTitle, true, { navigator.goBack() }) {
                 val local = container.local
                 if (local != null) {
                     LocalDiffScreen(
@@ -200,7 +199,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     }
                 }
             }
-            is Route.LocalInspector -> VaultShell(Strings.inspectorTitle, true, { navigator.goBack() }) {
+            is Route.LocalInspector -> ChromeShell(r, container, navigator, Strings.inspectorTitle, true, { navigator.goBack() }) {
                 val local = container.local
                 if (local != null) {
                     LocalInspectorScreen(
@@ -215,7 +214,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     }
                 }
             }
-            is Route.LocalVerify -> VaultShell(Strings.verifyTitle, true, { navigator.goBack() }) {
+            is Route.LocalVerify -> ChromeShell(r, container, navigator, Strings.verifyTitle, true, { navigator.goBack() }) {
                 val local = container.local
                 if (local != null) {
                     LocalVerifyScreen(
@@ -230,7 +229,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     }
                 }
             }
-            is Route.LocalPdf -> VaultShell(Strings.reportPdf, true, { navigator.goBack() }) {
+            is Route.LocalPdf -> ChromeShell(r, container, navigator, Strings.reportPdf, true, { navigator.goBack() }) {
                 val local = container.local
                 val renderer = container.planRenderer
                 if (local != null && renderer != null) {

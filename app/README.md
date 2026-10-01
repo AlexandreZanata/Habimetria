@@ -11,6 +11,10 @@ app/
   iosApp/      # Swift host (project assembly in M2, macOS runner)
 ```
 
+UI chrome lives in `composeApp/.../vault/ui/`:
+`VaultShell` (single inset boundary + header),
+`VaultChrome` (destination bar/rail, header subtitle, shell wiring).
+
 ## Local verification (Linux)
 
 ```bash
