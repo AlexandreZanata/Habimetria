@@ -48,6 +48,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `06-roadmap/local_validation_plan.md` — next phases: Material 3, manual rooms, local capture/seal/PDF on Android and iOS
 - `06-roadmap/local_validation_acceptance.md` — planned device matrix, failure cases and functional-proof gates
 - `06-roadmap/acceptance-report.md` — L8 Linux pass: results, budgets, defect log, unverified matrix
+- `06-roadmap/beta_readiness.md` — device-pass runbook and beta exit criteria (consolidates M5 + acceptance gates)
 
 ## 07 AI Ops
 

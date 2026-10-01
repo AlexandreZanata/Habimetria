@@ -78,6 +78,9 @@ link, Baseline Profiles, cold start, shutter latency, ANR rates.
 
 ## Device-pass instructions (macOS + hardware)
 
+Execute the [beta readiness runbook](beta_readiness.md), which consolidates
+the steps below with the M5 beta exit criteria. Summary:
+
 1. `make verify-ios-macos` (Xcode build + framework export).
 2. Install release on one mid-range Android + one iPhone; block
    network; run the acceptance matrix scenarios 1–11; photograph
