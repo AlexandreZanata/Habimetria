@@ -2,7 +2,6 @@ package vault.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
-import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -15,7 +14,7 @@ import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-// AndroidPhotoCapture binds ImageCapture once (no preview needed for
+// AndroidPhotoCapture uses the shared ImageCapture (no preview needed for
 // capture) with latency-first settings per docs/05-mobile/capture-ux.md.
 // The camera provider is awaited asynchronously: blocking .get() on the
 // main thread freezes input (ANR) and eats taps.
@@ -24,17 +23,15 @@ import kotlin.coroutines.resumeWithException
 // target rotation follows the current display so landscape shots keep
 // their orientation, failures carry explicit reasons, and the exact
 // captured bytes are returned without re-encoding (the temp file is
-// removed after reading).
+// removed after reading). The use case is bound only when no screen
+// holds it: with the preview open, CameraPreview already bound the
+// shared instance and capture reuses it without rebinding.
 class AndroidPhotoCapture : PhotoCapture {
     private val executor: Executor by lazy {
         ContextCompat.getMainExecutor(AppContext.app)
     }
-    private val selector = CameraSelector.DEFAULT_BACK_CAMERA
-    private val imageCapture = ImageCapture.Builder()
-        .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-        .setJpegQuality(85)
-        .build()
-    private var bound = false
+    private val imageCapture: ImageCapture
+        get() = SharedCamera.imageCapture
 
     private fun hasPermission(): Boolean =
         ContextCompat.checkSelfPermission(AppContext.app, Manifest.permission.CAMERA) ==
@@ -55,17 +52,16 @@ class AndroidPhotoCapture : PhotoCapture {
     }
 
     private suspend fun ensureBound() {
-        if (bound) return
         val cameraProvider = provider()
+        if (cameraProvider.isBound(imageCapture)) return
         try {
             cameraProvider.bindToLifecycle(
                 ProcessLifecycleOwner.get(),
-                selector,
+                SharedCamera.selector,
                 imageCapture,
             )
-            bound = true
         } catch (_: IllegalArgumentException) {
-            bound = true // already bound on this lifecycle
+            // Raced with a screen bind holding the same instance.
         }
     }
 
