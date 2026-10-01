@@ -9,6 +9,16 @@ Re-measurement: 2026-10-01 on `a7fdb25` (merge of the above, no code change):
 `paginateModel(100photos)` 0 ms (JVM host-relative),
 release APK `composeApp-release-unsigned.apk` **8.5 MB**,
 independent verifier `accepted: true` (2 evidences, issuer `UNKNOWN`).
+Re-measurement: 2026-10-01 on `c24e084` (`chore/release-hardening`:
+CI mobile fix, env-parity gate, PG18 volume fix):
+`make verify-all` green, `:shared:jvmTest` 109/109 across 35 suites,
+`make test-integration` passed against real PostgreSQL 18.6-alpine
+(dedicated container via `TEST_DATABASE_URL`; skip verified when unset),
+independent verifier `accepted: true` (2 evidences, issuer `UNKNOWN`),
+release APK `composeApp-release-unsigned.apk` **8.5 MB** vs 15 MB budget,
+`docker compose config` renders with healthy `postgres`/`minio` deps and
+the API `/healthz` gate. PerfProbe best-of-3 not re-run (prior 1 ms / 0 ms
+stands as the last measured value).
 Scope since `a4603ab` adds V1.1 occurrences, V1.2 exit, V1.3 compare, V1.4 inspector, V1.5 visual diff, and optional V-sync server mirror.
 Host: Linux x86_64, JDK 21 Temurin, Gradle 8.14.3, Android SDK
 (platforms 34/35/36/36.1), Go 1.25.0, Kotlin 2.3.10, AGP 8.13.2,
