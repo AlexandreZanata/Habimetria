@@ -60,6 +60,26 @@ Light and dark schemes are independent theme roles with no hardcoded
 screen colors; status always pairs text/shape with color. Device
 TalkBack/switch/keyboard pass stays gated on hardware (U10 accept).
 
+## Performance budgets (U11)
+
+Release cold start ≤ 2 s · evidence write ≤ 500 ms/photo · PDF export ≤ 30 s,
+all gated on the reference device + release build. Linux runs relative
+measurements only, never absolute budgets. No fixture data is committed.
+
+- `shared/.../vault/local/PerformanceFixture.kt` builds the deterministic
+  200-inspection rows-only fixture in temp dirs (photo bytes excluded;
+  the byte path is measured separately on the identical code path).
+- `shared/.../vault/local/BulkPerformanceTest.kt` proves the bulk paths
+  (200 overviews labeled, reused coverage check over 75 inspections at 100,
+  3 MB evidence write within 500 ms) and prints timings for run-over-run
+  comparison; `-Dvault.fixture.dir` adds a JSON summary for the verifier.
+- `baselineprofile/.../VaultStartupBenchmark.kt` measures release cold
+  start on device (median `timeToInitialDisplayMs` from the report):
+  `./gradlew :composeApp:assembleRelease` then
+  `:baselineprofile:connectedAndroidTest` with the benchmark class filter.
+  The baselineprofile module applies the Kotlin Android plugin so these
+  sources actually compile (previously unwired).
+
 ## Local verification (Linux)
 
 ```bash
