@@ -110,3 +110,17 @@ type OccurrenceEvidence struct {
 	OccurrenceID string `json:"occurrence_id"`
 	EvidenceID   string `json:"evidence_id"`
 }
+
+// Comparison is one user-confirmed entry-vs-exit tag per room position.
+// Tags describe visual state only, never liability.
+type Comparison struct {
+	ID             string  `json:"id"`
+	TenancyID      string  `json:"tenancy_id"`
+	EntryRoomID    string  `json:"entry_room_id"`
+	ExitRoomID     string  `json:"exit_room_id"`
+	ShotCategory   string  `json:"shot_category"`
+	EntryEvidenceID *string `json:"entry_evidence_id"`
+	ExitEvidenceID  *string `json:"exit_evidence_id"`
+	Tag            string  `json:"tag"`
+	CreatedAt      time.Time `json:"created_at"`
+}
