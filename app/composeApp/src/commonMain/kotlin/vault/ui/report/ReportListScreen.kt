@@ -113,7 +113,10 @@ fun ReportListScreen(
                     ready.groupBy { it.propertyId }.forEach { (_, group) ->
                         item {
                             Text(
-                                group.first().propertyLabel.ifBlank { ReportStrings.unknownProperty },
+                                PropertyStrings.archivedSuffix(
+                                    group.first().propertyLabel.ifBlank { ReportStrings.unknownProperty },
+                                    group.first().propertyArchived,
+                                ),
                                 style = MaterialTheme.typography.titleSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -134,7 +137,10 @@ fun ReportListScreen(
                     awaiting.groupBy { it.propertyId }.forEach { (_, group) ->
                         item {
                             Text(
-                                group.first().propertyLabel.ifBlank { ReportStrings.unknownProperty },
+                                PropertyStrings.archivedSuffix(
+                                    group.first().propertyLabel.ifBlank { ReportStrings.unknownProperty },
+                                    group.first().propertyArchived,
+                                ),
                                 style = MaterialTheme.typography.titleSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )

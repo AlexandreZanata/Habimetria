@@ -34,4 +34,18 @@ object PropertyStrings {
         "Este imóvel ganhou histórico e não pode mais ser excluído. " +
             "Ele pode ser arquivado."
     const val removeFailed = "Não foi possível remover. Tente de novo."
+    const val visibilityActive = "Ativos"
+    const val visibilityArchived = "Arquivados"
+    const val archivedBadge = "Arquivado"
+    const val noArchived = "Nenhum imóvel arquivado."
+    const val restoreAction = "Restaurar imóvel"
+    const val restoredOk = "Imóvel restaurado."
+    const val archivedHint = "Veja em Arquivados."
+    const val archivedDetailNote =
+        "Imóvel arquivado. Vistorias, fotos e relatórios ficam guardados " +
+            "neste dispositivo. Restaure para iniciar uma nova vistoria."
+
+    // History rows keep archived inspections listed with an explicit label.
+    fun archivedSuffix(label: String, archived: Boolean): String =
+        if (archived) "$label · $archivedBadge" else label
 }

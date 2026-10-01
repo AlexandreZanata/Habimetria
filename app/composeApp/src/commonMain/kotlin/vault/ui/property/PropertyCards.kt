@@ -118,6 +118,7 @@ fun PropertyCardView(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    if (property.archived) ArchivedBadge()
                 }
                 Box {
                     TextButton(

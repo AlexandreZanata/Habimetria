@@ -60,7 +60,9 @@ fun HomeScreen(
     suspend fun load() {
         val repo = local?.repository ?: return
         try {
+            // Active picker: archived Properties live in Imóveis → Arquivados.
             val rows = repo.propertyOverviews(limit = 100)
+                .filter { !it.property.archived }
             if (cards == null && rows.isNotEmpty()) showForm = false
             rows.firstOrNull()?.property?.let {
                 if (street.isBlank() && it.street.isNotBlank()) street = it.street

@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import vault.local.NavigationProgress
 import vault.local.PropertyOverview
+import vault.local.db.PropertyRestoreOutcome
 import vault.ui.AppContainer
 import vault.ui.ErrorText
 import vault.ui.ProgressStatus
@@ -51,6 +52,7 @@ fun PropertyListScreen(
     var renameText by rememberSaveable { mutableStateOf("") }
     var removing by mutableStateOf<PropertyOverview?>(null)
     var feedback by rememberSaveable { mutableStateOf<String?>(null) }
+    var visibility by rememberSaveable { mutableStateOf(VISIBILITY_ACTIVE) }
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
     val local = container.local
@@ -68,11 +70,17 @@ fun PropertyListScreen(
 
     LaunchedEffect(local) { load() }
 
-    val filtered = (cards.orEmpty()).filter {
+    val filtered = (cards.orEmpty()).filter { overview ->
+        val matchesVisibility = if (visibility == VISIBILITY_ARCHIVED) {
+            overview.property.archived
+        } else {
+            !overview.property.archived
+        }
+        if (!matchesVisibility) return@filter false
         val q = query.trim().lowercase()
         if (q.isEmpty()) true else {
-            it.property.nickname.lowercase().contains(q) ||
-                it.property.address.lowercase().contains(q)
+            overview.property.nickname.lowercase().contains(q) ||
+                overview.property.address.lowercase().contains(q)
         }
     }
 
@@ -89,6 +97,7 @@ fun PropertyListScreen(
                 label = PropertyStrings.search,
             )
         }
+        item { VisibilityFilterRow(selected = visibility, onSelect = { visibility = it }) }
         val done = feedback
         if (done != null) {
             item { RemovalFeedback(done) }
@@ -109,8 +118,13 @@ fun PropertyListScreen(
             filtered.isEmpty() -> {
                 item {
                     Text(
-                        if (query.isBlank()) Strings.propertiesEmpty
-                        else PropertyStrings.noMatch,
+                        if (query.isNotBlank()) {
+                            PropertyStrings.noMatch
+                        } else if (visibility == VISIBILITY_ARCHIVED) {
+                            PropertyStrings.noArchived
+                        } else {
+                            Strings.propertiesEmpty
+                        },
                     )
                 }
             }
@@ -144,6 +158,32 @@ fun PropertyListScreen(
                         onRename = { renaming = overview; renameText = "" },
                         onRemove = { removing = overview },
                     )
+                    if (overview.property.archived) {
+                        RestoreButton(busy = busy) {
+                            scope.launch {
+                                busy = true
+                                try {
+                                    when (
+                                        local?.propertyRemoval?.restore(overview.property.id)
+                                    ) {
+                                        PropertyRestoreOutcome.Restored,
+                                        PropertyRestoreOutcome.AlreadyActive,
+                                        -> {
+                                            load()
+                                            feedback = PropertyStrings.restoredOk
+                                        }
+                                        PropertyRestoreOutcome.Missing, null -> {
+                                            error = Strings.recordMissing
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    error = userErrorMessage(e)
+                                } finally {
+                                    busy = false
+                                }
+                            }
+                        }
+                    }
                     OutlinedButton(
                         onClick = { onOpenDetail(overview.property.id) },
                         modifier = Modifier.fillMaxWidth(),
@@ -213,7 +253,14 @@ fun PropertyListScreen(
             onCommitted = { message ->
                 scope.launch {
                     load()
-                    feedback = message
+                    feedback = if (
+                        message == PropertyStrings.archivedOk &&
+                        visibility == VISIBILITY_ACTIVE
+                    ) {
+                        "$message ${PropertyStrings.archivedHint}"
+                    } else {
+                        message
+                    }
                     removing = null
                 }
             },

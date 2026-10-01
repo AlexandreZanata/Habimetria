@@ -102,6 +102,28 @@ fun PropertyDetailScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+                if (current.archived) {
+                    ArchivedBadge()
+                    Text(
+                        PropertyStrings.archivedDetailNote,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    RestoreButton(busy = busy) {
+                        busy = true
+                        actionError = null
+                        scope.launch {
+                            try {
+                                local?.propertyRemoval?.restore(propertyId)
+                                load()
+                            } catch (e: Exception) {
+                                actionError = userErrorMessage(e)
+                            } finally {
+                                busy = false
+                            }
+                        }
+                    }
+                }
                 Text(PropertyStrings.history, style = MaterialTheme.typography.titleMedium)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(

@@ -153,7 +153,10 @@ fun InspectionListScreen(
                 grouped.forEach { (_, group) ->
                     item {
                         Text(
-                            group.first().propertyLabel.ifBlank { InspectionStrings.unknownProperty },
+                            PropertyStrings.archivedSuffix(
+                                group.first().propertyLabel.ifBlank { InspectionStrings.unknownProperty },
+                                group.first().propertyArchived,
+                            ),
                             style = MaterialTheme.typography.titleMedium,
                         )
                     }
