@@ -226,6 +226,8 @@ class LocalVaultTest {
         assertEquals(1, northRow.sealedCount)
         assertEquals(1, northRow.totalRooms)
 
+        assertEquals(beach.id, repo.getProperty(beach.id)?.id)
+        assertEquals(null, repo.getProperty("prop_missing"))
         val history = repo.inspectionsForProperty(north.id)
         assertEquals(listOf(sealed.id), history.map { it.id })
         assertTrue(repo.propertyOverviews(limit = 1, offset = 10).isEmpty())

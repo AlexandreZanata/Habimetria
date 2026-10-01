@@ -17,16 +17,25 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
             Route.Home -> ChromeShell(r, container, navigator, Strings.home, false, {}) {
                 HomeScreen(container, onReady = { navigator.startInspection(it) })
             }
-            // Dedicated property/inspection/report screens arrive in
-            // U04/U05. Until then destinations reuse Home, which already
-            // manages properties and draft resume locally.
+            // Imóveis owns management/history (U04); inspection/report
+            // destinations arrive in U05 and reuse Home until then.
             Route.Properties -> ChromeShell(r, container, navigator, Strings.properties, false, {}) {
-                HomeScreen(container, onReady = { navigator.startInspection(it) })
+                vault.ui.property.PropertyListScreen(
+                    container = container,
+                    onOpenDetail = { navigator.navigate(Route.PropertyDetail(it)) },
+                    onReady = { navigator.startInspection(it) },
+                )
             }
             is Route.PropertyDetail -> ChromeShell(r, container, navigator, Strings.properties, true, {
                 navigator.goBackOr(Route.Properties)
             }) {
-                HomeScreen(container, onReady = { navigator.startInspection(it) })
+                vault.ui.property.PropertyDetailScreen(
+                    container = container,
+                    propertyId = r.propertyId,
+                    onResume = { navigator.startInspection(it) },
+                    onReview = { navigator.openSealedReview(it) },
+                    onNewInspection = { navigator.startInspection(it) },
+                )
             }
             Route.Inspections -> ChromeShell(r, container, navigator, Strings.inspections, false, {}) {
                 HomeScreen(container, onReady = { navigator.startInspection(it) })

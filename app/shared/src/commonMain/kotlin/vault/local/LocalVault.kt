@@ -97,6 +97,8 @@ class LocalVaultRepository(private val db: VaultDatabase) {
 
     suspend fun listProperties(): List<LocalProperty> = db.propertyDao().listAll()
 
+    suspend fun getProperty(id: String): LocalProperty? = db.propertyDao().get(id)
+
     // Aggregated overview for the Imóveis list: one bounded page of
     // properties plus grouped inspection/room counts in 4 queries total.
     // UI lists must use this instead of per-card propertyFor/roomsFor
