@@ -144,8 +144,12 @@ class LocalVaultRepository(private val db: VaultDatabase) {
     suspend fun inspectionsForProperty(propertyId: String, limit: Int = 50): List<LocalInspection> =
         db.inspectionDao().listForProperty(propertyId, limit.coerceIn(1, 200))
 
+    // New Inspections require an active Property (U09): restore an
+    // archived Property first. Resuming existing drafts never passes here.
     suspend fun createTenancy(propertyId: String, type: String = "entry"): LocalTenancy {
-        requireProperty(propertyId)
+        val property = db.propertyDao().get(propertyId)
+            ?: throw LocalValidationException("property not found")
+        if (property.archived) throw LocalValidationException("property archived")
         val row = LocalTenancy(newLocalId("ten"), propertyId, type, deviceNowIso())
         db.tenancyDao().insert(row)
         return row
@@ -379,10 +383,6 @@ class LocalVaultRepository(private val db: VaultDatabase) {
 
     suspend fun findingsForEvidence(evidenceId: String): List<LocalFinding> =
         db.findingDao().listForEvidence(evidenceId)
-
-    private suspend fun requireProperty(id: String) {
-        if (db.propertyDao().get(id) == null) throw LocalValidationException("property not found")
-    }
 
     private suspend fun requireTenancy(id: String) {
         if (db.tenancyDao().get(id) == null) throw LocalValidationException("tenancy not found")

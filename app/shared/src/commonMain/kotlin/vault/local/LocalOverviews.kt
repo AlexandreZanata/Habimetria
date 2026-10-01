@@ -12,6 +12,9 @@ data class InspectionOverview(
     val propertyId: String?,
     // Nickname or address; "" when the chain is gone (UI shows fallback).
     val propertyLabel: String,
+    // True when the owning Property is archived (U09): history stays
+    // listed, the UI labels it instead of hiding it.
+    val propertyArchived: Boolean = false,
 )
 
 data class ReportOverview(
@@ -19,6 +22,7 @@ data class ReportOverview(
     val inspectionId: String,
     val propertyId: String?,
     val propertyLabel: String,
+    val propertyArchived: Boolean = false,
 )
 
 // SEALED inspection without a READY report: the entry point for
@@ -28,6 +32,7 @@ data class PendingPdf(
     val inspectionId: String,
     val propertyId: String?,
     val propertyLabel: String,
+    val propertyArchived: Boolean = false,
 )
 
 class LocalOverviewRepository(private val db: VaultDatabase) {
@@ -48,7 +53,7 @@ class LocalOverviewRepository(private val db: VaultDatabase) {
         val labels = propertyLabelsFor(inspections.map { it.tenancyId })
         return inspections.map { inspection ->
             val link = labels[inspection.tenancyId]
-            InspectionOverview(inspection, link?.first, link?.second.orEmpty())
+            InspectionOverview(inspection, link?.first, link?.second.orEmpty(), link?.third == true)
         }
     }
 
@@ -62,7 +67,7 @@ class LocalOverviewRepository(private val db: VaultDatabase) {
         return reports.map { report ->
             val inspection = inspections[report.inspectionId]
             val link = inspection?.let { labels[it.tenancyId] }
-            ReportOverview(report, report.inspectionId, link?.first, link?.second.orEmpty())
+            ReportOverview(report, report.inspectionId, link?.first, link?.second.orEmpty(), link?.third == true)
         }
     }
 
@@ -84,12 +89,12 @@ class LocalOverviewRepository(private val db: VaultDatabase) {
         val labels = propertyLabelsFor(pending.map { it.tenancyId })
         return pending.take(limit.coerceIn(1, 200)).map { inspection ->
             val link = labels[inspection.tenancyId]
-            PendingPdf(inspection.id, link?.first, link?.second.orEmpty())
+            PendingPdf(inspection.id, link?.first, link?.second.orEmpty(), link?.third == true)
         }
     }
 
-    // Tenancy id -> (property id, display label) in 2 bulk queries.
-    private suspend fun propertyLabelsFor(tenancyIds: List<String>): Map<String, Pair<String?, String>> {
+    // Tenancy id -> (property id, display label, archived) in 2 bulk queries.
+    private suspend fun propertyLabelsFor(tenancyIds: List<String>): Map<String, Triple<String?, String, Boolean>> {
         if (tenancyIds.isEmpty()) return emptyMap()
         val tenancies = db.tenancyListingDao().listByIds(tenancyIds.distinct())
         if (tenancies.isEmpty()) return emptyMap()
@@ -98,7 +103,7 @@ class LocalOverviewRepository(private val db: VaultDatabase) {
         return tenancies.associate { tenancy ->
             val property = properties[tenancy.propertyId]
             val label = property?.nickname?.takeIf { it.isNotBlank() } ?: property?.address.orEmpty()
-            tenancy.id to (property?.id to label)
+            tenancy.id to Triple(property?.id, label, property?.archived == true)
         }
     }
 }

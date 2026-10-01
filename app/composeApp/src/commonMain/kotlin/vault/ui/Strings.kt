@@ -49,6 +49,7 @@ object Strings {
     const val photoMissing = "Foto não encontrada. Ela pode ter sido excluída."
     const val entrySealFirst = "Conclua e lacre a vistoria de entrada antes."
     const val exitAlreadyExists = "A vistoria de saída já existe."
+    const val archivedBlockNew = "Restaure o imóvel arquivado para iniciar uma nova vistoria."
     const val code = "Código"
     const val evidence = "Evidências"
     const val generatePdf = "Gerar PDF"

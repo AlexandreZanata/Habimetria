@@ -78,6 +78,24 @@ class LocalOverviewsTest {
     }
 
     @Test
+    fun archivedPropertiesStayLabeledInOverviews() = runTest {
+        val (db, overviews) = freshOverviews()
+        val repo = LocalVaultRepository(db)
+        val removal = PropertyRemovalRepository(db)
+        val active = repo.createPropertyStructured("Rua A", "1", null, "Centro")
+        val archived = repo.createPropertyStructured("Rua B", "2", null, "Norte")
+        val activeInspection = repo.createInspection(repo.createTenancy(active.id).id).id
+        val archivedInspection = repo.createInspection(repo.createTenancy(archived.id).id).id
+        removal.archive(archived.id)
+
+        val rows = overviews.inspectionOverviews().associateBy { it.inspection.id }
+        assertEquals(false, rows[activeInspection]?.propertyArchived)
+        assertEquals(true, rows[archivedInspection]?.propertyArchived)
+        assertEquals(active.id, rows[activeInspection]?.propertyId)
+        db.close()
+    }
+
+    @Test
     fun emptyDatabaseReturnsEmptyOverviews() = runTest {
         val (db, overviews) = freshOverviews()
         assertTrue(overviews.inspectionOverviews().isEmpty())

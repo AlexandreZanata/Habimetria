@@ -24,6 +24,7 @@ fun userErrorMessage(e: Throwable): String {
             raw.startsWith("sealed entry required") -> Strings.entrySealFirst
             raw.startsWith("entry must be sealed") -> Strings.entrySealFirst
             raw.startsWith("exit already exists") -> Strings.exitAlreadyExists
+            raw.startsWith("property archived") -> Strings.archivedBlockNew
             raw.endsWith("not found") -> Strings.recordMissing
             else -> Strings.actionFailed
         }

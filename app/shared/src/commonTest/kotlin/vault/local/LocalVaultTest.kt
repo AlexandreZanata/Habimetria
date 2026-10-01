@@ -235,6 +235,20 @@ class LocalVaultTest {
     }
 
     @Test
+    fun createTenancyRequiresActiveProperty() = runTest {
+        val (db, repo) = freshVault()
+        val removal = PropertyRemovalRepository(db)
+        val prop = repo.createPropertyStructured("Rua A", "1", null, "Centro")
+        removal.archive(prop.id)
+        assertFailsWith<LocalValidationException> { repo.createTenancy(prop.id) }
+        assertFailsWith<LocalValidationException> { repo.createTenancy("prop_missing") }
+        removal.restore(prop.id)
+        val ten = repo.createTenancy(prop.id)
+        assertEquals(prop.id, ten.propertyId)
+        db.close()
+    }
+
+    @Test
     fun propertiesCarryNicknamesForThePicker() = runTest {
         val (db, repo) = freshVault()
         val beach = repo.createPropertyStructured("Rua A", "1", null, "Centro", "Casa da praia")
