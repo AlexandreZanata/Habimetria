@@ -50,3 +50,17 @@ private fun numberProp(props: CFDictionaryRef?, key: CFStringRef?): Double? {
         CFRelease(description)
     }
 }
+
+actual fun formatSealedAtDevice(iso: String): String {
+    val parsed = platform.Foundation.NSISO8601DateFormatter().apply {
+        formatOptions =
+            platform.Foundation.NSISO8601DateFormatWithInternetDateTime or
+            platform.Foundation.NSISO8601DateFormatWithFractionalSeconds
+    }.dateFromString(iso) ?: return iso
+    val formatter = platform.Foundation.NSDateFormatter().apply {
+        locale = platform.Foundation.NSLocale("pt_BR")
+        timeZone = platform.Foundation.NSTimeZone.localTimeZone
+        dateFormat = "dd/MM/yyyy 'às' HH:mm"
+    }
+    return formatter.stringFromDate(parsed) ?: iso
+}

@@ -154,6 +154,11 @@ data class ImageDims(val width: Int, val height: Int)
 // Dimensions without full decode (bounded memory); null when undecodable.
 expect fun imageDimensions(bytes: ByteArray): ImageDims?
 
+// Display-only seal timestamp: "01/10/2026 às 12:10" in the device
+// timezone. The raw ISO stays in the model and manifest; unparsable
+// input falls back to the raw string so the PDF never breaks.
+expect fun formatSealedAtDevice(iso: String): String
+
 fun contentWidthPt(): Double = PDF_PAGE_WIDTH_PT - PDF_MARGIN_LEFT_PT - PDF_MARGIN_RIGHT_PT
 
 fun bottomLimitPt(): Double = PDF_PAGE_HEIGHT_PT - PDF_MARGIN_BOTTOM_PT
@@ -179,7 +184,7 @@ fun paginateModel(
     current.add(PageItem.Text(TextKind.TITLE, "Relatório de Vistoria"))
     current.add(PageItem.Text(TextKind.BODY, model.address))
     current.add(PageItem.Text(TextKind.BODY, "Inspeção ${model.inspectionId}"))
-    current.add(PageItem.Text(TextKind.BODY, "Lacrado (dispositivo): ${model.sealedAtDevice}"))
+    current.add(PageItem.Text(TextKind.BODY, "Lacrado (dispositivo): ${formatSealedAtDevice(model.sealedAtDevice)}"))
     current.add(PageItem.Text(TextKind.BODY, "Manifesto ${model.manifestSha256.take(16)}…"))
     current.add(PageItem.Text(TextKind.BODY, "Chave ${model.signerKeyId.take(16)}…"))
     current.add(PageItem.Qr(qrContent(model.reportId, model.manifestSha256)))
