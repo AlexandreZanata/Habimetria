@@ -13,6 +13,7 @@ Base: `/api/v1`. Auth: magic-link JWT (Bearer). Public: `/v/{code}`.
 - `POST /properties` — { address, complement? }
 - `POST /properties/{id}/tenancies` — { type: entry }
 - `POST /tenancies/{id}/inspections` — creates DRAFT
+- `POST /tenancies/{id}/inspections` with { kind: exit } (V1.2/S9) — requires a SEALED entry, one exit per tenancy; else 409
 
 ## Rooms & evidence
 

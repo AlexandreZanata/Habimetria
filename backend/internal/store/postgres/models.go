@@ -25,6 +25,10 @@ var ErrEmpty = errors.New("cannot seal inspection without evidences")
 // The caller rebuilds the manifest and retries. Maps to HTTP 409.
 var ErrChanged = errors.New("evidence set changed during seal, retry")
 
+// ErrExitNotAllowed is returned when an exit inspection cannot start:
+// no sealed entry yet, or an exit already exists. Maps to HTTP 409.
+var ErrExitNotAllowed = errors.New("exit inspection not allowed")
+
 // Property is a rental address owned by a tenant user.
 type Property struct {
 	ID        string    `json:"id"`

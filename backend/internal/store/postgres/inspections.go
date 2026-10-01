@@ -44,3 +44,41 @@ func InspectionExists(ctx context.Context, pool *pgxpool.Pool, inspectionID stri
 	}
 	return true, nil
 }
+
+// ListInspectionsByTenancy returns a tenancy's inspections, oldest first.
+func ListInspectionsByTenancy(ctx context.Context, pool *pgxpool.Pool, tenancyID string) ([]Inspection, error) {
+	rows, err := pool.Query(ctx,
+		`SELECT id::text, tenancy_id::text, kind, status, created_at
+		 FROM inspections WHERE tenancy_id=$1 ORDER BY created_at`,
+		tenancyID,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("list inspections: %w", err)
+	}
+	defer rows.Close()
+	out := []Inspection{}
+	for rows.Next() {
+		var in Inspection
+		if err := rows.Scan(&in.ID, &in.TenancyID, &in.Kind, &in.Status, &in.CreatedAt); err != nil {
+			return nil, fmt.Errorf("scan inspection: %w", err)
+		}
+		out = append(out, in)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate inspections: %w", err)
+	}
+	return out, nil
+}
+
+// TenancyExists reports whether a tenancy row exists.
+func TenancyExists(ctx context.Context, pool *pgxpool.Pool, tenancyID string) (bool, error) {
+	var one int
+	err := pool.QueryRow(ctx, `SELECT 1 FROM tenancies WHERE id=$1`, tenancyID).Scan(&one)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return false, nil
+		}
+		return false, fmt.Errorf("check tenancy: %w", err)
+	}
+	return true, nil
+}
