@@ -15,6 +15,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
 // Shared building blocks. Screens compose these instead of raw
@@ -34,9 +36,15 @@ fun ScreenColumn(
     )
 }
 
+// Single heading chokepoint: every screen title announces as a
+// heading so screen-reader and switch users land on it first.
 @Composable
 fun ScreenTitle(text: String) {
-    Text(text, style = MaterialTheme.typography.headlineSmall)
+    Text(
+        text,
+        style = MaterialTheme.typography.headlineSmall,
+        modifier = Modifier.semantics { heading() },
+    )
 }
 
 @Composable

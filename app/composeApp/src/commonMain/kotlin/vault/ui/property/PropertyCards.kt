@@ -26,7 +26,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -36,6 +39,7 @@ import vault.ui.Strings
 import vault.ui.VaultButton
 
 // Hero entry for a new inspection. One prominent task action per screen.
+// Single announcement (glyphs hidden): screen readers hear one button.
 @Composable
 fun HeroNewInspection(enabled: Boolean, onClick: () -> Unit) {
     Surface(
@@ -43,6 +47,10 @@ fun HeroNewInspection(enabled: Boolean, onClick: () -> Unit) {
         enabled = enabled,
         color = MaterialTheme.colorScheme.primary,
         shape = RoundedCornerShape(20.dp),
+        modifier = Modifier.clearAndSetSemantics {
+            contentDescription = Strings.newInspection
+            role = Role.Button
+        },
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(20.dp),
@@ -100,9 +108,12 @@ fun PropertyCardView(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                // Decorative glyph: hidden from assistive tech, the title
+                // next to it carries the meaning.
                 Box(
                     modifier = Modifier.size(56.dp).clip(RoundedCornerShape(12.dp))
-                        .background(MaterialTheme.colorScheme.primaryContainer),
+                        .background(MaterialTheme.colorScheme.primaryContainer)
+                        .clearAndSetSemantics {},
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
@@ -124,7 +135,7 @@ fun PropertyCardView(
                     TextButton(
                         onClick = { menu = true },
                         enabled = !busy,
-                        modifier = Modifier.semantics {
+                        modifier = Modifier.clearAndSetSemantics {
                             contentDescription =
                                 "${PropertyStrings.removeMenuDescription}: $title"
                         },
@@ -184,8 +195,10 @@ fun PropertyCardView(
             }
             val draftId = overview.latestDraftId
             if (draftId != null) {
+                // No chevron glyph: decorative marks get read aloud by
+                // screen readers, the button role already implies action.
                 VaultButton(
-                    text = "${Strings.continueAction} ›",
+                    text = Strings.continueAction,
                     onClick = { onResume(draftId) },
                     enabled = !busy,
                 )
