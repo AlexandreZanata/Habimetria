@@ -6,6 +6,8 @@
 2. Property address (minimal) + Tenancy + Inspection created locally.
 3. Rooms typed manually by the user (for example "Suite principal").
    Automatic templates are not part of the primary flow.
+   Unfinished inspections resume from Home with rooms intact;
+   `Iniciar vistoria` opens the first room's capture with one tap.
 4. Per room guided checklist, five categories:
    overview → walls → openings → floor → ceiling.
 5. `+ Report issue` or `All good`.
