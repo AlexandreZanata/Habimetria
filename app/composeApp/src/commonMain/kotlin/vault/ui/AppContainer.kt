@@ -11,6 +11,9 @@ import vault.local.PlanRenderer
 import vault.local.SyncMode
 import vault.queue.CaptureStore
 import vault.queue.UploadPump
+import vault.sync.DbMirrorStore
+import vault.sync.MirrorStore
+import vault.sync.ServerMirror
 
 import vault.pdf.PlatformPdf
 
@@ -31,7 +34,16 @@ class AppContainer(
     val syncMode: SyncMode = SyncMode.WITH_SERVER_SYNC,
     val local: LocalSession? = null,
     val planRenderer: PlanRenderer? = null,
-)
+) {
+    // serverMirror is the only path from UI layers to VaultApi: screens
+    // ask the container for a mirror instead of calling the API
+    // directly. Null when the local core is absent; LOCAL_ONLY mirrors
+    // report SkippedLocalOnly without network traffic.
+    fun serverMirror(store: MirrorStore? = null): ServerMirror? {
+        val session = local ?: return null
+        return ServerMirror(session.db, api, session.syncMode, store ?: DbMirrorStore(session.db))
+    }
+}
 
 fun createContainer(
     baseUrl: String,

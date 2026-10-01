@@ -146,6 +146,17 @@ val MIGRATION_9_10 = object : Migration(9, 10) {
     }
 }
 
+// v10 → v11: server-mirror links. Starts empty; existing rows are
+// untouched and nothing is re-pushed by migration.
+val MIGRATION_10_11 = object : Migration(10, 11) {
+    override fun migrate(connection: SQLiteConnection) {
+        connection.execSQL(
+            "CREATE TABLE IF NOT EXISTS `mirror_links` (`localId` TEXT NOT NULL, " +
+                "`remoteId` TEXT NOT NULL, `createdAtDevice` TEXT NOT NULL, PRIMARY KEY(`localId`))",
+        )
+    }
+}
+
 // v5 → v6: occurrences timeline per property. No backfill; new rows
 // only. Sealed inspections are untouched by definition.
 val MIGRATION_5_6 = object : Migration(5, 6) {
