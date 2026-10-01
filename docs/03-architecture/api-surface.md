@@ -40,6 +40,8 @@ Preset enum: `stain | scratch | crack | broken | moisture | hole | other`.
 - `GET /s/{token}` (S8) — public recipient view + fresh PDF URL; logs accessed
 - `GET /s/{token}/pdf` (S8) — 302 to signed PDF; logs downloaded
 
-## Occurrences (V1.1, schema-ready)
+## Occurrences (V1.1, S9)
 
-- `POST /properties/{id}/occurrences` — { title, body? } + evidence upload reuse.
+- `POST /properties/{id}/occurrences` — { title, body? } → 201; 404 unknown property.
+- `GET /properties/{id}/occurrences` — timeline, newest first; 404 unknown property.
+- Post-seal only by convention: occurrences never mutate inspections.

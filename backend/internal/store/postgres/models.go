@@ -85,3 +85,13 @@ type Finding struct {
 	Note       *string   `json:"note"`
 	CreatedAt  time.Time `json:"created_at"`
 }
+
+// Occurrence is a post-seal timeline entry on a property. It never
+// mutates any inspection, sealed or not.
+type Occurrence struct {
+	ID         string    `json:"id"`
+	PropertyID string    `json:"property_id"`
+	Title      string    `json:"title"`
+	Body       *string   `json:"body"`
+	CreatedAt  time.Time `json:"created_at"`
+}
