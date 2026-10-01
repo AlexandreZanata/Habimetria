@@ -6,6 +6,16 @@ Consolidates the already-planned gates from
 [acceptance report](acceptance-report.md).
 No new scope; Linux green is the entry ticket, devices are the exam.
 
+## U12 Linux status (2026-10-01, build `7dfee44`)
+
+Entry gates green on Linux: `make verify-all` (Go + 143/143 JVM tests),
+`make test-integration` PASS on real PostgreSQL 18.6-alpine,
+`make bench` 3 ms / 1 ms, `make bench-apk` 8.2 MB vs 15 MB,
+independent verifier `accepted: true`. Full numbers and gate mapping in
+the [acceptance report](acceptance-report.md). Still open and blocking
+beta: the device matrix below, the five-user sessions per
+[usability sessions](usability_sessions.md), and reference-device timings.
+
 ## Entry gates (must already be green)
 
 - `.github/workflows/verify.yml` green on the release commit:

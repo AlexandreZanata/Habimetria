@@ -1,6 +1,8 @@
 # Local Usability — Acceptance Gates
 
-Status: planned; no scenario below has been executed for this feature.
+Status: automated subset executed on Linux per run (evidence in the
+[acceptance report](acceptance-report.md)); device, window-matrix and
+five-user scenarios are unexecuted. Unexecuted scenarios stay unverified.
 Scope: [U01–U12](local_usability_plan.md), supplementing the
 [existing local acceptance matrix](local_validation_acceptance.md).
 
@@ -76,7 +78,8 @@ devices, identifying OS, hardware, build and warm/cold conditions.
 
 ## Usability and release evidence
 
-Observe five first-time users with no navigation coaching: resume a draft,
+Observe five first-time users with no navigation coaching (protocol:
+[usability sessions](usability_sessions.md)): resume a draft,
 switch Property, reach review, find/share a Report, and remove an empty
 Property or archive one with history. Record per-task completion, taps,
 time, help requests and confusion between deletion and archive.
