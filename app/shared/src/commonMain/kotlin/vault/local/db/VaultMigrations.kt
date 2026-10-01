@@ -199,3 +199,11 @@ val MIGRATION_11_12 = object : Migration(11, 12) {
         connection.execSQL("UPDATE properties SET street = address WHERE street = ''")
     }
 }
+
+// v12 → v13: property nickname for the home picker. Empty for every
+// existing row; the address line stays the display fallback.
+val MIGRATION_12_13 = object : Migration(12, 13) {
+    override fun migrate(connection: SQLiteConnection) {
+        connection.execSQL("ALTER TABLE properties ADD COLUMN nickname TEXT NOT NULL DEFAULT ''")
+    }
+}

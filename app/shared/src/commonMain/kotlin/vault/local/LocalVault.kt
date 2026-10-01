@@ -13,6 +13,7 @@ class SealedModificationException(message: String) : IllegalStateException(messa
 class LocalValidationException(message: String) : IllegalArgumentException(message)
 
 const val MAX_ROOM_LABEL = 80
+const val MAX_NICKNAME = 40
 const val STATUS_DRAFT = "DRAFT"
 const val STATUS_SEALED = "SEALED"
 
@@ -50,6 +51,7 @@ class LocalVaultRepository(private val db: VaultDatabase) {
         number: String,
         complement: String?,
         neighborhood: String,
+        nickname: String = "",
     ): LocalProperty {
         val cleanStreet = street.trim()
         val cleanNumber = number.trim()
@@ -65,11 +67,24 @@ class LocalVaultRepository(private val db: VaultDatabase) {
             number = cleanNumber,
             complement = cleanComplement.ifEmpty { null },
             neighborhood = cleanNeighborhood,
+            nickname = nickname.trim().take(MAX_NICKNAME),
             createdAtDevice = deviceNowIso(),
         )
         db.propertyDao().insert(row)
         return row
     }
+
+    // Friendly name for the home picker. Organizational only: allowed
+    // even when inspections under it are sealed.
+    suspend fun setNickname(propertyId: String, nickname: String): LocalProperty {
+        val property = db.propertyDao().get(propertyId)
+            ?: throw LocalValidationException("property not found")
+        val updated = property.copy(nickname = nickname.trim().take(MAX_NICKNAME))
+        db.propertyDao().update(updated)
+        return updated
+    }
+
+    suspend fun listProperties(): List<LocalProperty> = db.propertyDao().listAll()
 
     suspend fun createTenancy(propertyId: String, type: String = "entry"): LocalTenancy {
         requireProperty(propertyId)
@@ -268,6 +283,14 @@ class LocalVaultRepository(private val db: VaultDatabase) {
         val inspection = db.inspectionDao().get(inspectionId) ?: return null
         val tenancy = db.tenancyDao().get(inspection.tenancyId) ?: return null
         return db.propertyDao().get(tenancy.propertyId)?.address
+    }
+
+    // Property behind an inspection, for grouping drafts on Home.
+    // Null when the chain is gone; never throws for UI listing.
+    suspend fun propertyFor(inspectionId: String): LocalProperty? {
+        val inspection = db.inspectionDao().get(inspectionId) ?: return null
+        val tenancy = db.tenancyDao().get(inspection.tenancyId) ?: return null
+        return db.propertyDao().get(tenancy.propertyId)
     }
 
     // Structured parts behind an inspection, for prefilling the Home

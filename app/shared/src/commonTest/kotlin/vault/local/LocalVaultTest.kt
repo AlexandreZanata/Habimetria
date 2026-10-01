@@ -200,4 +200,23 @@ class LocalVaultTest {
         assertFailsWith<LocalValidationException> { repo.deleteEvidence("ev_missing") }
         db.close()
     }
+
+    @Test
+    fun propertiesCarryNicknamesForThePicker() = runTest {
+        val (db, repo) = freshVault()
+        val beach = repo.createPropertyStructured("Rua A", "1", null, "Centro", "Casa da praia")
+        assertEquals("Casa da praia", beach.nickname)
+        val other = repo.createPropertyStructured("Rua B", "2", null, "Norte")
+        assertEquals("", other.nickname)
+        assertEquals(setOf(beach.id, other.id), repo.listProperties().map { it.id }.toSet())
+
+        val inspection = repo.createInspection(repo.createTenancy(beach.id).id).id
+        assertEquals(beach.id, repo.propertyFor(inspection)?.id)
+        assertEquals(null, repo.propertyFor("ins_missing"))
+
+        val renamed = repo.setNickname(other.id, "  Apê alugado  ")
+        assertEquals("Apê alugado", renamed.nickname)
+        assertFailsWith<LocalValidationException> { repo.setNickname("prop_missing", "X") }
+        db.close()
+    }
 }

@@ -17,6 +17,8 @@ data class LocalProperty(
     val number: String = "",
     val complement: String? = null,
     val neighborhood: String = "",
+    // Friendly name for the property picker ("Casa da praia").
+    val nickname: String = "",
     val createdAtDevice: String,
 )
 

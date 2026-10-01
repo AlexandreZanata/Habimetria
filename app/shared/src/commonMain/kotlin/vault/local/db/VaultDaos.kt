@@ -14,8 +14,14 @@ interface PropertyDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(property: LocalProperty)
 
+    @Update
+    suspend fun update(property: LocalProperty)
+
     @Query("SELECT * FROM properties WHERE id = :id")
     suspend fun get(id: String): LocalProperty?
+
+    @Query("SELECT * FROM properties ORDER BY createdAtDevice DESC")
+    suspend fun listAll(): List<LocalProperty>
 }
 
 @Dao
