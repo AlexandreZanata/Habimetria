@@ -225,6 +225,17 @@ class LocalVaultRepository(private val db: VaultDatabase) {
         }
     }
 
+    // Deleting one photo removes its findings first (FK has no cascade),
+    // then the row. Files go through LocalSession so DB and disk stay
+    // bound. Frozen when sealed, like every other edit.
+    suspend fun deleteEvidence(evidenceId: String) {
+        val evidence = db.evidenceDao().get(evidenceId)
+            ?: throw LocalValidationException("evidence not found")
+        requireDraft(evidence.inspectionId)
+        db.findingDao().deleteForEvidence(evidenceId)
+        db.evidenceDao().delete(evidenceId)
+    }
+
     suspend fun addFinding(
         roomId: String,
         evidenceId: String,

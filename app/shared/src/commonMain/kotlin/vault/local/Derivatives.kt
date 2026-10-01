@@ -44,6 +44,12 @@ class DerivativeStore(
     fun hasDerivatives(evidenceId: String): Boolean =
         fs.exists(thumbPath(evidenceId).toPath()) && fs.exists(previewPath(evidenceId).toPath())
 
+    fun deleteDerivatives(evidenceId: String) {
+        for (path in listOf(thumbPath(evidenceId), previewPath(evidenceId))) {
+            if (fs.exists(path.toPath())) fs.delete(path.toPath())
+        }
+    }
+
     // Grids decode the small thumb; rows captured before derivatives
     // existed fall back to the original file.
     fun displayPath(evidenceId: String, originalPath: String): String =

@@ -181,4 +181,23 @@ class LocalVaultTest {
         assertEquals(null, repo.addressPartsFor("ins_missing"))
         db.close()
     }
+
+    @Test
+    fun deleteEvidenceRemovesRowsAndFindings() = runTest {
+        val (db, repo) = freshVault()
+        val inspectionId = seedInspection(repo)
+        val room = repo.addRoom(inspectionId, "Sala")
+        val ev = repo.recordEvidence(
+            inspectionId, room.id, "ev.bin", "image/jpeg", 10, "ee".repeat(32),
+            shotCategory = ShotCategory.WALLS,
+        )
+        repo.addFinding(room.id, ev.id, FindingPreset.STAIN, "mancha")
+        repo.deleteEvidence(ev.id)
+        assertEquals(null, db.evidenceDao().get(ev.id))
+        assertTrue(db.findingDao().listForEvidence(ev.id).isEmpty())
+        assertEquals(0, repo.evidencesForRoom(room.id).size)
+        assertFailsWith<LocalValidationException> { repo.deleteEvidence(ev.id) }
+        assertFailsWith<LocalValidationException> { repo.deleteEvidence("ev_missing") }
+        db.close()
+    }
 }

@@ -83,6 +83,8 @@ interface EvidenceDao {
     @Query("SELECT COALESCE(MAX(sequence), 0) FROM evidences WHERE inspectionId = :inspectionId")
     suspend fun maxSequence(inspectionId: String): Int
 
+    @Query("DELETE FROM evidences WHERE id = :id")
+    suspend fun delete(id: String)
     // Atomic sequence assignment: concurrent captures never share a number.
     @Transaction
     suspend fun insertSequenced(inspectionId: String, build: (Int) -> LocalEvidence): LocalEvidence {
@@ -231,4 +233,7 @@ interface FindingDao {
     @Transaction
     @Query("SELECT * FROM findings WHERE evidenceId = :evidenceId")
     suspend fun listForEvidence(evidenceId: String): List<LocalFinding>
+
+    @Query("DELETE FROM findings WHERE evidenceId = :evidenceId")
+    suspend fun deleteForEvidence(evidenceId: String)
 }
