@@ -44,6 +44,11 @@ abstract class VaultDatabase : RoomDatabase() {
     abstract fun aiSuggestionDao(): AiSuggestionDao
     abstract fun visualDiffDao(): VisualDiffDao
     abstract fun mirrorLinkDao(): MirrorLinkDao
+    abstract fun inspectionListingDao(): InspectionListingDao
+    abstract fun tenancyListingDao(): TenancyListingDao
+    abstract fun propertyListingDao(): PropertyListingDao
+    abstract fun manifestListingDao(): ManifestListingDao
+    abstract fun reportListingDao(): ReportListingDao
 }
 
 @Suppress("KotlinNoActualForExpect")

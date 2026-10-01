@@ -52,6 +52,7 @@ class LocalSession(
     private val fs: FileSystem = FileSystem.SYSTEM,
 ) {
     val repository = LocalVaultRepository(db)
+    val overviews = LocalOverviewRepository(db)
     val coverage = VaultCoverage(db)
     val originals = OriginalStore(fs, filesDir)
     val derivatives = DerivativeStore(fs, filesDir, platformScaler())
