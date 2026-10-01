@@ -102,6 +102,11 @@ fun PropertyDetailScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+                PropertyDataSection(
+                    container = container,
+                    property = current,
+                    onSaved = { scope.launch { load() } },
+                )
                 if (current.archived) {
                     ArchivedBadge()
                     Text(

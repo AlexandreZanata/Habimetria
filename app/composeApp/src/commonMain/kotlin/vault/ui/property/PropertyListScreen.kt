@@ -49,8 +49,6 @@ fun PropertyListScreen(
     var error by rememberSaveable { mutableStateOf<String?>(null) }
     var loadError by rememberSaveable { mutableStateOf<String?>(null) }
     var cards by mutableStateOf<List<PropertyOverview>?>(null)
-    var renaming by mutableStateOf<PropertyOverview?>(null)
-    var renameText by rememberSaveable { mutableStateOf("") }
     var removing by mutableStateOf<PropertyOverview?>(null)
     var feedback by rememberSaveable { mutableStateOf<String?>(null) }
     var visibility by rememberSaveable { mutableStateOf(VISIBILITY_ACTIVE) }
@@ -156,7 +154,7 @@ fun PropertyListScreen(
                                 }
                             }
                         },
-                        onRename = { renaming = overview; renameText = "" },
+                        onOpenDetail = { onOpenDetail(overview.property.id) },
                         onRemove = { removing = overview },
                     )
                     if (overview.property.archived) {
@@ -224,26 +222,6 @@ fun PropertyListScreen(
                     }
                 }
             },
-        )
-    }
-
-    renaming?.let { overview ->
-        PropertyRenameDialog(
-            currentTitle = overview.property.nickname.ifBlank { overview.property.address },
-            draft = renameText,
-            onDraft = { renameText = it },
-            onConfirm = {
-                scope.launch {
-                    try {
-                        local?.repository?.setNickname(overview.property.id, renameText)
-                        renaming = null
-                        load()
-                    } catch (e: Exception) {
-                        error = userErrorMessage(e)
-                    }
-                }
-            },
-            onDismiss = { renaming = null },
         )
     }
 

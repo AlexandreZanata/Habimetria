@@ -24,7 +24,7 @@ fun HomePropertyStates(
     onRetry: () -> Unit,
     onResume: (String) -> Unit,
     onNewInspection: (String) -> Unit,
-    onRename: (PropertyOverview) -> Unit,
+    onOpenDetail: (PropertyOverview) -> Unit,
     onRemove: ((PropertyOverview) -> Unit)? = null,
 ) {
     when {
@@ -56,7 +56,7 @@ fun HomePropertyStates(
                     busy = busy,
                     onResume = onResume,
                     onNewInspection = { onNewInspection(overview.property.id) },
-                    onRename = { onRename(overview) },
+                    onOpenDetail = { onOpenDetail(overview) },
                     onRemove = onRemove?.let { remove -> { remove(overview) } },
                 )
             }

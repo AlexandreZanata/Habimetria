@@ -249,6 +249,20 @@ class LocalVaultTest {
     }
 
     @Test
+    fun updatePropertyDetailsRewritesDisplayLine() = runTest {
+        val (db, repo) = freshVault()
+        val prop = repo.createPropertyStructured("Rua A", "1", null, "Centro", "Apelido")
+        val updated = repo.updatePropertyDetails(prop.id, "Novo apelido", "Rua B", "22", "sala 3", "Norte")
+        assertEquals("Novo apelido", updated.nickname)
+        assertEquals("Rua B, 22, sala 3 — Norte", updated.address)
+        assertFailsWith<LocalValidationException> {
+            repo.updatePropertyDetails(prop.id, "", "Ru", "22", null, "Norte")
+        }
+        assertFailsWith<LocalValidationException> { repo.updatePropertyDetails("prop_missing", "", "Rua B", "22", null, "Norte") }
+        db.close()
+    }
+
+    @Test
     fun propertiesCarryNicknamesForThePicker() = runTest {
         val (db, repo) = freshVault()
         val beach = repo.createPropertyStructured("Rua A", "1", null, "Centro", "Casa da praia")
@@ -261,9 +275,11 @@ class LocalVaultTest {
         assertEquals(beach.id, repo.propertyFor(inspection)?.id)
         assertEquals(null, repo.propertyFor("ins_missing"))
 
-        val renamed = repo.setNickname(other.id, "  Apê alugado  ")
+        val renamed = repo.updatePropertyDetails(other.id, "  Apê alugado  ", "Rua B", "2", null, "Norte")
         assertEquals("Apê alugado", renamed.nickname)
-        assertFailsWith<LocalValidationException> { repo.setNickname("prop_missing", "X") }
+        assertFailsWith<LocalValidationException> {
+            repo.updatePropertyDetails("prop_missing", "X", "Rua B", "2", null, "Norte")
+        }
         db.close()
     }
 }

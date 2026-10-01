@@ -95,7 +95,7 @@ fun PropertyCardView(
     busy: Boolean,
     onResume: (inspectionId: String) -> Unit,
     onNewInspection: () -> Unit,
-    onRename: () -> Unit,
+    onOpenDetail: () -> Unit,
     onRemove: (() -> Unit)? = null,
 ) {
     var menu by remember { mutableStateOf(false) }
@@ -144,7 +144,7 @@ fun PropertyCardView(
                         enabled = !busy,
                         modifier = Modifier.clearAndSetSemantics {
                             contentDescription =
-                                "${PropertyStrings.removeMenuDescription}: $title"
+                                "${PropertyStrings.optionsDescription}: $title"
                         },
                     ) {
                         Icon(
@@ -168,22 +168,23 @@ fun PropertyCardView(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    Strings.renameNickname,
+                                    PropertyStrings.propertyData,
                                     modifier = Modifier.semantics {
-                                        contentDescription = "${Strings.renameNickname}: $title"
+                                        contentDescription = "${PropertyStrings.propertyData}: $title"
                                     },
                                 )
                             },
-                            onClick = { menu = false; onRename() },
+                            onClick = { menu = false; onOpenDetail() },
                         )
                         if (onRemove != null) {
                             DropdownMenuItem(
                                 text = {
                                     Text(
-                                        PropertyStrings.removeMenu,
+                                        PropertyStrings.removeShort,
+                                        color = MaterialTheme.colorScheme.error,
                                         modifier = Modifier.semantics {
                                             contentDescription =
-                                                "${PropertyStrings.removeMenuDescription}: $title"
+                                                "${PropertyStrings.removeShort}: $title"
                                         },
                                     )
                                 },

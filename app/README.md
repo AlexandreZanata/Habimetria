@@ -18,8 +18,9 @@ UI chrome lives in `composeApp/.../vault/ui/`:
 property management lives in `vault/ui/property/`: `NewInspectionScreen`
 (dedicated address form), `PropertyListScreen` (search, aggregated
 overviews, detail entry), `PropertyDetailScreen` (bounded inspection
-history with DRAFT/SEALED filter), `PropertyForm` (address form,
-creation block, rename dialog), `PropertyCards` (hero + cards),
+history with DRAFT/SEALED filter), `PropertyDataForm` (editable data
+section), `PropertyForm` (address form, creation block),
+`PropertyCards` (hero + cards),
 `HomePropertyStates` (shared loading/error/empty), `PropertyActions`
 (creation helpers), `PropertyStrings` (feature copy).
 Journey destinations read bulk overviews from `LocalOverviewRepository`

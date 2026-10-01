@@ -25,7 +25,6 @@ import vault.local.PropertyOverview
 import vault.ui.property.HeroNewInspection
 import vault.ui.property.HomePropertyStates
 import vault.ui.property.PropertyRemovalHost
-import vault.ui.property.PropertyRenameDialog
 import vault.ui.property.RemovalFeedback
 import vault.ui.property.startOnProperty
 
@@ -39,13 +38,12 @@ fun HomeScreen(
     container: AppContainer,
     onReady: (inspectionId: String) -> Unit,
     onNewInspection: () -> Unit,
+    onOpenDetail: (propertyId: String) -> Unit,
 ) {
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var loadError by remember { mutableStateOf<String?>(null) }
     var cards by remember { mutableStateOf<List<PropertyOverview>?>(null) }
-    var renaming by remember { mutableStateOf<PropertyOverview?>(null) }
-    var renameText by remember { mutableStateOf("") }
     var removing by remember { mutableStateOf<PropertyOverview?>(null) }
     var feedback by rememberSaveable { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
@@ -111,7 +109,7 @@ fun HomeScreen(
                 onRetry = { scope.launch { load() } },
                 onResume = ::resume,
                 onNewInspection = ::startProperty,
-                onRename = { renaming = it; renameText = "" },
+                onOpenDetail = { onOpenDetail(it.property.id) },
                 onRemove = { removing = it },
             )
         }
@@ -132,26 +130,6 @@ fun HomeScreen(
                 }
             },
             onDismiss = { removing = null },
-        )
-    }
-
-    renaming?.let { overview ->
-        PropertyRenameDialog(
-            currentTitle = overview.property.nickname.ifBlank { overview.property.address },
-            draft = renameText,
-            onDraft = { renameText = it },
-            onConfirm = {
-                scope.launch {
-                    try {
-                        local?.repository?.setNickname(overview.property.id, renameText)
-                        renaming = null
-                        load()
-                    } catch (e: Exception) {
-                        error = userErrorMessage(e)
-                    }
-                }
-            },
-            onDismiss = { renaming = null },
         )
     }
 }

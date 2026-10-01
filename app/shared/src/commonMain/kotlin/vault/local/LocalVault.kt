@@ -87,10 +87,33 @@ class LocalVaultRepository(private val db: VaultDatabase) {
 
     // Friendly name for the home picker. Organizational only: allowed
     // even when inspections under it are sealed.
-    suspend fun setNickname(propertyId: String, nickname: String): LocalProperty {
+    // Full data edit from the detail screen: same rules as creation.
+    // Rebuilds the display line so every consumer keeps working unchanged.
+    suspend fun updatePropertyDetails(
+        propertyId: String,
+        nickname: String,
+        street: String,
+        number: String,
+        complement: String?,
+        neighborhood: String,
+    ): LocalProperty {
         val property = db.propertyDao().get(propertyId)
             ?: throw LocalValidationException("property not found")
-        val updated = property.copy(nickname = nickname.trim().take(MAX_NICKNAME))
+        val cleanStreet = street.trim()
+        val cleanNumber = number.trim()
+        val cleanComplement = complement?.trim().orEmpty()
+        val cleanNeighborhood = neighborhood.trim()
+        if (cleanStreet.length < 3) throw LocalValidationException("street too short")
+        if (cleanNumber.isEmpty()) throw LocalValidationException("number required")
+        if (cleanNeighborhood.length < 2) throw LocalValidationException("neighborhood too short")
+        val updated = property.copy(
+            nickname = nickname.trim().take(MAX_NICKNAME),
+            address = formatAddress(cleanStreet, cleanNumber, cleanComplement, cleanNeighborhood),
+            street = cleanStreet,
+            number = cleanNumber,
+            complement = cleanComplement.ifEmpty { null },
+            neighborhood = cleanNeighborhood,
+        )
         db.propertyDao().update(updated)
         return updated
     }
