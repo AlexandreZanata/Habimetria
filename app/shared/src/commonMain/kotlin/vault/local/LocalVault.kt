@@ -16,6 +16,20 @@ const val MAX_ROOM_LABEL = 80
 const val STATUS_DRAFT = "DRAFT"
 const val STATUS_SEALED = "SEALED"
 
+// Structured address parts for prefill and display.
+data class AddressParts(
+    val street: String = "",
+    val number: String = "",
+    val complement: String = "",
+    val neighborhood: String = "",
+)
+
+// Brazilian display line: "Rua das Flores, 42, Apto 101 — Centro".
+fun formatAddress(street: String, number: String, complement: String, neighborhood: String): String {
+    val head = "$street, $number" + (complement.ifEmpty { null }?.let { ", $it" } ?: "")
+    return "$head — $neighborhood"
+}
+
 // LocalVaultRepository is the offline application core: every capture,
 // room and finding flows through here. No network, no VaultApi.
 class LocalVaultRepository(private val db: VaultDatabase) {
@@ -24,6 +38,35 @@ class LocalVaultRepository(private val db: VaultDatabase) {
         val clean = address.trim()
         if (clean.length < 3) throw LocalValidationException("address too short")
         val row = LocalProperty(id = newLocalId("prop"), address = clean, createdAtDevice = deviceNowIso())
+        db.propertyDao().insert(row)
+        return row
+    }
+
+    // Checkout-style address: street + number + optional complement +
+    // neighborhood. The formatted line stays on `address` so every
+    // consumer (review, PDF, resume) keeps working unchanged.
+    suspend fun createPropertyStructured(
+        street: String,
+        number: String,
+        complement: String?,
+        neighborhood: String,
+    ): LocalProperty {
+        val cleanStreet = street.trim()
+        val cleanNumber = number.trim()
+        val cleanComplement = complement?.trim().orEmpty()
+        val cleanNeighborhood = neighborhood.trim()
+        if (cleanStreet.length < 3) throw LocalValidationException("street too short")
+        if (cleanNumber.isEmpty()) throw LocalValidationException("number required")
+        if (cleanNeighborhood.length < 2) throw LocalValidationException("neighborhood too short")
+        val row = LocalProperty(
+            id = newLocalId("prop"),
+            address = formatAddress(cleanStreet, cleanNumber, cleanComplement, cleanNeighborhood),
+            street = cleanStreet,
+            number = cleanNumber,
+            complement = cleanComplement.ifEmpty { null },
+            neighborhood = cleanNeighborhood,
+            createdAtDevice = deviceNowIso(),
+        )
         db.propertyDao().insert(row)
         return row
     }
@@ -214,6 +257,20 @@ class LocalVaultRepository(private val db: VaultDatabase) {
         val inspection = db.inspectionDao().get(inspectionId) ?: return null
         val tenancy = db.tenancyDao().get(inspection.tenancyId) ?: return null
         return db.propertyDao().get(tenancy.propertyId)?.address
+    }
+
+    // Structured parts behind an inspection, for prefilling the Home
+    // form when the user goes back. Null when the chain is gone.
+    suspend fun addressPartsFor(inspectionId: String): AddressParts? {
+        val inspection = db.inspectionDao().get(inspectionId) ?: return null
+        val tenancy = db.tenancyDao().get(inspection.tenancyId) ?: return null
+        val property = db.propertyDao().get(tenancy.propertyId) ?: return null
+        return AddressParts(
+            street = property.street.ifEmpty { property.address },
+            number = property.number,
+            complement = property.complement.orEmpty(),
+            neighborhood = property.neighborhood,
+        )
     }
 
     suspend fun roomsFor(inspectionId: String): List<LocalRoom> =

@@ -156,4 +156,29 @@ class LocalVaultTest {
         assertEquals(null, repo.addressFor("ins_missing"))
         db.close()
     }
+
+    @Test
+    fun structuredPropertyFormatsAndPrefills() = runTest {
+        val (db, repo) = freshVault()
+        val prop = repo.createPropertyStructured("Rua das Flores", "42", "Apto 101", "Centro")
+        assertEquals("Rua das Flores, 42, Apto 101 — Centro", prop.address)
+        val ten = repo.createTenancy(prop.id)
+        val inspection = repo.createInspection(ten.id)
+        assertEquals(
+            AddressParts("Rua das Flores", "42", "Apto 101", "Centro"),
+            repo.addressPartsFor(inspection.id),
+        )
+        assertEquals("Rua das Flores", repo.createPropertyStructured("Rua das Flores", "s/n", null, "Centro").street)
+        assertFailsWith<LocalValidationException> {
+            repo.createPropertyStructured("Ru", "42", null, "Centro")
+        }
+        assertFailsWith<LocalValidationException> {
+            repo.createPropertyStructured("Rua das Flores", "", null, "Centro")
+        }
+        assertFailsWith<LocalValidationException> {
+            repo.createPropertyStructured("Rua das Flores", "42", null, "C")
+        }
+        assertEquals(null, repo.addressPartsFor("ins_missing"))
+        db.close()
+    }
 }
