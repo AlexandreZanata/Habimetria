@@ -9,6 +9,15 @@
 5. Findings: `photo + preset + optional note`. No mandatory text.
 6. Coverage bar per room; nudge text for missing shots (no AI).
 
+## Local capture (current)
+
+- No embedded preview: `Fotografar` opens the full-screen system
+  camera; shots return with the selected category bound.
+- Every photo is deletable individually (row, findings, files).
+- The rules above still hold, except "Camera view is the home screen"
+  and "Camera pre-warmed on Home", which described the old embedded
+  CameraX preview.
+
 ## Screen flow (M2–M4)
 
 ```text

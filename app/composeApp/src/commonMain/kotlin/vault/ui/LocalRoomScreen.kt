@@ -2,19 +2,11 @@ package vault.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FilterChip
@@ -29,9 +21,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,8 +37,6 @@ import vault.local.newLocalId
 import vault.local.parseNaCategories
 import vault.local.platformLocationTracker
 import vault.local.readExifGps
-import vault.nav.useSideBySide
-import vault.nav.windowClassFor
 import vault.rooms.RoomCoverage
 
 fun shotLabel(category: ShotCategory): String = when (category) {
@@ -169,48 +158,32 @@ fun LocalRoomScreen(
         }
     }
 
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        if (useSideBySide(windowClassFor(maxWidth.value.toInt()))) {
-            Row(
-                modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 16.dp).imePadding(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                CameraPreview(
-                    modifier = Modifier.weight(1f).fillMaxHeight()
-                        .semantics { contentDescription = Strings.cameraPreview },
-                )
-                Column(
-                    modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    LocalRoomControls(
-                        session, evidences, nextRoom, coverage, na, selected,
-                        { selected = it }, busy, error, lastClaim, ::toggleNa, ::capture,
-                        onOpenRoom, onReview, onBack,
-                    )
-                }
+    fun removeEvidence(evidenceId: String) {
+        scope.launch {
+            try {
+                session.deleteEvidence(evidenceId)
+            } catch (e: Exception) {
+                error = e.message?.take(160)
             }
-        } else {
-            ScreenColumn {
-                ScreenTitle(roomLabel)
-                CameraPreview(
-                    modifier = Modifier.fillMaxWidth().height(280.dp)
-                        .semantics { contentDescription = Strings.cameraPreview },
-                )
-                // Controls always exceed one screen (chips, evidence list,
-                // next/review/back): without scroll the forward buttons
-                // sit below the fold and the user is stuck.
-                Column(
-                    modifier = Modifier.verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    LocalRoomControls(
-                        session, evidences, nextRoom, coverage, na, selected,
-                        { selected = it }, busy, error, lastClaim, ::toggleNa, ::capture,
-                        onOpenRoom, onReview, onBack,
-                    )
-                }
-            }
+            refresh()
+        }
+    }
+
+    // No embedded preview: the screen is big buttons and state. Tapping
+    // Fotografar opens the camera full-screen; shots return with the
+    // selected category bound. Everything scrolls so no action hides
+    // below the fold.
+    ScreenColumn {
+        ScreenTitle(roomLabel)
+        Column(
+            modifier = Modifier.verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            LocalRoomControls(
+                session, evidences, nextRoom, coverage, na, selected,
+                { selected = it }, busy, error, lastClaim, ::toggleNa, ::capture,
+                ::removeEvidence, onOpenRoom, onReview, onBack,
+            )
         }
     }
 }
@@ -229,10 +202,16 @@ private fun ColumnScope.LocalRoomControls(
     lastClaim: LocationClaim?,
     onToggleNa: (ShotCategory) -> Unit,
     onCapture: () -> Unit,
+    onDeleteEvidence: (evidenceId: String) -> Unit,
     onOpenRoom: (roomId: String, label: String) -> Unit,
     onReview: () -> Unit,
     onBack: () -> Unit,
 ) {
+    VaultButton(
+        text = if (busy) Strings.saving else Strings.photograph,
+        onClick = onCapture,
+        enabled = !busy,
+    )
     Text("${Strings.captureIn}:")
     ShotCategory.entries.chunked(3).forEach { row ->
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -246,11 +225,6 @@ private fun ColumnScope.LocalRoomControls(
             }
         }
     }
-    VaultButton(
-        text = if (busy) Strings.saving else Strings.capture,
-        onClick = onCapture,
-        enabled = !busy,
-    )
     ErrorText(error)
     lastClaim?.let { claim ->
         Text(
@@ -288,7 +262,11 @@ private fun ColumnScope.LocalRoomControls(
             )
             runCatching { decodeThumbnail(path) }.getOrNull()
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             if (thumb != null) {
                 Image(
                     bitmap = thumb,
@@ -299,7 +277,9 @@ private fun ColumnScope.LocalRoomControls(
             Text(
                 "#${evidence.sequence} ${evidence.shotCategory ?: "?"}",
                 style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f),
             )
+            TextButton(onClick = { onDeleteEvidence(evidence.id) }) { Text(Strings.delete) }
         }
     }
     nextRoom?.let { next ->
