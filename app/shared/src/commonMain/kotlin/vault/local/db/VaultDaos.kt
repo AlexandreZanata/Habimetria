@@ -257,6 +257,9 @@ interface ReportDao {
 
     @Query("SELECT * FROM reports WHERE id = :id")
     suspend fun get(id: String): LocalReport?
+
+    @Query("DELETE FROM reports WHERE id = :id")
+    suspend fun deleteById(id: String): Int
 }
 
 @Dao
