@@ -143,6 +143,22 @@ results for valid, modified, missing, unsupported and unknown issuer.
 Package import requires file-size limits, safe paths and bounded decoding.
 Public web verification and server acknowledgements remain later options.
 
+## Optional server mirror (V-sync)
+
+Local rows stay the source of truth; the API is a push target, never
+the authority. `ServerMirror` (`vault.sync`, reached only through
+`AppContainer.serverMirror()`) copies user-confirmed occurrences,
+comparison tags and exit inspections to the existing REST endpoints.
+Screens keep never calling `VaultApi` directly. `LOCAL_ONLY` mode
+reports `SkippedLocalOnly` without network traffic, and failures return
+an explicit `Failed` reason for retry instead of throwing. Confirmed
+links (`localId -> remoteId`) persist in `mirror_links` (schema v11,
+first write wins), so relaunch retries reuse the original remote row.
+Comparison evidence references mirror as null: server evidences live in
+a separate id space and tag history stays on device. Photo bytes stay
+with `UploadPump`. Mirroring never marks local rows `confirmed` and
+never changes seal/verification semantics.
+
 ## Primary implementation references
 
 - [Material 3](https://developer.android.com/develop/ui/compose/designsystems/material3)
