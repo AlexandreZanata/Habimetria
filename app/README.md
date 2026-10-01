@@ -28,6 +28,13 @@ filters; DRAFT resumes, SEALED opens read-only review) and
 `vault/ui/report/` (`ReportListScreen` with finalized READY reports
 plus explicit pending "Gerar PDF" entries; DRAFT never offers
 generation, pending never claims an existing report).
+The capture journey (`LocalRoomsScreen`, `LocalRoomScreen`,
+`LocalReviewScreen`, `LocalSealScreen`, `LocalPdfScreen`) shares
+`vault/ui/journey/`: `JourneyShortcuts` (Cômodos/Revisão entries),
+room rows/dialogs, capture controls, photo viewer and finding input.
+Journey screens keep one header Back control (no bottom Voltar),
+saveable input (category, finding note/preset) and busy-guarded
+writes; committed photos/notes live in durable storage.
 
 ## Local verification (Linux)
 

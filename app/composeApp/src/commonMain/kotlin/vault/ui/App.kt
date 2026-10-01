@@ -128,7 +128,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                         onSeal = { navigator.navigate(Route.Seal(r.inspectionId)) },
                         onCompare = { navigator.navigate(Route.LocalCompare(r.inspectionId)) },
                         onInspector = { navigator.navigate(Route.LocalInspector(r.inspectionId)) },
-                        onBack = { navigator.goBack() },
+                        onRoomsShortcut = { navigator.navigate(Route.Rooms(r.inspectionId)) },
                     )
                 } else {
                     ReviewScreen(
@@ -148,7 +148,8 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                         onPdf = { navigator.navigate(Route.LocalPdf(r.inspectionId)) },
                         onOccurrence = { navigator.navigate(Route.LocalOccurrence(r.inspectionId)) },
                         onExitReady = { navigator.startInspection(it) },
-                        onBack = { navigator.goBack() },
+                        onRoomsShortcut = { navigator.navigate(Route.Rooms(r.inspectionId)) },
+                        onReviewShortcut = { navigator.navigate(Route.Review(r.inspectionId)) },
                     )
                 } else {
                     SealScreen(
@@ -257,7 +258,8 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                         inspectionId = r.inspectionId,
                         onSharePdf = { path -> container.platformPdf.share(path, "application/pdf") },
                         onVerify = { navigator.navigate(Route.LocalVerify(r.inspectionId)) },
-                        onBack = { navigator.goBack() },
+                        onRoomsShortcut = { navigator.navigate(Route.Rooms(r.inspectionId)) },
+                        onReviewShortcut = { navigator.navigate(Route.Review(r.inspectionId)) },
                     )
                 } else {
                     ScreenColumn {

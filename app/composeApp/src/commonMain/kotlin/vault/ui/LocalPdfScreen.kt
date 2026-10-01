@@ -32,7 +32,8 @@ fun LocalPdfScreen(
     inspectionId: String,
     onSharePdf: (path: String) -> Unit,
     onVerify: () -> Unit,
-    onBack: () -> Unit,
+    onRoomsShortcut: () -> Unit,
+    onReviewShortcut: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val signer = remember(session.filesDir) { platformSigner(session.filesDir) }
@@ -64,6 +65,7 @@ fun LocalPdfScreen(
 
     ScreenColumn {
         ScreenTitle(Strings.reportPdf)
+        vault.ui.journey.JourneyShortcuts(onRooms = onRoomsShortcut, onReview = onReviewShortcut)
         val current = report
         val pdfHash = current?.pdfSha256
         if (current != null && pdfHash != null) {
@@ -148,6 +150,5 @@ fun LocalPdfScreen(
             },
             enabled = !busy && current?.pdfSha256 != null,
         )
-        VaultButton(text = Strings.back, onClick = onBack)
     }
 }
