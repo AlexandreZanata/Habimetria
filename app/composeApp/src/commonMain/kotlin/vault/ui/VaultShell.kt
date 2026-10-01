@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -90,7 +91,10 @@ fun VaultShell(
                 }
             },
         ) { inner ->
-            Row(modifier = Modifier.padding(inner).fillMaxSize()) {
+            // Single inset boundary: Scaffold padding is consumed here so
+            // screen-level imePadding() never double-counts it — the fix
+            // for the dead gap above the keyboard on every device.
+            Row(modifier = Modifier.padding(inner).consumeWindowInsets(inner).fillMaxSize()) {
                 if (windowClass != WindowClass.COMPACT) {
                     DestinationsRail(selected = destination, onSelect = onSelect)
                 }
