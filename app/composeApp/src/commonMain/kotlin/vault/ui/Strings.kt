@@ -72,7 +72,6 @@ object Strings {
     const val cancel = "Cancelar"
     const val close = "Fechar"
     const val roomsSubtitle = "Adicione os cômodos que serão vistoriados neste imóvel."
-    const val roomsReviewBody = "Informe os cômodos para compor a vistoria."
     const val roomNameLabel = "Nome do cômodo"
     const val roomNamePlaceholder = "Ex.: Suíte principal"
     const val roomsEmptyTitle = "Nenhum cômodo ainda."

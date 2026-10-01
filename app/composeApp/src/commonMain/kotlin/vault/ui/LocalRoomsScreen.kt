@@ -19,10 +19,8 @@ import vault.local.LocalSession
 import vault.local.LocalValidationException
 import vault.local.STATUS_DRAFT
 import vault.local.db.LocalRoom
-import vault.ui.journey.JourneyShortcuts
 import vault.ui.journey.RoomDeleteDialog
 import vault.ui.journey.RoomEmptyState
-import vault.ui.journey.RoomInfoCard
 import vault.ui.journey.RoomListRow
 import vault.ui.journey.RoomNameInput
 import vault.ui.journey.RoomRenameDialog
@@ -37,7 +35,6 @@ fun LocalRoomsScreen(
     onOpenRoom: (roomId: String, label: String) -> Unit,
     onStartCapture: (roomId: String, label: String) -> Unit,
     onSealed: () -> Unit,
-    onReviewShortcut: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     var rooms by remember { mutableStateOf<List<LocalRoom>>(emptyList()) }
@@ -81,8 +78,6 @@ fun LocalRoomsScreen(
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        RoomInfoCard()
-        JourneyShortcuts(onRooms = null, onReview = onReviewShortcut)
         ErrorText(error)
         RoomNameInput(
             value = newLabel,

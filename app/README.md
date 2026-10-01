@@ -47,7 +47,7 @@ corrupting the other side; tenancies, properties and occurrences survive.
 The capture journey (`LocalRoomsScreen`, `LocalRoomScreen`,
 `LocalReviewScreen`, `LocalSealScreen`, `LocalPdfScreen`) shares
 `vault/ui/journey/`: `JourneyShortcuts` (Cômodos/Revisão entries),
-`RoomSetup` (info card, labeled input, text-only empty state),
+`RoomSetup` (labeled input, text-only empty state),
 room rows/dialogs, capture controls, photo viewer and finding input.
 Journey screens keep one header Back control (no bottom Voltar),
 saveable input (category, finding note/preset) and busy-guarded
