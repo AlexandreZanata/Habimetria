@@ -21,6 +21,13 @@ history with DRAFT/SEALED filter), `PropertyForm` (address form,
 creation block, rename dialog), `PropertyCards` (hero + cards),
 `HomePropertyStates` (shared loading/error/empty), `PropertyActions`
 (creation helpers), `PropertyStrings` (feature copy).
+Journey destinations read bulk overviews from `LocalOverviewRepository`
+(`shared/.../vault/local/LocalOverviews.kt`, queries in `ListingDaos`):
+`vault/ui/inspection/` (`InspectionListScreen` with Em andamento/Selada
+filters; DRAFT resumes, SEALED opens read-only review) and
+`vault/ui/report/` (`ReportListScreen` with finalized READY reports
+plus explicit pending "Gerar PDF" entries; DRAFT never offers
+generation, pending never claims an existing report).
 
 ## Local verification (Linux)
 
