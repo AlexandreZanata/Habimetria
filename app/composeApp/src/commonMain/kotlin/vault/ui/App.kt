@@ -17,8 +17,8 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
             Route.Home -> ChromeShell(r, container, navigator, Strings.home, false, {}) {
                 HomeScreen(container, onReady = { navigator.startInspection(it) })
             }
-            // Imóveis owns management/history (U04); inspection/report
-            // destinations arrive in U05 and reuse Home until then.
+            // Imóveis owns management/history (U04); Vistorias is a
+            // dedicated destination (U05), Relatórios follows next.
             Route.Properties -> ChromeShell(r, container, navigator, Strings.properties, false, {}) {
                 vault.ui.property.PropertyListScreen(
                     container = container,
@@ -38,7 +38,11 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                 )
             }
             Route.Inspections -> ChromeShell(r, container, navigator, Strings.inspections, false, {}) {
-                HomeScreen(container, onReady = { navigator.startInspection(it) })
+                vault.ui.inspection.InspectionListScreen(
+                    container = container,
+                    onResume = { navigator.startInspection(it) },
+                    onReview = { navigator.openSealedReview(it) },
+                )
             }
             Route.Reports -> ChromeShell(r, container, navigator, Strings.reports, false, {}) {
                 HomeScreen(container, onReady = { navigator.startInspection(it) })
