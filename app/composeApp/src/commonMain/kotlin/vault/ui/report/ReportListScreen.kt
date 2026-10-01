@@ -9,6 +9,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -20,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -32,6 +37,7 @@ import vault.ui.ProgressStatus
 import vault.ui.Strings
 import vault.ui.VaultTextField
 import vault.ui.property.PropertyStrings
+import vault.ui.property.RemovalFeedback
 import vault.ui.userErrorMessage
 
 // Relatórios grouped by property: finalized READY reports with
@@ -50,6 +56,8 @@ fun ReportListScreen(
     var reports by remember { mutableStateOf<List<ReportOverview>?>(null) }
     var pending by remember { mutableStateOf<List<PendingPdf>?>(null) }
     var loadError by rememberSaveable { mutableStateOf<String?>(null) }
+    var deleting by remember { mutableStateOf<ReportOverview?>(null) }
+    var feedback by rememberSaveable { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
     val local = container.local
@@ -60,6 +68,7 @@ fun ReportListScreen(
             reports = overviews.reportOverviews(limit = 100).filter { it.report.status == REPORT_READY }
             pending = overviews.pendingPdfs(limit = 100)
             loadError = null
+            feedback = null
         } catch (e: Exception) {
             loadError = userErrorMessage(e)
         }
@@ -87,6 +96,10 @@ fun ReportListScreen(
                 onValueChange = { query = it },
                 label = ReportStrings.search,
             )
+        }
+        val done = feedback
+        if (done != null) {
+            item { RemovalFeedback(done) }
         }
         when {
             loadError != null -> {
@@ -127,6 +140,7 @@ fun ReportListScreen(
                                 overview = overview,
                                 onOpen = { onOpenPdf(overview.inspectionId) },
                                 onVerify = { onVerify(overview.inspectionId) },
+                                onDelete = { deleting = overview },
                             )
                         }
                     }
@@ -157,23 +171,21 @@ fun ReportListScreen(
             }
         }
     }
-}
 
-@Composable
-private fun FinalizedRow(
-    overview: ReportOverview,
-    onOpen: () -> Unit,
-    onVerify: () -> Unit,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        OutlinedButton(onClick = onOpen, modifier = Modifier.weight(1f)) {
-            Text(PropertyStrings.openDetail)
-        }
-        OutlinedButton(onClick = onVerify, modifier = Modifier.weight(1f)) {
-            Text(Strings.pdfVerify)
-        }
+    deleting?.let { target ->
+        ReportDeleteHost(
+            container = container,
+            overview = target,
+            onCommitted = { message ->
+                scope.launch {
+                    load()
+                    feedback = message
+                    deleting = null
+                }
+            },
+            onDismiss = { deleting = null },
+        )
     }
 }
+
+

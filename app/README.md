@@ -28,7 +28,10 @@ Journey destinations read bulk overviews from `LocalOverviewRepository`
 filters; DRAFT resumes, SEALED opens read-only review) and
 `vault/ui/report/` (`ReportListScreen` with finalized READY reports
 plus explicit pending "Gerar PDF" entries; DRAFT never offers
-generation, pending never claims an existing report).
+generation, pending never claims an existing report; `ReportRows`
+with red delete plus `ReportDeleteHost` confirmation).
+Generated-report removal lives in `shared/.../vault/local/ReportGenerator.kt`
+(`deleteReport` removes row, PDF and receipt; sealed data regenerates).
 The capture journey (`LocalRoomsScreen`, `LocalRoomScreen`,
 `LocalReviewScreen`, `LocalSealScreen`, `LocalPdfScreen`) shares
 `vault/ui/journey/`: `JourneyShortcuts` (Cômodos/Revisão entries),
