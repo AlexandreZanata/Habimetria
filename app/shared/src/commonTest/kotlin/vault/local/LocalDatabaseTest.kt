@@ -26,7 +26,7 @@ private fun tempDbPath(): String {
 }
 
 private suspend fun seed(db: VaultDatabase) {
-    db.propertyDao().insert(LocalProperty("p1", "Rua A, 123", "2026-09-30T10:00:00"))
+    db.propertyDao().insert(LocalProperty(id = "p1", address = "Rua A, 123", createdAtDevice = "2026-09-30T10:00:00"))
     db.tenancyDao().insert(LocalTenancy("t1", "p1", "entry", "2026-09-30T10:01:00"))
     db.inspectionDao().insert(LocalInspection("i1", "t1", "entry", "DRAFT", "2026-09-30T10:02:00", null))
     db.roomDao().insert(LocalRoom("r1", "i1", "suite_principal", "Suíte principal", 0, ""))

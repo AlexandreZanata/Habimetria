@@ -23,7 +23,7 @@ class LocalVaultRepository(private val db: VaultDatabase) {
     suspend fun createProperty(address: String): LocalProperty {
         val clean = address.trim()
         if (clean.length < 3) throw LocalValidationException("address too short")
-        val row = LocalProperty(newLocalId("prop"), clean, deviceNowIso())
+        val row = LocalProperty(id = newLocalId("prop"), address = clean, createdAtDevice = deviceNowIso())
         db.propertyDao().insert(row)
         return row
     }

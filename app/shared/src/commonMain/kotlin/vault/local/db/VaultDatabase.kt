@@ -5,8 +5,8 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 
-// Schema v11 (v10 + server-mirror links). Schema JSON exports to
-// shared/schemas; every bump ships an explicit Migration.
+// Schema v12 (v11 + structured address parts on properties). Schema JSON
+// exports to shared/schemas; every bump ships an explicit Migration.
 @Database(
     entities = [
         LocalProperty::class,
@@ -25,7 +25,7 @@ import androidx.room.RoomDatabaseConstructor
         VisualDiff::class,
         MirrorLink::class,
     ],
-    version = 11,
+    version = 12,
 )
 @ConstructedBy(VaultDatabaseConstructor::class)
 abstract class VaultDatabase : RoomDatabase() {

@@ -81,6 +81,14 @@ class MigrationTest {
         assertNull(evidence.exifLatitude)
         assertFalse(evidence.isMocked)
 
+        // v12: legacy property keeps its line with street backfilled.
+        val legacy = db.propertyDao().get("p1")!!
+        assertEquals("Rua", legacy.address)
+        assertEquals("Rua", legacy.street)
+        assertEquals("", legacy.number)
+        assertNull(legacy.complement)
+        assertEquals("", legacy.neighborhood)
+
         // New columns accept writes after migration.
         val repo = LocalVaultRepository(db)
         val withClaim = repo.recordEvidence(

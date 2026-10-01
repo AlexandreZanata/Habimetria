@@ -186,3 +186,16 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
         )
     }
 }
+
+// v11 → v12: structured address parts on properties. Pure ADD COLUMN;
+// legacy rows keep the formatted `address` line with `street` backfilled
+// from it, so resume/prefill still shows something.
+val MIGRATION_11_12 = object : Migration(11, 12) {
+    override fun migrate(connection: SQLiteConnection) {
+        connection.execSQL("ALTER TABLE properties ADD COLUMN street TEXT NOT NULL DEFAULT ''")
+        connection.execSQL("ALTER TABLE properties ADD COLUMN `number` TEXT NOT NULL DEFAULT ''")
+        connection.execSQL("ALTER TABLE properties ADD COLUMN complement TEXT")
+        connection.execSQL("ALTER TABLE properties ADD COLUMN neighborhood TEXT NOT NULL DEFAULT ''")
+        connection.execSQL("UPDATE properties SET street = address WHERE street = ''")
+    }
+}
