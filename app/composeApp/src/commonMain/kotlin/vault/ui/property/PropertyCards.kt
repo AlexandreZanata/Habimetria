@@ -10,14 +10,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,9 +37,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import vault.local.PropertyOverview
 import vault.ui.Strings
 import vault.ui.VaultButton
@@ -62,11 +66,10 @@ fun HeroNewInspection(enabled: Boolean, onClick: () -> Unit) {
                     .background(MaterialTheme.colorScheme.onPrimary),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    "+",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
+                Icon(
+                    Icons.Filled.Add,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
                 )
             }
             Text(
@@ -75,7 +78,11 @@ fun HeroNewInspection(enabled: Boolean, onClick: () -> Unit) {
                 color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.weight(1f),
             )
-            Text("›", fontSize = 28.sp, color = MaterialTheme.colorScheme.onPrimary)
+            Icon(
+                Icons.Filled.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimary,
+            )
         }
     }
 }
@@ -108,7 +115,7 @@ fun PropertyCardView(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Decorative glyph: hidden from assistive tech, the title
+                // Decorative icon: hidden from assistive tech, the title
                 // next to it carries the meaning.
                 Box(
                     modifier = Modifier.size(56.dp).clip(RoundedCornerShape(12.dp))
@@ -116,10 +123,10 @@ fun PropertyCardView(
                         .clearAndSetSemantics {},
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(
-                        "⌂",
-                        fontSize = 28.sp,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    Icon(
+                        Icons.Filled.Home,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     )
                 }
                 Column(modifier = Modifier.weight(1f)) {
@@ -132,7 +139,7 @@ fun PropertyCardView(
                     if (property.archived) ArchivedBadge()
                 }
                 Box {
-                    TextButton(
+                    IconButton(
                         onClick = { menu = true },
                         enabled = !busy,
                         modifier = Modifier.clearAndSetSemantics {
@@ -140,10 +147,10 @@ fun PropertyCardView(
                                 "${PropertyStrings.removeMenuDescription}: $title"
                         },
                     ) {
-                        Text(
-                            "⋮",
-                            fontSize = 20.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        Icon(
+                            Icons.Filled.MoreVert,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                     DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {

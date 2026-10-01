@@ -5,6 +5,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -37,8 +42,16 @@ fun RoomListRow(
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.weight(1f),
         )
-        if (canMoveUp) TextButton(onClick = { onMove(-1) }) { Text("↑") }
-        if (canMoveDown) TextButton(onClick = { onMove(1) }) { Text("↓") }
+        if (canMoveUp) {
+            IconButton(onClick = { onMove(-1) }) {
+                Icon(Icons.Filled.KeyboardArrowUp, contentDescription = Strings.moveUp)
+            }
+        }
+        if (canMoveDown) {
+            IconButton(onClick = { onMove(1) }) {
+                Icon(Icons.Filled.KeyboardArrowDown, contentDescription = Strings.moveDown)
+            }
+        }
         TextButton(onClick = onRename) { Text(Strings.rename) }
         TextButton(onClick = onDelete) { Text(Strings.delete) }
     }
