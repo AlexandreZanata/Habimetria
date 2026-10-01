@@ -29,6 +29,10 @@ var ErrChanged = errors.New("evidence set changed during seal, retry")
 // no sealed entry yet, or an exit already exists. Maps to HTTP 409.
 var ErrExitNotAllowed = errors.New("exit inspection not allowed")
 
+// ErrAlreadyLinked is returned when an evidence is already attached to
+// an occurrence. Maps to HTTP 409.
+var ErrAlreadyLinked = errors.New("evidence already attached to occurrence")
+
 // Property is a rental address owned by a tenant user.
 type Property struct {
 	ID        string    `json:"id"`
@@ -98,4 +102,11 @@ type Occurrence struct {
 	Title      string    `json:"title"`
 	Body       *string   `json:"body"`
 	CreatedAt  time.Time `json:"created_at"`
+}
+
+// OccurrenceEvidence links one photo evidence as proof on an occurrence.
+// The evidence must belong to the occurrence's property.
+type OccurrenceEvidence struct {
+	OccurrenceID string `json:"occurrence_id"`
+	EvidenceID   string `json:"evidence_id"`
 }

@@ -60,3 +60,25 @@ func (s *OccurrenceService) List(ctx context.Context, propertyID string) ([]post
 	}
 	return postgres.ListOccurrences(ctx, s.pool, propertyID)
 }
+
+// AttachEvidence links one photo evidence as proof on an occurrence.
+// Cross-property links are ErrMismatch (400); unknown rows ErrNotFound
+// (404); re-links ErrAlreadyLinked (409).
+func (s *OccurrenceService) AttachEvidence(ctx context.Context, occurrenceID, evidenceID string) (postgres.OccurrenceEvidence, error) {
+	if err := checkUUID(occurrenceID, "occurrence_id"); err != nil {
+		return postgres.OccurrenceEvidence{}, err
+	}
+	if err := checkUUID(evidenceID, "evidence_id"); err != nil {
+		return postgres.OccurrenceEvidence{}, err
+	}
+	return postgres.LinkOccurrenceEvidence(ctx, s.pool, occurrenceID, evidenceID)
+}
+
+// ListEvidences returns the photo proof of one occurrence, oldest
+// received first. Unknown occurrence maps to ErrNotFound (404).
+func (s *OccurrenceService) ListEvidences(ctx context.Context, occurrenceID string) ([]postgres.Evidence, error) {
+	if err := checkUUID(occurrenceID, "occurrence_id"); err != nil {
+		return nil, err
+	}
+	return postgres.ListOccurrenceEvidences(ctx, s.pool, occurrenceID)
+}
