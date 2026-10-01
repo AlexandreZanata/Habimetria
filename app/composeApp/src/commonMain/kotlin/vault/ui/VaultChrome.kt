@@ -1,10 +1,11 @@
 package vault.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Assignment
+import androidx.compose.material.icons.filled.Apartment
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -19,9 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.vector.ImageVector
 import vault.nav.Destinations
 import vault.nav.Route
 import vault.nav.VaultNavigator
@@ -32,28 +31,21 @@ import vault.nav.destination
 // medium/expanded windows get a side rail with the same four. Selection
 // follows destination(), so detail screens keep their parent highlighted.
 // Selected state uses the theme indicator pill, label and semantics as
-// well as green; the dot marker differs by shape (filled vs hollow).
+// well as green; every destination carries a minimalist Material icon
+// (Apache 2.0) next to its label.
 
-private data class DestinationItem(val root: Route, val label: String)
-
-private val destinations = listOf(
-    DestinationItem(Route.Home, Strings.home),
-    DestinationItem(Route.Properties, Strings.properties),
-    DestinationItem(Route.Inspections, Strings.inspections),
-    DestinationItem(Route.Reports, Strings.reports),
+private data class DestinationItem(
+    val root: Route,
+    val label: String,
+    val icon: ImageVector,
 )
 
-@Composable
-private fun DestinationDot(selected: Boolean) {
-    val base = Modifier.size(10.dp).clip(CircleShape)
-    Box(
-        modifier = if (selected) {
-            base.background(MaterialTheme.colorScheme.primary)
-        } else {
-            base.border(2.dp, MaterialTheme.colorScheme.onSurfaceVariant, CircleShape)
-        },
-    )
-}
+private val destinations = listOf(
+    DestinationItem(Route.Home, Strings.home, Icons.Filled.Home),
+    DestinationItem(Route.Properties, Strings.properties, Icons.Filled.Apartment),
+    DestinationItem(Route.Inspections, Strings.inspections, Icons.AutoMirrored.Filled.Assignment),
+    DestinationItem(Route.Reports, Strings.reports, Icons.Filled.Description),
+)
 
 @Composable
 fun DestinationsBar(selected: Route, onSelect: (Route) -> Unit) {
@@ -62,7 +54,7 @@ fun DestinationsBar(selected: Route, onSelect: (Route) -> Unit) {
             NavigationBarItem(
                 selected = selected == item.root,
                 onClick = { onSelect(item.root) },
-                icon = { DestinationDot(selected == item.root) },
+                icon = { Icon(item.icon, contentDescription = null) },
                 label = { Text(item.label) },
                 alwaysShowLabel = true,
                 colors = NavigationBarItemDefaults.colors(
@@ -84,7 +76,7 @@ fun DestinationsRail(selected: Route, onSelect: (Route) -> Unit) {
             NavigationRailItem(
                 selected = selected == item.root,
                 onClick = { onSelect(item.root) },
-                icon = { DestinationDot(selected == item.root) },
+                icon = { Icon(item.icon, contentDescription = null) },
                 label = { Text(item.label) },
                 alwaysShowLabel = true,
                 colors = NavigationRailItemDefaults.colors(
