@@ -46,7 +46,7 @@ fun LocalInspectorScreen(
                 pending = session.inspector.pendingForInspection(inspectionId)
                 error = null
             } catch (e: Exception) {
-                error = e.message?.take(160)
+                error = userErrorMessage(e)
             }
         }
     }
@@ -66,7 +66,7 @@ fun LocalInspectorScreen(
                         session.inspector.runInspection(inspectionId)
                         refresh()
                     } catch (e: Exception) {
-                        error = e.message?.take(160)
+                        error = userErrorMessage(e)
                     } finally {
                         busy = false
                     }
@@ -99,7 +99,7 @@ fun LocalInspectorScreen(
                                     session.inspector.confirm(hint.id)
                                     refresh()
                                 } catch (e: Exception) {
-                                    error = e.message?.take(160)
+                                    error = userErrorMessage(e)
                                 }
                             }
                         },
@@ -109,7 +109,7 @@ fun LocalInspectorScreen(
                                     session.inspector.ignore(hint.id)
                                     refresh()
                                 } catch (e: Exception) {
-                                    error = e.message?.take(160)
+                                    error = userErrorMessage(e)
                                 }
                             }
                         },

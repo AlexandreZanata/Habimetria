@@ -90,7 +90,7 @@ fun RoomScreen(
                         }
                         container.onQueued()
                     } catch (e: Exception) {
-                error = e.message?.take(160)
+                error = userErrorMessage(e)
             } finally {
                 busy = false
                 refresh()

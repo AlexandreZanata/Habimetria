@@ -52,7 +52,7 @@ fun LocalOccurrenceScreen(
                 counts = list.associate { it.id to session.occurrences.attachmentsFor(it.id).size }
                 error = null
             } catch (e: Exception) {
-                error = e.message?.take(160)
+                error = userErrorMessage(e)
             }
         }
     }
@@ -81,7 +81,7 @@ fun LocalOccurrenceScreen(
                         body = ""
                         refresh()
                     } catch (e: Exception) {
-                        error = e.message?.take(160)
+                        error = userErrorMessage(e)
                     }
                 }
             },
@@ -123,7 +123,7 @@ fun LocalOccurrenceScreen(
                                     }
                                     refresh()
                                 } catch (e: Exception) {
-                                    error = e.message?.take(160)
+                                    error = userErrorMessage(e)
                                 } finally {
                                     busy = false
                                 }

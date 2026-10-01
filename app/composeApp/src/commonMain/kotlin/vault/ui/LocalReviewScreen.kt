@@ -71,7 +71,7 @@ fun LocalReviewScreen(
                 percents = roomList.associate { it.id to session.coverage.roomCoverage(it.id).percent() }
                 error = null
             } catch (e: Exception) {
-                error = e.message?.take(160)
+                error = userErrorMessage(e)
             }
         }
     }
@@ -218,7 +218,7 @@ private fun LocalFindingSheet(
                             session.repository.addFinding(roomId, evidenceId, preset, note.ifBlank { null })
                             onDone()
                         } catch (e: Exception) {
-                            error = e.message?.take(160)
+                            error = userErrorMessage(e)
                         } finally {
                             busy = false
                         }

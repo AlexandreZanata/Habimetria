@@ -55,7 +55,7 @@ fun LocalPdfScreen(
                 report = man?.let { generator.existingReport(it.id) }
                 error = if (man == null) Strings.pdfSealFirst else null
             } catch (e: Exception) {
-                error = e.message?.take(160)
+                error = userErrorMessage(e)
             }
         }
     }
@@ -111,7 +111,7 @@ fun LocalPdfScreen(
                             error = Strings.pdfIncomplete
                             progress = null
                         } catch (e: Exception) {
-                            error = e.message?.take(200)
+                            error = userErrorMessage(e)
                             progress = null
                         } finally {
                             busy = false
@@ -142,7 +142,7 @@ fun LocalPdfScreen(
                     try {
                         current?.let { verification = generator.verify(it.id) }
                     } catch (e: Exception) {
-                        error = e.message?.take(160)
+                        error = userErrorMessage(e)
                     }
                 }
             },

@@ -44,7 +44,7 @@ fun SealScreen(
                         try {
                             result = container.api.seal(inspectionId)
                         } catch (e: Exception) {
-                            error = e.message?.take(200)
+                            error = userErrorMessage(e)
                         } finally {
                             busy = false
                         }

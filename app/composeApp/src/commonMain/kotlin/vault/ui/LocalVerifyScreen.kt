@@ -89,7 +89,7 @@ fun LocalVerifyScreen(
                         exportDir = dir
                         verdict = verifier.verify(dir, pinned, certified)
                     } catch (e: Exception) {
-                        error = e.message?.take(160)
+                        error = userErrorMessage(e)
                     }
                 }
             },
@@ -106,7 +106,7 @@ fun LocalVerifyScreen(
                         val (pinned, certified) = currentTrustSets()
                         verdict = verifier.verify(packagePath.trim(), pinned, certified)
                     } catch (e: Exception) {
-                        error = e.message?.take(160)
+                        error = userErrorMessage(e)
                     }
                 }
             },
@@ -136,7 +136,7 @@ fun LocalVerifyScreen(
                             trustLabel = ""
                             refreshTrust()
                         } catch (e: Exception) {
-                            error = e.message?.take(160)
+                            error = userErrorMessage(e)
                         }
                     }
                 },
@@ -176,7 +176,7 @@ fun LocalVerifyScreen(
                         exportDir = generator.exportPackage(reportId)
                         packagePath = exportDir.orEmpty()
                     } catch (e: Exception) {
-                        error = e.message?.take(160)
+                        error = userErrorMessage(e)
                     }
                 }
             },

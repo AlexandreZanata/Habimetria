@@ -48,7 +48,7 @@ fun LocalSealScreen(
                 eligibility = sealer.assess(inspectionId)
                 error = null
             } catch (e: Exception) {
-                error = e.message?.take(160)
+                error = userErrorMessage(e)
             }
         }
     }
@@ -101,7 +101,7 @@ fun LocalSealScreen(
                             )
                             onExitReady(exit.id)
                         } catch (e: Exception) {
-                            error = e.message?.take(200)
+                            error = userErrorMessage(e)
                         }
                     }
                 },
@@ -126,7 +126,7 @@ fun LocalSealScreen(
                         } catch (e: SealBlockedException) {
                             error = e.reasons.joinToString("; ") { sealReasonText(it) }
                         } catch (e: Exception) {
-                            error = e.message?.take(200)
+                            error = userErrorMessage(e)
                         } finally {
                             busy = false
                         }

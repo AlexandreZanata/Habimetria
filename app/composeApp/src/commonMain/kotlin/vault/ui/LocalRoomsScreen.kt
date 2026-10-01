@@ -66,7 +66,7 @@ fun LocalRoomsScreen(
                 counts = list.associate { it.id to session.repository.evidencesForRoom(it.id).size }
                 error = null
             } catch (e: Exception) {
-                error = e.message?.take(160)
+                error = userErrorMessage(e)
             }
         }
     }
@@ -94,7 +94,7 @@ fun LocalRoomsScreen(
                             newLabel = ""
                             refresh()
                         } catch (e: Exception) {
-                            error = e.message?.take(160)
+                            error = userErrorMessage(e)
                         }
                     }
                 },
@@ -119,7 +119,7 @@ fun LocalRoomsScreen(
                                 session.repository.moveRoom(room.id, idx + delta)
                                 refresh()
                             } catch (e: Exception) {
-                                error = e.message?.take(160)
+                                error = userErrorMessage(e)
                             }
                         }
                     },
@@ -153,7 +153,7 @@ fun LocalRoomsScreen(
                             renaming = null
                             refresh()
                         } catch (e: Exception) {
-                            error = e.message?.take(160)
+                            error = userErrorMessage(e)
                         }
                     }
                 }) { Text(Strings.save) }
@@ -179,7 +179,7 @@ fun LocalRoomsScreen(
                                 deleting = null
                                 refresh()
                             } catch (e: LocalValidationException) {
-                                error = e.message?.take(200)
+                                error = userErrorMessage(e)
                                 deleting = null
                             }
                         }

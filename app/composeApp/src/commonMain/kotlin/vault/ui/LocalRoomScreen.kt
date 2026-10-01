@@ -100,7 +100,7 @@ fun LocalRoomScreen(
                 coverage = session.coverage.roomCoverage(roomId)
                 error = null
             } catch (e: Exception) {
-                error = e.message?.take(160)
+                error = userErrorMessage(e)
             }
         }
     }
@@ -154,7 +154,7 @@ fun LocalRoomScreen(
                     }
                 }
             } catch (e: Exception) {
-                error = e.message?.take(160)
+                error = userErrorMessage(e)
             } finally {
                 busy = false
                 refresh()
@@ -168,7 +168,7 @@ fun LocalRoomScreen(
                 val next = if (category in na) na - category else na + category
                 session.repository.setRoomNotApplicable(roomId, next)
             } catch (e: Exception) {
-                error = e.message?.take(160)
+                error = userErrorMessage(e)
             }
             refresh()
         }
@@ -179,7 +179,7 @@ fun LocalRoomScreen(
             try {
                 session.deleteEvidence(evidenceId)
             } catch (e: Exception) {
-                error = e.message?.take(160)
+                error = userErrorMessage(e)
             }
             refresh()
         }

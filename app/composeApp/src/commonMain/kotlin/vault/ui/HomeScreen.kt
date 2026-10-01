@@ -81,7 +81,7 @@ fun HomeScreen(
                 local?.navigation?.save(NavigationProgress(id))
                 onReady(id)
             } catch (e: Exception) {
-                error = e.message?.take(160)
+                error = userErrorMessage(e)
             }
         }
     }
@@ -173,7 +173,7 @@ fun HomeScreen(
                             onReady(ins.id)
                         }
                     } catch (e: Exception) {
-                        error = e.message?.take(160)
+                        error = userErrorMessage(e)
                     } finally {
                         busy = false
                     }
