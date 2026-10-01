@@ -15,7 +15,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
@@ -52,6 +55,8 @@ fun BodyText(text: String) {
     Text(text, style = MaterialTheme.typography.bodyLarge)
 }
 
+// Errors announce politely when they appear: every failure surfaces
+// through this chokepoint, so no screen-reader user misses one.
 @Composable
 fun ErrorText(message: String?) {
     if (!message.isNullOrBlank()) {
@@ -59,6 +64,7 @@ fun ErrorText(message: String?) {
             Strings.error(message),
             color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
         )
     }
 }
@@ -79,9 +85,17 @@ fun VaultButton(
     }
 }
 
+// Loading announces instead of staying silent: the indeterminate bar
+// carries a description so assistive tech reports progress state.
 @Composable
 fun ProgressStatus(show: Boolean, modifier: Modifier = Modifier) {
-    if (show) LinearProgressIndicator(modifier = modifier.fillMaxWidth())
+    if (show) {
+        LinearProgressIndicator(
+            modifier = modifier.fillMaxWidth().semantics {
+                contentDescription = Strings.loading
+            },
+        )
+    }
 }
 
 @Composable

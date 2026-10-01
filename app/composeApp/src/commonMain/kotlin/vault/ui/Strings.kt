@@ -88,6 +88,7 @@ object Strings {
     const val roomsSuffix = "cômodos"
     const val continueAction = "Continuar"
     const val retry = "Tentar de novo"
+    const val loading = "Carregando…"
     const val loadingProperties = "Carregando imóveis…"
     const val propertiesEmpty = "Nenhum imóvel ainda. Crie o primeiro para começar."
     const val propertiesLoadFailed = "Não foi possível carregar os imóveis."
