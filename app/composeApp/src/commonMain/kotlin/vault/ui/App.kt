@@ -102,7 +102,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                         },
                         onSealed = { navigator.openSealedReview(r.inspectionId) },
                         onReview = { navigator.navigate(Route.Review(r.inspectionId)) },
-                        onBack = { navigator.goBackOr(Route.Rooms(r.inspectionId)) },
+                        onRoomsShortcut = { navigator.navigate(Route.Rooms(r.inspectionId)) },
                     )
                 } else {
                     RoomScreen(
