@@ -58,6 +58,7 @@ class LocalSession(
     val derivatives = DerivativeStore(fs, filesDir, platformScaler())
     val navigation = NavigationStore(fs, filesDir)
     val trust = TrustStore(db)
+    val propertyRemoval = PropertyRemovalRepository(db)
     val occurrences = LocalOccurrenceRepository(db)
     val compare = CompareRepository(db)
     val inspector = AiInspectorRepository(db)

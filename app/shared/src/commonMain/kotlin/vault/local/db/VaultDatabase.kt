@@ -5,8 +5,8 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 
-// Schema v13 (v12 + property nickname). Schema JSON
-// exports to shared/schemas; every bump ships an explicit Migration.
+// Schema v14 (v13 + property archived visibility for U07 removal).
+// Schema JSON exports to shared/schemas; every bump ships an explicit Migration.
 @Database(
     entities = [
         LocalProperty::class,
@@ -25,7 +25,7 @@ import androidx.room.RoomDatabaseConstructor
         VisualDiff::class,
         MirrorLink::class,
     ],
-    version = 13,
+    version = 14,
 )
 @ConstructedBy(VaultDatabaseConstructor::class)
 abstract class VaultDatabase : RoomDatabase() {
@@ -46,6 +46,7 @@ abstract class VaultDatabase : RoomDatabase() {
     abstract fun mirrorLinkDao(): MirrorLinkDao
     abstract fun inspectionListingDao(): InspectionListingDao
     abstract fun tenancyListingDao(): TenancyListingDao
+    abstract fun propertyRemovalDao(): PropertyRemovalDao
     abstract fun propertyListingDao(): PropertyListingDao
     abstract fun manifestListingDao(): ManifestListingDao
     abstract fun reportListingDao(): ReportListingDao
