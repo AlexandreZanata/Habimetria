@@ -2,7 +2,7 @@
 
 Execution gates for [the roadmap](local_validation_plan.md) and
 [local architecture](../03-architecture/local_validation_architecture.md).
-Status: planned scenarios; none are asserted passed by this document.
+Status: automated Linux subset passed (HEAD `f8a06d8`, 2026-10-01: 109 JVM tests, Go vet/tests, independent verifier); physical-device, simulator, and macOS/Xcode scenarios remain explicitly unverified. See the acceptance report.
 
 ## Reproducible complete journey
 
