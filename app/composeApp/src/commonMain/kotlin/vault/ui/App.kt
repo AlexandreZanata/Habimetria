@@ -17,6 +17,24 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
             Route.Home -> VaultShell("", false, {}) {
                 HomeScreen(container, onReady = { navigator.startInspection(it) })
             }
+            // U02 wiring: destinations exist in the navigator with bounded
+            // selection; dedicated list/detail screens arrive in U04/U05
+            // and the selection bar in U03. Until then they reuse Home,
+            // which already manages properties and draft resume locally.
+            Route.Properties -> VaultShell(Strings.properties, false, {}) {
+                HomeScreen(container, onReady = { navigator.startInspection(it) })
+            }
+            is Route.PropertyDetail -> VaultShell(Strings.properties, true, {
+                navigator.goBackOr(Route.Properties)
+            }) {
+                HomeScreen(container, onReady = { navigator.startInspection(it) })
+            }
+            Route.Inspections -> VaultShell(Strings.inspections, false, {}) {
+                HomeScreen(container, onReady = { navigator.startInspection(it) })
+            }
+            Route.Reports -> VaultShell(Strings.reports, false, {}) {
+                HomeScreen(container, onReady = { navigator.startInspection(it) })
+            }
             is Route.Rooms -> VaultShell(Strings.rooms, true, { navigator.goBackOr(Route.Home) }) {
                 val local = container.local
                 if (local != null) {
