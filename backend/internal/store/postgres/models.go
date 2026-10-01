@@ -25,6 +25,14 @@ var ErrEmpty = errors.New("cannot seal inspection without evidences")
 // The caller rebuilds the manifest and retries. Maps to HTTP 409.
 var ErrChanged = errors.New("evidence set changed during seal, retry")
 
+// ErrExitNotAllowed is returned when an exit inspection cannot start:
+// no sealed entry yet, or an exit already exists. Maps to HTTP 409.
+var ErrExitNotAllowed = errors.New("exit inspection not allowed")
+
+// ErrAlreadyLinked is returned when an evidence is already attached to
+// an occurrence. Maps to HTTP 409.
+var ErrAlreadyLinked = errors.New("evidence already attached to occurrence")
+
 // Property is a rental address owned by a tenant user.
 type Property struct {
 	ID        string    `json:"id"`
@@ -84,4 +92,35 @@ type Finding struct {
 	Preset     string    `json:"preset"`
 	Note       *string   `json:"note"`
 	CreatedAt  time.Time `json:"created_at"`
+}
+
+// Occurrence is a post-seal timeline entry on a property. It never
+// mutates any inspection, sealed or not.
+type Occurrence struct {
+	ID         string    `json:"id"`
+	PropertyID string    `json:"property_id"`
+	Title      string    `json:"title"`
+	Body       *string   `json:"body"`
+	CreatedAt  time.Time `json:"created_at"`
+}
+
+// OccurrenceEvidence links one photo evidence as proof on an occurrence.
+// The evidence must belong to the occurrence's property.
+type OccurrenceEvidence struct {
+	OccurrenceID string `json:"occurrence_id"`
+	EvidenceID   string `json:"evidence_id"`
+}
+
+// Comparison is one user-confirmed entry-vs-exit tag per room position.
+// Tags describe visual state only, never liability.
+type Comparison struct {
+	ID             string  `json:"id"`
+	TenancyID      string  `json:"tenancy_id"`
+	EntryRoomID    string  `json:"entry_room_id"`
+	ExitRoomID     string  `json:"exit_room_id"`
+	ShotCategory   string  `json:"shot_category"`
+	EntryEvidenceID *string `json:"entry_evidence_id"`
+	ExitEvidenceID  *string `json:"exit_evidence_id"`
+	Tag            string  `json:"tag"`
+	CreatedAt      time.Time `json:"created_at"`
 }

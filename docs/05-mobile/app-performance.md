@@ -15,10 +15,10 @@ MVP obsession: extremely light, extremely fast. Numbers are binding.
 | PDF render (100 photos) | < 10 s, background |
 | Grid scroll | 60 fps, thumbnails only |
 
-## Stack (light, 2026-current)
+## Stack (pinned in `toolchain.md`, not promised here)
 
-- Compose Multiplatform 1.11+ (iOS Stable; concurrent rendering default;
-  min iOS 14). Kotlin 2.3.x. Ref: kotlinlang.org/docs/multiplatform.
+- See `toolchain.md` for audited Kotlin/Compose/AGP/SDK pins.
+  Older "2026-current" version claims are not reused unchecked.
 - CameraX 1.6+ (CameraPipe stack, `MINIMIZE_LATENCY`, ZSL where supported).
   Ref: developer.android.com/media/camera/camerax.
 - Coil 3 (CMP image pipeline, memory cache 15–20%, disk for thumbs).

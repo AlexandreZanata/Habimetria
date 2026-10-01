@@ -13,6 +13,7 @@ Base: `/api/v1`. Auth: magic-link JWT (Bearer). Public: `/v/{code}`.
 - `POST /properties` — { address, complement? }
 - `POST /properties/{id}/tenancies` — { type: entry }
 - `POST /tenancies/{id}/inspections` — creates DRAFT
+- `POST /tenancies/{id}/inspections` with { kind: exit } (V1.2/S9) — requires a SEALED entry, one exit per tenancy; else 409
 
 ## Rooms & evidence
 
@@ -40,6 +41,17 @@ Preset enum: `stain | scratch | crack | broken | moisture | hole | other`.
 - `GET /s/{token}` (S8) — public recipient view + fresh PDF URL; logs accessed
 - `GET /s/{token}/pdf` (S8) — 302 to signed PDF; logs downloaded
 
-## Occurrences (V1.1, schema-ready)
+## Occurrences (V1.1, S9)
 
-- `POST /properties/{id}/occurrences` — { title, body? } + evidence upload reuse.
+- `POST /properties/{id}/occurrences` — { title, body? } → 201; 404 unknown property.
+- `GET /properties/{id}/occurrences` — timeline, newest first; 404 unknown property.
+- `POST /occurrences/{id}/evidences` — { evidence_id } → 201; evidence must belong to the occurrence's property (400), re-link is 409.
+- `GET /occurrences/{id}/evidences` — photo proof, oldest received first; 404 unknown occurrence.
+- Post-seal only by convention: occurrences never mutate inspections.
+
+## Comparisons (V1.3, S9)
+
+- `POST /tenancies/{id}/comparisons` — { entry_room_id, exit_room_id, shot_category, entry_evidence_id?, exit_evidence_id?, tag } → 200 upsert; retags overwrite, history stays on device.
+- `GET /tenancies/{id}/comparisons` — tags, oldest first; 404 unknown tenancy.
+- Closed vocabularies: tag `no_change|changed|wear`, category `overview|walls|openings|floor|ceiling`.
+- Rooms must sit on the tenancy's entry/exit inspections (400); tags describe visual state only, never liability.

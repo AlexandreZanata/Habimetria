@@ -26,7 +26,7 @@ final class SwiftPdfRenderer: NSObject, PlatformPdf {
         pages.append(textPage(lines: [
             (doc.title, 20), ("Verify code: \(doc.verifyCode)", 12),
             (String(doc.verifyUrl.prefix(64)), 10),
-            ("Sealed (server time): \(doc.sealedAt)", 10),
+            ("Sealed (device claim): \(doc.sealedAt)", 10),
         ]))
         for section in doc.sections {
             let renderer = UIGraphicsPDFRenderer(bounds: page)

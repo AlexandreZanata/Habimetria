@@ -43,8 +43,16 @@ class VaultApi private constructor(baseUrl: String, private val client: HttpClie
     suspend fun createTenancy(propertyId: String): Tenancy =
         postJson("api/v1/properties/$propertyId/tenancies", "")
 
-    suspend fun createInspection(tenancyId: String): Inspection =
-        postJson("api/v1/tenancies/$tenancyId/inspections", "{}")
+    suspend fun createInspection(tenancyId: String, kind: String = "entry"): Inspection =
+        postJson(
+            "api/v1/tenancies/$tenancyId/inspections",
+            """{"kind":"$kind"}""",
+        )
+
+    // Exit-inspection sync (V1.2/S9). Requires a sealed entry on the
+    // server (409 otherwise); mirrors local startExitInspection online.
+    suspend fun createExitInspection(tenancyId: String): Inspection =
+        createInspection(tenancyId, "exit")
 
     suspend fun listRooms(inspectionId: String): List<Room> =
         getJson("api/v1/inspections/$inspectionId/rooms")
@@ -68,6 +76,47 @@ class VaultApi private constructor(baseUrl: String, private val client: HttpClie
 
     suspend fun listFindings(roomId: String): List<Finding> =
         getJson("api/v1/rooms/$roomId/findings")
+
+    // Occurrence sync (S9). Local rows stay the source of truth; these
+    // calls mirror user-confirmed data to the server when online.
+    suspend fun createOccurrence(propertyId: String, title: String, body: String?): RemoteOccurrence =
+        postJson(
+            "api/v1/properties/$propertyId/occurrences",
+            json.encodeToString(OccurrenceBody(title, body?.takeIf { it.isNotBlank() })),
+        )
+
+    suspend fun listOccurrences(propertyId: String): List<RemoteOccurrence> =
+        getJson("api/v1/properties/$propertyId/occurrences")
+
+    suspend fun attachOccurrenceEvidence(occurrenceId: String, evidenceId: String): OccurrenceEvidenceLink =
+        postJson(
+            "api/v1/occurrences/$occurrenceId/evidences",
+            json.encodeToString(EvidenceLinkBody(evidenceId)),
+        )
+
+    suspend fun listOccurrenceEvidences(occurrenceId: String): List<Evidence> =
+        getJson("api/v1/occurrences/$occurrenceId/evidences")
+
+    // Comparison-tag sync (S9). Upserts overwrite the server row; tag
+    // history stays on device. Tags describe visual state only.
+    suspend fun upsertComparison(
+        tenancyId: String,
+        entryRoomId: String,
+        exitRoomId: String,
+        shotCategory: String,
+        entryEvidenceId: String?,
+        exitEvidenceId: String?,
+        tag: String,
+    ): RemoteComparison =
+        postJson(
+            "api/v1/tenancies/$tenancyId/comparisons",
+            json.encodeToString(
+                ComparisonBody(entryRoomId, exitRoomId, shotCategory, entryEvidenceId, exitEvidenceId, tag),
+            ),
+        )
+
+    suspend fun listComparisons(tenancyId: String): List<RemoteComparison> =
+        getJson("api/v1/tenancies/$tenancyId/comparisons")
 
     suspend fun reportDetail(reportId: String): ReportDetail =
         getJson("api/v1/reports/$reportId")

@@ -1,5 +1,7 @@
 package vault.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -17,6 +19,12 @@ import kotlin.coroutines.resumeWithException
 // capture) with latency-first settings per docs/05-mobile/capture-ux.md.
 // The camera provider is awaited asynchronously: blocking .get() on the
 // main thread freezes input (ANR) and eats taps.
+//
+// Reliability (L4): permission is checked before touching the camera,
+// target rotation follows the current display so landscape shots keep
+// their orientation, failures carry explicit reasons, and the exact
+// captured bytes are returned without re-encoding (the temp file is
+// removed after reading).
 class AndroidPhotoCapture : PhotoCapture {
     private val executor: Executor by lazy {
         ContextCompat.getMainExecutor(AppContext.app)
@@ -27,6 +35,10 @@ class AndroidPhotoCapture : PhotoCapture {
         .setJpegQuality(85)
         .build()
     private var bound = false
+
+    private fun hasPermission(): Boolean =
+        ContextCompat.checkSelfPermission(AppContext.app, Manifest.permission.CAMERA) ==
+            PackageManager.PERMISSION_GRANTED
 
     private suspend fun provider(): ProcessCameraProvider = suspendCancellableCoroutine { cont ->
         val future = ProcessCameraProvider.getInstance(AppContext.app)
@@ -57,12 +69,14 @@ class AndroidPhotoCapture : PhotoCapture {
         }
     }
 
-    override suspend fun capture(): CapturedPhoto? {
+    override suspend fun captureDetailed(): CaptureResult {
+        if (!hasPermission()) return CaptureResult.Failure(CaptureFailure.PERMISSION_DENIED)
         try {
             ensureBound()
         } catch (_: Exception) {
-            return null
+            return CaptureResult.Failure(CaptureFailure.NOT_READY)
         }
+        imageCapture.targetRotation = ContextCompat.getDisplayOrDefault(AppContext.app).rotation
         return suspendCancellableCoroutine { cont ->
             val out = File(AppContext.app.cacheDir, "cap-${System.nanoTime()}.jpg")
             imageCapture.takePicture(
@@ -70,11 +84,14 @@ class AndroidPhotoCapture : PhotoCapture {
                 executor,
                 object : ImageCapture.OnImageSavedCallback {
                     override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                        cont.resume(CapturedPhoto(out.readBytes()))
+                        val bytes = out.readBytes()
+                        out.delete()
+                        cont.resume(CaptureResult.Photo(bytes))
                     }
 
                     override fun onError(exc: ImageCaptureException) {
-                        if (cont.isActive) cont.resume(null)
+                        out.delete()
+                        if (cont.isActive) cont.resume(CaptureResult.Failure(CaptureFailure.CAPTURE_FAILED))
                     }
                 },
             )

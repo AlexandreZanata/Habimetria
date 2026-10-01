@@ -13,6 +13,8 @@ import okio.FileSystem
 import vault.api.VaultApi
 import vault.api.appFilesDir
 import vault.api.platformEngine
+import vault.local.SyncMode
+import vault.local.uploadsEnabled
 import vault.queue.CaptureStore
 import vault.queue.UploadPump
 import java.util.concurrent.TimeUnit
@@ -34,6 +36,12 @@ class UploadWorker(appContext: Context, params: WorkerParameters) :
     companion object {
         const val KEY_BASE_URL = "base_url"
         private const val UNIQUE = "vault-upload"
+
+        // L1 gate: LOCAL_ONLY never schedules network work.
+        fun scheduleIfAllowed(context: Context, baseUrl: String, mode: SyncMode) {
+            if (!uploadsEnabled(mode)) return
+            schedule(context, baseUrl)
+        }
 
         fun schedule(context: Context, baseUrl: String) {
             val req = OneTimeWorkRequestBuilder<UploadWorker>()

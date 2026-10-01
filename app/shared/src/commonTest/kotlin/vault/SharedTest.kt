@@ -4,12 +4,14 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.TextContent
 import io.ktor.http.headersOf
 import kotlinx.coroutines.test.runTest
 import vault.api.VaultApi
 import vault.rooms.RoomCoverage
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class RoomCoverageTest {
 
@@ -103,5 +105,88 @@ class VaultApiTest {
         val groups = vault.api.groupEvidences(rooms, lines)
         assertEquals(1, groups[0].lines.size)
         assertEquals(0, groups[1].lines.size)
+    }
+
+    @Test
+    fun createOccurrenceParsesId() = runTest {
+        val api = mockApi("""{"id":"o1","property_id":"p1","title":"Leak","body":"under sink","created_at":"2026-09-25T10:00:00Z"}""")
+        val occ = api.createOccurrence("p1", "Leak", "under sink")
+        assertEquals("o1", occ.id)
+        assertEquals("p1", occ.propertyId)
+        assertEquals("under sink", occ.body)
+    }
+
+    @Test
+    fun listOccurrencesParsesTimeline() = runTest {
+        val api = mockApi("""[{"id":"o1","property_id":"p1","title":"Leak","body":null,"created_at":"2026-09-25T10:00:00Z"}]""")
+        val timeline = api.listOccurrences("p1")
+        assertEquals(1, timeline.size)
+        assertEquals("Leak", timeline.single().title)
+    }
+
+    @Test
+    fun attachOccurrenceEvidenceParsesLink() = runTest {
+        val api = mockApi("""{"occurrence_id":"o1","evidence_id":"e1"}""")
+        val link = api.attachOccurrenceEvidence("o1", "e1")
+        assertEquals("o1", link.occurrenceId)
+        assertEquals("e1", link.evidenceId)
+    }
+
+    @Test
+    fun listOccurrenceEvidencesParses() = runTest {
+        val api = mockApi("""[{"id":"e1","inspection_id":"i1","room_id":"r1","type":"photo","mime":"image/jpeg","size":100,"sha256":"aa","received_at_server":"2026-09-25T10:00:00Z","sequence":1}]""")
+        val lines = api.listOccurrenceEvidences("o1")
+        assertEquals(1, lines.size)
+        assertEquals("e1", lines.single().id)
+    }
+
+    @Test
+    fun upsertComparisonParsesTag() = runTest {
+        val api = mockApi("""{"id":"c1","tenancy_id":"t1","entry_room_id":"r1","exit_room_id":"r2","shot_category":"walls","entry_evidence_id":"e1","exit_evidence_id":"e2","tag":"changed","created_at":"2026-09-25T10:00:00Z"}""")
+        val cmp = api.upsertComparison("t1", "r1", "r2", "walls", "e1", "e2", "changed")
+        assertEquals("changed", cmp.tag)
+        assertEquals("walls", cmp.shotCategory)
+    }
+
+    @Test
+    fun listComparisonsParsesArray() = runTest {
+        val api = mockApi("""[{"id":"c1","tenancy_id":"t1","entry_room_id":"r1","exit_room_id":"r2","shot_category":"walls","entry_evidence_id":null,"exit_evidence_id":null,"tag":"wear","created_at":"2026-09-25T10:00:00Z"}]""")
+        val tags = api.listComparisons("t1")
+        assertEquals(1, tags.size)
+        assertEquals("wear", tags.single().tag)
+    }
+
+    @Test
+    fun createInspectionDefaultsToEntryKind() = runTest {
+        var sent = ""
+        val engine = MockEngine { request ->
+            sent = (request.body as TextContent).text
+            respond(
+                """{"id":"i1","tenancy_id":"t1","kind":"entry","status":"DRAFT","created_at":"2026-09-25T10:00:00Z"}""",
+                HttpStatusCode.Created,
+                headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+        val api = VaultApi("http://test", engine)
+        val inspection = api.createInspection("t1")
+        assertEquals("entry", inspection.kind)
+        assertTrue(sent.contains("entry"), "expected kind=entry in $sent")
+    }
+
+    @Test
+    fun createExitInspectionSendsExitKind() = runTest {
+        var sent = ""
+        val engine = MockEngine { request ->
+            sent = (request.body as TextContent).text
+            respond(
+                """{"id":"i2","tenancy_id":"t1","kind":"exit","status":"DRAFT","created_at":"2026-09-25T10:00:00Z"}""",
+                HttpStatusCode.Created,
+                headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+        val api = VaultApi("http://test", engine)
+        val inspection = api.createExitInspection("t1")
+        assertEquals("exit", inspection.kind)
+        assertTrue(sent.contains("exit"), "expected kind=exit in $sent")
     }
 }

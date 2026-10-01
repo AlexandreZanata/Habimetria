@@ -1,11 +1,5 @@
 package vault.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -13,8 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import vault.api.SealResult
 
@@ -32,26 +24,19 @@ fun SealScreen(
     var error by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        Text("Seal this inspection")
-        Text("Sealed photos can't be replaced. New problems become occurrences.")
+    ScreenColumn {
+        ScreenTitle(Strings.sealTitle)
+        BodyText(Strings.sealWarning)
         result?.let {
-            Text("Sealed ✓")
-            Text("Code: ${it.verifyCode}")
-            Text("Evidence: ${it.evidenceCount}")
-            Button(
-                onClick = { onPdf(it.reportId, it.verifyCode) },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text("Generate PDF")
-            }
+            Text(Strings.sealed)
+            Text("${Strings.code}: ${it.verifyCode}")
+            Text("${Strings.evidence}: ${it.evidenceCount}")
+            VaultButton(text = Strings.generatePdf, onClick = { onPdf(it.reportId, it.verifyCode) })
         }
-        error?.let { Text("Error: $it") }
+        ErrorText(error)
         if (result == null) {
-            Button(
+            VaultButton(
+                text = if (busy) Strings.sealing else Strings.sealNow,
                 onClick = {
                     busy = true
                     error = null
@@ -66,13 +51,8 @@ fun SealScreen(
                     }
                 },
                 enabled = !busy,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(if (busy) "Sealing…" else "Seal now")
-            }
+            )
         }
-        Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
-            Text("Back")
-        }
+        VaultButton(text = Strings.back, onClick = onBack)
     }
 }

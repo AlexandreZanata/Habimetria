@@ -56,6 +56,8 @@ func main() {
 		Seal:       service.NewSeal(pool, buildPayments(cfg), cfg.HMACKey),
 		Report:     service.NewReport(pool, store, cfg.VerifyBaseURL),
 		Share:      service.NewShare(pool, store, cfg.VerifyBaseURL, cfg.HMACKey),
+		Occurrence: service.NewOccurrence(pool),
+		Compare:    service.NewCompare(pool),
 		HMACKey:    cfg.HMACKey,
 	})
 

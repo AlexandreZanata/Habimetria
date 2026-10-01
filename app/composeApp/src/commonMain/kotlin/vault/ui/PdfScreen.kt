@@ -1,13 +1,5 @@
 package vault.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -15,8 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -62,16 +52,13 @@ fun PdfScreen(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Text("Report PDF")
-        Text("Code: $verifyCode")
-        if (busy) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-        Text(status)
-        error?.let { Text("Error: $it") }
-        Button(
+    ScreenColumn {
+        ScreenTitle(Strings.reportPdf)
+        BodyText("${Strings.code}: $verifyCode")
+        ProgressStatus(busy)
+        BodyText(status)
+        ErrorText(error)
+        VaultButton(
             onClick = {
                 busy = true
                 error = null
@@ -136,7 +123,7 @@ fun PdfScreen(
                             val path = "${container.filesDir}/report-$reportId.pdf"
                             FileSystem.SYSTEM.write(path.toPath()) { write(bytes) }
                             pdfPath = path
-                            status = "Saved and verified ✓ ${bytes.size / 1024} KB"
+                            status = "${Strings.savedOnDevice} ✓ ${bytes.size / 1024} KB"
                         }
                     } catch (e: Exception) {
                         error = e.message?.take(200)
@@ -146,19 +133,16 @@ fun PdfScreen(
                     }
                 }
             },
+            text = Strings.generateUploadPdf,
             enabled = !busy && verifyUrl.isNotEmpty(),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text("Generate and upload PDF")
-        }
-        Button(
+        )
+        VaultButton(
+            text = Strings.sharePdf,
             onClick = { pdfPath?.let { container.platformPdf.share(it, "application/pdf") } },
             enabled = pdfPath != null,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text("Share PDF")
-        }
-        Button(
+        )
+        VaultButton(
+            text = Strings.checkVerification,
             onClick = {
                 scope.launch {
                     try {
@@ -168,16 +152,11 @@ fun PdfScreen(
                     }
                 }
             },
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text("Check verification")
-        }
+        )
         check?.let {
-            Text("Authentic: ${it.authentic} · evidence: ${it.evidenceCount} · signature: ${it.signatureValid}")
+            BodyText("Authentic: ${it.authentic} · evidence: ${it.evidenceCount} · signature: ${it.signatureValid}")
         }
-        Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
-            Text("Back")
-        }
+        VaultButton(text = Strings.back, onClick = onBack)
     }
 }
 

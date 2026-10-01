@@ -25,7 +25,7 @@ Conceptual evidence:
 }
 ```
 
-## On seal
+## On seal (server integration)
 
 1. Freeze inspection (`DRAFT → SEALED`).
 2. Build `manifest.json` sorted by `sequence` (all evidence hashes).
@@ -33,6 +33,18 @@ Conceptual evidence:
 4. Sign manifest (HMAC/ed25519 server key, MVP: HMAC).
 5. Generate Report with `report_sha256`, public `verify_code`.
 6. PDF embeds: report ID, sealed_at, count, report hash, QR → `/v/{code}`.
+
+## Local seal (L0 authority)
+
+1. Validate every original is readable and hashed locally.
+2. Freeze a versioned canonical Manifest with deterministic ordering,
+   binding Room IDs/labels, Evidence hashes/metadata, Findings and
+   checklist applicability. Sign with the installation key.
+3. Set Inspection to `SEALED`. Terminal: never reopen to `DRAFT`.
+4. Rendering failures keep `SEALED` terminal; retry the same snapshot.
+5. Local `sealed_at` is a device claim. Server fields stay absent.
+6. QR identifies Report ID, Manifest digest and format version.
+   Never encode a LAN/localhost URL. Scanning alone never certifies bytes.
 
 ## Verify
 

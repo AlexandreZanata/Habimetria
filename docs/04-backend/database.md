@@ -13,6 +13,7 @@ Single source: `backend/migrations/0001_init.sql`. One version per file.
 - `findings(id, room_id, evidence_id, preset, note)`
 - `reports(id, inspection_id, verify_code UNIQUE, report_sha256, pdf_key, created_at)`
 - `occurrences(id, property_id, title, body, created_at)` + `occurrence_evidences`
+- `comparisons(id, tenancy_id, entry_room_id, exit_room_id, shot_category, entry_evidence_id?, exit_evidence_id?, tag, created_at)` + `UNIQUE(exit_room_id, shot_category)` (0004)
 - `shares(id, report_id, channel, token UNIQUE, created_at)` + `access_logs(share_id, event, at, ip_hash)`
 
 ## Invariants (enforce in service + CHECK)

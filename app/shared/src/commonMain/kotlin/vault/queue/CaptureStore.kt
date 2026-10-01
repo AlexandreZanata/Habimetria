@@ -18,9 +18,20 @@ class CaptureStore(
     fun load(): List<QueueItem> {
         if (!fs.exists(file)) return emptyList()
         return try {
-            json.decodeFromString<List<QueueItem>>(fs.read(file) { readUtf8() })
+            loadStrict()
         } catch (_: Exception) {
             emptyList()
+        }
+    }
+
+    // Strict read for migration paths: corrupt queue data must surface
+    // as an explicit error, never a silent empty list that hides photos.
+    fun loadStrict(): List<QueueItem> {
+        if (!fs.exists(file)) return emptyList()
+        try {
+            return json.decodeFromString<List<QueueItem>>(fs.read(file) { readUtf8() })
+        } catch (e: Exception) {
+            throw LocalQueueCorruptException("queue file is corrupt: ${file}", e)
         }
     }
 

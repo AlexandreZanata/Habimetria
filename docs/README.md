@@ -21,6 +21,8 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `03-architecture/storage-media.md` — originals, previews, signed URLs, video limits
 - `03-architecture/client-processing.md` — app does the work, server keeps trust
 - `03-architecture/payments.md` — Stripe + Asaas seam, off by default in MVP
+- `03-architecture/local_validation_architecture.md` — planned local authority, immutable snapshots and offline verification
+- `03-architecture/offline-package.md` — L7 published package/verify format
 
 ## 04 Backend
 
@@ -30,16 +32,22 @@ All product, architecture, and execution docs. Small files, one topic each.
 ## 05 Mobile
 
 - `05-mobile/kmp-layout.md` — Kotlin Multiplatform module layout
+- `05-mobile/toolchain.md` — pinned toolchain after L0 build audit
 - `05-mobile/offline-upload.md` — queue, IndexedDB/DataStore, retry
 - `05-mobile/app-performance.md` — budgets, 2026 stack, size/speed discipline
 - `05-mobile/capture-ux.md` — photo-first flow, zero friction rules
 - `05-mobile/pdf-ondevice.md` — two-pass seal PDF, QR, budgets
+- `05-mobile/local-store.md` — L1 SQLite schema, files, migration rules
+- `05-mobile/design-system.md` — L2 Material 3 tokens, components, pt-BR
 
 ## 06 Roadmap
 
 - `06-roadmap/mvp-01.md` — frozen MVP 0.1 checklist
 - `06-roadmap/mobile-phases.md` — M1→M5 app plan (MVP = photos + evidence + PDF)
 - `06-roadmap/evolution.md` — V1.1 → V1.5 without ERP creep
+- `06-roadmap/local_validation_plan.md` — next phases: Material 3, manual rooms, local capture/seal/PDF on Android and iOS
+- `06-roadmap/local_validation_acceptance.md` — planned device matrix, failure cases and functional-proof gates
+- `06-roadmap/acceptance-report.md` — L8 Linux pass: results, budgets, defect log, unverified matrix
 
 ## 07 AI Ops
 

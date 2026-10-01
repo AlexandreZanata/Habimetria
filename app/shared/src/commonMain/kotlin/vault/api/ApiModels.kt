@@ -125,6 +125,59 @@ data class FindingBody(
     val note: String? = null,
 )
 
+// RemoteOccurrence mirrors the S9 server timeline entry. Local rows stay
+// the source of truth; these types only carry the sync payload.
+@Serializable
+data class RemoteOccurrence(
+    val id: String,
+    @SerialName("property_id") val propertyId: String,
+    val title: String,
+    val body: String? = null,
+    @SerialName("created_at") val createdAt: String = "",
+)
+
+@Serializable
+data class OccurrenceBody(
+    val title: String,
+    val body: String? = null,
+)
+
+@Serializable
+data class OccurrenceEvidenceLink(
+    @SerialName("occurrence_id") val occurrenceId: String,
+    @SerialName("evidence_id") val evidenceId: String,
+)
+
+@Serializable
+data class EvidenceLinkBody(
+    @SerialName("evidence_id") val evidenceId: String,
+)
+
+// RemoteComparison mirrors the S9 server tag row. Retags overwrite the
+// row; tag history stays on device.
+@Serializable
+data class RemoteComparison(
+    val id: String,
+    @SerialName("tenancy_id") val tenancyId: String,
+    @SerialName("entry_room_id") val entryRoomId: String,
+    @SerialName("exit_room_id") val exitRoomId: String,
+    @SerialName("shot_category") val shotCategory: String,
+    @SerialName("entry_evidence_id") val entryEvidenceId: String? = null,
+    @SerialName("exit_evidence_id") val exitEvidenceId: String? = null,
+    val tag: String,
+    @SerialName("created_at") val createdAt: String = "",
+)
+
+@Serializable
+data class ComparisonBody(
+    @SerialName("entry_room_id") val entryRoomId: String,
+    @SerialName("exit_room_id") val exitRoomId: String,
+    @SerialName("shot_category") val shotCategory: String,
+    @SerialName("entry_evidence_id") val entryEvidenceId: String? = null,
+    @SerialName("exit_evidence_id") val exitEvidenceId: String? = null,
+    val tag: String,
+)
+
 @Serializable
 data class VerifyResult(
     val authentic: Boolean,
