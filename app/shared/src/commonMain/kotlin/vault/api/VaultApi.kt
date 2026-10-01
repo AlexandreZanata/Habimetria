@@ -89,6 +89,27 @@ class VaultApi private constructor(baseUrl: String, private val client: HttpClie
     suspend fun listOccurrenceEvidences(occurrenceId: String): List<Evidence> =
         getJson("api/v1/occurrences/$occurrenceId/evidences")
 
+    // Comparison-tag sync (S9). Upserts overwrite the server row; tag
+    // history stays on device. Tags describe visual state only.
+    suspend fun upsertComparison(
+        tenancyId: String,
+        entryRoomId: String,
+        exitRoomId: String,
+        shotCategory: String,
+        entryEvidenceId: String?,
+        exitEvidenceId: String?,
+        tag: String,
+    ): RemoteComparison =
+        postJson(
+            "api/v1/tenancies/$tenancyId/comparisons",
+            json.encodeToString(
+                ComparisonBody(entryRoomId, exitRoomId, shotCategory, entryEvidenceId, exitEvidenceId, tag),
+            ),
+        )
+
+    suspend fun listComparisons(tenancyId: String): List<RemoteComparison> =
+        getJson("api/v1/tenancies/$tenancyId/comparisons")
+
     suspend fun reportDetail(reportId: String): ReportDetail =
         getJson("api/v1/reports/$reportId")
 

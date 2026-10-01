@@ -137,4 +137,20 @@ class VaultApiTest {
         assertEquals(1, lines.size)
         assertEquals("e1", lines.single().id)
     }
+
+    @Test
+    fun upsertComparisonParsesTag() = runTest {
+        val api = mockApi("""{"id":"c1","tenancy_id":"t1","entry_room_id":"r1","exit_room_id":"r2","shot_category":"walls","entry_evidence_id":"e1","exit_evidence_id":"e2","tag":"changed","created_at":"2026-09-25T10:00:00Z"}""")
+        val cmp = api.upsertComparison("t1", "r1", "r2", "walls", "e1", "e2", "changed")
+        assertEquals("changed", cmp.tag)
+        assertEquals("walls", cmp.shotCategory)
+    }
+
+    @Test
+    fun listComparisonsParsesArray() = runTest {
+        val api = mockApi("""[{"id":"c1","tenancy_id":"t1","entry_room_id":"r1","exit_room_id":"r2","shot_category":"walls","entry_evidence_id":null,"exit_evidence_id":null,"tag":"wear","created_at":"2026-09-25T10:00:00Z"}]""")
+        val tags = api.listComparisons("t1")
+        assertEquals(1, tags.size)
+        assertEquals("wear", tags.single().tag)
+    }
 }

@@ -153,6 +153,31 @@ data class EvidenceLinkBody(
     @SerialName("evidence_id") val evidenceId: String,
 )
 
+// RemoteComparison mirrors the S9 server tag row. Retags overwrite the
+// row; tag history stays on device.
+@Serializable
+data class RemoteComparison(
+    val id: String,
+    @SerialName("tenancy_id") val tenancyId: String,
+    @SerialName("entry_room_id") val entryRoomId: String,
+    @SerialName("exit_room_id") val exitRoomId: String,
+    @SerialName("shot_category") val shotCategory: String,
+    @SerialName("entry_evidence_id") val entryEvidenceId: String? = null,
+    @SerialName("exit_evidence_id") val exitEvidenceId: String? = null,
+    val tag: String,
+    @SerialName("created_at") val createdAt: String = "",
+)
+
+@Serializable
+data class ComparisonBody(
+    @SerialName("entry_room_id") val entryRoomId: String,
+    @SerialName("exit_room_id") val exitRoomId: String,
+    @SerialName("shot_category") val shotCategory: String,
+    @SerialName("entry_evidence_id") val entryEvidenceId: String? = null,
+    @SerialName("exit_evidence_id") val exitEvidenceId: String? = null,
+    val tag: String,
+)
+
 @Serializable
 data class VerifyResult(
     val authentic: Boolean,
