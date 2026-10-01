@@ -341,6 +341,27 @@ class LocalVaultRepository(private val db: VaultDatabase) {
         evidenceId: String,
         preset: FindingPreset,
         note: String? = null,
+    ): LocalFinding = insertFinding(roomId, evidenceId, preset.name, note)
+
+    // Code-based finding for customized problems: stores the stable code
+    // (enum name or custom id). Unknown or inactive codes are rejected.
+    suspend fun addFindingWithCode(
+        roomId: String,
+        evidenceId: String,
+        code: String,
+        note: String? = null,
+    ): LocalFinding {
+        val option = FindingProblemRepository(db).resolveCode(code)
+            ?: throw LocalValidationException("unknown problem")
+        if (!option.active) throw LocalValidationException("problem not active")
+        return insertFinding(roomId, evidenceId, option.code, note)
+    }
+
+    private suspend fun insertFinding(
+        roomId: String,
+        evidenceId: String,
+        presetCode: String,
+        note: String?,
     ): LocalFinding {
         val room = requireRoom(roomId)
         requireDraft(room.inspectionId)
@@ -351,7 +372,7 @@ class LocalVaultRepository(private val db: VaultDatabase) {
         }
         val row = LocalFinding(
             id = newLocalId("find"), roomId = roomId, evidenceId = evidenceId,
-            preset = preset.name, note = note?.takeIf { it.isNotBlank() },
+            preset = presetCode, note = note?.takeIf { it.isNotBlank() },
         )
         db.findingDao().insert(row)
         return row

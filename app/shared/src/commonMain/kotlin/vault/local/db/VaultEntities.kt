@@ -336,3 +336,14 @@ data class LocalFinding(
     val preset: String,
     val note: String?,
 )
+
+// User-customizable finding problems (v15). Built-ins seed lazily with
+// stable enum-name codes; customs carry "custom:<id>" codes. Findings
+// keep storing codes, so sealed bytes stay stable while labels evolve.
+@Entity(tableName = "finding_problems")
+data class LocalFindingProblem(
+    @PrimaryKey val code: String,
+    val label: String,
+    val active: Boolean = true,
+    val builtin: Boolean = false,
+)

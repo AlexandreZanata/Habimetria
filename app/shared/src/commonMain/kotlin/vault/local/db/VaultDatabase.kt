@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 
-// Schema v14 (v13 + property archived visibility for U07 removal).
+// Schema v15 (v14 + finding_problems for problem customization).
 // Schema JSON exports to shared/schemas; every bump ships an explicit Migration.
 @Database(
     entities = [
@@ -24,8 +24,9 @@ import androidx.room.RoomDatabaseConstructor
         AiSuggestion::class,
         VisualDiff::class,
         MirrorLink::class,
+        LocalFindingProblem::class,
     ],
-    version = 14,
+    version = 15,
 )
 @ConstructedBy(VaultDatabaseConstructor::class)
 abstract class VaultDatabase : RoomDatabase() {
@@ -35,6 +36,7 @@ abstract class VaultDatabase : RoomDatabase() {
     abstract fun roomDao(): RoomDao
     abstract fun evidenceDao(): EvidenceDao
     abstract fun findingDao(): FindingDao
+    abstract fun findingProblemDao(): FindingProblemDao
     abstract fun manifestDao(): ManifestDao
     abstract fun reportDao(): ReportDao
     abstract fun trustDao(): TrustDao
