@@ -115,7 +115,7 @@ class NavigatorTest {
     @Test
     fun destinationSelectionStaysBounded() {
         val nav = VaultNavigator()
-        val roots = listOf(Route.Properties, Route.Inspections, Route.Reports, Route.Home)
+        val roots = listOf(Route.Properties, Route.Inspections, Route.Settings, Route.Home)
         repeat(50) { nav.selectDestination(roots[it % roots.size]) }
         assertEquals(Route.Inspections, nav.route.value)
         assertFalse(nav.canGoBack)
@@ -124,8 +124,8 @@ class NavigatorTest {
         assertFalse(nav.canGoBack)
 
         nav.navigate(Route.PropertyDetail("p1"))
-        nav.selectDestination(Route.Reports)
-        assertEquals(Route.Reports, nav.route.value)
+        nav.selectDestination(Route.Settings)
+        assertEquals(Route.Settings, nav.route.value)
         assertFalse(nav.canGoBack)
     }
 
@@ -195,7 +195,8 @@ class NavigatorTest {
         assertEquals(Route.Properties, Route.Properties.destination())
         assertEquals(Route.Properties, Route.PropertyDetail("p1").destination())
         assertEquals(Route.Inspections, Route.Inspections.destination())
-        assertEquals(Route.Reports, Route.Reports.destination())
+        assertEquals(Route.Settings, Route.Reports.destination())
+        assertEquals(Route.Settings, Route.Settings.destination())
         val journey: List<Route> = listOf(
             Route.Rooms("i"),
             Route.Room("i", "r", "Sala"),
@@ -216,9 +217,11 @@ class NavigatorTest {
     fun destinationCodesRoundTrip() {
         assertEquals(Destinations.PROPERTIES, Destinations.codeFor(Route.Properties))
         assertEquals(Destinations.INSPECTIONS, Destinations.codeFor(Route.Inspections))
-        assertEquals(Destinations.REPORTS, Destinations.codeFor(Route.Reports))
+        assertEquals(Destinations.SETTINGS, Destinations.codeFor(Route.Settings))
+        assertEquals(Destinations.HOME, Destinations.codeFor(Route.Reports))
         assertEquals(Destinations.HOME, Destinations.codeFor(Route.Home))
         assertEquals(Route.Properties, Destinations.rootFor(Destinations.PROPERTIES))
+        assertEquals(Route.Settings, Destinations.rootFor(Destinations.REPORTS))
         assertEquals(Route.Home, Destinations.rootFor("unknown"))
         assertEquals(Route.Home, Destinations.rootFor(""))
     }

@@ -57,7 +57,14 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     onReview = { navigator.openSealedReview(it) },
                 )
             }
-            Route.Reports -> ChromeShell(r, container, navigator, Strings.reports, false, {}) {
+            Route.Settings -> ChromeShell(r, container, navigator, Strings.settings, false, {}) {
+                vault.ui.settings.SettingsScreen(
+                    onOpenReports = { navigator.navigate(Route.Reports) },
+                )
+            }
+            Route.Reports -> ChromeShell(r, container, navigator, Strings.reports, true, {
+                navigator.goBackOr(Route.Settings)
+            }) {
                 vault.ui.report.ReportListScreen(
                     container = container,
                     onOpenPdf = { navigator.navigate(Route.LocalPdf(it)) },

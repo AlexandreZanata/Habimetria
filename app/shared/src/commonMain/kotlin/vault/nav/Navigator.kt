@@ -16,6 +16,7 @@ sealed interface Route {
     data class PropertyDetail(val propertyId: String) : Route
     data object Inspections : Route
     data object Reports : Route
+    data object Settings : Route
     data class Rooms(val inspectionId: String) : Route
     data class Room(val inspectionId: String, val roomId: String, val label: String) : Route
     data class Review(val inspectionId: String) : Route
@@ -36,24 +37,26 @@ object Destinations {
     const val PROPERTIES = "properties"
     const val INSPECTIONS = "inspections"
     const val REPORTS = "reports"
+    const val SETTINGS = "settings"
 
     fun rootFor(code: String): Route = when (code) {
         PROPERTIES -> Route.Properties
         INSPECTIONS -> Route.Inspections
-        REPORTS -> Route.Reports
+        // Legacy reports destination now lives inside settings.
+        REPORTS, SETTINGS -> Route.Settings
         else -> Route.Home
     }
 
     fun codeFor(route: Route): String = when (route) {
         Route.Properties -> PROPERTIES
         Route.Inspections -> INSPECTIONS
-        Route.Reports -> REPORTS
+        Route.Settings -> SETTINGS
         else -> HOME
     }
 }
 
 fun Route.isDestinationRoot(): Boolean = when (this) {
-    Route.Home, Route.Properties, Route.Inspections, Route.Reports -> true
+    Route.Home, Route.Properties, Route.Inspections, Route.Settings -> true
     else -> false
 }
 
@@ -66,7 +69,7 @@ fun Route.destination(): Route = when (this) {
     Route.Home, Route.NewInspection -> Route.Home
     Route.Properties, is Route.PropertyDetail -> Route.Properties
     Route.Inspections -> Route.Inspections
-    Route.Reports -> Route.Reports
+    Route.Settings, Route.Reports -> Route.Settings
     else -> Route.Inspections
 }
 

@@ -3,8 +3,8 @@ package vault.ui
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.Apartment
-import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -44,7 +44,7 @@ private val destinations = listOf(
     DestinationItem(Route.Home, Strings.home, Icons.Filled.Home),
     DestinationItem(Route.Properties, Strings.properties, Icons.Filled.Apartment),
     DestinationItem(Route.Inspections, Strings.inspections, Icons.AutoMirrored.Filled.Assignment),
-    DestinationItem(Route.Reports, Strings.reports, Icons.Filled.Description),
+    DestinationItem(Route.Settings, Strings.settings, Icons.Filled.Settings),
 )
 
 @Composable

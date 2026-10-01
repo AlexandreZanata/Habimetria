@@ -91,7 +91,7 @@ class MainActivity : ComponentActivity() {
                 override fun handleOnBackPressed() {
                     val exit = when (val r = navigator.route.value) {
                         Route.Home -> true
-                        Route.Properties, Route.Inspections, Route.Reports -> {
+                        Route.Properties, Route.Inspections, Route.Settings -> {
                             navigator.selectDestination(Route.Home)
                             false
                         }
