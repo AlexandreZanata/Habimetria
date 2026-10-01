@@ -56,6 +56,7 @@ object Strings {
     const val moveDown = "Mover para baixo"
     const val noRoomsYet = "Nenhum cômodo ainda. Digite o nome acima."
     const val startInspection = "Iniciar vistoria"
+    const val nextRoom = "Próximo cômodo"
     const val resumeTitle = "Vistorias em andamento"
     const val roomsSuffix = "cômodos"
     const val continueAction = "Continuar"

@@ -41,6 +41,7 @@ import vault.local.LocationClaim
 import vault.local.STATUS_DRAFT
 import vault.local.ShotCategory
 import vault.local.db.LocalEvidence
+import vault.local.db.LocalRoom
 import vault.local.newLocalId
 import vault.local.parseNaCategories
 import vault.local.platformLocationTracker
@@ -67,6 +68,7 @@ fun LocalRoomScreen(
     inspectionId: String,
     roomId: String,
     roomLabel: String,
+    onOpenRoom: (roomId: String, label: String) -> Unit,
     onReview: () -> Unit,
     onBack: () -> Unit,
 ) {
@@ -74,6 +76,7 @@ fun LocalRoomScreen(
     val tracker = remember { platformLocationTracker() }
     var lastClaim by remember { mutableStateOf<LocationClaim?>(null) }
     var evidences by remember { mutableStateOf<List<LocalEvidence>>(emptyList()) }
+    var nextRoom by remember { mutableStateOf<LocalRoom?>(null) }
     var coverage by remember { mutableStateOf<RoomCoverage?>(null) }
     var na by remember { mutableStateOf(setOf<ShotCategory>()) }
     var selected by remember { mutableStateOf(ShotCategory.OVERVIEW) }
@@ -83,8 +86,11 @@ fun LocalRoomScreen(
     fun refresh() {
         scope.launch {
             try {
-                val room = session.repository.roomsFor(inspectionId).firstOrNull { it.id == roomId }
+                val allRooms = session.repository.roomsFor(inspectionId)
+                val room = allRooms.firstOrNull { it.id == roomId }
                 na = parseNaCategories(room?.naCategories.orEmpty())
+                val idx = allRooms.indexOfFirst { it.id == roomId }
+                nextRoom = if (idx >= 0 && idx + 1 < allRooms.size) allRooms[idx + 1] else null
                 evidences = session.repository.evidencesForRoom(roomId)
                 coverage = session.coverage.roomCoverage(roomId)
                 error = null
@@ -178,8 +184,9 @@ fun LocalRoomScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     LocalRoomControls(
-                        session, evidences, coverage, na, selected,
-                        { selected = it }, busy, error, lastClaim, ::toggleNa, ::capture, onReview, onBack,
+                        session, evidences, nextRoom, coverage, na, selected,
+                        { selected = it }, busy, error, lastClaim, ::toggleNa, ::capture,
+                        onOpenRoom, onReview, onBack,
                     )
                 }
             }
@@ -191,8 +198,9 @@ fun LocalRoomScreen(
                         .semantics { contentDescription = Strings.cameraPreview },
                 )
                 LocalRoomControls(
-                    session, evidences, coverage, na, selected,
-                    { selected = it }, busy, error, lastClaim, ::toggleNa, ::capture, onReview, onBack,
+                    session, evidences, nextRoom, coverage, na, selected,
+                    { selected = it }, busy, error, lastClaim, ::toggleNa, ::capture,
+                    onOpenRoom, onReview, onBack,
                 )
             }
         }
@@ -203,6 +211,7 @@ fun LocalRoomScreen(
 private fun ColumnScope.LocalRoomControls(
     session: LocalSession,
     evidences: List<LocalEvidence>,
+    nextRoom: LocalRoom?,
     coverage: RoomCoverage?,
     na: Set<ShotCategory>,
     selected: ShotCategory,
@@ -212,6 +221,7 @@ private fun ColumnScope.LocalRoomControls(
     lastClaim: LocationClaim?,
     onToggleNa: (ShotCategory) -> Unit,
     onCapture: () -> Unit,
+    onOpenRoom: (roomId: String, label: String) -> Unit,
     onReview: () -> Unit,
     onBack: () -> Unit,
 ) {
@@ -283,6 +293,12 @@ private fun ColumnScope.LocalRoomControls(
                 style = MaterialTheme.typography.bodyMedium,
             )
         }
+    }
+    nextRoom?.let { next ->
+        VaultButton(
+            text = "${Strings.nextRoom}: ${next.label} →",
+            onClick = { onOpenRoom(next.id, next.label) },
+        )
     }
     VaultButton(text = "${Strings.review} →", onClick = onReview)
     VaultButton(text = Strings.back, onClick = onBack)
