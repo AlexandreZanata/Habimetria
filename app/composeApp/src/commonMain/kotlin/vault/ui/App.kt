@@ -14,7 +14,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
     val route by navigator.route.collectAsState()
     VaultTheme {
         when (val r = route) {
-            Route.Home -> VaultShell(Strings.appName, false, {}) {
+            Route.Home -> VaultShell("", false, {}) {
                 HomeScreen(container, onReady = { navigator.startInspection(it) })
             }
             is Route.Rooms -> VaultShell(Strings.rooms, true, { navigator.goBackOr(Route.Home) }) {

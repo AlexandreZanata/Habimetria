@@ -77,7 +77,6 @@ object Strings {
     const val newProperty = "+ Novo imóvel"
     const val renameNickname = "Renomear apelido"
     const val nicknameTitle = "Apelido do imóvel"
-    const val newProperty = "＋ Novo imóvel"
     const val nicknameLabel = "Apelido (opcional, ex.: Casa da praia)"
     const val newInspection = "Nova vistoria"
     const val roomsSuffix = "cômodos"

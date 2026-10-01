@@ -33,17 +33,19 @@ fun VaultShell(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(title) },
-                navigationIcon = {
-                    if (canGoBack) {
-                        TextButton(
-                            onClick = onBack,
-                            modifier = Modifier.heightIn(min = 48.dp),
-                        ) { Text(Strings.back) }
-                    }
-                },
-            )
+            if (title.isNotBlank()) {
+                TopAppBar(
+                    title = { Text(title) },
+                    navigationIcon = {
+                        if (canGoBack) {
+                            TextButton(
+                                onClick = onBack,
+                                modifier = Modifier.heightIn(min = 48.dp),
+                            ) { Text(Strings.back) }
+                        }
+                    },
+                )
+            }
         },
     ) { inner ->
         BoxWithConstraints(modifier = Modifier.padding(inner).fillMaxSize()) {
