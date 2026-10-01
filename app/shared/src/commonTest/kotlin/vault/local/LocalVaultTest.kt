@@ -147,4 +147,13 @@ class LocalVaultTest {
         }
         db.close()
     }
+
+    @Test
+    fun addressForResolvesResumeLabel() = runTest {
+        val (db, repo) = freshVault()
+        val inspectionId = seedInspection(repo)
+        assertEquals("Rua das Flores, 42", repo.addressFor(inspectionId))
+        assertEquals(null, repo.addressFor("ins_missing"))
+        db.close()
+    }
 }

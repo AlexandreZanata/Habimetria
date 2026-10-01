@@ -208,6 +208,14 @@ class LocalVaultRepository(private val db: VaultDatabase) {
 
     suspend fun listDrafts(): List<LocalInspection> = db.inspectionDao().listDrafts()
 
+    // Property address behind an inspection, for resume rows. Null when
+    // any link in the chain is gone; never throws for UI listing.
+    suspend fun addressFor(inspectionId: String): String? {
+        val inspection = db.inspectionDao().get(inspectionId) ?: return null
+        val tenancy = db.tenancyDao().get(inspection.tenancyId) ?: return null
+        return db.propertyDao().get(tenancy.propertyId)?.address
+    }
+
     suspend fun roomsFor(inspectionId: String): List<LocalRoom> =
         db.roomDao().listForInspection(inspectionId)
 
