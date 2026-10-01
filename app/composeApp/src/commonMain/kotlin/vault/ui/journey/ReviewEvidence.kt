@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import vault.findings.FindingPreset
+import vault.findings.label
 import vault.local.ExifGps
 import vault.local.LocalSession
 import vault.local.distanceMeters
@@ -119,7 +120,7 @@ fun FindingInputSheet(
                         FilterChip(
                             selected = preset == p,
                             onClick = { presetName = p.name },
-                            label = { Text(p.name.lowercase()) },
+                            label = { Text(p.label()) },
                         )
                     }
                 }
