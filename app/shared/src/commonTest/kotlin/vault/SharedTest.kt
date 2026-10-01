@@ -104,4 +104,37 @@ class VaultApiTest {
         assertEquals(1, groups[0].lines.size)
         assertEquals(0, groups[1].lines.size)
     }
+
+    @Test
+    fun createOccurrenceParsesId() = runTest {
+        val api = mockApi("""{"id":"o1","property_id":"p1","title":"Leak","body":"under sink","created_at":"2026-09-25T10:00:00Z"}""")
+        val occ = api.createOccurrence("p1", "Leak", "under sink")
+        assertEquals("o1", occ.id)
+        assertEquals("p1", occ.propertyId)
+        assertEquals("under sink", occ.body)
+    }
+
+    @Test
+    fun listOccurrencesParsesTimeline() = runTest {
+        val api = mockApi("""[{"id":"o1","property_id":"p1","title":"Leak","body":null,"created_at":"2026-09-25T10:00:00Z"}]""")
+        val timeline = api.listOccurrences("p1")
+        assertEquals(1, timeline.size)
+        assertEquals("Leak", timeline.single().title)
+    }
+
+    @Test
+    fun attachOccurrenceEvidenceParsesLink() = runTest {
+        val api = mockApi("""{"occurrence_id":"o1","evidence_id":"e1"}""")
+        val link = api.attachOccurrenceEvidence("o1", "e1")
+        assertEquals("o1", link.occurrenceId)
+        assertEquals("e1", link.evidenceId)
+    }
+
+    @Test
+    fun listOccurrenceEvidencesParses() = runTest {
+        val api = mockApi("""[{"id":"e1","inspection_id":"i1","room_id":"r1","type":"photo","mime":"image/jpeg","size":100,"sha256":"aa","received_at_server":"2026-09-25T10:00:00Z","sequence":1}]""")
+        val lines = api.listOccurrenceEvidences("o1")
+        assertEquals(1, lines.size)
+        assertEquals("e1", lines.single().id)
+    }
 }

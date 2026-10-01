@@ -125,6 +125,34 @@ data class FindingBody(
     val note: String? = null,
 )
 
+// RemoteOccurrence mirrors the S9 server timeline entry. Local rows stay
+// the source of truth; these types only carry the sync payload.
+@Serializable
+data class RemoteOccurrence(
+    val id: String,
+    @SerialName("property_id") val propertyId: String,
+    val title: String,
+    val body: String? = null,
+    @SerialName("created_at") val createdAt: String = "",
+)
+
+@Serializable
+data class OccurrenceBody(
+    val title: String,
+    val body: String? = null,
+)
+
+@Serializable
+data class OccurrenceEvidenceLink(
+    @SerialName("occurrence_id") val occurrenceId: String,
+    @SerialName("evidence_id") val evidenceId: String,
+)
+
+@Serializable
+data class EvidenceLinkBody(
+    @SerialName("evidence_id") val evidenceId: String,
+)
+
 @Serializable
 data class VerifyResult(
     val authentic: Boolean,
