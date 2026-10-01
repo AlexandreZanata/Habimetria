@@ -65,7 +65,7 @@ Room 2.8.5, Compose Multiplatform 1.11.1.
 
 - `backend/testdata/fixture-package/` — 2-photo package exported by
   the app, accepted by both verifiers.
-- `app/shared/schemas/.../{1..11}.json` — schema history with migrations (v11 adds `mirror_links`).
+- `app/shared/schemas/vault.local.db.VaultDatabase/{1..11}.json` — schema history with migrations (v11 adds `mirror_links`).
 
 ## Explicitly unverified (not claimed)
 

@@ -45,10 +45,13 @@ Out of MVP: accounts with passwords, agency dashboard, AI diff, video-first, edi
 
 See `docs/06-roadmap/mvp-01.md` and `docs/README.md`.
 
-## Next delivery scope (planned)
+## Next delivery scope (in progress)
 
 [Local validation roadmap](docs/06-roadmap/local_validation_plan.md):
 professional Material 3 UI, manually named rooms, real Android/iOS photo
 capture with location claims, complete on-device persistence/seal/PDF,
 offline integrity verification and a reproducible device acceptance matrix.
-This is a plan; the current mobile flow still depends on the API.
+L0–L8 are implemented with a green Linux pass (see
+`docs/06-roadmap/acceptance-report.md`); UI reaches the API only through
+the optional server mirror. Physical-device, simulator and macOS/Xcode
+gates remain explicitly unverified.
