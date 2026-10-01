@@ -11,6 +11,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `02-product/capture-flow.md` — entry/exit guided flow
 - `02-product/ux-principles.md` — radical simplicity rules
 - `02-product/paywall.md` — sell protection, not PDF
+- `02-product/local_navigation_ux.md` — planned header, global navigation, white/green light theme and accessibility
 
 ## 03 Architecture
 
@@ -23,6 +24,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `03-architecture/payments.md` — Stripe + Asaas seam, off by default in MVP
 - `03-architecture/local_validation_architecture.md` — planned local authority, immutable snapshots and offline verification
 - `03-architecture/offline-package.md` — L7 published package/verify format
+- `03-architecture/local_property_removal.md` — planned empty deletion, reversible archive and preservation of sealed history
 
 ## 04 Backend
 
@@ -49,6 +51,8 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `06-roadmap/local_validation_acceptance.md` — planned device matrix, failure cases and functional-proof gates
 - `06-roadmap/acceptance-report.md` — L8 Linux pass: results, budgets, defect log, unverified matrix
 - `06-roadmap/beta_readiness.md` — device-pass runbook and beta exit criteria (consolidates M5 + acceptance gates)
+- `06-roadmap/local_usability_plan.md` — U01–U12 tasks for navigation, Property removal and local usability
+- `06-roadmap/local_usability_acceptance.md` — planned usability, accessibility, integrity and performance gates
 
 ## 07 AI Ops
 

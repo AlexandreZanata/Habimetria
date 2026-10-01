@@ -3,6 +3,11 @@
 Code: `vault.ui.Theme` (roles, type, shapes), `vault.ui.Strings`
 (pt-BR copy), `vault.ui.VaultComponents` (shared building blocks).
 
+Next requested changes (planned, not implemented):
+[local navigation UX](../02-product/local_navigation_ux.md) defines a
+white/green light palette, contextual header and bar/rail destinations;
+[U01–U12](../06-roadmap/local_usability_plan.md) owns implementation gates.
+
 ## Tokens
 
 - Seal-green brand cue on `primary`; full light/dark roles, no
