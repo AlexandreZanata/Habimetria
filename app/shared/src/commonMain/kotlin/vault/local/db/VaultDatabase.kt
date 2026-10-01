@@ -37,6 +37,7 @@ abstract class VaultDatabase : RoomDatabase() {
     abstract fun evidenceDao(): EvidenceDao
     abstract fun findingDao(): FindingDao
     abstract fun findingProblemDao(): FindingProblemDao
+    abstract fun inspectionRemovalDao(): InspectionRemovalDao
     abstract fun manifestDao(): ManifestDao
     abstract fun reportDao(): ReportDao
     abstract fun trustDao(): TrustDao

@@ -38,6 +38,11 @@ Finding display labels live in `shared/.../vault/findings/FindingLabels.kt`
 (`label()` per `AppLocale`); stored codes never change.
 Generated-report removal lives in `shared/.../vault/local/ReportGenerator.kt`
 (`deleteReport` removes row, PDF and receipt; sealed data regenerates).
+Inspection removal lives in `shared/.../vault/local/InspectionRemoval.kt`
+(`InspectionRemovalRepository` via `LocalSession.inspectionRemoval`,
+transactional deletes in `vault/local/db/InspectionRemovalDao.kt`): DRAFT
+and SEALED delete with confirmation; comparisons block instead of
+corrupting the other side; tenancies, properties and occurrences survive.
 The capture journey (`LocalRoomsScreen`, `LocalRoomScreen`,
 `LocalReviewScreen`, `LocalSealScreen`, `LocalPdfScreen`) shares
 `vault/ui/journey/`: `JourneyShortcuts` (Cômodos/Revisão entries),
