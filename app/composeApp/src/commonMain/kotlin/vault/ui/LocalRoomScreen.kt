@@ -197,11 +197,19 @@ fun LocalRoomScreen(
                     modifier = Modifier.fillMaxWidth().height(280.dp)
                         .semantics { contentDescription = Strings.cameraPreview },
                 )
-                LocalRoomControls(
-                    session, evidences, nextRoom, coverage, na, selected,
-                    { selected = it }, busy, error, lastClaim, ::toggleNa, ::capture,
-                    onOpenRoom, onReview, onBack,
-                )
+                // Controls always exceed one screen (chips, evidence list,
+                // next/review/back): without scroll the forward buttons
+                // sit below the fold and the user is stuck.
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    LocalRoomControls(
+                        session, evidences, nextRoom, coverage, na, selected,
+                        { selected = it }, busy, error, lastClaim, ::toggleNa, ::capture,
+                        onOpenRoom, onReview, onBack,
+                    )
+                }
             }
         }
     }
