@@ -125,15 +125,19 @@ fun LocalRoomsScreen(
                     onDelete = { deleting = room },
                 )
             }
+            // In-flow submit: pinned footers ride above the keyboard, so
+            // the action scrolls with the list and stays put instead.
+            item {
+                VaultButton(
+                    text = Strings.startInspection,
+                    onClick = {
+                        val first = rooms.firstOrNull() ?: return@VaultButton
+                        onStartCapture(first.id, first.label)
+                    },
+                    enabled = rooms.isNotEmpty(),
+                )
+            }
         }
-        VaultButton(
-            text = Strings.startInspection,
-            onClick = {
-                val first = rooms.firstOrNull() ?: return@VaultButton
-                onStartCapture(first.id, first.label)
-            },
-            enabled = rooms.isNotEmpty(),
-        )
     }
 
     renaming?.let { room ->
