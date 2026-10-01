@@ -43,8 +43,16 @@ class VaultApi private constructor(baseUrl: String, private val client: HttpClie
     suspend fun createTenancy(propertyId: String): Tenancy =
         postJson("api/v1/properties/$propertyId/tenancies", "")
 
-    suspend fun createInspection(tenancyId: String): Inspection =
-        postJson("api/v1/tenancies/$tenancyId/inspections", "{}")
+    suspend fun createInspection(tenancyId: String, kind: String = "entry"): Inspection =
+        postJson(
+            "api/v1/tenancies/$tenancyId/inspections",
+            """{"kind":"$kind"}""",
+        )
+
+    // Exit-inspection sync (V1.2/S9). Requires a sealed entry on the
+    // server (409 otherwise); mirrors local startExitInspection online.
+    suspend fun createExitInspection(tenancyId: String): Inspection =
+        createInspection(tenancyId, "exit")
 
     suspend fun listRooms(inspectionId: String): List<Room> =
         getJson("api/v1/inspections/$inspectionId/rooms")

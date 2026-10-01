@@ -4,12 +4,14 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.TextContent
 import io.ktor.http.headersOf
 import kotlinx.coroutines.test.runTest
 import vault.api.VaultApi
 import vault.rooms.RoomCoverage
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class RoomCoverageTest {
 
@@ -152,5 +154,39 @@ class VaultApiTest {
         val tags = api.listComparisons("t1")
         assertEquals(1, tags.size)
         assertEquals("wear", tags.single().tag)
+    }
+
+    @Test
+    fun createInspectionDefaultsToEntryKind() = runTest {
+        var sent = ""
+        val engine = MockEngine { request ->
+            sent = (request.body as TextContent).text
+            respond(
+                """{"id":"i1","tenancy_id":"t1","kind":"entry","status":"DRAFT","created_at":"2026-09-25T10:00:00Z"}""",
+                HttpStatusCode.Created,
+                headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+        val api = VaultApi("http://test", engine)
+        val inspection = api.createInspection("t1")
+        assertEquals("entry", inspection.kind)
+        assertTrue(sent.contains("entry"), "expected kind=entry in $sent")
+    }
+
+    @Test
+    fun createExitInspectionSendsExitKind() = runTest {
+        var sent = ""
+        val engine = MockEngine { request ->
+            sent = (request.body as TextContent).text
+            respond(
+                """{"id":"i2","tenancy_id":"t1","kind":"exit","status":"DRAFT","created_at":"2026-09-25T10:00:00Z"}""",
+                HttpStatusCode.Created,
+                headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+        val api = VaultApi("http://test", engine)
+        val inspection = api.createExitInspection("t1")
+        assertEquals("exit", inspection.kind)
+        assertTrue(sent.contains("exit"), "expected kind=exit in $sent")
     }
 }
