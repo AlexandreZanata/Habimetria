@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -81,7 +80,6 @@ fun InspectionListScreen(
         val q = query.trim().lowercase()
         q.isEmpty() || it.propertyLabel.lowercase().contains(q)
     }
-    val grouped = visible.groupBy { it.propertyId }
 
     fun resume(id: String) {
         scope.launch {
@@ -160,25 +158,14 @@ fun InspectionListScreen(
                 }
             }
             else -> {
-                grouped.forEach { (_, group) ->
-                    item {
-                        Text(
-                            PropertyStrings.archivedSuffix(
-                                group.first().propertyLabel.ifBlank { InspectionStrings.unknownProperty },
-                                group.first().propertyArchived,
-                            ),
-                            style = MaterialTheme.typography.titleMedium,
-                        )
-                    }
-                    items(group, key = { it.inspection.id }) { overview ->
-                        InspectionRow(
-                            overview = overview,
-                            busy = busy,
-                            onResume = { resume(overview.inspection.id) },
-                            onReview = { review(overview.inspection.id) },
-                            onDelete = { deleting = overview },
-                        )
-                    }
+                items(visible, key = { it.inspection.id }) { overview ->
+                    InspectionRow(
+                        overview = overview,
+                        busy = busy,
+                        onResume = { resume(overview.inspection.id) },
+                        onReview = { review(overview.inspection.id) },
+                        onDelete = { deleting = overview },
+                    )
                 }
             }
         }

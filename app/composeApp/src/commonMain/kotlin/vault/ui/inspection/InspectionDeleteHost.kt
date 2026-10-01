@@ -67,7 +67,7 @@ fun InspectionDeleteHost(
                 val removal = session?.inspectionRemoval ?: return@launch
                 when (removal.delete(inspectionId)) {
                     InspectionDeleteOutcome.Deleted -> {
-                        session?.let { revalidateAfterInspectionDelete(it, inspectionId) }
+                        revalidateAfterInspectionDelete(session, inspectionId)
                         onCommitted(InspectionStrings.deletedOk)
                     }
                     is InspectionDeleteOutcome.Blocked -> blocked = true
