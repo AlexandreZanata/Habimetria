@@ -107,18 +107,20 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-    // Resume where the user stopped; falls back to Home on fresh installs
-    // or when the saved inspection no longer resolves (checked lazily).
+    // Resume where the user stopped with a full trail, never a bare
+    // single route: system and in-app back always walk
+    // Room → Rooms → Home instead of dying or ping-ponging.
     private fun resumeNavigator(session: LocalSession): VaultNavigator {
+        val navigator = VaultNavigator()
         val progress: NavigationProgress = session.navigation.load()
         val inspectionId = progress.inspectionId
-        if (inspectionId.isNullOrBlank()) return VaultNavigator()
+        if (inspectionId.isNullOrBlank()) return navigator
+        navigator.navigate(Route.Rooms(inspectionId))
         val roomId = progress.roomId
         val label = progress.roomLabel
-        return if (!roomId.isNullOrBlank() && !label.isNullOrBlank()) {
-            VaultNavigator(Route.Room(inspectionId, roomId, label))
-        } else {
-            VaultNavigator(Route.Rooms(inspectionId))
+        if (!roomId.isNullOrBlank() && !label.isNullOrBlank()) {
+            navigator.navigate(Route.Room(inspectionId, roomId, label))
         }
+        return navigator
     }
 }
