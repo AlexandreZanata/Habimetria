@@ -2,15 +2,12 @@ package vault.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,7 +16,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -27,31 +23,24 @@ import vault.local.NavigationProgress
 import vault.local.PropertyOverview
 import vault.ui.property.HeroNewInspection
 import vault.ui.property.HomePropertyStates
-import vault.ui.property.PropertyAddressForm
 import vault.ui.property.PropertyRenameDialog
-import vault.ui.property.createPropertyAndStart
-import vault.ui.property.isPropertyFormValid
 import vault.ui.property.startOnProperty
 
-// Home prioritizes new/resume: hero entry, Continuar for the latest
-// draft and the property creation form. Full management lives in
-// Imóveis; this screen keeps cards read-mostly until then.
+// Home prioritizes new/resume: hero entry to the dedicated address
+// screen and Continuar for the latest draft. The address form lives
+// on Route.NewInspection, never squeezed under these cards. Full
+// management lives in Imóveis; this screen keeps cards read-mostly.
 // Loading, error and empty are distinct states with retry.
 @Composable
 fun HomeScreen(
     container: AppContainer,
     onReady: (inspectionId: String) -> Unit,
+    onNewInspection: () -> Unit,
 ) {
-    var street by remember { mutableStateOf("") }
-    var number by remember { mutableStateOf("") }
-    var complement by remember { mutableStateOf("") }
-    var neighborhood by remember { mutableStateOf("") }
-    var nickname by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var loadError by remember { mutableStateOf<String?>(null) }
     var cards by remember { mutableStateOf<List<PropertyOverview>?>(null) }
-    var showForm by remember { mutableStateOf(true) }
     var renaming by remember { mutableStateOf<PropertyOverview?>(null) }
     var renameText by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
@@ -61,16 +50,8 @@ fun HomeScreen(
         val repo = local?.repository ?: return
         try {
             // Active picker: archived Properties live in Imóveis → Arquivados.
-            val rows = repo.propertyOverviews(limit = 100)
+            cards = repo.propertyOverviews(limit = 100)
                 .filter { !it.property.archived }
-            if (cards == null && rows.isNotEmpty()) showForm = false
-            rows.firstOrNull()?.property?.let {
-                if (street.isBlank() && it.street.isNotBlank()) street = it.street
-                if (number.isBlank() && it.number.isNotBlank()) number = it.number
-                if (complement.isBlank()) complement = it.complement.orEmpty()
-                if (neighborhood.isBlank() && it.neighborhood.isNotBlank()) neighborhood = it.neighborhood
-            }
-            cards = rows
             loadError = null
         } catch (e: Exception) {
             loadError = userErrorMessage(e)
@@ -116,7 +97,7 @@ fun HomeScreen(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         if (local != null) {
-            HeroNewInspection(enabled = !busy, onClick = { showForm = true })
+            HeroNewInspection(enabled = !busy, onClick = onNewInspection)
             HomePropertyStates(
                 rows = cards,
                 loadError = loadError,
@@ -126,40 +107,8 @@ fun HomeScreen(
                 onNewInspection = ::startProperty,
                 onRename = { renaming = it; renameText = "" },
             )
-            OutlinedButton(
-                onClick = { showForm = !showForm },
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text(Strings.newProperty) }
-        }
-        if (local == null || showForm) {
-            PropertyAddressForm(
-                nickname, { nickname = it }, street, { street = it },
-                number, { number = it }, complement, { complement = it },
-                neighborhood, { neighborhood = it }, showNickname = local != null,
-            )
         }
         ErrorText(error)
-        if (local == null || showForm) {
-            VaultButton(
-                text = if (busy) Strings.starting else Strings.start,
-                onClick = {
-                    busy = true
-                    error = null
-                    scope.launch {
-                        try {
-                            createPropertyAndStart(
-                                container, nickname, street, number, complement, neighborhood, onReady,
-                            )
-                        } catch (e: Exception) {
-                            error = userErrorMessage(e)
-                        } finally {
-                            busy = false
-                        }
-                    }
-                },
-                enabled = !busy && isPropertyFormValid(street, number, neighborhood),
-            )
-        }
     }
 
     renaming?.let { overview ->

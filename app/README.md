@@ -14,8 +14,9 @@ app/
 UI chrome lives in `composeApp/.../vault/ui/`:
 `VaultShell` (single inset boundary + header),
 `VaultChrome` (destination bar/rail, header subtitle, shell wiring).
-`HomeScreen` prioritizes new/resume; property management lives in
-`vault/ui/property/`: `PropertyListScreen` (search, aggregated
+`HomeScreen` prioritizes new/resume via the hero to `Route.NewInspection`;
+property management lives in `vault/ui/property/`: `NewInspectionScreen`
+(dedicated address form), `PropertyListScreen` (search, aggregated
 overviews, detail entry), `PropertyDetailScreen` (bounded inspection
 history with DRAFT/SEALED filter), `PropertyForm` (address form,
 creation block, rename dialog), `PropertyCards` (hero + cards),

@@ -15,7 +15,19 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
     VaultTheme {
         when (val r = route) {
             Route.Home -> ChromeShell(r, container, navigator, Strings.home, false, {}) {
-                HomeScreen(container, onReady = { navigator.startInspection(it) })
+                HomeScreen(
+                    container,
+                    onReady = { navigator.startInspection(it) },
+                    onNewInspection = { navigator.navigate(Route.NewInspection) },
+                )
+            }
+            Route.NewInspection -> ChromeShell(r, container, navigator, Strings.newInspection, true, {
+                navigator.goBackOr(Route.Home)
+            }) {
+                vault.ui.property.NewInspectionScreen(
+                    container,
+                    onReady = { navigator.startInspection(it) },
+                )
             }
             // Imóveis (U04), Vistorias and Relatórios (U05) are
             // dedicated destinations with offline-first lists.

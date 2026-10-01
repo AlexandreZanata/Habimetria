@@ -11,6 +11,7 @@ import vault.local.NavigationProgress
 // PropertyDetail and the inspection journey screens are detail routes.
 sealed interface Route {
     data object Home : Route
+    data object NewInspection : Route
     data object Properties : Route
     data class PropertyDetail(val propertyId: String) : Route
     data object Inspections : Route
@@ -58,10 +59,11 @@ fun Route.isDestinationRoot(): Boolean = when (this) {
 
 // Destination owning a route, for bar/rail highlight. The whole
 // capture → seal → PDF journey belongs to Inspections; property
-// screens belong to Properties. Every route maps to exactly one root,
-// so the bar always shows a meaningful selection.
+// screens belong to Properties; the address form belongs to Home.
+// Every route maps to exactly one root, so the bar always shows
+// a meaningful selection.
 fun Route.destination(): Route = when (this) {
-    Route.Home -> Route.Home
+    Route.Home, Route.NewInspection -> Route.Home
     Route.Properties, is Route.PropertyDetail -> Route.Properties
     Route.Inspections -> Route.Inspections
     Route.Reports -> Route.Reports
