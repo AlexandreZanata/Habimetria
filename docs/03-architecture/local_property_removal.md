@@ -1,6 +1,7 @@
 # Local Property Removal — Planned Contract
 
-Status: planned, not implemented. Companion to the
+Status: U07 implemented (visibility v14 + transactional delete/archive/restore);
+U08/U09 UI pending. Companion to the
 [UX contract](../02-product/local_navigation_ux.md) and
 [execution backlog](../06-roadmap/local_usability_plan.md).
 

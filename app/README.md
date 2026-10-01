@@ -35,6 +35,10 @@ room rows/dialogs, capture controls, photo viewer and finding input.
 Journey screens keep one header Back control (no bottom Voltar),
 saveable input (category, finding note/preset) and busy-guarded
 writes; committed photos/notes live in durable storage.
+Property removal use cases live in `shared/.../vault/local/PropertyRemoval.kt`
+(`PropertyRemovalRepository` via `LocalSession.propertyRemoval`, transactional
+queries in `vault/local/db/PropertyRemovalDao.kt`): empty unlinked Properties
+delete, populated ones archive/restore with sealed hashes unchanged.
 
 ## Local verification (Linux)
 
