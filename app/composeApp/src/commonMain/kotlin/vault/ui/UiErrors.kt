@@ -7,6 +7,7 @@ import vault.local.SealedModificationException
 // screen: technical English and raw ids never reach the user. Unknown
 // failures degrade to one generic pt-BR line instead of a stack trace.
 fun userErrorMessage(e: Throwable): String {
+    reportInputError(e.message)?.let { return it }
     if (e is SealedModificationException) return Strings.sealedLocked
     if (e is LocalValidationException) {
         val raw = e.message.orEmpty()

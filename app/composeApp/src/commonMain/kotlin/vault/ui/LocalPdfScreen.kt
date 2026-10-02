@@ -15,7 +15,7 @@ import vault.local.db.LocalReport
 
 @Composable
 fun LocalPdfScreen(
-    session: LocalSession, renderer: PlanRenderer, inspectionId: String,
+    session: LocalSession, renderer: PlanRenderer, inspectionId: String, picker: LocalFilePicker? = null,
     onShare: (path: String, mime: String) -> Unit, onVerify: () -> Unit,
     onRoomsShortcut: () -> Unit, onReviewShortcut: () -> Unit,
 ) {
@@ -30,6 +30,9 @@ fun LocalPdfScreen(
     var busy by remember { mutableStateOf(false) }
     val cancelled = remember { MutableStateFlow(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    var showDeclaration by remember { mutableStateOf(false) }
+    var declarations by remember { mutableStateOf<List<DeclarationCheck>>(emptyList()) }
+    var revision by remember { mutableStateOf(0) }
     var showDetails by remember { mutableStateOf(false) }
 
     suspend fun load() {
@@ -37,9 +40,12 @@ fun LocalPdfScreen(
         versions = manifest?.let { generator.versions(it.id) }.orEmpty()
         report = report?.let { current -> versions.firstOrNull { it.id == current.id } } ?: versions.firstOrNull()
         verification = report?.let { withContext(Dispatchers.Default) { generator.verify(it.id) } }
+        declarations = report?.takeIf { verification?.allOk() == true }?.let {
+            withContext(Dispatchers.Default) { ReportDeclarations(session.db, session.filesDir, platformSigner(session.filesDir)).runCatching { check(it) }.getOrDefault(emptyList()) }
+        }.orEmpty()
         if (manifest == null) error = Strings.pdfSealFirst
     }
-    LaunchedEffect(inspectionId) {
+    LaunchedEffect(inspectionId, revision) {
         try { busy = true; load() } catch (e: Exception) { error = userErrorMessage(e) } finally { busy = false }
     }
     fun generate(newVersion: Boolean) {
@@ -74,6 +80,7 @@ fun LocalPdfScreen(
             finally { busy = false }
         }
     }
+    if (showDeclaration && report != null) DeclarationSheet(session, report!!.id, picker) { showDeclaration = false; revision++ }
     ScreenColumn {
         ScreenTitle(Strings.reportPdf)
         vault.ui.journey.JourneyShortcuts(onRooms = onRoomsShortcut, onReview = onReviewShortcut)
@@ -88,9 +95,9 @@ fun LocalPdfScreen(
                 Text("Histórico de versões", style = MaterialTheme.typography.titleMedium)
                 versions.forEach { version ->
                     TextButton(enabled = !busy, onClick = {
-                        report = version; verification = null; busy = true
+                        declarations = emptyList(); report = version; verification = null; busy = true
                         scope.launch {
-                            try { verification = withContext(Dispatchers.Default) { generator.verify(version.id) } }
+                            try { verification = withContext(Dispatchers.Default) { generator.verify(version.id) }; load() }
                             catch (e: Exception) { error = userErrorMessage(e) }
                             finally { busy = false }
                         }
@@ -106,13 +113,15 @@ fun LocalPdfScreen(
             if (busy) VaultButton(Strings.pdfCancel, { cancelled.value = true })
             VaultButton(Strings.sharePdf, { share(false) }, enabled = !busy && ready)
             VaultButton("Compartilhar pacote verificável (ZIP)", { share(true) }, enabled = !busy && ready)
-            Text("O ZIP inclui PDF, recibo, manifesto, chave pública e originais. Permite verificar a integridade offline; a identidade do autor continua declarada.", style = MaterialTheme.typography.bodySmall)
+            VaultButton("Autoria, recebimento ou concordância", { showDeclaration = true }, enabled = !busy && ready)
+            declarations.forEach { DeclarationStatus(it) }
+            Text("O ZIP inclui PDF, recibo, manifesto, chave pública, declarações registradas, originais e os dados pessoais completos fornecidos. Permite verificar a integridade offline; a identidade do autor continua declarada.", style = MaterialTheme.typography.bodySmall)
             if (current?.status == REPORT_READY) VaultButton("Gerar nova versão", { generate(true) }, enabled = !busy)
             VaultButton(Strings.verifyTitle, onVerify, enabled = !busy)
             TextButton(onClick = { showDetails = !showDetails }) { Text(Strings.technicalDetails) }
             if (showDetails && current != null) {
                 Text("Relatório: ${current.id}\nManifesto: ${current.manifestSha256}\nPDF: ${current.pdfSha256.orEmpty()}", style = MaterialTheme.typography.bodySmall)
-                verification?.let { Text("PDF: ${it.pdfIntact} · manifesto: ${it.manifestOk} · recibo: ${it.receiptOk} · originais: ${it.originalsIntact}", style = MaterialTheme.typography.bodySmall) }
+                verification?.let { Text("PDF: ${it.pdfIntact} · manifesto: ${it.manifestOk} · recibo: ${it.receiptOk} · originais: ${it.originalsIntact} · declarações: ${it.declarationsIntact}", style = MaterialTheme.typography.bodySmall) }
             }
         }
     }

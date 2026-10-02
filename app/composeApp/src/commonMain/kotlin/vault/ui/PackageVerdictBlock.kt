@@ -18,6 +18,10 @@ internal fun VerdictBlock(verdict: PackageVerdict) {
         },
         style = MaterialTheme.typography.titleMedium,
     )
+    Text(when { !verdict.declarationsIntact -> "Declarações: verificação falhou ou não pôde ser concluída"
+        verdict.declarations.isEmpty() -> "Declarações: nenhuma registrada neste pacote"
+        else -> "Declarações e índice: íntegros" })
+    verdict.declarations.forEach { DeclarationStatus(it) }
     Text("Assinaturas locais válidas: ${if (verdict.signatureValid) "sim" else "não"}", style = MaterialTheme.typography.bodyMedium)
     VerdictRow("PDF", verdict.pdf)
     VerdictRow(Strings.sealManifestLabel, verdict.manifest)

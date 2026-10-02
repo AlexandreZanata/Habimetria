@@ -160,7 +160,7 @@ lets users select previous versions or export the portable package.
 System document selection uses `LocalFilePicker.kt`, `AndroidFilePicker.kt`
 and `IosFilePicker.kt`; `PackageVerdictBlock.kt` separates the verification
 results from the import screen. `ResponsibilityDocument.kt` preserves the
-required professional ART/RRT PDF and freezes its digest in Manifest v3.
+required professional ART/RRT PDF and freezes its digest in Manifest v4.
 
 `IosImageDecode.kt` provides bounded ImageIO thumbnails with all EXIF
 transforms for both preview generation and native PDF drawing.
@@ -178,3 +178,11 @@ checks attachment immutability, metadata freezing and independent rejection.
 
 [Native PDF artifact checks](tools/README.md) verify embedded synthetic
 images, dimensions, complete notes and physical page/index references.
+
+[Report authorship UI](composeApp/src/commonMain/kotlin/vault/ui/README.md)
+provides optional identification, applicability and explicit Share declarations.
+[Java certificate capability](shared/src/jvmAndAndroidMain/README.md) is shared
+by Android/JVM; `shared/src/iosMain/kotlin/vault/local/PersonalCertificateSigner.kt`
+reports this optional holder-signing capability unavailable on iOS.
+Current delivery runs code tests/Android compilation only. User-owned manual
+validation after all phases is documented in `docs/06-roadmap/report_authorship_execution.md`.

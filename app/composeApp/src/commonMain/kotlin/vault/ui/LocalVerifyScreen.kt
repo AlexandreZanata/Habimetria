@@ -71,6 +71,22 @@ fun LocalVerifyScreen(session: LocalSession, inspectionId: String, picker: Local
             Text("Use o ZIP original exportado pelo app. ZIP recomprimido por outros programas não é suportado.", style = MaterialTheme.typography.bodySmall)
             documentName?.let { Text(it, style = MaterialTheme.typography.titleMedium) }
             verdict?.let { VerdictBlock(it) }
+            verdict?.declarations?.distinctBy { it.keyId }?.filter { it.keyId != importedKey }?.forEach { declaration ->
+                Text("Compare por outro meio a impressão digital do declarante: ${declaration.keyId}", style = MaterialTheme.typography.bodySmall)
+                TextButton(enabled = !busy && declaration.valid && !declaration.trusted, onClick = {
+                    busy = true
+                    scope.launch {
+                        try {
+                            session.trust.trust(declaration.keyId, declaration.actorName.ifBlank { declaration.keyId.take(12) })
+                            trusted = session.trust.list()
+                            verdict = verdict?.copy(declarations = verdict!!.declarations.map {
+                                if (it.keyId == declaration.keyId) it.copy(trusted = true) else it
+                            })
+                        } catch (e: Exception) { error = userErrorMessage(e) }
+                        finally { busy = false }
+                    }
+                }) { Text("Confio neste declarante após comparar a impressão") }
+            }
             importedKey?.let { fingerprint ->
                 Text("Impressão digital da chave: $fingerprint", style = MaterialTheme.typography.bodySmall)
                 VaultTextField(keyLabel, { keyLabel = it }, "Nome para esta chave")
@@ -81,7 +97,7 @@ fun LocalVerifyScreen(session: LocalSession, inspectionId: String, picker: Local
                         try {
                             session.trust.trust(fingerprint, keyLabel.ifBlank { fingerprint.take(12) })
                             trusted = session.trust.list()
-                            verdict = verdict?.copy(issuerTrust = IssuerTrust.PINNED)
+                            verdict = verdict?.copy(issuerTrust = IssuerTrust.PINNED, declarations = verdict!!.declarations.map { if (it.keyId == fingerprint) it.copy(trusted = true) else it })
                         } catch (e: Exception) { error = userErrorMessage(e) }
                         finally { busy = false }
                     }
@@ -95,6 +111,7 @@ fun LocalVerifyScreen(session: LocalSession, inspectionId: String, picker: Local
                         try {
                             session.trust.revoke(issuer.keyId)
                             trusted = session.trust.list()
+                            verdict = verdict?.copy(declarations = verdict!!.declarations.map { if (it.keyId == issuer.keyId) it.copy(trusted = false) else it })
                             if (verdict?.signerKeyId == issuer.keyId) verdict = verdict?.copy(issuerTrust = IssuerTrust.UNKNOWN)
                         } catch (e: Exception) { error = userErrorMessage(e) }
                         finally { busy = false }

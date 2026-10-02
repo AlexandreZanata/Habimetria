@@ -101,7 +101,12 @@ References: [plan](local_pdf_plan.md),
 ## Required proof per slice and before release
 
 `make verify` (Go) is mandatory; relevant mobile changes also run
-`make verify-mobile`. Run `make verify-ios-macos` on macOS/Xcode for iOS;
+`./gradlew :shared:jvmTest :composeApp:assembleDebug` for this delivery.
+Current user instruction defers all emulator/physical/native-PDF/visual
+qualification to manual testing after all phases and excludes iOS checking.
+These manual release criteria are not automated execution authorization.
+For a separately authorized future iOS release, use `make verify-ios-macos`
+on macOS/Xcode;
 Linux Kotlin compilation does not validate the native runtime/Swift host.
 Use semantic tests for corruption, omission, orientation and snapshot isolation,
 plus visual/native-device checks. Documentation-only planning is not a mobile

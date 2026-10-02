@@ -97,6 +97,7 @@ internal fun LocalReportRoutes(r: Route, container: AppContainer, navigator: Vau
                     LocalPdfScreen(
                         session = local,
                         renderer = renderer,
+                        picker = container.filePicker,
                         inspectionId = r.inspectionId,
                         onShare = { path, mime -> container.platformPdf.share(path, mime) },
                         onVerify = { navigator.navigate(Route.LocalVerify(r.inspectionId)) },

@@ -24,3 +24,18 @@ Tests: [ReportProfilesTest.kt](../../../../commonTest/kotlin/vault/local/ReportP
 - [ResponsibilityDocument.kt](ResponsibilityDocument.kt): immutable ART/RRT PDF attachment and digest binding.
 
 - [PhotoDisplay.kt](PhotoDisplay.kt): frozen encoded/display dimensions and EXIF metadata.
+
+## Authorship and editorial extension
+
+- [PersonalIdentification.kt](PersonalIdentification.kt): optional CPF/contact and presentation masking.
+- [ReportContext.kt](ReportContext.kt): frozen context, calendar and professional applicability declarations.
+- [PdfCover.kt](PdfCover.kt): corporate cover and summary.
+- [PersonalCertificate.kt](PersonalCertificate.kt): certificate identity/proof and platform signing capability.
+- [ShareDeclaration.kt](ShareDeclaration.kt): Report-bound intents, index and verdict types.
+- [ReportArtifactLock.kt](ReportArtifactLock.kt): serialized artifact mutations.
+- [ReportDeclarations.kt](ReportDeclarations.kt): append, signed-index commit and bounded recovery.
+- [DeclarationVerifier.kt](DeclarationVerifier.kt): exact set/chain/signature checks.
+
+Code tests: [ReportIdentityTest.kt](../../../../commonTest/kotlin/vault/local/ReportIdentityTest.kt),
+[ReportDeclarationsTest.kt](../../../../commonTest/kotlin/vault/local/ReportDeclarationsTest.kt),
+[DeclarationRecoveryTest.kt](../../../../commonTest/kotlin/vault/local/DeclarationRecoveryTest.kt).

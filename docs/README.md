@@ -41,6 +41,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `05-mobile/capture-ux.md` — photo-first flow, zero friction rules
 - `05-mobile/pdf-ondevice.md` — sealed local PDF, immutable receipts, QR and budgets
 - `05-mobile/local_pdf_contract.md` — photo orientation, complete layout, per-photo claims and immutable Report integrity
+- `05-mobile/report_authorship_contract.md` — optional identity, signed Share declarations, certificate-holder signatures and editorial presentation
 - `05-mobile/local-store.md` — L1 SQLite schema, files, migration rules
 - `05-mobile/design-system.md` — L2 Material 3 tokens, components, pt-BR
 
@@ -56,6 +57,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `06-roadmap/local_usability_plan.md` — U01–U12 tasks for navigation, Property removal and local usability
 - `06-roadmap/local_usability_acceptance.md` — planned usability, accessibility, integrity and performance gates
 - `06-roadmap/local_pdf_plan.md` — PDF-only delivery sequence for tenancy and architecture/engineering use
+- `06-roadmap/report_authorship_execution.md` — code-only identity, declarations, certificate and editorial delivery; user-owned manual gates
 - `06-roadmap/local_pdf_execution.md` — implementation results, native synthetic proof and remaining release gates
 - `06-roadmap/local_pdf_acceptance.md` — planned orientation, completeness, offline integrity and professional-release proof
 
