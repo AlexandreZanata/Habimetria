@@ -25,11 +25,13 @@ import androidx.room.RoomDatabaseConstructor
         VisualDiff::class,
         MirrorLink::class,
         LocalFindingProblem::class,
+        InspectionReportDetails::class,
     ],
-    version = 15,
+    version = 16,
 )
 @ConstructedBy(VaultDatabaseConstructor::class)
 abstract class VaultDatabase : RoomDatabase() {
+    abstract fun inspectionReportDetailsDao(): InspectionReportDetailsDao
     abstract fun propertyDao(): PropertyDao
     abstract fun tenancyDao(): TenancyDao
     abstract fun inspectionDao(): InspectionDao

@@ -36,7 +36,7 @@ class AndroidLocationTracker(private val context: Context) : LocationTracker {
             }
         if (fixes.isEmpty()) return LocationClaim(null, null, null, null, null, null, LocationStatus.UNAVAILABLE)
         val fix = fixes.maxByOrNull { it.time }!!
-        val ageMs = System.currentTimeMillis() - fix.time
+        val ageMs = (android.os.SystemClock.elapsedRealtimeNanos() - fix.elapsedRealtimeNanos) / 1_000_000
         val mocked = if (Build.VERSION.SDK_INT >= 31) {
             fix.isMock
         } else {
@@ -57,6 +57,8 @@ class AndroidLocationTracker(private val context: Context) : LocationTracker {
             accuracyLevel = if (fine) "fine" else "coarse",
             status = status,
             isMocked = mocked,
+            mockSignal = if (mocked) "MOCKED" else "NOT_INDICATED",
+            fixTimeDevice = java.time.Instant.ofEpochMilli(fix.time).toString(),
         ).validate()
     }
 

@@ -46,6 +46,7 @@ fun LocalReviewScreen(
     var sheetFor by remember { mutableStateOf<LocalEvidence?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     var kind by remember { mutableStateOf("entry") }
+    var reportDetails by remember { mutableStateOf(false) }
     var sealed by remember { mutableStateOf(false) }
 
     fun refresh() {
@@ -91,6 +92,7 @@ fun LocalReviewScreen(
                 }
             }
         }
+        VaultButton(text = "Dados do relatório", onClick = { reportDetails = true })
         if (sealed) {
             Text(Strings.sealedLocked, style = MaterialTheme.typography.bodyMedium)
         } else {
@@ -101,6 +103,8 @@ fun LocalReviewScreen(
             VaultButton(text = "${Strings.compareTitle} →", onClick = onCompare)
         }
     }
+
+    if (reportDetails) ReportDetailsSheet(session, inspectionId, sealed) { reportDetails = false }
 
     sheetFor?.let { evidence ->
         val roomId = evidence.roomId

@@ -35,8 +35,8 @@ Add a local Property visibility field with an explicit forward Room
 migration from the current schema (v13 at planning time) and a committed
 schema export. Existing Properties migrate as active. Keep this field out
 of frozen Manifest payloads and preserve existing hashes and signatures.
-Review `LocalVault`, `VaultDaos`, `VaultEntities`, `VaultDatabase`,
-`VaultMigrations` and platform database builders before assigning a version.
+Review `LocalVault`, `db/README.md`, `VaultDatabase`,
+versioned migrations and platform database builders before assigning a version.
 
 Recheck eligibility inside the same transaction as deletion: a stale UI
 count cannot authorize removal after a Tenancy or sync reference appears.

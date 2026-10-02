@@ -50,9 +50,9 @@ class LocalOverviewRepository(private val db: VaultDatabase) {
             db.inspectionListingDao().listPagedByStatus(status, boundedLimit, safeOffset)
         }
         if (inspections.isEmpty()) return emptyList()
-        val labels = propertyLabelsFor(inspections.map { it.tenancyId })
+        val labels = propertyLabelsFor(inspections)
         return inspections.map { inspection ->
-            val link = labels[inspection.tenancyId]
+            val link = labels[inspection.id]
             InspectionOverview(inspection, link?.first, link?.second.orEmpty(), link?.third == true)
         }
     }
@@ -63,10 +63,10 @@ class LocalOverviewRepository(private val db: VaultDatabase) {
         if (reports.isEmpty()) return emptyList()
         val inspections = db.inspectionListingDao().listByIds(reports.map { it.inspectionId })
             .associateBy { it.id }
-        val labels = propertyLabelsFor(inspections.values.map { it.tenancyId })
+        val labels = propertyLabelsFor(inspections.values.toList())
         return reports.map { report ->
             val inspection = inspections[report.inspectionId]
-            val link = inspection?.let { labels[it.tenancyId] }
+            val link = inspection?.let { labels[it.id] }
             ReportOverview(report, report.inspectionId, link?.first, link?.second.orEmpty(), link?.third == true)
         }
     }
@@ -86,24 +86,22 @@ class LocalOverviewRepository(private val db: VaultDatabase) {
         val manifestByInspection = manifests.associateBy({ it.inspectionId }, { it.id })
         val pending = sealed.filter { readyManifestIds.none { id -> id == manifestByInspection[it.id] } }
         if (pending.isEmpty()) return emptyList()
-        val labels = propertyLabelsFor(pending.map { it.tenancyId })
+        val labels = propertyLabelsFor(pending)
         return pending.take(limit.coerceIn(1, 200)).map { inspection ->
-            val link = labels[inspection.tenancyId]
+            val link = labels[inspection.id]
             PendingPdf(inspection.id, link?.first, link?.second.orEmpty(), link?.third == true)
         }
     }
 
-    // Tenancy id -> (property id, display label, archived) in 2 bulk queries.
-    private suspend fun propertyLabelsFor(tenancyIds: List<String>): Map<String, Triple<String?, String, Boolean>> {
-        if (tenancyIds.isEmpty()) return emptyMap()
-        val tenancies = db.tenancyListingDao().listByIds(tenancyIds.distinct())
-        if (tenancies.isEmpty()) return emptyMap()
-        val properties = db.propertyListingDao().listByIds(tenancies.map { it.propertyId }.distinct())
-            .associateBy { it.id }
-        return tenancies.associate { tenancy ->
-            val property = properties[tenancy.propertyId]
-            val label = property?.nickname?.takeIf { it.isNotBlank() } ?: property?.address.orEmpty()
-            tenancy.id to Triple(property?.id, label, property?.archived == true)
+    // Inspection id -> property label, in at most two bulk queries.
+    private suspend fun propertyLabelsFor(inspections: List<LocalInspection>): Map<String, Triple<String?, String, Boolean>> {
+        val ids = inspections.mapNotNull { it.tenancyId }.distinct()
+        val tenancies = if (ids.isEmpty()) emptyMap() else db.tenancyListingDao().listByIds(ids).associateBy { it.id }
+        val owner = inspections.associate { it.id to (it.propertyId ?: tenancies[it.tenancyId]?.propertyId) }
+        val properties = db.propertyListingDao().listByIds(owner.values.filterNotNull().distinct()).associateBy { it.id }
+        return owner.mapValues { (_, id) ->
+            val property = properties[id]
+            Triple(property?.id, property?.nickname?.takeIf { it.isNotBlank() } ?: property?.address.orEmpty(), property?.archived == true)
         }
     }
 }

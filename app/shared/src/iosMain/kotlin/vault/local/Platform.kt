@@ -2,6 +2,7 @@ package vault.local
 
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.NSDate
+import platform.Foundation.localTimeZone
 import platform.Foundation.NSDateFormatter
 import platform.Foundation.NSTimeZone
 import platform.Foundation.timeZoneWithName
@@ -18,3 +19,6 @@ actual fun deviceNowIso(): String {
     formatter.timeZone = requireNotNull(NSTimeZone.timeZoneWithName("UTC")) { "UTC time zone missing" }
     return formatter.stringFromDate(NSDate())
 }
+
+@OptIn(ExperimentalForeignApi::class)
+actual fun deviceUtcOffsetMinutes(): Int = (NSTimeZone.localTimeZone.secondsFromGMTForDate(NSDate()) / 60).toInt()

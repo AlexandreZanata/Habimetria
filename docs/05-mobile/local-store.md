@@ -4,8 +4,9 @@ Normative for the on-device core. Code: `vault.local.db` in `:shared`.
 
 ## Database
 
-- Room KMP, `VaultDatabase`, schema v14, entities:
-  `properties → tenancies → inspections → rooms → evidences → findings`
+- Room KMP, `VaultDatabase`, schema v16, entities:
+  `properties → inspections → rooms → evidences → findings`
+  with optional `tenancies` and `inspection_report_details`
   plus `manifests` (unique per inspection).
 - `properties.archived` (v14, U07): active vs archived visibility.
   Organizational only, never in Manifest payloads; legacy rows migrate
@@ -17,6 +18,18 @@ Normative for the on-device core. Code: `vault.local.db` in `:shared`.
   v4 reports with detached receipts.
 - Device time and GPS stay device claims. No `received_at_server`,
   no certified `sealed_at` columns exist locally.
+
+## Schema v16
+
+- Optional Inspection.tenancyId; direct propertyId is backfilled from every
+  legacy Tenancy. IDs, signed Manifest bytes and original files survive.
+- Report.versionNumber preserves artifact history; manifestId is no longer
+  unique in reports. READY bytes are never regenerated in place.
+- Evidence adds nullable mockSignal, fixTimeDevice, deviceUtcOffsetMinutes
+  and exifOrientation. Legacy simulation status stays unknown.
+- Draft writes and sealing share a process-wide lock. LocalSealer builds
+  canonical v3 data from the locked snapshot, including report details
+  and finding labels. Direct DAO access is reserved for storage internals.
 
 ## Seal (L5)
 

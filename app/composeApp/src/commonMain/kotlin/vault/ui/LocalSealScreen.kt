@@ -10,6 +10,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 import vault.local.LocalSealer
 import vault.local.LocalSession
 import vault.local.SEAL_ALREADY
@@ -41,12 +43,14 @@ fun LocalSealScreen(
     var eligibility by remember { mutableStateOf<SealEligibility?>(null) }
     var sealed by remember { mutableStateOf<LocalManifest?>(null) }
     var busy by remember { mutableStateOf(false) }
+    var rentalEntry by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
 
     fun refresh() {
         scope.launch {
             try {
-                eligibility = sealer.assess(inspectionId)
+                eligibility = withContext(Dispatchers.Default) { sealer.assess(inspectionId) }
+                rentalEntry = session.repository.getInspection(inspectionId)?.kind == "entry"
                 error = null
             } catch (e: Exception) {
                 error = userErrorMessage(e)
@@ -90,14 +94,14 @@ fun LocalSealScreen(
             Text("${Strings.sealed} ✓")
             Text("${Strings.sealManifestLabel}: ${it.canonicalSha256.take(16)}…")
             VaultButton(text = "${Strings.generatePdf} →", onClick = onPdf)
-            VaultButton(
+            if (rentalEntry) VaultButton(
                 text = "${Strings.exitStart} →",
                 onClick = {
                     scope.launch {
                         try {
                             val inspection = session.repository.getInspection(inspectionId)
                                 ?: return@launch
-                            val exit = session.repository.startExitInspection(inspection.tenancyId)
+                            val exit = session.repository.startExitInspection(inspection.tenancyId ?: error("tenancy required"))
                             session.navigation.save(
                                 vault.local.NavigationProgress(exit.id),
                             )
@@ -111,6 +115,7 @@ fun LocalSealScreen(
             )
         }
         VaultButton(text = "${Strings.newOccurrence} →", onClick = onOccurrence)
+        if (current?.reasons?.contains(vault.local.SEAL_REPORT_DETAILS) == true) Text("Complete os dados profissionais na revisão antes de lacrar.", color = MaterialTheme.colorScheme.error)
         ErrorText(error)
         if (sealed == null && eligibility?.alreadySealed != true) {
             VaultButton(
@@ -120,7 +125,7 @@ fun LocalSealScreen(
                     error = null
                     scope.launch {
                         try {
-                            sealed = when (val outcome = sealer.seal(inspectionId)) {
+                            sealed = when (val outcome = withContext(Dispatchers.Default) { sealer.seal(inspectionId) }) {
                                 is SealOutcome.Sealed -> outcome.manifest
                                 is SealOutcome.AlreadySealed -> outcome.manifest
                             }
@@ -134,7 +139,7 @@ fun LocalSealScreen(
                         }
                     }
                 },
-                enabled = !busy,
+                enabled = !busy && current?.canSeal == true,
             )
         }
     }
@@ -145,5 +150,6 @@ private fun sealReasonText(reason: String): String = when {
     reason.startsWith(SEAL_UNREADABLE) -> "${Strings.sealBlockedUnreadable}: ${reason.substringAfter(":")}"
     reason == SEAL_ALREADY -> Strings.sealAlreadyDone
     reason == SEAL_NOT_DRAFT -> Strings.sealAlreadyDone
-    else -> reason
+    reason == vault.local.SEAL_REPORT_DETAILS -> "Complete os dados profissionais e confirme a autoria na revisão antes de lacrar."
+    else -> Strings.actionFailed
 }

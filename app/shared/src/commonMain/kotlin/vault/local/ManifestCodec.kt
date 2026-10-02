@@ -13,18 +13,20 @@ import kotlin.math.round
 // The SHA-256 over these bytes is the snapshot identity; signatures
 // cover exactly these bytes with format version and purpose bound in.
 // v2 binds the inspection kind so entry and exit snapshots differ.
-const val MANIFEST_FORMAT_VERSION = 2
+const val MANIFEST_FORMAT_VERSION = 3
 const val MANIFEST_PURPOSE = "local-seal/v1"
 
 data class ManifestInput(
     val propertyId: String,
     val address: String,
-    val tenancy: LocalTenancy,
+    val tenancy: LocalTenancy?,
     val inspection: LocalInspection,
     val rooms: List<LocalRoom>,
     val evidences: List<LocalEvidence>,
     val findings: List<LocalFinding>,
     val sealedAtDevice: String,
+    val details: ReportDetails = ReportDetails(),
+    val findingLabels: Map<String, String> = emptyMap(),
 )
 
 fun canonicalManifestJson(input: ManifestInput): String {
@@ -55,6 +57,14 @@ fun canonicalManifestJson(input: ManifestInput): String {
         sb.appendQuoted(e.id)
         sb.append(",\"isMocked\":")
         sb.append(if (e.isMocked) "true" else "false")
+        sb.append(",\"mockSignal\":")
+        sb.appendNullableQuoted(e.mockSignal)
+        sb.append(",\"fixTimeDevice\":")
+        sb.appendNullableQuoted(e.fixTimeDevice)
+        sb.append(",\"deviceUtcOffsetMinutes\":")
+        sb.appendNullableNumber(e.deviceUtcOffsetMinutes?.toString())
+        sb.append(",\"exifOrientation\":")
+        sb.appendNullableNumber(e.exifOrientation?.toString())
         sb.append(",\"latitude\":")
         sb.appendNullableNumber(e.latitude?.let { canonicalDouble(it) })
         sb.append(",\"locationStatus\":")
@@ -79,7 +89,16 @@ fun canonicalManifestJson(input: ManifestInput): String {
         sb.append(e.size)
         sb.append("}")
     }
-    sb.append("],\"findings\":[")
+    sb.append("],\"reportDetails\":")
+    sb.append(reportDetailsJson.encodeToString(ReportDetails.serializer(), input.details))
+    sb.append(",\"findingLabels\":{")
+    input.findingLabels.entries.sortedBy { it.key }.forEachIndexed { i, entry ->
+        if (i > 0) sb.append(",")
+        sb.appendQuoted(entry.key)
+        sb.append(":")
+        sb.appendQuoted(entry.value)
+    }
+    sb.append("},\"findings\":[")
     findings.forEachIndexed { i, f ->
         if (i > 0) sb.append(",")
         sb.append("{\"evidenceId\":")
@@ -122,63 +141,12 @@ fun canonicalManifestJson(input: ManifestInput): String {
     sb.append("],\"sealedAtDevice\":")
     sb.appendQuoted(input.sealedAtDevice)
     sb.append(",\"tenancyId\":")
-    sb.appendQuoted(input.tenancy.id)
+    sb.appendNullableQuoted(input.tenancy?.id)
     sb.append(",\"tenancyType\":")
-    sb.appendQuoted(input.tenancy.type)
+    sb.appendNullableQuoted(input.tenancy?.type)
     sb.append("}")
     return sb.toString()
 }
 
 fun manifestSha256(canonicalJson: String): String =
     canonicalJson.encodeUtf8().sha256().hex()
-
-// Coordinates to 7 decimals (~1.1 cm): integer math, identical output on
-// every platform. Trailing zeros trimmed, never scientific notation.
-fun canonicalDouble(value: Double): String {
-    val scaled = round(value * 10_000_000).toLong()
-    val negative = scaled < 0
-    val abs = if (negative) -scaled else scaled
-    val whole = abs / 10_000_000
-    var frac = (abs % 10_000_000).toString().padStart(7, '0').trimEnd('0')
-    if (frac.isEmpty()) frac = "0"
-    return (if (negative) "-" else "") + "$whole.$frac"
-}
-
-fun canonicalFloat(value: Float): String {
-    val scaled = round(value * 100).toLong()
-    val negative = scaled < 0
-    val abs = if (negative) -scaled else scaled
-    val whole = abs / 100
-    var frac = (abs % 100).toString().padStart(2, '0').trimEnd('0')
-    if (frac.isEmpty()) frac = "0"
-    return (if (negative) "-" else "") + "$whole.$frac"
-}
-
-private fun StringBuilder.appendQuoted(raw: String) {
-    append('"')
-    for (ch in raw) {
-        when (ch) {
-            '"' -> append("\\\"")
-            '\\' -> append("\\\\")
-            '\b' -> append("\\b")
-            '\u000C' -> append("\\f")
-            '\n' -> append("\\n")
-            '\r' -> append("\\r")
-            '\t' -> append("\\t")
-            else -> if (ch.code < 0x20) {
-                append("\\u" + ch.code.toString(16).padStart(4, '0'))
-            } else {
-                append(ch)
-            }
-        }
-    }
-    append('"')
-}
-
-private fun StringBuilder.appendNullableQuoted(raw: String?) {
-    if (raw == null) append("null") else appendQuoted(raw)
-}
-
-private fun StringBuilder.appendNullableNumber(raw: String?) {
-    if (raw == null) append("null") else append(raw)
-}

@@ -123,6 +123,8 @@ fun LocalRoomScreen(
                         evidenceId = evidenceId,
                         location = claim,
                         exif = exif,
+                        deviceUtcOffsetMinutes = vault.local.deviceUtcOffsetMinutes(),
+                        exifOrientation = vault.local.jpegExifOrientation(shot.bytes),
                     )
                 }
                 // Best-effort: a codec failure here never loses the photo;

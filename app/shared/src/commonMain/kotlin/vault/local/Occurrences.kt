@@ -62,7 +62,8 @@ class LocalOccurrenceRepository(private val db: VaultDatabase) {
     suspend fun propertyForInspection(inspectionId: String): String {
         val inspection = db.inspectionDao().get(inspectionId)
             ?: throw LocalValidationException("inspection not found")
-        val tenancy = db.tenancyDao().get(inspection.tenancyId)
+        inspection.propertyId?.let { return it }
+        val tenancy = inspection.tenancyId?.let { db.tenancyDao().get(it) }
             ?: throw LocalValidationException("tenancy not found")
         return tenancy.propertyId
     }

@@ -4,6 +4,7 @@ import vault.local.db.LocalEvidence
 
 internal fun LocalEvidence.reportClaimLines(): String = buildList {
     add("Captura informada pelo dispositivo: $capturedAtDevice · origem: $origin")
+    add("Fuso na captura: ${deviceUtcOffsetMinutes?.let { "UTC, deslocamento local ${it} min" } ?: "não registrado"}")
     if (latitude == null || longitude == null) {
         add("Localização informada pelo dispositivo: " + when (locationStatus) {
             "DENIED" -> "permissão negada"
@@ -17,7 +18,10 @@ internal fun LocalEvidence.reportClaimLines(): String = buildList {
             if (fixAgeMs == null || fixAgeMs > STALE_FIX_AGE_MS) " (leitura antiga/desconhecida)" else "")
         if (provider != null) add("Origem da leitura: $provider · nível de permissão: ${accuracyLevel ?: "não informado"}")
     }
-    if (isMocked) add("O sistema indicou localização simulada.")
+    if (fixTimeDevice != null) add("Data da leitura de localização informada pelo sistema: $fixTimeDevice")
+    add(when { isMocked || mockSignal == "MOCKED" -> "O sistema indicou localização simulada."
+        mockSignal == "NOT_INDICATED" -> "O sistema não indicou simulação; isso não comprova autenticidade do GPS."
+        else -> "Detecção de localização simulada: não informada." })
     if (exifLatitude != null && exifLongitude != null) {
         add("GPS EXIF (declaração separada): ${canonicalDouble(exifLatitude)}, ${canonicalDouble(exifLongitude)}")
         if (latitude != null && longitude != null && exifDisagrees(latitude, longitude, ExifGps(exifLatitude, exifLongitude))) {

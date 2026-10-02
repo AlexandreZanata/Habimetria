@@ -109,7 +109,7 @@ class InspectionRemovalTest {
         val tenancyId = session.repository.getInspection(inspectionId)!!.tenancyId
         session.db.comparisonDao().upsert(
             Comparison(
-                id = "cmp-del", tenancyId = tenancyId, entryRoomId = roomId,
+                id = "cmp-del", tenancyId = requireNotNull(tenancyId), entryRoomId = roomId,
                 exitRoomId = "room-other", shotCategory = ShotCategory.WALLS.name,
                 entryEvidenceId = null, exitEvidenceId = null, tag = "no_change",
                 createdAtDevice = "2026-01-01T00:00:00",
@@ -133,7 +133,7 @@ class InspectionRemovalTest {
         val tenancyId = session.repository.getInspection(inspectionId)!!.tenancyId
         session.db.comparisonDao().upsert(
             Comparison(
-                id = "cmp-stale", tenancyId = tenancyId, entryRoomId = roomId,
+                id = "cmp-stale", tenancyId = requireNotNull(tenancyId), entryRoomId = roomId,
                 exitRoomId = "room-other", shotCategory = ShotCategory.FLOOR.name,
                 entryEvidenceId = null, exitEvidenceId = null, tag = "changed",
                 createdAtDevice = "2026-01-01T00:00:00",

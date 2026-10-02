@@ -7,7 +7,7 @@ fun paginateModel(model: PdfModel, dimsOf: (String) -> ImageDims?): List<RenderP
 
 fun paginateModel(model: PdfModel, renderer: PdfTextMetrics, dimsOf: (String) -> ImageDims?): List<RenderPage> {
     val cover = PdfLayoutBuilder(renderer, model.reportId)
-    cover.text("RELATÓRIO DE VISTORIA", TextKind.TITLE, 14.0)
+    cover.text(if (model.details.profile == "technical") "RELATÓRIO TÉCNICO DE VISTORIA" else "RELATÓRIO DE VISTORIA", TextKind.TITLE, 14.0)
     cover.text("Registro fotográfico do imóvel", TextKind.HEADING)
     cover.text(model.address)
     cover.text("Vistoria: ${model.inspectionId}", TextKind.SMALL)
@@ -21,6 +21,7 @@ fun paginateModel(model: PdfModel, renderer: PdfTextMetrics, dimsOf: (String) ->
     cover.flush()
 
     val body = PdfLayoutBuilder(renderer, model.reportId)
+    model.details.drawReportDetails(body)
     val roomStarts = mutableListOf<Pair<PdfRoomSection, Int>>()
     for (room in model.rooms) {
         body.flush()
