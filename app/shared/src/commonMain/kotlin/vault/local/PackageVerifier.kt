@@ -20,7 +20,7 @@ class PackageVerifier(
         pinnedKeys: Set<String> = emptySet(),
         certifiedKeys: Set<String> = emptySet(),
     ): PackageVerdict = try { verifyChecked(packageDir, pinnedKeys, certifiedKeys) } catch (_: Exception) {
-        PackageVerdict(FileStatus.MODIFIED, FileStatus.MODIFIED, FileStatus.MODIFIED, 0, emptyList(), emptyList(), false, IssuerTrust.UNKNOWN)
+        PackageVerdict(FileStatus.MODIFIED, FileStatus.MODIFIED, FileStatus.MODIFIED, 0, emptyList(), emptyList(), false, IssuerTrust.UNKNOWN, declarationsIntact = false)
     }
 
     private fun verifyChecked(packageDir: String, pinnedKeys: Set<String>, certifiedKeys: Set<String>): PackageVerdict {
@@ -58,7 +58,8 @@ class PackageVerifier(
             publicKey != null && keyFingerprint(publicKey) == signerFile?.keyId &&
                 signerFile.keyId == manifestSig?.keyId && signerFile.keyId == receiptFile?.receipt?.signerKeyId &&
                 manifestSig.algorithm == SEAL_ALGORITHM && receiptFile.receipt.algorithm == SEAL_ALGORITHM &&
-                receiptFile.receipt.formatVersion == RECEIPT_FORMAT_VERSION && receiptFile.receipt.purpose == RECEIPT_PURPOSE
+                receiptFile.receipt.formatVersion in 1..RECEIPT_FORMAT_VERSION && receiptFile.receipt.purpose == RECEIPT_PURPOSE &&
+                receiptFile.receipt.declarationsRequired == (receiptFile.receipt.formatVersion >= 2)
         }.getOrDefault(false)
         val manifestValid = keyBinding && manifestBytes != null && manifestSig != null && publicKey != null &&
             signer.verify(
@@ -73,6 +74,7 @@ class PackageVerifier(
                     receiptFile.receipt.reportId, receiptFile.receipt.manifestId,
                     receiptFile.receipt.manifestSha256, receiptFile.receipt.pdfSha256,
                     receiptFile.receipt.signerKeyId,
+                    receiptFile.receipt.formatVersion,
                 ),
                 receiptFile.signature.decodeHexSafe(),
             )
@@ -82,6 +84,16 @@ class PackageVerifier(
             Triple(0, emptyList(), emptyList())
         }
         val keyId = signerFile?.keyId
+        val declarations = runCatching {
+            if (receiptFile?.receipt?.declarationsRequired == true) {
+                require(keyBinding && publicKey != null)
+                verifyDeclarations(packageDir, receiptFile.receipt.reportId, receiptFile.receipt.pdfSha256,
+                    receiptFile.receipt.manifestSha256, signer, publicKey, fs, pinnedKeys)
+            } else {
+                require(!fs.exists(dir.resolve("declarations-index.json")) && !fs.exists(dir.resolve("declarations"))) { "unbound declarations" }
+                emptyList()
+            }
+        }
         val trust = when {
             keyId == null -> IssuerTrust.UNKNOWN
             keyBinding && keyId in certifiedKeys -> IssuerTrust.CERTIFIED
@@ -98,6 +110,8 @@ class PackageVerifier(
             signatureValid = manifestValid && receiptValid,
             issuerTrust = trust,
             signerKeyId = if (keyBinding) signerFile?.keyId else null,
+            declarationsIntact = declarations.isSuccess,
+            declarations = declarations.getOrDefault(emptyList()),
         )
     }
 

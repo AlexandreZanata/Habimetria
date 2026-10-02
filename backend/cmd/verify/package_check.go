@@ -57,19 +57,19 @@ func verifyPackage(dir string, trusted, certified map[string]bool) verdict {
 	publicBytes, hexErr := hex.DecodeString(signer.PublicKey)
 	keyBound := signerOK && sigOK && receiptOK && hexErr == nil && sha256Hex(publicBytes) == signer.KeyID &&
 		signer.KeyID == sig.KeyID && sig.KeyID == receipt.Receipt.SignerKeyID && sig.Algorithm == "ECDSA-P256-SHA256-raw64" &&
-		receipt.Receipt.Algorithm == sig.Algorithm && receipt.Receipt.FormatVersion == 1 && receipt.Receipt.Purpose == "local-receipt/v1"
+		receipt.Receipt.Algorithm == sig.Algorithm && receipt.Receipt.FormatVersion >= 1 && receipt.Receipt.FormatVersion <= 2 && receipt.Receipt.DeclarationsRequired == (receipt.Receipt.FormatVersion == 2) && receipt.Receipt.Purpose == "local-receipt/v1"
 	manifestValid := keyBound && manifestFound && sigOK && signerOK && pubErr == nil &&
 		verifyRaw(pub, manifestBytes, sig.Signature)
 	receiptValid := keyBound && receiptOK && signerOK && pubErr == nil &&
 		func() bool {
-			canonical, _ := canonicalReceipt(receipt.Receipt)
-			return verifyRaw(pub, canonical, receipt.Signature)
+			canonical, err := canonicalReceipt(receipt.Receipt)
+			return err == nil && verifyRaw(pub, canonical, receipt.Signature)
 		}()
 	v.SignatureValid = manifestValid && receiptValid
 
 	if manifestFound {
 		var doc manifestDoc
-		if json.Unmarshal(manifestBytes, &doc) == nil && doc.FormatVersion >= 1 && doc.FormatVersion <= 3 && doc.Purpose == "local-seal/v1" && len(doc.Evidences) > 0 && len(doc.Evidences) <= 1000 {
+		if json.Unmarshal(manifestBytes, &doc) == nil && doc.FormatVersion >= 1 && doc.FormatVersion <= 4 && doc.Purpose == "local-seal/v1" && len(doc.Evidences) > 0 && len(doc.Evidences) <= 1000 {
 			v.EvidencesChecked = len(doc.Evidences)
 			originals := append([]manifestEvidence{}, doc.Evidences...)
 			if doc.ReportDetails.ResponsibilityDocument != nil {
@@ -110,7 +110,8 @@ func verifyPackage(dir string, trusted, certified map[string]bool) verdict {
 		}
 	}
 
+	v.Declarations, v.DeclarationsIntact = checkDeclarations(dir, receipt.Receipt, trusted)
 	v.Accepted = v.PDF == fileOK && v.Receipt == fileOK && v.Manifest == fileOK &&
-		len(v.EvidencesMissing) == 0 && len(v.EvidencesModified) == 0 && v.SignatureValid
+		len(v.EvidencesMissing) == 0 && len(v.EvidencesModified) == 0 && v.SignatureValid && v.DeclarationsIntact
 	return v
 }

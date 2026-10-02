@@ -8,6 +8,7 @@
     <uses-feature android:name="android.hardware.camera.any" android:required="true" />
     <application
         android:label="Vault"
+        android:allowBackup="false"
         android:usesCleartextTraffic="true"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
         <activity

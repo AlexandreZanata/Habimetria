@@ -43,8 +43,10 @@ data class PackageVerdict(
     val signatureValid: Boolean,
     val issuerTrust: IssuerTrust,
     val signerKeyId: String? = null,
+    val declarationsIntact: Boolean = true,
+    val declarations: List<DeclarationCheck> = emptyList(),
 ) {
     fun accepted(): Boolean =
         pdf == FileStatus.OK && receipt == FileStatus.OK && manifest == FileStatus.OK &&
-            evidencesMissing.isEmpty() && evidencesModified.isEmpty() && signatureValid
+            evidencesMissing.isEmpty() && evidencesModified.isEmpty() && signatureValid && declarationsIntact
 }

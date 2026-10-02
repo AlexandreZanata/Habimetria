@@ -1,6 +1,6 @@
 package vault.local
 
-const val RECEIPT_FORMAT_VERSION = 1
+const val RECEIPT_FORMAT_VERSION = 2
 const val RECEIPT_PURPOSE = "local-receipt/v1"
 const val REPORT_RENDERING = "RENDERING"
 const val REPORT_READY = "READY"
@@ -26,11 +26,14 @@ fun receiptBytes(
     manifestSha256: String,
     pdfSha256: String,
     signerKeyId: String,
+    formatVersion: Int = RECEIPT_FORMAT_VERSION,
 ): ByteArray = buildString {
+    require(formatVersion in 1..RECEIPT_FORMAT_VERSION)
     append("{\"algorithm\":")
     append(quote(SEAL_ALGORITHM))
+    if (formatVersion >= 2) append(",\"declarationsRequired\":true")
     append(",\"formatVersion\":")
-    append(RECEIPT_FORMAT_VERSION)
+    append(formatVersion)
     append(",\"manifestId\":")
     append(quote(manifestId))
     append(",\"manifestSha256\":")
@@ -73,6 +76,7 @@ data class ReportVerification(
     val manifestOk: Boolean,
     val receiptOk: Boolean,
     val originalsIntact: Boolean = true,
+    val declarationsIntact: Boolean = true,
 ) {
-    fun allOk(): Boolean = pdfIntact && manifestOk && receiptOk && originalsIntact
+    fun allOk(): Boolean = pdfIntact && manifestOk && receiptOk && originalsIntact && declarationsIntact
 }

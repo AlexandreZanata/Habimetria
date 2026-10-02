@@ -31,6 +31,8 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.ktor.client.cio)
         }
+        androidMain { kotlin.srcDir("src/jvmAndAndroidMain/kotlin") }
+        jvmMain { kotlin.srcDir("src/jvmAndAndroidMain/kotlin") }
         jvmMain.dependencies {
             implementation(libs.ktor.client.cio)
         }

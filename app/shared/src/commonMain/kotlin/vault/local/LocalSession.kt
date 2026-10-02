@@ -1,6 +1,7 @@
 package vault.local
 
 import okio.FileSystem
+import okio.Path.Companion.toPath
 import vault.local.db.VaultDatabase
 import vault.local.db.localDatabaseBuilder
 import vault.queue.CaptureStore
@@ -72,6 +73,7 @@ class LocalSession(
     // Works with the API stopped and networking blocked. Queue corruption
     // is reported, never thrown and never hidden.
     suspend fun startup(): SessionStartup {
+        fs.deleteRecursively("$filesDir/vault/picked".toPath())
         val queue = CaptureStore(fs, "$filesDir/queue")
         var migrationError: String? = null
         val migration = try {

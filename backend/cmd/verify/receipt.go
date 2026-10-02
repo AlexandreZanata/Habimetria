@@ -9,7 +9,14 @@ import (
 // matching the Kotlin receiptBytes builder.
 func canonicalReceipt(r receiptBody) ([]byte, error) {
 	var buf bytes.Buffer
-	buf.WriteString(`{"algorithm":"ECDSA-P256-SHA256-raw64","formatVersion":1,`)
+	if r.FormatVersion < 1 || r.FormatVersion > 2 || r.DeclarationsRequired != (r.FormatVersion == 2) {
+		return nil, fmt.Errorf("unsupported receipt format")
+	}
+	buf.WriteString(`{"algorithm":"ECDSA-P256-SHA256-raw64",`)
+	if r.FormatVersion == 2 {
+		buf.WriteString(`"declarationsRequired":true,`)
+	}
+	fmt.Fprintf(&buf, `"formatVersion":%d,`, r.FormatVersion)
 	writeField(&buf, "manifestId", r.ManifestID)
 	writeField(&buf, "manifestSha256", r.ManifestSHA)
 	writeField(&buf, "pdfSha256", r.PDFSHA)

@@ -24,6 +24,7 @@ internal data class ReceiptBody(
     val manifestSha256: String,
     val pdfSha256: String,
     val signerKeyId: String,
+    val declarationsRequired: Boolean = false,
 )
 
 @Serializable
@@ -57,4 +58,3 @@ internal data class ManifestEvidence(
 )
 
 internal val packageJson = Json { ignoreUnknownKeys = true }
-

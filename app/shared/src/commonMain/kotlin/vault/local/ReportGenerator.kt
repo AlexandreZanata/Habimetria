@@ -1,6 +1,5 @@
 package vault.local
 
-import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import okio.ByteString.Companion.toByteString
 import okio.FileSystem
@@ -58,6 +57,9 @@ class ReportGenerator(
         db.reportDao().get(reportId) ?: return@withLock ReportDeleteOutcome.Missing
         fs.delete(pdfPath(reportId).toPath(), mustExist = false)
         fs.delete(receiptPath(reportId).toPath(), mustExist = false)
+        fs.deleteRecursively(ReportDeclarations(db, filesDir, signer, fs).directory(reportId).toPath())
+        fs.deleteRecursively("$filesDir/vault/packages/$reportId".toPath())
+        fs.delete("$filesDir/vault/packages/$reportId.zip".toPath(), mustExist = false)
         db.reportDao().deleteById(reportId)
         ReportDeleteOutcome.Deleted
     }
@@ -113,6 +115,7 @@ class ReportGenerator(
                 ("{\"receipt\":" + receipt.decodeToString() + ",\"signature\":" + quote(signature) + "}").encodeToByteArray())
             val ready = report.copy(status = REPORT_READY, pdfSha256 = hash,
                 pdfFileName = "${report.id}.pdf", receiptSignature = signature, completedAtDevice = deviceNowIso())
+            ReportDeclarations(db, filesDir, signer, fs).apply { initialize(ready); check(ready) }
             require(artifacts.receiptValid(ready, signer, publicKey)) { "final receipt verification failed" }
             // Recheck source bytes after drawing before announcing final success.
             snapshot.evidences.forEach { sources.original(it) }
@@ -127,7 +130,7 @@ class ReportGenerator(
 
     suspend fun verify(reportId: String): ReportVerification {
         val report = db.reportDao().get(reportId) ?: throw LocalValidationException("report not found")
-        val manifest = db.manifestDao().get(report.manifestId) ?: return ReportVerification(false, false, false, false)
+        val manifest = db.manifestDao().get(report.manifestId) ?: return ReportVerification(false, false, false, false, false)
         val manifestOk = runCatching {
             report.manifestSha256 == manifest.canonicalSha256 && LocalSealer(db, originals, signer, fs)
                 .verifyManifest(manifest, keys.key(manifest.signerKeyId, signer))
@@ -143,8 +146,12 @@ class ReportGenerator(
             snapshot.details.responsibilityDocument?.let { ResponsibilityDocuments(filesDir, fs).verified(it) }
             true
         }.getOrDefault(false)
-        return ReportVerification(pdfIntact, manifestOk, receiptOk, originalsIntact)
+        val declarationsIntact = runCatching {
+            if (artifacts.receiptVersion(reportId) >= 2) ReportDeclarations(db, filesDir, signer, fs).check(report)
+            true
+        }.getOrDefault(false)
+        return ReportVerification(pdfIntact, manifestOk, receiptOk, originalsIntact, declarationsIntact)
     }
 
-    private companion object { val lock = Mutex() }
+    private companion object { val lock = reportArtifactLock }
 }
