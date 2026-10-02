@@ -19,6 +19,7 @@ import platform.ImageIO.CGImageSourceCopyPropertiesAtIndex
 import platform.ImageIO.CGImageSourceCreateWithData
 import platform.ImageIO.kCGImagePropertyPixelHeight
 import platform.ImageIO.kCGImagePropertyPixelWidth
+import platform.ImageIO.kCGImagePropertyOrientation
 
 actual fun imageDimensions(bytes: ByteArray): ImageDims? {
     if (bytes.isEmpty()) return null
@@ -36,7 +37,7 @@ private fun readDims(bytes: ByteArray): ImageDims? = memScoped {
     val width = numberProp(props, kCGImagePropertyPixelWidth) ?: return null
     val height = numberProp(props, kCGImagePropertyPixelHeight) ?: return null
     if (width <= 0 || height <= 0) return null
-    ImageDims(width.toInt(), height.toInt())
+    orientedDimensions(width.toInt(), height.toInt(), numberProp(props, kCGImagePropertyOrientation)?.toInt() ?: 1)
 }
 
 @OptIn(ExperimentalForeignApi::class)

@@ -69,6 +69,10 @@ class PdfContractTest {
             .filterIsInstance<PageItem.Photo>()
             .map { it.entry.evidenceId }
         assertEquals(10, photoIds.toSet().size)
+        pages.flatMap { it.items }.filterIsInstance<PageItem.Photo>().forEach {
+            assertEquals(0.25, it.rect.w / it.rect.h, 0.000001)
+            assertTrue(it.rect.y + it.rect.h + 30 <= bottomLimitPt())
+        }
     }
 
     @Test

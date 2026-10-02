@@ -12,7 +12,7 @@ actual fun imageDimensions(bytes: ByteArray): ImageDims? {
             val reader = readers.next()
             try {
                 reader.input = stream
-                ImageDims(reader.getWidth(0), reader.getHeight(0))
+                orientedDimensions(reader.getWidth(0), reader.getHeight(0), jpegExifOrientation(bytes))
             } finally {
                 reader.dispose()
             }

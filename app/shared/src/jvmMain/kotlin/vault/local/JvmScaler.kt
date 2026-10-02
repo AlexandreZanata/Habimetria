@@ -10,8 +10,9 @@ actual fun platformScaler(): ImageScaler = JvmScaler()
 
 class JvmScaler : ImageScaler {
     override fun scaleJpeg(bytes: ByteArray, maxEdge: Int): ByteArray {
-        val source: BufferedImage = ImageIO.read(ByteArrayInputStream(bytes))
+        val raw: BufferedImage = ImageIO.read(ByteArrayInputStream(bytes))
             ?: throw LocalStoreException("undecodable image")
+        val source = orientJvmImage(raw, jpegExifOrientation(bytes))
         val longest = maxOf(source.width, source.height)
         val target = if (longest > maxEdge) {
             val scale = maxEdge.toDouble() / longest

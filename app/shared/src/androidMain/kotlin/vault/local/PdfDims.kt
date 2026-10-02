@@ -7,7 +7,7 @@ actual fun imageDimensions(bytes: ByteArray): ImageDims? {
     val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
     BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
     if (options.outWidth <= 0 || options.outHeight <= 0) return null
-    return ImageDims(options.outWidth, options.outHeight)
+    return orientedDimensions(options.outWidth, options.outHeight, androidImageOrientation(bytes))
 }
 
 actual fun formatSealedAtDevice(iso: String): String = try {
