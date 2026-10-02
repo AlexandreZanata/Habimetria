@@ -114,4 +114,3 @@ private fun methodologyLines(): List<String> = listOf(
     "Coordenadas EXIF são declaração separada e divergências ficam visíveis.",
     "Lacre terminal: alterações posteriores usam ocorrência/aditamento.",
 )
-

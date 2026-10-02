@@ -25,7 +25,7 @@ data class ReconcileReport(
 // leaves an orphan .tmp that reconcile() reports on next startup.
 class OriginalStore(
     private val fs: FileSystem,
-    private val filesDir: String,
+    internal val filesDir: String,
 ) {
     private fun originalsDir(): String = "$filesDir/vault/originals"
 

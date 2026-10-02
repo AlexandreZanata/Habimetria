@@ -63,7 +63,7 @@ class OfflineJourneyTest {
         val signer = platformSigner(dir)
         val categories = listOf(ShotCategory.OVERVIEW, ShotCategory.WALLS, ShotCategory.CEILING)
         for ((index, category) in categories.withIndex()) {
-            val bytes = "journey-$index-çã".encodeToByteArray()
+            val bytes = pdfTestPhoto()
             val id = newLocalId("ev")
             val stored = session.originals.storeOriginal(id, bytes)
             // Derivatives need real JPEG codecs; covered separately with

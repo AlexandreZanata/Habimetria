@@ -63,3 +63,16 @@ portrait Evidence is never stretched to full landscape width. Original
 bytes remain immutable. Native/JVM derivative codecs normalize display
 orientation; small iOS images also render to normalized derivative pixels.
 Physical-camera and native-renderer qualification remains a release gate.
+
+## Sealed source authority (PDF01/PDF06)
+
+Report generation decodes the validated canonical Manifest, including frozen
+address, Room labels, Findings and checklist applicability. Original size and
+SHA-256 are checked before decoding and again before final success. PDF photos
+are normalized from verified originals, never an unvalidated preview cache.
+READY Reports are returned unchanged after verification; corrupt READY output
+is rejected rather than overwritten. Explicit artifact deletion permits later
+generation with a new Report ID, without any byte-identical regeneration claim.
+Receipt files are atomically published and verified as stored. Public signing
+material is retained separately so old Reports/packages verify after rotation.
+A new issuance requiring an unavailable sealing private key fails explicitly.

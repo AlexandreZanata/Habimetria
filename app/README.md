@@ -124,3 +124,13 @@ Native adapters use `AndroidImageDecode.kt` for bounded normalized pixels,
 `IosScaler.kt` for orientation-aware derivatives even at small sizes, and
 `JvmImageOrientation.kt` for the independent test codec. Original bytes stay
 unchanged. `PdfDims.kt` returns oriented display dimensions per platform.
+
+`ManifestSnapshot.kt` reads signed inputs and coverage without live-row reads.
+`ReportSources.kt` hashes originals before decoding and bypasses preview caches.
+`ReportArtifacts.kt` atomically publishes/verifies exact PDF/receipt bytes;
+`SignerMaterial.kt` retains historical public keys without assigning trust.
+The package responsibilities are `PackageFormat.kt` (identity/verdict),
+`PackageEnvelope.kt` (wire payloads), `PackageExporter.kt` (verified staging)
+and `PackageVerifier.kt` (independent checks). `PdfImageFixture.kt` supplies
+synthetic JPEG bytes; `ReportSnapshotTest.kt` covers live edits, cached-image
+substitution, same-size tampering, missing receipts and key rotation.

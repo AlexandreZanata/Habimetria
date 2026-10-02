@@ -72,6 +72,7 @@ data class ReportVerification(
     val pdfIntact: Boolean,
     val manifestOk: Boolean,
     val receiptOk: Boolean,
+    val originalsIntact: Boolean = true,
 ) {
-    fun allOk(): Boolean = pdfIntact && manifestOk && receiptOk
+    fun allOk(): Boolean = pdfIntact && manifestOk && receiptOk && originalsIntact
 }

@@ -34,7 +34,7 @@ private suspend fun packageHarness(photos: Int = 2): Triple<VaultDatabase, Local
     val inspection = repo.createInspection(repo.createTenancy(repo.createProperty("Rua Pkg").id).id).id
     val room = repo.addRoom(inspection, "Sala")
     repeat(photos) { i ->
-        val bytes = "pkg-photo-$i".encodeToByteArray()
+        val bytes = pdfTestPhoto()
         val stored = session.originals.storeOriginal("ev$i", bytes)
         repo.recordEvidence(
             inspection, room.id, "ev$i.bin", "image/jpeg",
