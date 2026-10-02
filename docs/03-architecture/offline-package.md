@@ -48,3 +48,21 @@ accepts genuine output of the other; see
 
 `vault-report/v1/<reportId>/<manifestSha256>`: identity for lookup
 and local import only. Scanning it never certifies bytes or photos.
+
+## Portable export and bounded import
+
+- The app exports a stored (uncompressed) ZIP and imports it through the
+  system document picker. Only the five control files, original photo IDs
+  and optional responsibility document IDs are allowed; compression,
+  duplicate names, traversal and descriptors are rejected.
+- Maximum original/PDF size: 50 MiB; metadata: 8 MiB; responsibility
+  document: 10 MiB; package: 512 MiB and 1,006 entries. Processing is local.
+- Verifiers bind fingerprints to public-key bytes, check supported purpose,
+  version and algorithm, and reject malformed/oversized imports. Unknown
+  keys never acquire trust from package metadata or QR alone.
+- [Independent Go implementation](../../backend/cmd/verify/README.md) checks
+  the same v1–v3 wire format with bounded reads and confined paths.
+- Selecting an ART/RRT PDF preserves its original bytes and freezes its
+  digest in reportDetails.responsibilityDocument. The package includes
+  `responsibility/<id>.bin`; external certificate/council validation is
+  separate from byte integrity and is never claimed automatically.
