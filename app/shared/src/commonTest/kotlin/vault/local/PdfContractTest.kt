@@ -6,6 +6,7 @@ import vault.local.db.LocalInspection
 import vault.local.db.LocalRoom
 import vault.local.db.LocalTenancy
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -76,13 +77,9 @@ class PdfContractTest {
     }
 
     @Test
-    fun undecodableDimsFallBackWithoutLoss() {
+    fun undecodablePhotoBlocksFinalPagination() {
         val model = modelFixture(photos = 3, rooms = 1)
-        val pages = paginateModel(model) { null }
-        val photoIds = pages.flatMap { it.items }
-            .filterIsInstance<PageItem.Photo>()
-            .map { it.entry.evidenceId }
-        assertEquals(listOf("e0", "e1", "e2"), photoIds)
+        assertFailsWith<LocalValidationException> { paginateModel(model) { null } }
     }
 
     @Test

@@ -134,3 +134,11 @@ The package responsibilities are `PackageFormat.kt` (identity/verdict),
 and `PackageVerifier.kt` (independent checks). `PdfImageFixture.kt` supplies
 synthetic JPEG bytes; `ReportSnapshotTest.kt` covers live edits, cached-image
 substitution, same-size tampering, missing receipts and key rotation.
+
+`PdfTextLayout.kt` measures and splits complete text using native font widths;
+`PdfTextLayoutTest.kt` covers long notes, Unicode and actual page rectangles.
+`ReportClaims.kt` prints device capture time, absent/stale/approximate location
+and separate EXIF claims per photo. Android drawing is split across
+`AndroidPlanRenderer.kt`, `AndroidPdfFonts.kt` and `AndroidPdfDrawing.kt`;
+iOS drawing uses `IosPlanRenderer.kt`, `IosPdfText.kt` and `IosPdfImages.kt`.
+Both render only measured positions and fail on decoding/QR errors.

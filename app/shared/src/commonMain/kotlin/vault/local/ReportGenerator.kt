@@ -80,7 +80,7 @@ class ReportGenerator(
                 manifest.id, manifest.canonicalSha256, manifest.signerKeyId) { roomId ->
                 snapshotCoverage(snapshot, snapshot.rooms.first { it.id == roomId })
             }
-            val pages = paginateModel(model) { dimensions.getValue(it) }
+            val pages = paginateModel(model, renderer) { dimensions.getValue(it) }
             val bytes = renderer.render(pages, { id -> sources.photo(rows.getValue(id)) }, onProgress, isCancelled)
             if (isCancelled()) throw RenderCancelledException()
             require(bytes.isNotEmpty() && bytes.size <= MAX_ORIGINAL_BYTES) { "invalid PDF output size" }

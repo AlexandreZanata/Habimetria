@@ -76,3 +76,12 @@ generation with a new Report ID, without any byte-identical regeneration claim.
 Receipt files are atomically published and verified as stored. Public signing
 material is retained separately so old Reports/packages verify after rotation.
 A new issuance requiring an unavailable sealing private key fails explicitly.
+
+## Measured native drawing (PDF03/PDF04)
+
+Native font widths feed shared pagination before drawing. Long notes and
+identifiers wrap/split without silent truncation. All physical pages receive
+unique sequential numbers; the Room index uses resolved page references.
+Green headings, restrained typography and complete per-photo device claims
+share the same layout contract. Missing/undecodable photos fail generation.
+iOS closes its native PDF context before consuming final bytes.
