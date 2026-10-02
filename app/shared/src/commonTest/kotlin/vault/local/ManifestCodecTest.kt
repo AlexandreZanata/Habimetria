@@ -37,7 +37,7 @@ class ManifestCodecTest {
         val canonical = canonicalManifestJson(fixtureInput())
         assertTrue(canonical.startsWith("{\"address\":\"Rua \\\"Central\\\"\\nSão Paulo\""))
         assertTrue(canonical.contains("\"purpose\":\"local-seal/v1\""))
-        assertTrue(canonical.contains("\"formatVersion\":3"))
+        assertTrue(canonical.contains("\"formatVersion\":4"))
         assertTrue(canonical.contains("\"kind\":\"entry\""))
         assertTrue(canonical.contains("\"latitude\":-23.5"))
         assertTrue(canonical.contains("\"accuracyM\":8.25"))

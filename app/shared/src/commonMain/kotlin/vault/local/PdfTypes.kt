@@ -21,7 +21,7 @@ class RenderCancelledException : IllegalStateException("render cancelled")
 interface PdfTextMetrics {
     fun measureText(text: String, kind: TextKind, width: Double): List<String> =
         measuredPdfLines(text, width) { it.length * textSize(kind) * 0.55 }
-    fun lineHeight(kind: TextKind): Double = textSize(kind) * 1.4
+    fun lineHeight(kind: TextKind): Double = textSize(kind) * 1.2
 
 }
 

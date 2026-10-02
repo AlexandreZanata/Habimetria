@@ -29,7 +29,9 @@ class ReportProfilesTest {
             councilState = "MT", registration = "DECLARADO-TESTE", responsibilityType = "ART",
             responsibilityReference = "REFERÊNCIA-TESTE", purpose = "Teste do registro", scope = "Sala",
             methods = "Observação visual", limitations = "Sem ensaios", analysis = "Registro fotográfico",
-            conclusions = "Sem conclusão de segurança estrutural", authorAcknowledged = true)
+            conclusions = "Sem conclusão de segurança estrutural", authorAcknowledged = true,
+            context = ReportContext(inspectionDate = "2026-10-02", summary = "Vistoria visual sintética", references = "Documentos de teste"),
+            professionalReview = ProfessionalReview(true, true, true))
         ReportDetailsRepository(session.db).save(inspection.id, details)
         assertTrue(SEAL_REPORT_DETAILS in sealer.assess(inspection.id).reasons)
         val attachment = "$dir/declared-responsibility.pdf"

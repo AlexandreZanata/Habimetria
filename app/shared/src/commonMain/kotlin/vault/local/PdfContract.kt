@@ -9,14 +9,14 @@ import vault.local.db.LocalEvidence
 // Evidence is represented without clipping or omission.
 const val PDF_PAGE_WIDTH_PT = 595.0
 const val PDF_PAGE_HEIGHT_PT = 842.0
-const val PDF_MARGIN_LEFT_PT = 40.0
-const val PDF_MARGIN_RIGHT_PT = 40.0
-const val PDF_MARGIN_TOP_PT = 64.0
-const val PDF_MARGIN_BOTTOM_PT = 56.0
+const val PDF_MARGIN_LEFT_PT = 85.039
+const val PDF_MARGIN_RIGHT_PT = 56.693
+const val PDF_MARGIN_TOP_PT = 85.039
+const val PDF_MARGIN_BOTTOM_PT = 56.693
 const val PDF_MAX_PHOTO_HEIGHT_PT = 300.0
 const val PDF_TITLE_SIZE = 20.0
 const val PDF_HEADING_SIZE = 16.0
-const val PDF_BODY_SIZE = 10.5
+const val PDF_BODY_SIZE = 12.0
 const val PDF_SMALL_SIZE = 9.0
 
 // One entry per sealed Evidence, in manifest sequence order.

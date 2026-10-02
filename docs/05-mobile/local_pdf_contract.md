@@ -56,10 +56,13 @@ pages for professional Evidence without replacing the original attachment.
 6. Signing/acknowledgment statements: identify exactly whose action is recorded;
    empty signature lines, sharing and QR scans do not count as signatures.
 
-Use restrained branding, whitespace, dark body text, a green accent, consistent
+Use restrained branding, whitespace, black body text, a navy accent, consistent
 margins and embedded/local font resources when required. Body/captions should
 be comfortably legible in A4 print; complete digests can use compact monospaced
-text. Use 10–11 pt body text as an initial design target, then inspect print.
+text. Use 12 pt body text, 30 mm left/top and 20 mm right/bottom margins.
+Number textual sections and show declared references; smaller captions and
+source/footer text remain measured. Manual print/layout review is user-owned
+after this code-only delivery. See [editorial scope](report_authorship_contract.md).
 Keep all Portuguese accents and all original notes; do not use `.take()` to
 silently discard Report content. Separate technical identifiers into appendix
 where they do not help the reader understand an observation.

@@ -16,7 +16,7 @@ class AndroidFilePicker : LocalFilePicker {
     private var pending: CancellableContinuation<Uri?>? = null
     fun attach(launcher: ActivityResultLauncher<Array<String>>) { this.launcher = launcher }
     fun onResult(uri: Uri?) { pending?.let { pending = null; if (it.isActive) it.resume(uri) } }
-    override suspend fun pick(mime: String): PickedLocalFile? {
+    override suspend fun pick(mime: String, maxBytes: Long): PickedLocalFile? {
         val picker = launcher ?: error("file picker unavailable")
         check(pending == null) { "file picker busy" }
         val uri = suspendCancellableCoroutine<Uri?> { continuation ->
@@ -40,7 +40,7 @@ class AndroidFilePicker : LocalFilePicker {
                             val read = input.read(buffer)
                             if (read < 0) break
                             size += read
-                            require(size <= 512L * 1024 * 1024) { "file too large" }
+                            require(size <= maxBytes) { "file too large" }
                             output.write(buffer, 0, read)
                         }
                         require(size > 0) { "empty file" }
