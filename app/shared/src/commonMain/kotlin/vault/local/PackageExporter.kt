@@ -64,6 +64,11 @@ class PackageExporter(
             val verified = ReportSources(originals, fs).original(evidence)
             fs.write(originalsDir.resolve("${evidence.id}.bin")) { write(verified) }
         }
+        snapshot.details.responsibilityDocument?.let { document ->
+            val documentsDir = staging.resolve("responsibility")
+            fs.createDirectories(documentsDir)
+            fs.write(documentsDir.resolve("${document.id}.bin")) { write(ResponsibilityDocuments(filesDir, fs).verified(document)) }
+        }
         require(PackageVerifier(signer, fs).verify(staging.toString()).accepted()) { "staged package verification failed" }
         val final = dir.toPath()
         val backup = "$dir.previous".toPath()

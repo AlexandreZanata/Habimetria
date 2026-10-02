@@ -34,6 +34,7 @@ class AppContainer(
     val syncMode: SyncMode = SyncMode.WITH_SERVER_SYNC,
     val local: LocalSession? = null,
     val planRenderer: PlanRenderer? = null,
+    val filePicker: LocalFilePicker? = null,
 ) {
     // serverMirror is the only path from UI layers to VaultApi: screens
     // ask the container for a mirror instead of calling the API
@@ -55,12 +56,13 @@ fun createContainer(
     syncMode: SyncMode = SyncMode.WITH_SERVER_SYNC,
     local: LocalSession? = null,
     planRenderer: PlanRenderer? = null,
+    filePicker: LocalFilePicker? = null,
 ): AppContainer {
     val api = VaultApi(baseUrl, platformEngine())
     val store = CaptureStore(fs, "$filesDir/queue")
     val pump = UploadPump(store, api, fs)
     return AppContainer(
         api, store, pump, filesDir, photoCapture, platformPdf, onQueued,
-        syncMode = syncMode, local = local, planRenderer = planRenderer,
+        syncMode = syncMode, local = local, planRenderer = planRenderer, filePicker = filePicker,
     )
 }

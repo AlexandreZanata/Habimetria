@@ -101,7 +101,7 @@ class AiInspectorTest {
         val tenancy = repo.createTenancy(repo.createProperty("Rua Seal").id).id
         val inspection = repo.createInspection(tenancy).id
         val room = repo.addRoom(inspection, "Cozinha")
-        val stored = originals.storeOriginal("eseal", "bytes".encodeToByteArray())
+        val stored = originals.storeOriginal("eseal", pdfTestPhoto())
         repo.recordEvidence(
             inspection, room.id, "c1.bin", "image/jpeg",
             stored.size, stored.sha256,

@@ -11,6 +11,11 @@ import vault.local.db.VaultDatabase
 data class ReportDetails(
     val profile: String = "rental",
     val authorName: String = "",
+    val authorTitle: String = "",
+    val authorRole: String = "",
+    val propertyMunicipality: String = "",
+    val propertyState: String = "",
+    val photoLayout: String = "standard",
     val participants: String = "",
     val purpose: String = "",
     val scope: String = "",
@@ -26,17 +31,21 @@ data class ReportDetails(
     val responsibilityReference: String = "",
     val standards: String = "",
     val authorAcknowledged: Boolean = false,
+    val responsibilityDocument: ResponsibilityDocument? = null,
 ) {
     fun validate(kind: String, forSeal: Boolean = true): ReportDetails {
+        require(photoLayout in listOf("standard", "detail")) { "unsupported photo layout" }
         require(profile in listOf("rental", "technical")) { "unsupported report profile" }
         require((kind == "technical") == (profile == "technical")) { "report profile does not match inspection" }
         require(reportDetailsJson.encodeToString(this).length <= 100_000) { "report details too long" }
+        responsibilityDocument?.let { require(safeArtifactId(it.id) && it.size in 1..10L * 1024 * 1024 && it.sha256.matches(Regex("[0-9a-f]{64}"))) { "invalid responsibility document" } }
         if (profile == "technical" && forSeal) {
-            require(listOf(authorName, purpose, scope, methods, limitations, analysis, conclusions,
+            require(listOf(authorName, authorTitle, purpose, scope, methods, limitations, analysis, conclusions,
                 registration, responsibilityReference).all { it.isNotBlank() }) { "complete professional report details" }
             require(councilState.matches(Regex("[A-Z]{2}")) && councilState in BRAZIL_STATES) { "invalid council state" }
             require((council == "CREA" && responsibilityType == "ART") ||
                 (council == "CAU" && responsibilityType == "RRT")) { "council and ART/RRT mismatch" }
+            require(responsibilityDocument != null) { "ART/RRT document required" }
             require(authorAcknowledged) { "author acknowledgement required" }
         }
         return this
@@ -56,7 +65,9 @@ class ReportDetailsRepository(private val db: VaultDatabase) {
             ?: ReportDetails(profile = if (db.inspectionDao().get(inspectionId)?.kind == "technical") "technical" else "rental")
     }
 
-    suspend fun save(inspectionId: String, details: ReportDetails) = localWrite {
+    suspend fun save(inspectionId: String, details: ReportDetails) = localWrite { saveLocked(inspectionId, details) }
+
+    internal suspend fun saveLocked(inspectionId: String, details: ReportDetails) {
         val inspection = LocalWriteGuard(db).requireDraft(inspectionId)
         details.validate(inspection.kind, forSeal = false)
         db.inspectionReportDetailsDao().save(InspectionReportDetails(inspectionId, reportDetailsJson.encodeToString(details)))

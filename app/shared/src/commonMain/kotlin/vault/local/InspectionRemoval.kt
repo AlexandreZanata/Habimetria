@@ -30,6 +30,7 @@ class InspectionRemovalRepository(
             return InspectionDeleteOutcome.Blocked(plan.reason)
         }
         val ready = plan as InspectionRemovalPlan.Ready
+        val document = ReportDetailsRepository(db).get(inspectionId).responsibilityDocument
         return when (db.inspectionRemovalDao().commitRemoval(inspectionId)) {
             InspectionDeleteOutcome.Missing -> InspectionDeleteOutcome.Missing
             is InspectionDeleteOutcome.Blocked -> InspectionDeleteOutcome.Blocked(
@@ -45,7 +46,11 @@ class InspectionRemovalRepository(
                 ready.reportIds.forEach { reportId ->
                     fs.delete("$filesDir/vault/reports/$reportId.pdf".toPath(), mustExist = false)
                     fs.delete("$filesDir/vault/reports/$reportId-receipt.json".toPath(), mustExist = false)
+                    require(safeArtifactId(reportId)) { "invalid report id" }
+                    fs.deleteRecursively("$filesDir/vault/packages/$reportId".toPath())
+                    fs.delete("$filesDir/vault/packages/$reportId.zip".toPath(), mustExist = false)
                 }
+                document?.let { fs.delete(ResponsibilityDocuments(filesDir, fs).path(it.id).toPath(), mustExist = false) }
                 InspectionDeleteOutcome.Deleted
             }
         }

@@ -36,6 +36,8 @@ import vault.ui.createContainer
 class MainActivity : ComponentActivity() {
     private val baseUrl = ServerConfig.DEFAULT_BASE_URL
     private val photoCapture = AndroidPhotoCapture()
+    private val filePicker = vault.ui.AndroidFilePicker()
+    private val openDocument = registerForActivityResult(ActivityResultContracts.OpenDocument()) { filePicker.onResult(it) }
 
     // Capture delegates to the system camera (no in-app preview), so no
     // CAMERA permission is needed here; location is best-effort per photo
@@ -54,6 +56,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         AppContext.app = applicationContext
         photoCapture.attach(takePicture)
+        filePicker.attach(openDocument)
         val missing = arrayOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -72,6 +75,7 @@ class MainActivity : ComponentActivity() {
             syncMode = SyncMode.LOCAL_ONLY,
             local = session,
             planRenderer = AndroidPlanRenderer(),
+            filePicker = filePicker,
         )
         val navigator = resumeNavigator(session)
         wireSystemBack(navigator)

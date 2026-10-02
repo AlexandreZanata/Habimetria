@@ -156,3 +156,25 @@ metadata, direct Property ownership and version history.
 `InspectionCompletionRoutes.kt` and `LocalReportRoutes.kt` split the route
 composition. `LocalPdfScreen.kt` verifies READY bytes before sharing and
 lets users select previous versions or export the portable package.
+
+System document selection uses `LocalFilePicker.kt`, `AndroidFilePicker.kt`
+and `IosFilePicker.kt`; `PackageVerdictBlock.kt` separates the verification
+results from the import screen. `ResponsibilityDocument.kt` preserves the
+required professional ART/RRT PDF and freezes its digest in Manifest v3.
+
+`IosImageDecode.kt` provides bounded ImageIO thumbnails with all EXIF
+transforms for both preview generation and native PDF drawing.
+
+[JVM migration probes](shared/src/jvmTest/kotlin/vault/local/README.md)
+verify preservation of populated v15 databases and historical signed bytes.
+
+[Native Android PDF probes](composeApp/src/androidInstrumentedTest/kotlin/vault/pdf/README.md)
+exercise eight orientations, long notes, rental and technical PDFs, and
+portable package validation using isolated synthetic data.
+
+`PhotoDisplay.kt` freezes encoded/display dimensions at seal time. Report
+review offers standard or enlarged-photo presentation; `ResponsibilityDocumentTest.kt`
+checks attachment immutability, metadata freezing and independent rejection.
+
+[Native PDF artifact checks](tools/README.md) verify embedded synthetic
+images, dimensions, complete notes and physical page/index references.

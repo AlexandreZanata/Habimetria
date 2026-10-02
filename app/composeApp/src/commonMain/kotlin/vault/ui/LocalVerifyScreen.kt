@@ -1,231 +1,119 @@
 package vault.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
-import vault.local.FileStatus
-import vault.local.IssuerTrust
-import vault.local.LocalSession
-import vault.local.PackageVerifier
-import vault.local.PackageVerdict
-import vault.local.ReportGenerator
+import kotlinx.coroutines.*
+import okio.FileSystem
+import okio.Path.Companion.toPath
+import vault.local.*
 import vault.local.db.TrustedIssuer
-import vault.local.parseQrIdentity
-import vault.local.platformSigner
 
-// LocalVerifyScreen: the five checks separately — PDF integrity,
-// manifest integrity, evidence integrity, signature validity and
-// issuer trust. QR and package paths import identity; only the
-// recomputed bytes grant acceptance. Unknown signers stay unknown.
 @Composable
-fun LocalVerifyScreen(
-    session: LocalSession,
-    inspectionId: String,
-    onBack: () -> Unit,
-) {
+fun LocalVerifyScreen(session: LocalSession, inspectionId: String, picker: LocalFilePicker?, onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
-    val signer = remember(session.filesDir) { platformSigner(session.filesDir) }
-    val generator = remember(session, signer) {
-        ReportGenerator(session.db, session.filesDir, session.originals, session.derivatives, signer)
-    }
-    val verifier = remember(signer) { PackageVerifier(signer) }
+    val signer = remember(session) { platformSigner(session.filesDir) }
+    val generator = remember(session) { ReportGenerator(session.db, session.filesDir, session.originals, session.derivatives, signer) }
     var qrText by remember { mutableStateOf("") }
-    var packagePath by remember { mutableStateOf("") }
     var verdict by remember { mutableStateOf<PackageVerdict?>(null) }
-    var trusted by remember { mutableStateOf<List<TrustedIssuer>>(emptyList()) }
-    var exportDir by remember { mutableStateOf<String?>(null) }
-    var trustLabel by remember { mutableStateOf("") }
+    var documentName by remember { mutableStateOf<String?>(null) }
+    var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    var keyLabel by remember { mutableStateOf("") }
+    var importedKey by remember { mutableStateOf<String?>(null) }
+    var trusted by remember { mutableStateOf<List<TrustedIssuer>>(emptyList()) }
+    LaunchedEffect(session) { trusted = session.trust.list() }
 
-    fun refreshTrust() {
+    suspend fun checkPackage(directory: String) {
+        val pinned = session.trust.trustedKeys()
+        val certified = session.trust.certifiedKeys()
+        val checked = withContext(Dispatchers.Default) { PackageVerifier(signer).verify(directory, pinned, certified) }
+        verdict = checked; importedKey = checked.signerKeyId
+    }
+    fun checkLocal(reportId: String?) {
+        busy = true; error = null; verdict = null
         scope.launch {
-            trusted = session.trust.list()
+            try {
+                val id = reportId ?: generator.manifestFor(inspectionId)?.let { generator.existingReport(it.id)?.id }
+                    ?: throw LocalValidationException("report not found")
+                val directory = withContext(Dispatchers.Default) { generator.exportPackage(id) }
+                documentName = "Relatório neste dispositivo"
+                checkPackage(directory)
+            } catch (e: Exception) { error = userErrorMessage(e) }
+            finally { busy = false }
         }
     }
-
-    LaunchedEffect(inspectionId) { refreshTrust() }
-
-    suspend fun currentTrustSets(): Pair<Set<String>, Set<String>> =
-        session.trust.trustedKeys() to session.trust.certifiedKeys()
-
     ScreenColumn {
         ScreenTitle(Strings.verifyTitle)
-        ErrorText(error)
-
-        Text(Strings.qrLabel, style = MaterialTheme.typography.titleMedium)
-        VaultTextField(value = qrText, onValueChange = { qrText = it }, label = Strings.qrLabel)
-        VaultButton(
-            text = Strings.qrImport,
-            onClick = {
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("Verificação de arquivos e assinaturas locais. Não confirma a verdade das fotos nem a identidade civil do autor.", style = MaterialTheme.typography.bodyMedium)
+            ErrorText(error)
+            VaultButton("Verificar relatório deste dispositivo", { checkLocal(null) }, enabled = !busy)
+            if (picker != null) VaultButton("Selecionar pacote ZIP recebido", {
+                busy = true; error = null; verdict = null
                 scope.launch {
-                    error = null
-                    val ref = parseQrIdentity(qrText)
-                    if (ref == null) {
-                        error = Strings.qrBad
-                        return@launch
-                    }
                     try {
-                        val report = generator.reportById(ref.reportId)
-                        if (report == null || report.manifestSha256 != ref.manifestSha256) {
-                            error = Strings.qrNotFound
-                            return@launch
+                        val selected = picker.pick("application/zip")
+                        if (selected != null) {
+                            val directory = try { withContext(Dispatchers.Default) { importPackageZip(selected.path, session.filesDir) } }
+                                finally { FileSystem.SYSTEM.delete(selected.path.toPath(), mustExist = false) }
+                            try { documentName = selected.name; checkPackage(directory) }
+                            finally { withContext(Dispatchers.Default) { FileSystem.SYSTEM.deleteRecursively(directory.toPath()) } }
                         }
-                        val (pinned, certified) = currentTrustSets()
-                        val dir = generator.exportPackage(report.id)
-                        packagePath = dir
-                        exportDir = dir
-                        verdict = verifier.verify(dir, pinned, certified)
-                    } catch (e: Exception) {
-                        error = userErrorMessage(e)
-                    }
+                    } catch (e: Exception) { error = userErrorMessage(e) }
+                    finally { busy = false }
                 }
-            },
-        )
-
-        Text(Strings.packageLabel, style = MaterialTheme.typography.titleMedium)
-        VaultTextField(value = packagePath, onValueChange = { packagePath = it }, label = Strings.packageLabel)
-        VaultButton(
-            text = Strings.packageVerify,
-            onClick = {
-                scope.launch {
-                    error = null
-                    try {
-                        val (pinned, certified) = currentTrustSets()
-                        verdict = verifier.verify(packagePath.trim(), pinned, certified)
-                    } catch (e: Exception) {
-                        error = userErrorMessage(e)
-                    }
-                }
-            },
-            enabled = packagePath.trim().isNotEmpty(),
-        )
-        exportDir?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
-
-        verdict?.let { VerdictBlock(it) }
-
-        Text(
-            "${Strings.trustTitle}: ${signer.keyId.take(16)}… " +
-                "(${if (signer.hardwareBacked) Strings.sealHardware else Strings.sealSoftware})",
-            style = MaterialTheme.typography.titleMedium,
-        )
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            VaultTextField(
-                value = trustLabel,
-                onValueChange = { trustLabel = it },
-                label = Strings.trustNameHint,
-                modifier = Modifier.weight(1f),
-            )
-            TextButton(
-                onClick = {
+            }, enabled = !busy)
+            Text("Use o ZIP original exportado pelo app. ZIP recomprimido por outros programas não é suportado.", style = MaterialTheme.typography.bodySmall)
+            documentName?.let { Text(it, style = MaterialTheme.typography.titleMedium) }
+            verdict?.let { VerdictBlock(it) }
+            importedKey?.let { fingerprint ->
+                Text("Impressão digital da chave: $fingerprint", style = MaterialTheme.typography.bodySmall)
+                VaultTextField(keyLabel, { keyLabel = it }, "Nome para esta chave")
+                Text("Só marque confiança após comparar esta impressão digital por outro meio. Isso não transforma a chave em certificado de identidade.", style = MaterialTheme.typography.bodySmall)
+                TextButton(enabled = !busy && verdict?.signatureValid == true, onClick = {
+                    busy = true
                     scope.launch {
                         try {
-                            session.trust.trust(signer.keyId, trustLabel.ifBlank { signer.keyId.take(8) })
-                            trustLabel = ""
-                            refreshTrust()
-                        } catch (e: Exception) {
-                            error = userErrorMessage(e)
-                        }
+                            session.trust.trust(fingerprint, keyLabel.ifBlank { fingerprint.take(12) })
+                            trusted = session.trust.list()
+                            verdict = verdict?.copy(issuerTrust = IssuerTrust.PINNED)
+                        } catch (e: Exception) { error = userErrorMessage(e) }
+                        finally { busy = false }
                     }
-                },
-            ) { Text(Strings.trustPin) }
-        }
-        trusted.forEach { issuer ->
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(
-                    "${issuer.label} · ${issuer.keyId.take(12)}… · " + when (issuer.source) {
-                        "CERTIFIED" -> Strings.trustCertified
-                        else -> Strings.trustPinned
-                    },
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.weight(1f),
-                )
-                TextButton(
-                    onClick = {
-                        scope.launch {
-                            session.trust.revoke(issuer.keyId)
-                            refreshTrust()
-                        }
-                    },
-                ) { Text(Strings.trustRevoke) }
+                }) { Text("Confio nesta chave após comparar a impressão") }
             }
-        }
-        VaultButton(
-            text = Strings.exportPackage,
-            onClick = {
-                scope.launch {
-                    try {
-                        val manifest = generator.manifestFor(inspectionId)
-                        val reportId = manifest?.let { generator.existingReport(it.id)?.id }
-                        if (reportId == null) {
-                            error = Strings.pdfSealFirst
-                            return@launch
-                        }
-                        exportDir = generator.exportPackage(reportId)
-                        packagePath = exportDir.orEmpty()
-                    } catch (e: Exception) {
-                        error = userErrorMessage(e)
+            trusted.forEach { issuer ->
+                Text("Chave conhecida: ${issuer.label} · ${issuer.keyId}", style = MaterialTheme.typography.bodySmall)
+                TextButton(enabled = !busy, onClick = {
+                    busy = true
+                    scope.launch {
+                        try {
+                            session.trust.revoke(issuer.keyId)
+                            trusted = session.trust.list()
+                            if (verdict?.signerKeyId == issuer.keyId) verdict = verdict?.copy(issuerTrust = IssuerTrust.UNKNOWN)
+                        } catch (e: Exception) { error = userErrorMessage(e) }
+                        finally { busy = false }
                     }
+                }) { Text("Remover confiança nesta chave") }
+            }
+            Text("Identificador do QR", style = MaterialTheme.typography.titleMedium)
+            VaultTextField(qrText, { qrText = it }, Strings.qrLabel)
+            VaultButton("Localizar e verificar pelo identificador", {
+                val ref = parseQrIdentity(qrText)
+                if (ref == null) error = Strings.qrBad else scope.launch {
+                    try {
+                        val row = generator.reportById(ref.reportId)
+                        if (row?.manifestSha256 != ref.manifestSha256) error = Strings.qrNotFound else checkLocal(row.id)
+                    } catch (e: Exception) { error = userErrorMessage(e) }
                 }
-            },
-        )
-        VaultButton(text = Strings.back, onClick = onBack)
+            }, enabled = !busy)
+            Text("O QR é um identificador; não é prova de integridade sozinho.", style = MaterialTheme.typography.bodySmall)
+        }
+        VaultButton(Strings.back, onBack, enabled = !busy)
     }
-}
-
-@Composable
-private fun VerdictBlock(verdict: PackageVerdict) {
-    Text(
-        if (verdict.accepted()) "✓ ${Strings.pdfChecks}" else "✗ ${Strings.review}",
-        color = if (verdict.accepted()) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            MaterialTheme.colorScheme.error
-        },
-        style = MaterialTheme.typography.titleMedium,
-    )
-    VerdictRow("PDF", verdict.pdf)
-    VerdictRow(Strings.sealManifestLabel, verdict.manifest)
-    VerdictRow(Strings.pdfReceipt, verdict.receipt)
-    Text(
-        "${Strings.evidence}: ${verdict.evidencesChecked} · " +
-            "ausentes ${verdict.evidencesMissing.size} · " +
-            "alteradas ${verdict.evidencesModified.size}",
-        style = MaterialTheme.typography.bodyMedium,
-    )
-    if (verdict.evidencesMissing.isNotEmpty()) Text(verdict.evidencesMissing.joinToString(", "))
-    if (verdict.evidencesModified.isNotEmpty()) Text(verdict.evidencesModified.joinToString(", "))
-    Text(
-        "${Strings.trustTitle}: " + when (verdict.issuerTrust) {
-            IssuerTrust.CERTIFIED -> Strings.trustCertified
-            IssuerTrust.PINNED -> Strings.trustPinned
-            else -> Strings.trustUnknown
-        },
-        style = MaterialTheme.typography.bodyMedium,
-    )
-}
-
-@Composable
-private fun VerdictRow(label: String, status: FileStatus) {
-    Text(
-        "$label: ${status.name.lowercase()}",
-        color = if (status == FileStatus.OK) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            MaterialTheme.colorScheme.error
-        },
-        style = MaterialTheme.typography.bodyMedium,
-    )
 }

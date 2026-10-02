@@ -11,6 +11,7 @@ import okio.Path.Companion.toPath
 import vault.api.VaultApi
 import vault.local.CompareTag
 import vault.local.LocalOccurrenceRepository
+import vault.local.pdfTestPhoto
 import vault.local.LocalSealer
 import vault.local.LocalVaultRepository
 import vault.local.OriginalStore
@@ -112,7 +113,7 @@ class ServerMirrorTest {
         val tenancy = vault.createTenancy(vault.createProperty("Rua").id).id
         val entry = vault.createInspection(tenancy).id
         val room = vault.addRoom(entry, "Sala")
-        val stored = originals.storeOriginal("e1", "b".encodeToByteArray())
+        val stored = originals.storeOriginal("e1", pdfTestPhoto())
         vault.recordEvidence(entry, room.id, "e1.bin", "image/jpeg", stored.size, stored.sha256, evidenceId = "e1")
         LocalSealer(db, originals, platformSigner(dir)).seal(entry)
         val exit = vault.startExitInspection(tenancy)
@@ -137,7 +138,7 @@ class ServerMirrorTest {
         val tenancy = vault.createTenancy(vault.createProperty("Rua").id).id
         val entry = vault.createInspection(tenancy).id
         val entryRoom = vault.addRoom(entry, "Sala")
-        val stored = originals.storeOriginal("ea", "pa".encodeToByteArray())
+        val stored = originals.storeOriginal("ea", pdfTestPhoto())
         vault.recordEvidence(
             entry, entryRoom.id, "ea.bin", "image/jpeg",
             stored.size, stored.sha256, shotCategory = ShotCategory.WALLS, evidenceId = "ea",

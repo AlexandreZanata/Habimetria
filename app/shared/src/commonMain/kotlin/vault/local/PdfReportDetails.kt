@@ -3,6 +3,8 @@ package vault.local
 internal fun ReportDetails.drawReportDetails(layout: PdfLayoutBuilder) {
     val values = listOf(
         "Responsável declarado" to authorName,
+        "Título / papel declarado" to listOf(authorTitle, authorRole).filter { it.isNotBlank() }.joinToString(" · "),
+        "Município / UF do imóvel" to listOf(propertyMunicipality, propertyState).filter { it.isNotBlank() }.joinToString(" / "),
         "Participantes / contratante" to participants,
         "Finalidade" to purpose,
         "Objeto e escopo" to scope,
@@ -19,6 +21,11 @@ internal fun ReportDetails.drawReportDetails(layout: PdfLayoutBuilder) {
         layout.text("Registro declarado: $council/$councilState · $registration", TextKind.BODY)
         layout.text("Responsabilidade declarada: $responsibilityType · $responsibilityReference", TextKind.BODY)
         layout.text("Referência fornecida pelo autor; registro, atribuições e ART/RRT não foram consultados pelo aplicativo.", TextKind.SMALL)
+    }
+    responsibilityDocument?.let { document ->
+        layout.text("Documento de responsabilidade anexado: ${document.name}", TextKind.BODY)
+        layout.text("SHA-256: ${document.sha256}", TextKind.SMALL)
+        layout.text("O original acompanha o pacote ZIP. O aplicativo não validou assinatura externa, registro ou quitação do documento.", TextKind.SMALL)
     }
     values.forEach { (title, content) ->
         layout.text(title, TextKind.HEADING)

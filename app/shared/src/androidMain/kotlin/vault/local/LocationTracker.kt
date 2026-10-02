@@ -19,7 +19,7 @@ class AndroidLocationTracker(private val context: Context) : LocationTracker {
         val coarse = granted(Manifest.permission.ACCESS_COARSE_LOCATION)
         if (!fine && !coarse) return denied()
         val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val fixes = listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
+        val enabled = listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
             .filter { provider ->
                 try {
                     manager.isProviderEnabled(provider)
@@ -27,7 +27,8 @@ class AndroidLocationTracker(private val context: Context) : LocationTracker {
                     false
                 }
             }
-            .mapNotNull { provider ->
+        if (enabled.isEmpty()) return LocationClaim(null, null, null, null, null, null, LocationStatus.DISABLED)
+        val fixes = enabled.mapNotNull { provider ->
                 try {
                     manager.getLastKnownLocation(provider)
                 } catch (_: SecurityException) {

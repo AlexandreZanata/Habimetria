@@ -1,6 +1,9 @@
 # Local PDF — Focused Delivery Plan
 
-Status: proposed, implementation unstarted. Source reviewed: `f0493c6`.
+Status: local core implemented; Android emulator proof executed. Physical
+devices, iOS runtime and external professional/legal qualification remain
+gated. See [execution evidence](local_pdf_execution.md).
+Planning baseline reviewed: `f0493c6`.
 Research date: 2026-10-02. Scope: Brazil, residential tenancy records and
 architecture/engineering work. This document does not certify the app.
 
@@ -37,7 +40,7 @@ associated with Property and an optional Tenancy, then migrate existing links.
 Never invent a dummy Tenancy. Judicial expert reports need a separately
 qualified scope before being advertised as supported.
 
-## Observed gaps to fix first
+## Gaps observed at the planning baseline
 
 - `PdfContract.kt` uses original pixel dimensions and caps photo height while
   retaining full content width. Both renderers draw into that rectangle;

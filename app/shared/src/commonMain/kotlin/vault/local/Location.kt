@@ -4,7 +4,7 @@ package vault.local
 // the cached fix: capture never waits for GPS and never loses a photo to
 // it. Absent fixes stay absent — never another photo's fix, never (0,0).
 enum class LocationStatus {
-    PRECISE, APPROXIMATE, DENIED, UNAVAILABLE
+    PRECISE, APPROXIMATE, DENIED, DISABLED, UNAVAILABLE
 }
 
 data class LocationClaim(

@@ -25,13 +25,13 @@ import platform.ImageIO.kCGImagePropertyPixelHeight
 import platform.ImageIO.kCGImagePropertyPixelWidth
 import platform.ImageIO.kCGImagePropertyOrientation
 
-actual fun imageDimensions(bytes: ByteArray): ImageDims? {
+actual fun imageInfo(bytes: ByteArray): PhotoDisplay? {
     if (bytes.isEmpty()) return null
     return readDims(bytes)
 }
 
 @OptIn(ExperimentalForeignApi::class)
-private fun readDims(bytes: ByteArray): ImageDims? = memScoped {
+private fun readDims(bytes: ByteArray): PhotoDisplay? = memScoped {
     val data = bytes.usePinned {
         CFDataCreate(kCFAllocatorDefault, it.addressOf(0).reinterpret(), bytes.size.convert())
     } ?: return null
@@ -43,7 +43,9 @@ private fun readDims(bytes: ByteArray): ImageDims? = memScoped {
                 val width = numberProp(props, kCGImagePropertyPixelWidth) ?: return null
                 val height = numberProp(props, kCGImagePropertyPixelHeight) ?: return null
                 if (width <= 0 || height <= 0) return null
-                orientedDimensions(width.toInt(), height.toInt(), numberProp(props, kCGImagePropertyOrientation)?.toInt() ?: 1)
+                val orientation = numberProp(props, kCGImagePropertyOrientation)?.toInt() ?: 1
+                val displayed = orientedDimensions(width.toInt(), height.toInt(), orientation)
+                PhotoDisplay(width.toInt(), height.toInt(), displayed.width, displayed.height, orientation)
             } finally { CFRelease(props) }
         } finally { CFRelease(source) }
     } finally { CFRelease(data) }
@@ -69,3 +71,5 @@ actual fun formatSealedAtDevice(iso: String): String {
     }
     return formatter.stringFromDate(parsed) ?: iso
 }
+
+actual fun imageDimensions(bytes: ByteArray): ImageDims? = imageInfo(bytes)?.dimensions()

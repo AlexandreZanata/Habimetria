@@ -2,12 +2,14 @@ package vault.local
 
 import android.graphics.BitmapFactory
 
-actual fun imageDimensions(bytes: ByteArray): ImageDims? {
+actual fun imageInfo(bytes: ByteArray): PhotoDisplay? {
     if (bytes.isEmpty()) return null
     val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
     BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
     if (options.outWidth <= 0 || options.outHeight <= 0) return null
-    return orientedDimensions(options.outWidth, options.outHeight, androidImageOrientation(bytes))
+    val orientation = androidImageOrientation(bytes)
+    val displayed = orientedDimensions(options.outWidth, options.outHeight, orientation)
+    return PhotoDisplay(options.outWidth, options.outHeight, displayed.width, displayed.height, orientation)
 }
 
 actual fun formatSealedAtDevice(iso: String): String = try {
@@ -16,3 +18,5 @@ actual fun formatSealedAtDevice(iso: String): String = try {
 } catch (_: Exception) {
     iso
 }
+
+actual fun imageDimensions(bytes: ByteArray): ImageDims? = imageInfo(bytes)?.dimensions()

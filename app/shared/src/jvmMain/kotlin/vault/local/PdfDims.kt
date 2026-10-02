@@ -3,7 +3,7 @@ package vault.local
 import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
 
-actual fun imageDimensions(bytes: ByteArray): ImageDims? {
+actual fun imageInfo(bytes: ByteArray): PhotoDisplay? {
     if (bytes.isEmpty()) return null
     return try {
         ImageIO.createImageInputStream(ByteArrayInputStream(bytes))?.use { stream ->
@@ -12,7 +12,9 @@ actual fun imageDimensions(bytes: ByteArray): ImageDims? {
             val reader = readers.next()
             try {
                 reader.input = stream
-                orientedDimensions(reader.getWidth(0), reader.getHeight(0), jpegExifOrientation(bytes))
+                val width = reader.getWidth(0); val height = reader.getHeight(0); val orientation = jpegExifOrientation(bytes)
+                val displayed = orientedDimensions(width, height, orientation)
+                PhotoDisplay(width, height, displayed.width, displayed.height, orientation)
             } finally {
                 reader.dispose()
             }
@@ -28,3 +30,5 @@ actual fun formatSealedAtDevice(iso: String): String = try {
 } catch (_: Exception) {
     iso
 }
+
+actual fun imageDimensions(bytes: ByteArray): ImageDims? = imageInfo(bytes)?.dimensions()

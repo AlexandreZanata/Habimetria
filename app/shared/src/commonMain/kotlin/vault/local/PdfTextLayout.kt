@@ -35,7 +35,7 @@ fun textSize(kind: TextKind): Double = when (kind) {
     TextKind.SMALL -> PDF_SMALL_SIZE
 }
 
-internal class PdfLayoutBuilder(private val renderer: PdfTextMetrics, private val reportId: String) {
+internal class PdfLayoutBuilder(private val renderer: PdfTextMetrics, private val reportId: String, private val maxPhotoHeight: Double = PDF_MAX_PHOTO_HEIGHT_PT) {
     val pages = mutableListOf<RenderPage>()
     private var items = mutableListOf<PageItem>()
     var y = PDF_MARGIN_TOP_PT
@@ -57,7 +57,7 @@ internal class PdfLayoutBuilder(private val renderer: PdfTextMetrics, private va
     fun photo(entry: PdfPhotoEntry, dims: ImageDims) {
         require(dims.width > 0 && dims.height > 0) { "invalid image dimensions" }
         val aspect = dims.width.toDouble() / dims.height
-        val height = minOf(contentWidthPt() / aspect, PDF_MAX_PHOTO_HEIGHT_PT)
+        val height = minOf(contentWidthPt() / aspect, maxPhotoHeight)
         val width = height * aspect
         val captions = listOf(entry.caption, entry.claimLine.orEmpty())
         val captionHeight = captions.sumOf { renderer.measureText(it, TextKind.SMALL, contentWidthPt()).size } *

@@ -27,6 +27,7 @@ data class ManifestInput(
     val sealedAtDevice: String,
     val details: ReportDetails = ReportDetails(),
     val findingLabels: Map<String, String> = emptyMap(),
+    val photoDisplays: Map<String, PhotoDisplay> = emptyMap(),
 )
 
 fun canonicalManifestJson(input: ManifestInput): String {
@@ -39,7 +40,9 @@ fun canonicalManifestJson(input: ManifestInput): String {
     sb.append(",\"evidences\":[")
     evidences.forEachIndexed { i, e ->
         if (i > 0) sb.append(",")
-        sb.append("{\"accuracyLevel\":")
+        sb.append("{\"displayMetadata\":")
+        sb.append(input.photoDisplays[e.id]?.let { reportDetailsJson.encodeToString(PhotoDisplay.serializer(), it) } ?: "null")
+        sb.append(",\"accuracyLevel\":")
         sb.appendNullableQuoted(e.accuracyLevel)
         sb.append(",\"accuracyM\":")
         sb.appendNullableNumber(e.accuracyM?.let { canonicalFloat(it) })

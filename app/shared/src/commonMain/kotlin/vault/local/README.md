@@ -20,3 +20,7 @@ Tests: [ReportProfilesTest.kt](../../../../commonTest/kotlin/vault/local/ReportP
 
 - [PackageZip.kt](PackageZip.kt): streaming portable ZIP export and limits.
 - [PackageZipImport.kt](PackageZipImport.kt): bounded allowlisted ZIP extraction.
+
+- [ResponsibilityDocument.kt](ResponsibilityDocument.kt): immutable ART/RRT PDF attachment and digest binding.
+
+- [PhotoDisplay.kt](PhotoDisplay.kt): frozen encoded/display dimensions and EXIF metadata.

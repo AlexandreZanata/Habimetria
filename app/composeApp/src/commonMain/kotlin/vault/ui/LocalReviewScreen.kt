@@ -104,7 +104,7 @@ fun LocalReviewScreen(
         }
     }
 
-    if (reportDetails) ReportDetailsSheet(session, inspectionId, sealed) { reportDetails = false }
+    if (reportDetails) ReportDetailsSheet(session, inspectionId, sealed, container.filePicker) { reportDetails = false }
 
     sheetFor?.let { evidence ->
         val roomId = evidence.roomId

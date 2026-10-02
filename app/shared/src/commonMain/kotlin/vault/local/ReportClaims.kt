@@ -3,11 +3,13 @@ package vault.local
 import vault.local.db.LocalEvidence
 
 internal fun LocalEvidence.reportClaimLines(): String = buildList {
+    add("Categoria da foto: ${reportShotLabel(shotCategory)}")
     add("Captura informada pelo dispositivo: $capturedAtDevice · origem: $origin")
     add("Fuso na captura: ${deviceUtcOffsetMinutes?.let { "UTC, deslocamento local ${it} min" } ?: "não registrado"}")
     if (latitude == null || longitude == null) {
         add("Localização informada pelo dispositivo: " + when (locationStatus) {
             "DENIED" -> "permissão negada"
+            "DISABLED" -> "serviços de localização desativados"
             else -> "indisponível (sem leitura registrada)"
         })
     } else {
@@ -29,3 +31,13 @@ internal fun LocalEvidence.reportClaimLines(): String = buildList {
         }
     }
 }.joinToString("\n")
+
+internal fun reportShotLabel(category: String?): String = when (category) {
+    "OVERVIEW" -> "Visão geral"
+    "WALLS" -> "Paredes"
+    "OPENINGS" -> "Aberturas"
+    "FLOOR" -> "Piso"
+    "CEILING" -> "Teto"
+    null -> "não registrada"
+    else -> category
+}

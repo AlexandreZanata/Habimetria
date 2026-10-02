@@ -37,9 +37,19 @@ class ReportGenerator(
         PackageExporter(db, filesDir, originals, signer, fs).export(reportId)
     }
 
-    suspend fun exportZip(reportId: String): String {
-        val dir = exportPackage(reportId)
-        return packageZip(dir, "$filesDir/vault/packages/$reportId.zip", fs)
+    suspend fun exportZip(reportId: String): String = lock.withLock {
+        require(verify(reportId).allOk()) { "report verification failed" }
+        val dir = PackageExporter(db, filesDir, originals, signer, fs).export(reportId)
+        val destination = "$filesDir/vault/packages/$reportId.zip"
+        val staged = "$destination.checked"
+        try {
+            packageZip(dir, staged, fs)
+            val imported = importPackageZip(staged, filesDir, fs)
+            try { require(PackageVerifier(signer, fs).verify(imported).accepted()) { "exported ZIP verification failed" } }
+            finally { fs.deleteRecursively(imported.toPath()) }
+            fs.atomicMove(staged.toPath(), destination.toPath())
+            destination
+        } catch (e: Exception) { fs.delete(staged.toPath(), mustExist = false); throw e }
     }
 
     // Explicit removal deletes this artifact; later generation has a new ID.
@@ -69,6 +79,7 @@ class ReportGenerator(
         val publicKey = keys.key(manifest.signerKeyId, signer)
         require(LocalSealer(db, originals, signer, fs).verifyManifest(manifest, publicKey)) { "invalid manifest signature" }
         val snapshot = manifestSnapshot(manifest)
+        snapshot.details.responsibilityDocument?.let { ResponsibilityDocuments(filesDir, fs).verified(it) }
         require(manifest.signerKeyId == signer.keyId) { "sealing key unavailable for new issuance" }
         val report = existing?.copy(status = REPORT_RENDERING) ?: LocalReport(
             id = newLocalId("rep"), inspectionId = inspectionId, manifestId = manifest.id,
@@ -82,7 +93,9 @@ class ReportGenerator(
             val rows = snapshot.evidences.associateBy { it.id }
             val dimensions = rows.mapValues { (_, evidence) ->
                 if (isCancelled()) throw RenderCancelledException()
-                sources.dimensions(evidence)
+                val actual = sources.metadata(evidence)
+                snapshot.photoDisplays[evidence.id]?.let { require(it == actual) { "display metadata mismatch" } }
+                actual.dimensions()
             }
             val model = buildPdfModel(report.id, snapshot.address, snapshot,
                 manifest.id, manifest.canonicalSha256, manifest.signerKeyId) { roomId ->
@@ -103,6 +116,7 @@ class ReportGenerator(
             require(artifacts.receiptValid(ready, signer, publicKey)) { "final receipt verification failed" }
             // Recheck source bytes after drawing before announcing final success.
             snapshot.evidences.forEach { sources.original(it) }
+            snapshot.details.responsibilityDocument?.let { ResponsibilityDocuments(filesDir, fs).verified(it) }
             db.reportDao().update(ready)
             ready
         } catch (e: Exception) {
@@ -124,7 +138,9 @@ class ReportGenerator(
         }.getOrDefault(false)
         val originalsIntact = runCatching {
             require(manifestOk)
-            manifestSnapshot(manifest).evidences.forEach { sources.original(it) }
+            val snapshot = manifestSnapshot(manifest)
+            snapshot.evidences.forEach { sources.original(it) }
+            snapshot.details.responsibilityDocument?.let { ResponsibilityDocuments(filesDir, fs).verified(it) }
             true
         }.getOrDefault(false)
         return ReportVerification(pdfIntact, manifestOk, receiptOk, originalsIntact)

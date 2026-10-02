@@ -45,6 +45,7 @@ internal data class ManifestSummary(
     val inspectionId: String = "",
     val formatVersion: Int = 0,
     val purpose: String = "",
+    val reportDetails: ReportDetails = ReportDetails(),
     val evidences: List<ManifestEvidence> = emptyList(),
 )
 

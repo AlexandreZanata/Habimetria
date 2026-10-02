@@ -33,7 +33,7 @@ class CompareTest {
             Triple("ea2", "pb", ShotCategory.OVERVIEW),
             Triple("e1", "x", ShotCategory.WALLS),
         )) {
-            val stored = originals.storeOriginal(id, payload.encodeToByteArray())
+            val stored = originals.storeOriginal(id, pdfTestPhoto() + payload.encodeToByteArray())
             repo.recordEvidence(
                 entry, entryRoom.id, "$id.bin", "image/jpeg",
                 stored.size, stored.sha256, shotCategory = category, evidenceId = id,
