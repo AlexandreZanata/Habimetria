@@ -33,6 +33,7 @@ Tests: [ReportProfilesTest.kt](../../../../commonTest/kotlin/vault/local/ReportP
 - [ReportContext.kt](ReportContext.kt): frozen context, calendar and professional applicability declarations.
 - [PdfCover.kt](PdfCover.kt): corporate cover and summary.
 - [PersonalCertificate.kt](PersonalCertificate.kt): certificate identity/proof and platform signing capability.
+- [CertificateValidation.kt](CertificateValidation.kt): separate chain/validity/revocation/time/trust verdicts.
 - [ShareDeclaration.kt](ShareDeclaration.kt): Report-bound intents, index and verdict types.
 - [ReportArtifactLock.kt](ReportArtifactLock.kt): serialized artifact mutations.
 - [ReportDeclarations.kt](ReportDeclarations.kt): append, signed-index commit and bounded recovery.

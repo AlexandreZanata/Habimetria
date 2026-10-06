@@ -40,7 +40,8 @@ data class DeclarationIndexFile(val payload: String, val signature: String)
 
 data class DeclarationCheck(val intent: DeclarationIntent, val actorName: String, val actorRole: String,
     val note: String, val createdAtDevice: String, val valid: Boolean, val keyId: String,
-    val certificate: CertificateIdentity? = null, val trusted: Boolean = false)
+    val certificate: CertificateIdentity? = null, val trusted: Boolean = false,
+    val certificateStatus: CertificateStatus? = null)
 
 internal val declarationJson = Json { encodeDefaults = true }
 internal fun declarationPayload(body: ShareDeclarationBody): String = declarationJson.encodeToString(body)

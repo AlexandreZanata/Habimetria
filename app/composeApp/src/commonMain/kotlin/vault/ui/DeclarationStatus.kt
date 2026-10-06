@@ -20,6 +20,13 @@ internal fun DeclarationStatus(item: DeclarationCheck) {
     if (item.note.isNotBlank()) Text(item.note)
     Text("Assinatura: ${if (item.valid) "válida" else "inválida"} · ${item.createdAtDevice} (dispositivo)", style = MaterialTheme.typography.bodySmall)
     item.certificate?.let { Text("Titular do certificado: ${it.subject}", style = MaterialTheme.typography.bodySmall) }
+    item.certificateStatus?.let { status ->
+        Text("Cadeia: ${if (status.chainValid) "íntegra" else "inválida"} · " +
+            "validade no dispositivo: ${if (status.expiredAtDevice) "expirado" else if (status.notYetValidAtDevice) "ainda não válido" else "vigente"}",
+            style = MaterialTheme.typography.bodySmall)
+        Text("Revogação: não verificada (offline) · Hora certificada: ausente · " +
+            "Confiança: ${if (status.trust == "PINNED") "impressão comparada e marcada pelo usuário" else "não verificada"}",
+            style = MaterialTheme.typography.bodySmall)
+    } ?: Text("Confiança: ${if (item.trusted) "impressão comparada e marcada pelo usuário" else "não verificada"}. Revogação e hora certificada não verificadas.", style = MaterialTheme.typography.bodySmall)
     Text("Chave / certificado: ${item.keyId}", style = MaterialTheme.typography.bodySmall)
-    Text("Confiança: ${if (item.trusted) "impressão comparada e marcada pelo usuário" else "não verificada"}. Revogação e hora certificada não verificadas.", style = MaterialTheme.typography.bodySmall)
 }
