@@ -1,6 +1,6 @@
 # Report Authorship — Code Delivery and Manual Qualification
 
-Date: 2026-10-02. Branch: `codex/legal-report-hardening`.
+Date: 2026-10-02; PDF07 code extension: 2026-10-06. Branch: `codex/legal-report-hardening`.
 Baseline: `ef1736c`. Normative scope:
 [authorship contract](../05-mobile/report_authorship_contract.md).
 
@@ -31,14 +31,23 @@ cover their earlier build only and do not qualify these changes.
    unchanged. Fresh ZIP export includes additions; old exports stay historical.
 5. Optional local A1 PKCS12 holder signing on Android/JVM, subject/fingerprint
    preview, explicit intent, password clearing, bounded temporary imports and
-   separate signature/trust/revocation/time status. RSA/P-256 checks reject
+   separate signature/chain/device-expiry/trust status with revocation UNKNOWN
+   and trusted time ABSENT. RSA/P-256 checks reject
    altered payload, wrong passwords, weak/ambiguous/expired-at-device keys.
-   No embedded PAdES, Gov.br, ACT or independently verified ICP root is claimed.
+   The detached format is not PAdES and is not accepted by ITI VALIDAR.
 6. Independent Kotlin/Go verification and recovery of committed declaration
    bytes only when their staged digest matches a valid Report-bound signed
    index. Received packages never repair themselves. Removal clears local
    declarations/package copies; Android backup is disabled and stale picker
    copies are cleaned at startup.
+7. PDF07 code extension: DRAFT-only manual photo rotation (0/90/180/270)
+   preserving originals and frozen in Manifest v5 with SQLite v17; honest
+   external PAdES/Gov.br/ACT handoffs preserving READY and registering a
+   distinct EXTERNAL_UNVERIFIED copy; logical PDF outline with physical page
+   references (native bookmarks unsupported on current writers); review and
+   PDF UI for correction and external options. No embedded PAdES, Gov.br API,
+   ACT token issuance or independently verified ICP root is claimed. PDF08
+   stays pending manual validation.
 
 ## Executed code checks
 

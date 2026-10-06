@@ -47,9 +47,12 @@ Room index, reviewed professional sections, photo references/categories,
 coverage gaps/non-applicable categories, all Findings/notes, methodology and
 full hash appendix use complete text. Long paragraphs split across pages;
 no silent truncation, guessed photo aspect or emergency unnumbered pages.
-Native adapters render exact positions and final page/total values.
+A logical outline carries physical page references; current Android/iOS
+writers do not embed native bookmarks. Native adapters render exact positions and final page/total values.
 Android uses PdfDocument; iOS uses UIKit PDF, CoreText and ImageIO. iOS closes
 its PDF context before consuming final bytes. Bytes may differ by platform.
+Manual display rotation (DRAFT-only quarter turns) is frozen in Manifest v5;
+originals stay immutable and derivatives are regenerated from verified bytes.
 
 ## Device claims
 
@@ -91,10 +94,15 @@ Compressed/repacked third-party ZIPs are explicitly unsupported.
 
 Kotlin and the independent Go verifier separate file integrity, signature
 validity and issuer trust. Fingerprints bind actual public-key bytes; an
-included key remains UNKNOWN until independently trusted. No private key is
-exported. Hash/QR/installation signatures never imply civil identity or
-ICP-Brasil certification. Optional external PAdES/ACT/Gov.br integrations
-are not implemented; they require a separate authorized workflow/version.
+included key remains UNKNOWN until independently trusted. Certificate chain
+validity and device-time expiry are reported separately; revocation stays
+UNKNOWN offline and trusted time stays ABSENT without an external ACT token.
+No private key is exported. Hash/QR/installation signatures never imply civil identity or
+ICP-Brasil certification. Embedded PAdES is not produced locally; optional
+external PAdES/Gov.br/ACT handoffs preserve READY bytes, store a distinct
+signed copy and stay EXTERNAL_UNVERIFIED until checked in ITI VALIDAR or the
+issuing authority. They require an authorized certificate, Gov.br account or
+contracted TSA and never block offline generation.
 
 ## Budgets and qualification
 
