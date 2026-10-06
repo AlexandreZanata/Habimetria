@@ -103,6 +103,14 @@ class LocalSession(
         originals.deleteOriginal(evidenceId)
     }
 
+    // Manual display correction: DRAFT-only rotation. Original bytes stay
+    // immutable; derivatives are dropped so the next display regenerates
+    // from the verified original with the frozen rotation applied at seal.
+    suspend fun correctEvidenceOrientation(evidenceId: String, degrees: Int) {
+        repository.setDisplayRotation(evidenceId, degrees)
+        derivatives.deleteDerivatives(evidenceId)
+    }
+
     fun close() {
         db.close()
     }

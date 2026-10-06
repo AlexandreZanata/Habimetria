@@ -50,6 +50,8 @@ interface EvidenceOperations {
     suspend fun findingsForRoom(roomId: String): List<LocalFinding>
 
     suspend fun findingsForEvidence(evidenceId: String): List<LocalFinding>
+
+    suspend fun setDisplayRotation(evidenceId: String, degrees: Int): LocalEvidence
 }
 
 internal class LocalEvidences(private val db: VaultDatabase) : EvidenceOperations {
@@ -169,4 +171,17 @@ internal class LocalEvidences(private val db: VaultDatabase) : EvidenceOperation
 
     override suspend fun findingsForEvidence(evidenceId: String): List<LocalFinding> =
         db.findingDao().listForEvidence(evidenceId)
+
+    // Manual display correction: DRAFT-only quarter turn. Original bytes
+    // and hashes never change; only the display rotation metadata does.
+    // The sealed Manifest freezes the chosen value.
+    override suspend fun setDisplayRotation(evidenceId: String, degrees: Int): LocalEvidence = localWrite {
+        requireDisplayRotation(degrees)
+        val evidence = db.evidenceDao().get(evidenceId)
+            ?: throw LocalValidationException("evidence not found")
+        guard.requireDraft(evidence.inspectionId)
+        val updated = evidence.copy(displayRotation = degrees)
+        db.evidenceDao().update(updated)
+        return@localWrite updated
+    }
 }

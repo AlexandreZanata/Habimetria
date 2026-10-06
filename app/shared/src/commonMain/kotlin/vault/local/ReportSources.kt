@@ -21,8 +21,12 @@ internal class ReportSources(
         return bytes
     }
 
-    fun metadata(evidence: LocalEvidence): PhotoDisplay = imageInfo(original(evidence))
-        ?: throw LocalValidationException("undecodable original: ${evidence.id}")
+    fun metadata(evidence: LocalEvidence): PhotoDisplay {
+        val base = imageInfo(original(evidence))
+            ?: throw LocalValidationException("undecodable original: ${evidence.id}")
+        requireDisplayRotation(evidence.displayRotation)
+        return correctedPhotoDisplay(base, evidence.displayRotation)
+    }
 
     fun dimensions(evidence: LocalEvidence): ImageDims = imageDimensions(original(evidence))
         ?: throw LocalValidationException("undecodable original: ${evidence.id}")
@@ -33,5 +37,10 @@ internal class ReportSources(
         require(imageDimensions(decoded) != null) { "undecodable original: ${evidence.id}" }
     }
 
-    fun photo(evidence: LocalEvidence): ByteArray = scaler.scaleJpeg(original(evidence), PREVIEW_MAX_EDGE)
+    fun photo(evidence: LocalEvidence): ByteArray {
+        val scaled = scaler.scaleJpeg(original(evidence), PREVIEW_MAX_EDGE)
+        requireDisplayRotation(evidence.displayRotation)
+        return if (evidence.displayRotation == 0) scaled
+        else rotateDisplayBytes(scaled, evidence.displayRotation)
+    }
 }

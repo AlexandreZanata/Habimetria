@@ -25,6 +25,8 @@ Tests: [ReportProfilesTest.kt](../../../../commonTest/kotlin/vault/local/ReportP
 
 - [PhotoDisplay.kt](PhotoDisplay.kt): frozen encoded/display dimensions and EXIF metadata.
 
+- [DisplayCorrection.kt](DisplayCorrection.kt): DRAFT-only manual rotation, frozen in Manifest v5.
+
 ## Authorship and editorial extension
 
 - [PersonalIdentification.kt](PersonalIdentification.kt): optional CPF/contact and presentation masking.

@@ -48,4 +48,7 @@ data class LocalEvidence(
     val fixTimeDevice: String? = null,
     val deviceUtcOffsetMinutes: Int? = null,
     val exifOrientation: Int? = null,
+    // Manual display correction in degrees clockwise (0/90/180/270).
+    // DRAFT-only; original bytes never change. Frozen in Manifest v5.
+    val displayRotation: Int = 0,
 )

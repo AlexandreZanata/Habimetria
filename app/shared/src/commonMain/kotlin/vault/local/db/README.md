@@ -55,4 +55,5 @@ VaultMigrations.kt is split into:
 - [Migration1415.kt](Migration1415.kt)
 
 - [Migration1516.kt](Migration1516.kt): optional Tenancy, direct Property, report details and Report history.
+- [Migration1617.kt](Migration1617.kt): manual display rotation for photo orientation correction.
 - [InspectionReportDetails.kt](InspectionReportDetails.kt): DRAFT report details.

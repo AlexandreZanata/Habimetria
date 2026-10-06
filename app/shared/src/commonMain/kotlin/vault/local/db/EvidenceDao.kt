@@ -26,6 +26,9 @@ interface EvidenceDao {
 
     @Query("DELETE FROM evidences WHERE id = :id")
     suspend fun delete(id: String)
+
+    @Update
+    suspend fun update(evidence: LocalEvidence)
     // Atomic sequence assignment: concurrent captures never share a number.
     @Transaction
     suspend fun insertSequenced(inspectionId: String, build: (Int) -> LocalEvidence): LocalEvidence {

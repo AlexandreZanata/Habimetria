@@ -13,7 +13,8 @@ import kotlin.math.round
 // The SHA-256 over these bytes is the snapshot identity; signatures
 // cover exactly these bytes with format version and purpose bound in.
 // v2 binds the inspection kind so entry and exit snapshots differ.
-const val MANIFEST_FORMAT_VERSION = 4
+// v5 freezes the manual display rotation (originals stay immutable).
+const val MANIFEST_FORMAT_VERSION = 5
 const val MANIFEST_PURPOSE = "local-seal/v1"
 
 data class ManifestInput(
@@ -66,6 +67,8 @@ fun canonicalManifestJson(input: ManifestInput): String {
         sb.appendNullableQuoted(e.fixTimeDevice)
         sb.append(",\"deviceUtcOffsetMinutes\":")
         sb.appendNullableNumber(e.deviceUtcOffsetMinutes?.toString())
+        sb.append(",\"displayRotation\":")
+        sb.append(requireDisplayRotation(e.displayRotation))
         sb.append(",\"exifOrientation\":")
         sb.appendNullableNumber(e.exifOrientation?.toString())
         sb.append(",\"latitude\":")

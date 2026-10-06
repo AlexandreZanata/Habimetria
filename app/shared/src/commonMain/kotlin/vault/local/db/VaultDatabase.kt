@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 
-// Schema v15 (v14 + finding_problems for problem customization).
+// Schema v17 (v16 + displayRotation for manual orientation correction).
 // Schema JSON exports to shared/schemas; every bump ships an explicit Migration.
 @Database(
     entities = [
@@ -27,7 +27,7 @@ import androidx.room.RoomDatabaseConstructor
         LocalFindingProblem::class,
         InspectionReportDetails::class,
     ],
-    version = 16,
+    version = 17,
 )
 @ConstructedBy(VaultDatabaseConstructor::class)
 abstract class VaultDatabase : RoomDatabase() {
