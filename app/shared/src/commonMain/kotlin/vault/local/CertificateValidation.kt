@@ -37,9 +37,7 @@ fun certificateStatus(
             notYetValidAtDevice = false,
         )
     }
-    val now = deviceNowIso()
-    val expired = identity.validUntil < now
-    val notYet = identity.validFrom > now
+    val (expired, notYet) = certificateDeviceValidity(identity.validFrom, identity.validUntil)
     val trust = if (identity.fingerprint in pinnedFingerprints) CERT_TRUST_PINNED else CERT_TRUST_UNKNOWN
     return identity to CertificateStatus(
         cryptographicValid = true,
@@ -51,3 +49,6 @@ fun certificateStatus(
         trust = trust,
     )
 }
+
+// Device-clock validity only; never a certified time claim.
+expect fun certificateDeviceValidity(validFromIso: String, validUntilIso: String): Pair<Boolean, Boolean>
