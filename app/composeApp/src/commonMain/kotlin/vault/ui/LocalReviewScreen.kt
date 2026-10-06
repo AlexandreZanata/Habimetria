@@ -88,6 +88,7 @@ fun LocalReviewScreen(
                             findingCount = findings.count { it.evidenceId == evidence.id },
                             onIssue = if (sealed) null else ({ sheetFor = evidence }),
                         )
+                        vault.ui.journey.OrientationCorrectionRow(session, evidence, sealed, onChanged = { refresh() })
                     }
                 }
             }

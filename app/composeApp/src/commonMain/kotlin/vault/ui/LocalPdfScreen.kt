@@ -31,6 +31,7 @@ fun LocalPdfScreen(
     val cancelled = remember { MutableStateFlow(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var showDeclaration by remember { mutableStateOf(false) }
+    var showExternal by remember { mutableStateOf(false) }
     var declarations by remember { mutableStateOf<List<DeclarationCheck>>(emptyList()) }
     var revision by remember { mutableStateOf(0) }
     var showDetails by remember { mutableStateOf(false) }
@@ -81,6 +82,7 @@ fun LocalPdfScreen(
         }
     }
     if (showDeclaration && report != null) DeclarationSheet(session, report!!.id, picker) { showDeclaration = false; revision++ }
+    if (showExternal && report != null) ExternalSigningSheet(session, report!!.id, picker) { showExternal = false; revision++ }
     ScreenColumn {
         ScreenTitle(Strings.reportPdf)
         vault.ui.journey.JourneyShortcuts(onRooms = onRoomsShortcut, onReview = onReviewShortcut)
@@ -114,8 +116,11 @@ fun LocalPdfScreen(
             VaultButton(Strings.sharePdf, { share(false) }, enabled = !busy && ready)
             VaultButton("Compartilhar pacote verificável (ZIP)", { share(true) }, enabled = !busy && ready)
             VaultButton("Autoria, recebimento ou concordância", { showDeclaration = true }, enabled = !busy && ready)
+            VaultButton("Assinatura externa opcional (PAdES / Gov.br / ACT)", { showExternal = true }, enabled = !busy && ready)
             declarations.forEach { DeclarationStatus(it) }
             Text("O ZIP inclui PDF, recibo, manifesto, chave pública, declarações registradas, originais e os dados pessoais completos fornecidos. Permite verificar a integridade offline; a identidade do autor continua declarada.", style = MaterialTheme.typography.bodySmall)
+            Text("PAdES/Gov.br/ACT são etapas externas opcionais com ação explícita. O app não incorpora PAdES nem promete aceitação jurídica; cópias externas exigem conferência no verificador oficial.",
+                style = MaterialTheme.typography.bodySmall)
             if (current?.status == REPORT_READY) VaultButton("Gerar nova versão", { generate(true) }, enabled = !busy)
             VaultButton(Strings.verifyTitle, onVerify, enabled = !busy)
             TextButton(onClick = { showDetails = !showDetails }) { Text(Strings.technicalDetails) }
