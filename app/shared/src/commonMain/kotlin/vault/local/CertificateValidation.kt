@@ -26,6 +26,7 @@ fun certificateStatus(
     proof: CertificateProof,
     payload: ByteArray,
     pinnedFingerprints: Set<String> = emptySet(),
+    timestampPresent: Boolean = false,
 ): Pair<CertificateIdentity?, CertificateStatus> {
     val signer = personalCertificateSigner()
     val identity = signer?.verify(proof, payload)
@@ -44,8 +45,8 @@ fun certificateStatus(
         chainValid = true,
         expiredAtDevice = expired,
         notYetValidAtDevice = notYet,
-        revocation = CERT_REVOCATION_UNKNOWN,
-        trustedTime = CERT_TIME_ABSENT,
+        revocation = revocationStatus(),
+        trustedTime = resolveTrustedTime(timestampPresent),
         trust = trust,
     )
 }

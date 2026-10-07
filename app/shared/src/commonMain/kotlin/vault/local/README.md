@@ -34,6 +34,9 @@ Tests: [ReportProfilesTest.kt](../../../../commonTest/kotlin/vault/local/ReportP
 - [PdfCover.kt](PdfCover.kt): corporate cover and summary.
 - [PersonalCertificate.kt](PersonalCertificate.kt): certificate identity/proof and platform signing capability.
 - [CertificateValidation.kt](CertificateValidation.kt): separate chain/validity/revocation/time/trust verdicts.
+- [RevocationPolicy.kt](RevocationPolicy.kt): offline UNKNOWN revocation, no fabricated GOOD/REVOKED.
+- [TimestampRecord.kt](TimestampRecord.kt): optional contracted ACT token binding, ABSENT versus EXTERNAL.
+- [PadesReadiness.kt](PadesReadiness.kt): PDF readiness for external PAdES without local embedding.
 - [ExternalSigning.kt](ExternalSigning.kt): honest external PAdES/Gov.br/ACT handoffs preserving READY.
 - [PdfOutline.kt](PdfOutline.kt): logical navigation outline; contents page stays portable.
 - [ShareDeclaration.kt](ShareDeclaration.kt): Report-bound intents, index and verdict types.

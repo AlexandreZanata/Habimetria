@@ -36,20 +36,26 @@ data class ExternalRecord(
 
 fun externalInstructions(method: String): String = when (method) {
     EXTERNAL_METHOD_PADES ->
-        "Export the READY PDF and sign a copy with your A1 certificate in an " +
-            "ITI-compatible external signer. Keep the original READY file. " +
-            "Confirm the signed copy at ITI VALIDAR (https://validar.iti.gov.br/). " +
+        "Export the READY PDF and sign a copy with your authorized A1 holder " +
+            "certificate in an ITI-compatible external signer (PAdES RB/RT, DOC-ICP-15; " +
+            "ask the signer to enable DocMDP, otherwise VALIDAR may report Indeterminate). " +
+            "Keep the original READY file. Confirm the signed copy at ITI VALIDAR " +
+            "(https://validar.iti.gov.br/). " +
             "This app does not embed PAdES and never marks an external file as locally verified."
     EXTERNAL_METHOD_GOVBR ->
-        "Optional Gov.br signing is a manual external service requiring your " +
-            "Gov.br account and the official Assinador. Upload a copy of the READY PDF " +
-            "there; keep the local original. Opening or downloading never counts as " +
-            "a signature. No credential is entered in this app for Gov.br."
+        "Optional Gov.br signing is a manual external service at the official " +
+            "Assinador (https://assinador.iti.br/). It requires your Gov.br prata or ouro " +
+            "account; bronze cannot sign (Portaria SGD/MGI 11.230/2025, Decreto 10.543/2020). " +
+            "Upload a copy of the READY PDF there; keep the local original. Opening or " +
+            "downloading never counts as a signature. No Gov.br credential is entered " +
+            "in this app and no Gov.br API is called; app integration would require " +
+            "separate credentialing which this delivery does not claim."
     EXTERNAL_METHOD_TIMESTAMP ->
-        "Optional ACT timestamp requires a contracted time-stamp authority " +
-            "(RFC 3161). Request a token over the PDF SHA-256 there; the token " +
-            "proves arrival at the authority, not the shutter time. Offline device " +
-            "time is never a certified timestamp."
+        "Optional ACT timestamp requires your contracted time-stamp authority " +
+            "(ICP-Brasil ACT, RFC 3161 TSP, DOC-ICP-13). Request a token over the PDF " +
+            "SHA-256 there; the token proves arrival at the authority, not the shutter " +
+            "time (ITI timestamp guidance). Offline device time is never a certified " +
+            "timestamp. Timestamps are facultative for ICP-Brasil signatures."
     else -> error("unknown external method")
 }
 
@@ -84,19 +90,42 @@ fun registerExternalSignedCopy(
     report: LocalReport,
     method: String,
     signedBytes: ByteArray,
+    acknowledged: Boolean = true,
     fs: FileSystem = FileSystem.SYSTEM,
 ): ExternalRecord {
+    require(acknowledged) { "explicit external signing intent required" }
     require(report.status == REPORT_READY && report.pdfSha256 != null) { "report must be READY" }
     require(method == EXTERNAL_METHOD_PADES || method == EXTERNAL_METHOD_GOVBR || method == EXTERNAL_METHOD_TIMESTAMP)
-    require(signedBytes.size in 1..MAX_ORIGINAL_BYTES.toInt()) { "invalid signed file size" }
+    requirePadesReadyPdf(signedBytes)
     val originalSha = report.pdfSha256
     val signedSha = signedBytes.toByteString().sha256().hex()
     require(signedSha != originalSha) { "signed copy must differ from READY bytes" }
     val target = externalSignedPath(filesDir, report.id, method).toPath()
-    require(!fs.exists(ReportArtifacts(filesDir, fs).pdf(report.id).toPath()) || true)
     fs.createDirectories(target.parent!!)
     val tmp = (target.toString() + ".tmp").toPath()
     fs.write(tmp) { write(signedBytes) }
     fs.atomicMove(tmp, target)
     return ExternalRecord(report.id, method, originalSha, signedSha, signedBytes.size.toLong())
+}
+
+// Independent local check: READY preserved, signed copy distinct and PDF-shaped.
+// Never claims external validity; EXTERNAL_UNVERIFIED always remains.
+fun verifyExternalCopy(
+    filesDir: String,
+    report: LocalReport,
+    method: String,
+    fs: FileSystem = FileSystem.SYSTEM,
+): ExternalRecord? {
+    if (report.status != REPORT_READY || report.pdfSha256 == null) return null
+    val path = externalSignedPath(filesDir, report.id, method).toPath()
+    if (!fs.exists(path)) return null
+    val bytes = fs.read(path) { readByteArray() }
+    if (!isPadesReadyPdf(bytes)) return null
+    val signedSha = bytes.toByteString().sha256().hex()
+    if (signedSha == report.pdfSha256) return null
+    val readyBytes = runCatching {
+        fs.read(ReportArtifacts(filesDir, fs).pdf(report.id).toPath()) { readByteArray() }
+    }.getOrNull() ?: return null
+    if (readyBytes.toByteString().sha256().hex() != report.pdfSha256) return null
+    return ExternalRecord(report.id, method, report.pdfSha256, signedSha, bytes.size.toLong())
 }
