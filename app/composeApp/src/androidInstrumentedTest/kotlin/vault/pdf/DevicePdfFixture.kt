@@ -13,7 +13,9 @@ internal suspend fun seedDeviceInspection(session: LocalSession, technical: Bool
         scope = "Fotografias sintéticas", methods = "Verificação visual do PDF", limitations = "Não representa imóvel ou serviço real",
         analysis = "Teste de paginação e integridade", conclusions = "Documento de teste sem conclusão técnica sobre imóvel",
         council = "CREA", councilState = "MT", registration = "SINTÉTICO-TESTE", responsibilityType = "ART",
-        responsibilityReference = "TESTE — NÃO É ART VÁLIDA", authorAcknowledged = true))
+        responsibilityReference = "TESTE — NÃO É ART VÁLIDA", authorAcknowledged = true,
+        context = ReportContext(inspectionDate = "2026-10-02", summary = "Somente fixture sintética", references = "Fixture interna de teste"),
+        professionalReview = ProfessionalReview(true, true, true)))
     val rooms = List(5) { repo.addRoom(inspection.id, "Ambiente sintético ${it + 1} · Suíte São João") }
     repeat(photoCount) { index ->
         val id = newLocalId("fixture")

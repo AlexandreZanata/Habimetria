@@ -60,9 +60,29 @@ Drives completeness and perceived protection.
 - Review includes optional report details for rental use. Technical use
   requires author/council, scope, methods, limitations, analysis,
   conclusions, an ART/RRT reference and author acknowledgement before seal.
-  Capture fields remain unchanged; report details save incrementally.
+  Professional review also requires the declared inspection date, summary,
+  references and explicit attribution/registered responsibility/applicability
+  acknowledgements. Capture fields remain unchanged; details save incrementally.
 - SEALED review displays frozen metadata; editing requires a new Inspection
   or Occurrence, never an unlock. A new PDF version preserves previous bytes.
 - Share checks stored PDF, receipt, Manifest and originals again. Users can
   share a plain PDF or a portable offline verification package. Unknown
   installation keys remain unknown; sharing never records party agreement.
+
+## Local identification and post-generation declarations
+
+Rental identification is opt-in: users can omit name, CPF and contact.
+Supplied CPF check digits are checked; masking affects PDF presentation only,
+while the signed Manifest/ZIP retains the complete supplied data. Explain
+this before collection and export. Professional identity remains necessary;
+additional CPF/email/phone remain optional.
+
+After READY, the user can deliberately append authorship, receipt, agreement
+or disagreement to the exact selected Report version. Show signing intent,
+optional actor/role/note and an explicit confirmation. Anonymous local
+statements identify only the installation key. Disagreement needs a note.
+Optional Android A1 signing selects a bounded private PKCS12 import, previews
+the certificate holder and asks for explicit signing intent. Private key and
+password are never exported or saved. The PDF remains unchanged; signatures
+and declarations accompany the fresh ZIP export. External identity trust,
+revocation and certified time are not inferred from an included certificate.

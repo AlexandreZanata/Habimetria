@@ -13,7 +13,7 @@ import kotlin.math.round
 // The SHA-256 over these bytes is the snapshot identity; signatures
 // cover exactly these bytes with format version and purpose bound in.
 // v2 binds the inspection kind so entry and exit snapshots differ.
-const val MANIFEST_FORMAT_VERSION = 3
+const val MANIFEST_FORMAT_VERSION = 4
 const val MANIFEST_PURPOSE = "local-seal/v1"
 
 data class ManifestInput(

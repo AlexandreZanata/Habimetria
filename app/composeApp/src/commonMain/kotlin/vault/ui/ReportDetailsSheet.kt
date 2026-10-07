@@ -39,7 +39,7 @@ fun ReportDetailsSheet(session: LocalSession, inspectionId: String, readOnly: Bo
                         scope.launch {
                             try {
                                 repository.save(inspectionId, d)
-                                val selected = picker.pick("application/pdf")
+                                val selected = picker.pick("application/pdf", 10L * 1024 * 1024)
                                 if (selected != null) {
                                     try { details = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
                                         ResponsibilityDocuments(session.filesDir).attach(session.db, inspectionId, selected.path, selected.name)
@@ -74,7 +74,7 @@ private fun ReportDetailFields(d: ReportDetails, enabled: Boolean, onChange: (Re
     @Composable fun field(label: String, value: String, update: (String) -> ReportDetails) {
         OutlinedTextField(value, { onChange(update(it)) }, label = { Text(label) }, enabled = enabled, modifier = Modifier.fillMaxWidth())
     }
-    field("Nome do responsável", d.authorName) { d.copy(authorName = it) }
+    ReportPersonalFields(d, enabled, onChange)
     field("Papel do responsável (ex.: locatário, proprietário)", d.authorRole) { d.copy(authorRole = it) }
     field("Município do imóvel", d.propertyMunicipality) { d.copy(propertyMunicipality = it) }
     field("UF do imóvel", d.propertyState) { d.copy(propertyState = it.uppercase()) }
@@ -104,4 +104,5 @@ private fun ReportDetailFields(d: ReportDetails, enabled: Boolean, onChange: (Re
         field("Recomendações", d.recommendations) { d.copy(recommendations = it) }
         field("Referências normativas usadas", d.standards) { d.copy(standards = it) }
     }
+    ReportContextFields(d, enabled, onChange)
 }

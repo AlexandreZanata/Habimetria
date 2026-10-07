@@ -37,11 +37,17 @@ fun textSize(kind: TextKind): Double = when (kind) {
 
 internal class PdfLayoutBuilder(private val renderer: PdfTextMetrics, private val reportId: String, private val maxPhotoHeight: Double = PDF_MAX_PHOTO_HEIGHT_PT) {
     val pages = mutableListOf<RenderPage>()
+    val sections = mutableListOf<Pair<String, Int>>()
     private var items = mutableListOf<PageItem>()
     var y = PDF_MARGIN_TOP_PT
         private set
     val currentNumber: Int get() = pages.size + 1
 
+    fun section(title: String) {
+        ensure(renderer.lineHeight(TextKind.HEADING) * 3)
+        sections.add(title to currentNumber)
+        text(title, TextKind.HEADING)
+    }
     fun ensure(height: Double) { if (y + height > bottomLimitPt()) flush() }
     fun gap(height: Double = 8.0) { ensure(height); y += height }
     fun marker(item: PageItem) { items.add(item) }

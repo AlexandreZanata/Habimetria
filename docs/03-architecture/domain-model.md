@@ -54,10 +54,26 @@ Share ≠ agreement. Log `created | accessed | downloaded`.
   Technical details require an explicit author acknowledgement and a
   council/registration declaration. These are user declarations; the
   app does not verify professional attribution or council registration.
-- Manifest v3 freezes these details and finding labels. Older signed
+- Manifest v4 freezes these details, optional personal identification,
+  contract/date/company/summary/references, professional applicability
+  acknowledgements, finding labels and photo display metadata. Older signed
   Manifest versions remain valid and are never rewritten.
 - Multiple Report artifacts may reference one Manifest. Each has its
   own ID, byte digest and detached receipt. READY bytes are immutable;
   a new rendering creates a new Report rather than overwriting history.
 - Neither a local installation signature nor a supplied ART/RRT number
   guarantees legal acceptance, certified identity or ABNT compliance.
+
+## Local Share declarations
+
+Report-specific Share declarations record explicit AUTHOR, RECEIVED, AGREED
+or DISAGREED intent, optional declared actor/role and a device-time claim.
+Disagreement requires a note. A signed index and previous-file hash chain
+bind each statement to the exact Report ID, PDF and Manifest digests.
+They are Report package attachments, not new Inspection states and not
+edits to the frozen Inspection/PDF/receipt. Sharing alone creates none.
+Installation statements do not prove another party participated.
+Optional Android/JVM A1 certificate signatures cover the declaration bytes;
+certificate subject, signature validity, fingerprint trust, revocation and
+trusted time remain separate. Included certificates are UNKNOWN by default.
+See [authorship contract](../05-mobile/report_authorship_contract.md).

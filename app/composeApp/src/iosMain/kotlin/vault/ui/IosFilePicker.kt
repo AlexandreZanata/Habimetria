@@ -18,7 +18,7 @@ import kotlin.coroutines.resume
 @OptIn(ExperimentalForeignApi::class)
 class IosFilePicker : LocalFilePicker {
     private var delegate: PickerDelegate? = null
-    override suspend fun pick(mime: String): PickedLocalFile? {
+    override suspend fun pick(mime: String, maxBytes: Long): PickedLocalFile? {
         check(delegate == null) { "file picker busy" }
         val controller = UIApplication.sharedApplication.keyWindow?.rootViewController ?: error("window unavailable")
         var presenter = controller
@@ -34,7 +34,7 @@ class IosFilePicker : LocalFilePicker {
         return withContext(Dispatchers.IO) {
             val fs = FileSystem.SYSTEM
             val source = requireNotNull(url.path).toPath()
-            require(fs.metadata(source).size in 1..512L * 1024 * 1024) { "file too large" }
+            require(fs.metadata(source).size in 1..maxBytes) { "file too large" }
             val target = "${appFilesDir()}/vault/picked/${newLocalId("document")}.bin".toPath()
             fs.createDirectories(target.parent!!); fs.copy(source, target)
             PickedLocalFile(target.toString(), url.lastPathComponent ?: "documento")

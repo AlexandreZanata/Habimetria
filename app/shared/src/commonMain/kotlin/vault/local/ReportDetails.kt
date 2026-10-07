@@ -32,14 +32,20 @@ data class ReportDetails(
     val standards: String = "",
     val authorAcknowledged: Boolean = false,
     val responsibilityDocument: ResponsibilityDocument? = null,
+    val identification: PersonalIdentification? = null,
+    val context: ReportContext = ReportContext(),
+    val professionalReview: ProfessionalReview = ProfessionalReview(),
 ) {
     fun validate(kind: String, forSeal: Boolean = true): ReportDetails {
         require(photoLayout in listOf("standard", "detail")) { "unsupported photo layout" }
         require(profile in listOf("rental", "technical")) { "unsupported report profile" }
         require((kind == "technical") == (profile == "technical")) { "report profile does not match inspection" }
         require(reportDetailsJson.encodeToString(this).length <= 100_000) { "report details too long" }
+        identification?.validate()
+        context.validate(profile == "technical" && forSeal)
         responsibilityDocument?.let { require(safeArtifactId(it.id) && it.size in 1..10L * 1024 * 1024 && it.sha256.matches(Regex("[0-9a-f]{64}"))) { "invalid responsibility document" } }
         if (profile == "technical" && forSeal) {
+            professionalReview.validate()
             require(listOf(authorName, authorTitle, purpose, scope, methods, limitations, analysis, conclusions,
                 registration, responsibilityReference).all { it.isNotBlank() }) { "complete professional report details" }
             require(councilState.matches(Regex("[A-Z]{2}")) && councilState in BRAZIL_STATES) { "invalid council state" }
