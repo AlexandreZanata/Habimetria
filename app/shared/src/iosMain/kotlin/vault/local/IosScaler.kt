@@ -23,8 +23,9 @@ class IosScaler : ImageScaler {
     @OptIn(ExperimentalForeignApi::class)
     override fun scaleJpeg(bytes: ByteArray, maxEdge: Int): ByteArray {
         if (bytes.isEmpty()) throw LocalStoreException("empty image")
-        val data = bytes.toNSData()
-        val image = UIImage(data) ?: throw LocalStoreException("undecodable image")
+        require(maxEdge > 0)
+        val thumbnail = iosImageThumbnail(bytes, maxEdge)
+        val image = try { UIImage.imageWithCGImage(thumbnail) } finally { platform.CoreGraphics.CGImageRelease(thumbnail) }
         val w = image.size.useContents { width }
         val h = image.size.useContents { height }
         val longest = maxOf(w, h)
@@ -47,10 +48,7 @@ class IosScaler : ImageScaler {
         }
     }
 
-    @OptIn(ExperimentalForeignApi::class)
-    private fun ByteArray.toNSData(): NSData = memScoped {
-        NSData.create(bytes = allocArrayOf(this@toNSData), length = size.convert())
-    }
+
 }
 
 @OptIn(ExperimentalForeignApi::class)

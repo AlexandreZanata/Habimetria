@@ -79,6 +79,7 @@ internal fun LocalReportRoutes(r: Route, container: AppContainer, navigator: Vau
                 if (local != null) {
                     LocalVerifyScreen(
                         session = local,
+                        picker = container.filePicker,
                         inspectionId = r.inspectionId,
                         onBack = { navigator.goBack() },
                     )

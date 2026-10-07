@@ -57,7 +57,7 @@ class OccurrenceTest {
             session.repository.createTenancy(session.repository.createProperty("Rua").id).id,
         ).id
         val room = session.repository.addRoom(inspection, "Sala")
-        val stored = session.originals.storeOriginal("e1", "b".encodeToByteArray())
+        val stored = session.originals.storeOriginal("e1", pdfTestPhoto())
         session.repository.recordEvidence(
             inspection, room.id, "e1.bin", "image/jpeg",
             stored.size, stored.sha256, evidenceId = "e1",

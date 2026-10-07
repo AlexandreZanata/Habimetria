@@ -1,6 +1,7 @@
 # Local PDF — Acceptance and Release Evidence
 
-Status: planned; no new implementation/device result is claimed.
+Status: acceptance specification; executed checks and unverified gates are
+recorded separately in [execution evidence](local_pdf_execution.md).
 References: [plan](local_pdf_plan.md),
 [contract](../05-mobile/local_pdf_contract.md),
 [legal scope](../03-architecture/brazil_report_legal_requirements.md).

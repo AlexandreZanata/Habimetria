@@ -31,7 +31,7 @@ class ExitInspectionTest {
         val sala = repo.addRoom(entry, "Sala")
         repo.setRoomNotApplicable(sala.id, setOf(ShotCategory.CEILING))
         repo.addRoom(entry, "Cozinha")
-        val bytes = "entry-photo".encodeToByteArray()
+        val bytes = pdfTestPhoto()
         val stored = originals.storeOriginal("e1", bytes)
         repo.recordEvidence(entry, sala.id, "e1.bin", "image/jpeg", stored.size, stored.sha256, evidenceId = "e1")
 
@@ -52,7 +52,7 @@ class ExitInspectionTest {
 
         // Exit seals independently; entry snapshot untouched.
         val exitEvidences = mirrored.first().let { room ->
-            val data = "exit-photo".encodeToByteArray()
+            val data = pdfTestPhoto()
             val st = originals.storeOriginal("ex1", data)
             repo.recordEvidence(
                 exit.id, room.id, "ex1.bin", "image/jpeg",

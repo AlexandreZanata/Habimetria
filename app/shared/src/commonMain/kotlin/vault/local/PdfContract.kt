@@ -40,6 +40,8 @@ data class PdfRoomSection(
     val coveragePercent: Int,
     val photos: List<PdfPhotoEntry>,
     val findings: List<PdfFindingEntry>,
+    val missingCategories: List<String> = emptyList(),
+    val notApplicableCategories: List<String> = emptyList(),
 )
 
 data class PdfModel(
@@ -54,6 +56,7 @@ data class PdfModel(
     val methodology: List<String>,
     val appendixHashes: List<Pair<String, String>>,
     val details: ReportDetails = ReportDetails(),
+    val photoDisplays: Map<String, PhotoDisplay> = emptyMap(),
 )
 
 // Fixed model assembly from the sealed snapshot: rooms in sort order,
@@ -82,7 +85,10 @@ fun buildPdfModel(
         val findings = input.findings.filter { it.roomId == room.id }.map { f ->
             PdfFindingEntry("nº ${evidences.firstOrNull { it.id == f.evidenceId }?.sequence ?: 0}", room.label, input.findingLabels[f.preset] ?: f.preset, f.note)
         }
-        PdfRoomSection(room.label, coverageOf(room.id), photos, findings)
+        val captured = evidences.filter { it.roomId == room.id }.mapNotNull { it.shotCategory }.toSet()
+        PdfRoomSection(room.label, coverageOf(room.id), photos, findings,
+            applicableCategories(room.naCategories).filter { it.name !in captured }.map { reportShotLabel(it.name) },
+            parseNaCategories(room.naCategories).map { reportShotLabel(it.name) })
     }
     val appendix = buildList {
         add("manifest" to manifestSha256)
@@ -100,6 +106,7 @@ fun buildPdfModel(
         methodology = methodologyLines(),
         appendixHashes = appendix,
         details = input.details,
+        photoDisplays = input.photoDisplays,
     )
 }
 

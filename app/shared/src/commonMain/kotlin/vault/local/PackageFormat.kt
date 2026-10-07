@@ -42,6 +42,7 @@ data class PackageVerdict(
     val evidencesModified: List<String>,
     val signatureValid: Boolean,
     val issuerTrust: IssuerTrust,
+    val signerKeyId: String? = null,
 ) {
     fun accepted(): Boolean =
         pdf == FileStatus.OK && receipt == FileStatus.OK && manifest == FileStatus.OK &&

@@ -64,21 +64,20 @@ class AndroidInstallationSigner : InstallationSigner {
     private fun loadOrCreate(): KeyStore.PrivateKeyEntry {
         val store = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
         (store.getEntry(alias, null) as? KeyStore.PrivateKeyEntry)?.let { return it }
-        try {
-            generate(strongbox = true)
-        } catch (_: StrongBoxUnavailableException) {
-            generate(strongbox = false)
-        }
+        if (Build.VERSION.SDK_INT >= 28) {
+            try { generate(strongbox = true) }
+            catch (_: StrongBoxUnavailableException) { generate(strongbox = false) }
+        } else generate(strongbox = false)
         return store.getEntry(alias, null) as KeyStore.PrivateKeyEntry
     }
 
     private fun generate(strongbox: Boolean) {
-        val spec = KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_SIGN or KeyProperties.PURPOSE_VERIFY)
+        val builder = KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_SIGN or KeyProperties.PURPOSE_VERIFY)
             .setDigests(KeyProperties.DIGEST_SHA256)
             .setAlgorithmParameterSpec(ECGenParameterSpec("secp256r1"))
             .setUserAuthenticationRequired(false)
-            .setIsStrongBoxBacked(strongbox)
-            .build()
+        if (Build.VERSION.SDK_INT >= 28) builder.setIsStrongBoxBacked(strongbox)
+        val spec = builder.build()
         KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_EC, "AndroidKeyStore").apply {
             initialize(spec)
         }.generateKeyPair()

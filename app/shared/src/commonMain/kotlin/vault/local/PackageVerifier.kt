@@ -97,6 +97,7 @@ class PackageVerifier(
             evidencesModified = modified,
             signatureValid = manifestValid && receiptValid,
             issuerTrust = trust,
+            signerKeyId = if (keyBinding) signerFile?.keyId else null,
         )
     }
 
@@ -118,6 +119,16 @@ class PackageVerifier(
             if (fs.metadata(path).size != evidence.size) { modified.add(evidence.id); continue }
             val bytes = fs.read(path) { readByteArray() }
             if (bytes.toByteString().sha256().hex() != evidence.sha256) modified.add(evidence.id)
+        }
+        summary.reportDetails.responsibilityDocument?.let { document ->
+            require(safeArtifactId(document.id)) { "invalid responsibility document" }
+            val path = dir.resolve("responsibility/${document.id}.bin")
+            if (!fs.exists(path)) missing.add(document.id)
+            else {
+                require(fs.canonicalize(path).toString().startsWith(fs.canonicalize(dir).toString() + "/"))
+                val bytes = readOrNull(path)
+                if (bytes == null || bytes.size.toLong() != document.size || bytes.toByteString().sha256().hex() != document.sha256) modified.add(document.id)
+            }
         }
         return Triple(summary.evidences.size, missing, modified)
     }

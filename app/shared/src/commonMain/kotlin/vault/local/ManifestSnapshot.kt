@@ -46,11 +46,19 @@ fun manifestSnapshot(manifest: LocalManifest): ManifestInput {
             row.text("preset"), row.optionalText("note"))
     }
     require(rooms.map { it.id }.distinct().size == rooms.size) { "duplicate rooms" }
-    require(evidences.isNotEmpty() && evidences.map { it.id }.distinct().size == evidences.size) { "invalid evidences" }
+    require(evidences.size in 1..1000 && evidences.map { it.id }.distinct().size == evidences.size) { "invalid evidences" }
     require(evidences.map { it.sequence }.distinct().size == evidences.size) { "duplicate sequences" }
     val roomIds = rooms.map { it.id }.toSet()
     evidences.forEach {
         require(safeArtifactId(it.id) && it.roomId in roomIds && it.size in 1..MAX_ORIGINAL_BYTES) { "invalid evidence" }
+        require(it.latitude == null || (it.latitude.isFinite() && it.latitude in -90.0..90.0)) { "invalid latitude" }
+        require(it.longitude == null || (it.longitude.isFinite() && it.longitude in -180.0..180.0)) { "invalid longitude" }
+        require((it.latitude == null) == (it.longitude == null)) { "incomplete location" }
+        require(it.accuracyM == null || (it.accuracyM.isFinite() && it.accuracyM >= 0)) { "invalid accuracy" }
+        require(it.fixAgeMs == null || it.fixAgeMs >= 0) { "invalid fix age" }
+        require(it.exifLatitude == null || (it.exifLatitude.isFinite() && it.exifLatitude in -90.0..90.0)) { "invalid EXIF latitude" }
+        require(it.exifLongitude == null || (it.exifLongitude.isFinite() && it.exifLongitude in -180.0..180.0)) { "invalid EXIF longitude" }
+        require((it.exifLatitude == null) == (it.exifLongitude == null)) { "incomplete EXIF coordinates" }
         require(it.sha256.matches(Regex("[0-9a-f]{64}"))) { "invalid evidence digest" }
     }
     val evidenceRooms = evidences.associate { it.id to it.roomId }
@@ -61,7 +69,12 @@ fun manifestSnapshot(manifest: LocalManifest): ManifestInput {
         LocalInspection(inspectionId, tenancyId, root.optionalText("kind") ?: "entry", STATUS_SEALED, sealedAt, sealedAt, propertyId),
         rooms, evidences, findings, sealedAt,
         root["reportDetails"]?.let { reportDetailsJson.decodeFromJsonElement(ReportDetails.serializer(), it) } ?: ReportDetails(),
-        root["findingLabels"]?.jsonObject?.mapValues { it.value.jsonPrimitive.content }.orEmpty())
+        root["findingLabels"]?.jsonObject?.mapValues { it.value.jsonPrimitive.content }.orEmpty(),
+        root.getValue("evidences").jsonArray.mapNotNull { item ->
+            val row = item.jsonObject
+            val metadata = row["displayMetadata"]?.takeUnless { it is JsonNull } ?: return@mapNotNull null
+            row.text("id") to reportDetailsJson.decodeFromJsonElement(PhotoDisplay.serializer(), metadata)
+        }.toMap())
 }
 
 private fun JsonObject.text(name: String): String = getValue(name).jsonPrimitive.content

@@ -7,7 +7,7 @@ import okio.Path.Companion.toPath
 // the number of originals. Only exported package names are admitted.
 private data class ZipItem(val name: ByteArray, val path: Path, val size: Long, val crc: Int, val offset: Long)
 internal const val MAX_PACKAGE_BYTES = 512L * 1024 * 1024
-internal const val MAX_PACKAGE_FILES = 1005
+internal const val MAX_PACKAGE_FILES = 1006
 
 fun packageZip(directory: String, destination: String, fs: FileSystem = FileSystem.SYSTEM): String {
     val root = directory.toPath()

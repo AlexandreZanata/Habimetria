@@ -25,14 +25,18 @@ class ReportProfilesTest {
         val signer = platformSigner(dir)
         val sealer = LocalSealer(session.db, session.originals, signer)
         assertTrue(SEAL_REPORT_DETAILS in sealer.assess(inspection.id).reasons)
-        val details = ReportDetails(profile = "technical", authorName = "Autor de teste", council = "CREA",
+        val details = ReportDetails(profile = "technical", authorName = "Autor de teste", authorTitle = "Título declarado de teste", council = "CREA",
             councilState = "MT", registration = "DECLARADO-TESTE", responsibilityType = "ART",
             responsibilityReference = "REFERÊNCIA-TESTE", purpose = "Teste do registro", scope = "Sala",
             methods = "Observação visual", limitations = "Sem ensaios", analysis = "Registro fotográfico",
             conclusions = "Sem conclusão de segurança estrutural", authorAcknowledged = true)
         ReportDetailsRepository(session.db).save(inspection.id, details)
+        assertTrue(SEAL_REPORT_DETAILS in sealer.assess(inspection.id).reasons)
+        val attachment = "$dir/declared-responsibility.pdf"
+        fs.write(attachment.toPath()) { writeUtf8("%PDF-synthetic-fixture") }
+        val complete = ResponsibilityDocuments(dir).attach(session.db, inspection.id, attachment, "TEST-NOT-ART.pdf")
         val manifest = (sealer.seal(inspection.id) as SealOutcome.Sealed).manifest
-        assertEquals(details, manifestSnapshot(manifest).details)
+        assertEquals(complete, manifestSnapshot(manifest).details)
         assertNull(manifestSnapshot(manifest).tenancy)
         assertFailsWith<SealedModificationException> { ReportDetailsRepository(session.db).save(inspection.id, details.copy(scope = "Outra")) }
         session.close()

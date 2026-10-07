@@ -1,87 +1,110 @@
-# On-Device PDF — Two-Pass Seal Flow
+# On-Device PDF — Sealed Local Reports
 
-Follows `docs/03-architecture/client-processing.md`. Server never renders.
+Follows [local authority](../03-architecture/local_validation_architecture.md).
+The local pipeline runs without VaultApi, server rendering, remote fonts,
+maps or geocoding: capture → durable originals → review → seal → PDF → share.
+See [the detailed contract](local_pdf_contract.md) and
+[execution evidence](../06-roadmap/local_pdf_execution.md).
 
-## Pass 1 — draft (offline OK)
+## Frozen report inputs
 
-1. App lays out cover + per-room photos + findings + device-claim disclaimers.
-2. Android: `android.graphics.pdf.PdfDocument` (zero deps).
-   iOS: Swift host implements `PlatformPdf` (PDFKit, CoreImage QR,
-   share sheet); shared code owns the layout model + flow, never pixels.
-   (Linux klib checks the Kotlin side; Swift compiles on macOS/Xcode.)
-3. Photos embedded at ≤1280px JPEG to bound render time and file size.
+The tenancy presentation describes the property, participants and visible
+observations. The professional presentation supports an Inspection directly
+under Property without a fabricated Tenancy. Entry/exit retains its existing
+Tenancy linkage. SQLite v16 migrates existing links and report versions.
 
-## Pass 2 — seal + final (server integration)
+Review collects declared author/title/role, municipality/state, participants,
+purpose, scope and photo presentation. Professional seal requires author,
+title, purpose, scope, methods, limitations, analysis, conclusions, matching
+CREA/ART or CAU/RRT, registration/state/reference, an attached PDF and explicit
+author acknowledgment. The app checks completeness and byte integrity;
+it does not validate council registration, professional attribution, an
+external signature or whether the document is an authentic registered ART/RRT.
+Recommendations and standards are included when supplied by the author.
 
-1. App calls `POST /inspections/{id}/seal` → gets `verify_code`,
-   `manifest_sha256`, `verify_url` (from `GET /reports/{id}`).
-2. App renders QR (zxing-core) + seal block page, writes final PDF.
-3. App uploads final via `POST /reports/{id}/pdf`; server returns
-   `report_sha256`. Mismatch vs local hash → show error, never "saved".
+Manifest v3 freezes these declarations, attachment hash, Finding labels and
+encoded/display photo dimensions. Generation validates the canonical schema,
+Manifest digest/signature and historical public key, then reads only signed
+substantive inputs. Old v1/v2 artifacts retain their original signed bytes.
+SEALED is terminal; later corrections use Occurrence/Addendum.
 
-## Local final (L0 authority)
+## Photo geometry and measured layout
 
-1. Render exactly the sealed Manifest snapshot on-device.
-2. Save final PDF bytes locally before sharing; hash once finalized.
-3. Sign a detached receipt binding Report ID, Manifest hash, PDF hash,
-   format version and signer identity.
-4. Never embed the whole-file PDF hash inside that same PDF.
-   The PDF may carry Manifest hash, Report ID, key fingerprint, QR and
-   verification instructions; exact file integrity lives in the receipt.
-5. QR is a lookup/import aid for Report/Manifest identity, never proof
-   of byte integrity and never a LAN/localhost URL.
+All EXIF orientations 1–8, including mirrors, use the same display convention.
+Absent/invalid orientation tags use identity; undecodable formats fail clearly.
+Native/JVM derivatives normalize orientation; original bytes never change.
+The PDF uses hash-checked originals, bypassing unverified preview caches.
+Bounded codecs prevent full-resolution camera pixels from entering PDF drawing.
 
-## Local pipeline (L6)
+A4 portrait pages contain each portrait/landscape image without crop or stretch.
+Standard image height is at most 300 pt; detail presentation allows 520 pt.
+Changing height changes width to preserve the oriented aspect ratio. Images
+are derivatives up to 1600 px; layout identity is local-pdf/v3. Presentation
+is selected before seal; new rendering requires a new Report ID/version.
 
-- Shared contract in `vault.local` (`PdfContract`): content model from
-  the sealed snapshot, exact photo pagination from aspect rects, style
-  tokens. Photo slots fit their page; continuation pages keep the
-  no-drop invariant on font-metric drift.
-- Platform ports: `AndroidPlanRenderer` (PdfDocument, sampled decode,
-  StaticLayout wrap, zxing QR) and `IosPlanRenderer` (UIKit PDF,
-  thumbnail decode, CoreText measure, CoreImage QR). Logical contents
-  match; bytes need not.
-- `ReportGenerator` runs architecture order: pre-check originals →
-  paginate → render with progress/cancel → save bytes → hash → sign
-  receipt (`local-receipt/v1`) → commit READY. Missing originals fail
-  finalization instead of silent omission; cancel/retry keep SEALED.
-- Reports persist (`reports`, unique per manifest) with the receipt;
-  `LocalPdfScreen` shows progress, hashes, share and verification.
+Native font metrics feed shared pagination before drawing. Cover, physical
+Room index, reviewed professional sections, photo references/categories,
+coverage gaps/non-applicable categories, all Findings/notes, methodology and
+full hash appendix use complete text. Long paragraphs split across pages;
+no silent truncation, guessed photo aspect or emergency unnumbered pages.
+Native adapters render exact positions and final page/total values.
+Android uses PdfDocument; iOS uses UIKit PDF, CoreText and ImageIO. iOS closes
+its PDF context before consuming final bytes. Bytes may differ by platform.
 
-## Budgets
+## Device claims
 
-- Final PDF ≤ 50 MB (server cap). Target < 10 MB per 100 photos.
-- Render off-main-thread with progress; cancellable; retryable upload
-  through the same evidence queue (idempotency-key).
+Every photo prints capture time/origin/UTC offset where recorded, location
+availability or WGS84 coordinates, estimated horizontal accuracy, permission
+level, provider, fix age/time and nullable simulation indication. Denied,
+disabled, absent, approximate and stale/unknown readings stay explicit.
+EXIF GPS is a separate declaration; discrepancies are displayed.
 
-## Photo geometry (PDF02)
+Capture does not wait for GPS. GPS/time are device claims, not certified
+scene location or trusted shutter time. A negative simulation indication
+cannot certify authenticity. No coordinates are invented for missing data.
 
-EXIF orientations 1–8 include mirrors as well as rotations. Display
-dimensions swap for orientations 5–8. Shared photo placement uses contain
-geometry with centered reduced width when maximum height is reached;
-portrait Evidence is never stretched to full landscape width. Original
-bytes remain immutable. Native/JVM derivative codecs normalize display
-orientation; small iOS images also render to normalized derivative pixels.
-Physical-camera and native-renderer qualification remains a release gate.
+## Publication, history and verification
 
-## Sealed source authority (PDF01/PDF06)
+ReportGenerator serializes generation/export/removal. It validates originals
+before drawing, hashes exact finalized PDF bytes and atomically publishes a
+detached signed receipt binding Report/Manifest IDs, digests, key, purpose
+and version. READY follows stored receipt/signature checks and a final source
+recheck. Errors/cancellation retain SEALED and can retry unfinished artifacts.
+Restart finds unfinished status for retry; no partial output is shareable.
 
-Report generation decodes the validated canonical Manifest, including frozen
-address, Room labels, Findings and checklist applicability. Original size and
-SHA-256 are checked before decoding and again before final success. PDF photos
-are normalized from verified originals, never an unvalidated preview cache.
-READY Reports are returned unchanged after verification; corrupt READY output
-is rejected rather than overwritten. Explicit artifact deletion permits later
-generation with a new Report ID, without any byte-identical regeneration claim.
-Receipt files are atomically published and verified as stored. Public signing
-material is retained separately so old Reports/packages verify after rotation.
-A new issuance requiring an unavailable sealing private key fails explicitly.
+READY bytes are immutable and reverified before reuse/share. Modified READY
+artifacts fail instead of being overwritten. Explicit new versions preserve
+previous IDs/bytes/receipts. Local public signing material survives rotation
+for historical verification. Inspection removal also removes its local
+responsibility attachment and generated package copies; external shared
+copies remain outside the app's control. Unavailable historical private keys block new
+issuance under that seal instead of inventing a signature.
 
-## Measured native drawing (PDF03/PDF04)
+The QR uses correction level M and carries Report/Manifest identity only.
+The exact PDF digest is detached,
+never embedded inside that same PDF. Export offers readable PDF or a portable
+ZIP containing PDF, receipt, Manifest, public key, originals and declared
+responsibility attachment. A staged ZIP is reimported and cryptographically
+verified before atomic publication. Received original app ZIPs are selected
+through the system document picker and verified without the local database.
+Compressed/repacked third-party ZIPs are explicitly unsupported.
 
-Native font widths feed shared pagination before drawing. Long notes and
-identifiers wrap/split without silent truncation. All physical pages receive
-unique sequential numbers; the Room index uses resolved page references.
-Green headings, restrained typography and complete per-photo device claims
-share the same layout contract. Missing/undecodable photos fail generation.
-iOS closes its native PDF context before consuming final bytes.
+Kotlin and the independent Go verifier separate file integrity, signature
+validity and issuer trust. Fingerprints bind actual public-key bytes; an
+included key remains UNKNOWN until independently trusted. No private key is
+exported. Hash/QR/installation signatures never imply civil identity or
+ICP-Brasil certification. Optional external PAdES/ACT/Gov.br integrations
+are not implemented; they require a separate authorized workflow/version.
+
+## Budgets and qualification
+
+PDF output cap: 50 MiB; package: 512 MiB. Target: <10 MiB for 100 photos,
+subject to readable evidence. Work runs off the UI thread with progress,
+cancel and retry. Total native PDF memory can grow with retained pages;
+large reports and low-memory hardware need separate qualification.
+
+[Execution evidence](../06-roadmap/local_pdf_execution.md) records native
+Android emulator measurements and independent reader checks. Physical-camera
+orientation, physical-device memory, iOS native runtime, print and scoped
+professional/legal compliance remain release gates. Local processing detects
+changes against signed references; it cannot guarantee universal legal acceptance.

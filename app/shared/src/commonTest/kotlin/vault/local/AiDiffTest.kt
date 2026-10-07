@@ -33,7 +33,7 @@ class AiDiffTest {
         val entry = repo.createInspection(tenancy).id
         val entryRoom = repo.addRoom(entry, "Sala")
         for ((id, payload, category) in entryShots) {
-            val stored = originals.storeOriginal(id, payload.encodeToByteArray())
+            val stored = originals.storeOriginal(id, pdfTestPhoto() + payload.encodeToByteArray())
             repo.recordEvidence(
                 entry, entryRoom.id, "$id.bin", "image/jpeg",
                 stored.size, stored.sha256, shotCategory = category, evidenceId = id,
@@ -93,7 +93,7 @@ class AiDiffTest {
         val tenancy = repo.createTenancy(repo.createProperty("Rua Diff 2").id).id
         val entry = repo.createInspection(tenancy).id
         val entryRoom = repo.addRoom(entry, "Sala")
-        val stored = originals.storeOriginal("en2", "entry-bytes".encodeToByteArray())
+        val stored = originals.storeOriginal("en2", pdfTestPhoto())
         repo.recordEvidence(
             entry, entryRoom.id, "en2.bin", "image/jpeg",
             stored.size, stored.sha256, shotCategory = ShotCategory.FLOOR, evidenceId = "en2",

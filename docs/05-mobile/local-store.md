@@ -29,7 +29,8 @@ Normative for the on-device core. Code: `vault.local.db` in `:shared`.
   and exifOrientation. Legacy simulation status stays unknown.
 - Draft writes and sealing share a process-wide lock. LocalSealer builds
   canonical v3 data from the locked snapshot, including report details
-  and finding labels. Direct DAO access is reserved for storage internals.
+  finding labels, responsibility attachment digests and encoded/display
+  dimensions. Direct DAO access is reserved for storage internals.
 
 ## Seal (L5)
 
@@ -50,6 +51,10 @@ Normative for the on-device core. Code: `vault.local.db` in `:shared`.
 
 - Originals: `<filesDir>/vault/originals/<evidenceId>.bin`, written to
   `.tmp` then atomically renamed. Name never derives from photo counts.
+- Responsibility attachments: `vault/responsibility/<id>.bin`, original PDF
+  bytes, limited to 10 MiB, immutable after seal; private files are removed
+  with their Inspection. Report/receipt files live in `vault/reports` and
+  verified export copies in `vault/packages`.
 - Database file: `<filesDir>/vault/vault.db` (Android `filesDir`,
   iOS `NSDocumentDirectory/vault`, JVM temp `vault`).
 - Derivatives (`preview.webp`, `thumbnail.webp`) are recreatable;
@@ -90,8 +95,10 @@ Normative for the on-device core. Code: `vault.local.db` in `:shared`.
   `MigrationTest` replays a real v1 file through it.
 - `LocationTracker` (shared interface; LocationManager on Android,
   Core Location on iOS) reads only the cached fix — capture never waits
-  for GPS. Statuses: precise, approximate, denied, unavailable.
+  for GPS. Statuses: precise, approximate, denied, disabled, unavailable.
   Fixes older than 30 s stay labeled stale; absent stays absent.
+  iOS retains its Core Location delegate and requests foreground one-shot
+  refreshes when authorized; permission/fix acquisition never blocks capture.
 - EXIF GPS is parsed from JPEG bytes in shared code (`ExifClaim`) and
   never overwrites the fix; gaps over 100 m surface in review.
 - Derivatives (`derivatives/<id>_thumb.jpg`, `<id>_preview.jpg`) are

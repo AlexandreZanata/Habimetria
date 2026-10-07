@@ -21,8 +21,17 @@ internal class ReportSources(
         return bytes
     }
 
+    fun metadata(evidence: LocalEvidence): PhotoDisplay = imageInfo(original(evidence))
+        ?: throw LocalValidationException("undecodable original: ${evidence.id}")
+
     fun dimensions(evidence: LocalEvidence): ImageDims = imageDimensions(original(evidence))
         ?: throw LocalValidationException("undecodable original: ${evidence.id}")
+
+    fun readable(evidence: LocalEvidence) {
+        dimensions(evidence)
+        val decoded = scaler.scaleJpeg(original(evidence), 256)
+        require(imageDimensions(decoded) != null) { "undecodable original: ${evidence.id}" }
+    }
 
     fun photo(evidence: LocalEvidence): ByteArray = scaler.scaleJpeg(original(evidence), PREVIEW_MAX_EDGE)
 }

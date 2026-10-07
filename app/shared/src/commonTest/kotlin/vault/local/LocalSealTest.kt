@@ -31,7 +31,7 @@ private suspend fun seedCaptured(session: LocalSession, address: String = "Rua S
     val repo = session.repository
     val inspection = repo.createInspection(repo.createTenancy(repo.createProperty(address).id).id).id
     val room = repo.addRoom(inspection, "Suíte principal")
-    val bytes = "sealed-photo-bytes".encodeToByteArray()
+    val bytes = pdfTestPhoto()
     val evidenceId = newLocalId("ev")
     val stored = session.originals.storeOriginal(evidenceId, bytes)
     repo.recordEvidence(

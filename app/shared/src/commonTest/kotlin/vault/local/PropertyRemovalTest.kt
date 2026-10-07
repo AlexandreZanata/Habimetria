@@ -100,7 +100,7 @@ class PropertyRemovalTest {
         val inspection = session.repository.createInspection(session.repository.createTenancy(prop.id).id).id
         val room = session.repository.addRoom(inspection, "Sala")
         val evidenceId = newLocalId("ev")
-        val stored = session.originals.storeOriginal(evidenceId, "photo-bytes".encodeToByteArray())
+        val stored = session.originals.storeOriginal(evidenceId, pdfTestPhoto())
         session.repository.recordEvidence(
             inspection, room.id, "$evidenceId.bin", "image/jpeg",
             stored.size, stored.sha256, shotCategory = ShotCategory.OVERVIEW, evidenceId = evidenceId,

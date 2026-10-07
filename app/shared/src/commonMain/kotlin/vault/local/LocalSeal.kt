@@ -65,12 +65,8 @@ class LocalSealer(
             CoverageGap(room.id, room.label, roomCoverage.percent(), coverage.missingCategories(room.id))
         }
         val unreadable = evidences.filterNot { evidence ->
-            val path = originals.originalPath(evidence.id).toPath()
-            try {
-                fs.exists(path) && (fs.metadataOrNull(path)?.size == evidence.size)
-            } catch (_: Exception) {
-                false
-            }
+            try { ReportSources(originals, fs).readable(evidence); true }
+            catch (_: Exception) { false }
         }.map { it.id }
         val reasons = buildList {
             if (existing != null || inspection.status != STATUS_DRAFT) {
@@ -117,6 +113,7 @@ class LocalSealer(
                 findings = db.roomDao().listForInspection(inspectionId)
                     .flatMap { db.findingDao().listForRoom(it.id) },
                 sealedAtDevice = sealedAt,
+                photoDisplays = db.evidenceDao().listForInspection(inspectionId).associate { it.id to ReportSources(originals, fs).metadata(it) },
                 details = ReportDetailsRepository(db).get(inspectionId).validate(inspection.kind),
                 findingLabels = db.roomDao().listForInspection(inspectionId).flatMap { db.findingDao().listForRoom(it.id) }
                     .map { it.preset }.distinct().associateWith { code ->
@@ -127,6 +124,7 @@ class LocalSealer(
         for (evidence in db.evidenceDao().listForInspection(inspectionId)) {
             ReportSources(originals, fs).original(evidence)
         }
+        ReportDetailsRepository(db).get(inspectionId).responsibilityDocument?.let { ResponsibilityDocuments(originals.filesDir, fs).verified(it) }
         SignerMaterial(originals.filesDir, fs).retain(signer)
         val hash = manifestSha256(canonical)
         val signature = signer.sign(canonical.encodeToByteArray()).toByteString().hex()
@@ -142,6 +140,7 @@ class LocalSealer(
             hardwareBacked = signer.hardwareBacked,
             signature = signature,
         )
+        manifestSnapshot(manifest) // Validate the frozen shape before terminal commit.
         try {
             val marked = db.manifestDao().commitSeal(manifest, inspectionId, sealedAt)
             if (marked == 0) {

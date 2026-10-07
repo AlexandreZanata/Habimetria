@@ -6,6 +6,8 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import com.google.zxing.BarcodeFormat
+import com.google.zxing.EncodeHintType
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import com.google.zxing.qrcode.QRCodeWriter
 import vault.local.*
 
@@ -33,14 +35,17 @@ internal fun drawPdfPhoto(canvas: Canvas, item: PageItem.Photo, bytes: ByteArray
 
 internal fun drawPdfQr(canvas: Canvas, item: PageItem.Qr) {
     val rect = requireNotNull(item.rect)
-    val matrix = QRCodeWriter().encode(item.content, BarcodeFormat.QR_CODE, 400, 400)
-    val bitmap = Bitmap.createBitmap(400, 400, Bitmap.Config.RGB_565)
+    val bitmap = pdfQrBitmap(item.content)
     try {
-        for (x in 0 until 400) for (y in 0 until 400) {
-            bitmap.setPixel(x, y, if (matrix[x, y]) Color.BLACK else Color.WHITE)
-        }
         canvas.drawBitmap(bitmap, null, rect.androidRect(), null)
     } finally { bitmap.recycle() }
+}
+
+internal fun pdfQrBitmap(content: String): Bitmap {
+    val matrix = QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, 400, 400,
+        mapOf(EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.M))
+    val pixels = IntArray(400 * 400) { index -> if (matrix[index % 400, index / 400]) Color.BLACK else Color.WHITE }
+    return Bitmap.createBitmap(400, 400, Bitmap.Config.RGB_565).apply { setPixels(pixels, 0, 400, 0, 0, 400, 400) }
 }
 
 private fun PdfRect.androidRect(): RectF = RectF(x.toFloat(), y.toFloat(), (x + w).toFloat(), (y + h).toFloat())

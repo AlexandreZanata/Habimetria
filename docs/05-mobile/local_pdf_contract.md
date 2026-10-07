@@ -1,6 +1,8 @@
-# Local PDF — Planned Rendering and Integrity Contract
+# Local PDF — Rendering and Integrity Contract
 
-Status: proposed; implemented behavior is described in [pdf-ondevice.md](pdf-ondevice.md).
+Status: local core implemented; qualification and external integrations remain
+gated. See [implemented behavior](pdf-ondevice.md) and
+[execution evidence](../06-roadmap/local_pdf_execution.md).
 Implements [the focused plan](../06-roadmap/local_pdf_plan.md), under the
 [local architecture](../03-architecture/local_validation_architecture.md).
 No API/server rendering dependency is introduced.
@@ -36,7 +38,7 @@ For display size `(iw, ih)` and available box `(bw, bh)`:
 `scale = min(bw / iw, bh / ih)`; draw `(iw * scale, ih * scale)` centered.
 Changing maximum height also changes width. Use contain, never cover/stretch.
 Leave whitespace rather than crop Evidence. A4 portrait is the default page;
-landscape Evidence stays a landscape image within it. Provide larger detail
+landscape Evidence stays a landscape image within it. No manual display-correction editor is shipped in this slice. Provide larger detail
 pages for professional Evidence without replacing the original attachment.
 
 ## Page composition and output quality
