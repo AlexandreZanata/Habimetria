@@ -25,3 +25,4 @@ Contract: [report authorship](../../../../../../../docs/05-mobile/report_authors
 # Review
 
 - [review/ReviewCards.kt](review/ReviewCards.kt): status card with seal action and room cards in the Relatório PDF style.
+  Sealed inspections have no Rooms destination, so the Cômodos segment scrolls to the rooms section in place.

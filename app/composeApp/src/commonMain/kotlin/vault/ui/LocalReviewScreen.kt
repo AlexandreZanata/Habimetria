@@ -2,8 +2,9 @@ package vault.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.CompareArrows
@@ -30,6 +31,9 @@ import vault.ui.report.PdfSectionDivider
 import vault.ui.report.PdfSectionHeader
 import vault.ui.review.ReviewRoomCard
 import vault.ui.review.ReviewStatusCard
+
+// Index of the rooms section header in the screen list: status card is 0.
+private const val ROOMS_HEADER_INDEX = 1
 
 // LocalReviewScreen in the Relatório PDF style: segmented Cômodos/Revisão
 // shortcuts, a green status card with the seal action, room cards with
@@ -77,20 +81,40 @@ fun LocalReviewScreen(
 
     LaunchedEffect(inspectionId) { refresh() }
 
+    // Rooms is a DRAFT-only destination: it redirects sealed inspections
+    // back here. So on a sealed inspection the Cômodos segment scrolls to
+    // the rooms section on this page instead of bouncing off Rooms.
+    val listState = rememberLazyListState()
+    fun openRooms() {
+        if (sealed) {
+            scope.launch { listState.animateScrollToItem(ROOMS_HEADER_INDEX) }
+        } else {
+            onRoomsShortcut()
+        }
+    }
+
     ScreenColumn {
         ScreenTitle(Strings.review)
-        PdfJourneySegments(onRooms = onRoomsShortcut, onReview = {}, activeReview = true)
+        PdfJourneySegments(onRooms = ::openRooms, onReview = {}, activeReview = true)
         ErrorText(error)
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            ReviewStatusCard(
-                sealed = sealed,
-                photoCount = evidences.size,
-                roomCount = rooms.size,
-                sealEnabled = true,
-                onSeal = onSeal,
-            )
-            PdfSectionHeader(Strings.rooms, Strings.reviewRoomsBody)
-            rooms.forEach { room ->
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            state = listState,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            item(key = "status") {
+                ReviewStatusCard(
+                    sealed = sealed,
+                    photoCount = evidences.size,
+                    roomCount = rooms.size,
+                    sealEnabled = true,
+                    onSeal = onSeal,
+                )
+            }
+            item(key = "rooms-header") {
+                PdfSectionHeader(Strings.rooms, Strings.reviewRoomsBody)
+            }
+            items(rooms, key = { it.id }) { room ->
                 ReviewRoomCard(
                     session = session,
                     room = room,
@@ -102,30 +126,38 @@ fun LocalReviewScreen(
                     onEvidenceChanged = { refresh() },
                 )
             }
-            PdfSectionDivider()
-            PdfSectionHeader(Strings.pdfMoreOptions, Strings.reviewMoreOptionsBody)
-            PdfOptionCard(
-                Icons.Filled.Description,
-                Strings.reviewReportData,
-                Strings.reviewReportDataBody,
-                enabled = true,
-                onClick = { reportDetails = true },
-            )
-            PdfOptionCard(
-                Icons.Filled.AutoAwesome,
-                Strings.inspectorTitle,
-                Strings.reviewAssistantBody,
-                enabled = true,
-                onClick = onInspector,
-            )
-            if (kind == "exit") {
+            item(key = "options-divider") { PdfSectionDivider() }
+            item(key = "options-header") {
+                PdfSectionHeader(Strings.pdfMoreOptions, Strings.reviewMoreOptionsBody)
+            }
+            item(key = "options-report") {
                 PdfOptionCard(
-                    Icons.Filled.CompareArrows,
-                    Strings.compareTitle,
-                    Strings.reviewCompareBody,
+                    Icons.Filled.Description,
+                    Strings.reviewReportData,
+                    Strings.reviewReportDataBody,
                     enabled = true,
-                    onClick = onCompare,
+                    onClick = { reportDetails = true },
                 )
+            }
+            item(key = "options-assistant") {
+                PdfOptionCard(
+                    Icons.Filled.AutoAwesome,
+                    Strings.inspectorTitle,
+                    Strings.reviewAssistantBody,
+                    enabled = true,
+                    onClick = onInspector,
+                )
+            }
+            if (kind == "exit") {
+                item(key = "options-compare") {
+                    PdfOptionCard(
+                        Icons.Filled.CompareArrows,
+                        Strings.compareTitle,
+                        Strings.reviewCompareBody,
+                        enabled = true,
+                        onClick = onCompare,
+                    )
+                }
             }
         }
     }

@@ -85,7 +85,13 @@ fun LocalPdfScreen(
     if (showExternal && report != null) ExternalSigningSheet(session, report!!.id, picker) { showExternal = false; revision++ }
     ScreenColumn {
         ScreenTitle(Strings.reportPdf)
-        vault.ui.report.PdfJourneySegments(onRooms = onRoomsShortcut, onReview = onReviewShortcut)
+        // The PDF exists only on sealed inspections and Rooms redirects
+        // those back to Review, so route there directly instead of
+        // bouncing off Rooms.
+        vault.ui.report.PdfJourneySegments(
+            onRooms = { if (manifest != null) onReviewShortcut() else onRoomsShortcut() },
+            onReview = onReviewShortcut,
+        )
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             val current = report
             val ready = current?.status == REPORT_READY && verification?.allOk() == true
