@@ -60,6 +60,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `06-roadmap/report_authorship_execution.md` — code-only identity, declarations, certificate and editorial delivery; user-owned manual gates
 - `06-roadmap/local_pdf_execution.md` — implementation results, native synthetic proof and remaining release gates
 - `06-roadmap/local_pdf_acceptance.md` — planned orientation, completeness, offline integrity and professional-release proof
+- `06-roadmap/enterprise_assurance_plan.md` — enterprise test/scale/LGPD plan for municipal use (planning only)
 
 ## 07 AI Ops
 
