@@ -24,6 +24,7 @@ Tests: [ReportProfilesTest.kt](../../../../commonTest/kotlin/vault/local/ReportP
 - [ResponsibilityDocument.kt](ResponsibilityDocument.kt): immutable ART/RRT PDF attachment and digest binding.
 
 - [PhotoDisplay.kt](PhotoDisplay.kt): frozen encoded/display dimensions and EXIF metadata.
+- [PhotoStamp.kt](PhotoStamp.kt): on-photo location stamp lines (time, place, device GPS) for PDF overlay.
 
 - [DisplayCorrection.kt](DisplayCorrection.kt): DRAFT-only manual rotation, frozen in Manifest v5.
 
