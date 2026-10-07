@@ -27,7 +27,7 @@ sealed interface InspectionRemovalPlan {
     data class Ready(
         val sealed: Boolean,
         val evidenceIds: List<String>,
-        val reportId: String?,
+        val reportIds: List<String>,
     ) : InspectionRemovalPlan
 }
 
@@ -46,7 +46,7 @@ interface InspectionRemovalDao {
     suspend fun manifest(inspectionId: String): LocalManifest?
 
     @Query("SELECT * FROM reports WHERE manifestId = :manifestId")
-    suspend fun report(manifestId: String): LocalReport?
+    suspend fun reports(manifestId: String): List<LocalReport>
 
     @Query("SELECT COUNT(*) FROM comparisons WHERE entryRoomId IN (:roomIds) OR exitRoomId IN (:roomIds)")
     suspend fun comparisonCount(roomIds: List<String>): Int
@@ -72,6 +72,9 @@ interface InspectionRemovalDao {
     @Query("DELETE FROM manifests WHERE inspectionId = :inspectionId")
     suspend fun deleteManifest(inspectionId: String)
 
+    @Query("DELETE FROM inspection_report_details WHERE inspectionId = :inspectionId")
+    suspend fun deleteDetails(inspectionId: String)
+
     @Query("DELETE FROM inspections WHERE id = :inspectionId")
     suspend fun deleteInspection(inspectionId: String): Int
 
@@ -91,7 +94,7 @@ interface InspectionRemovalDao {
         return InspectionRemovalPlan.Ready(
             sealed = inspection.status == STATUS_SEALED,
             evidenceIds = evidenceIds(inspectionId),
-            reportId = manifest?.let { report(it.id)?.id },
+            reportIds = manifest?.let { reports(it.id).map { report -> report.id } }.orEmpty(),
         )
     }
 
@@ -111,6 +114,7 @@ interface InspectionRemovalDao {
         deleteSuggestions(inspectionId)
         deleteRooms(inspectionId)
         if (manifest != null) deleteManifest(inspectionId)
+        deleteDetails(inspectionId)
         deleteInspection(inspectionId)
         return InspectionDeleteOutcome.Deleted
     }

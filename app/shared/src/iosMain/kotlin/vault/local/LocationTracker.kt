@@ -9,8 +9,7 @@ import platform.Foundation.timeIntervalSinceNow
 
 // Foreground Core Location behind the shared interface. The manager keeps
 // a cached fix warm; lastClaim reads it synchronously and never blocks
-// the shutter. iOS exposes no public mock-location flag, so isMocked
-// stays false here (documented limitation, not a fabricated false).
+// the shutter. Source information is optional; absent stays unknown.
 @OptIn(ExperimentalForeignApi::class)
 actual fun platformLocationTracker(): LocationTracker = IosLocationTracker()
 
@@ -37,7 +36,9 @@ class IosLocationTracker : LocationTracker {
             provider = "core-location",
             accuracyLevel = if (precise) "full" else "reduced",
             status = if (precise) LocationStatus.PRECISE else LocationStatus.APPROXIMATE,
-            isMocked = false,
+            isMocked = fix.sourceInformation?.isSimulatedBySoftware == true,
+            mockSignal = fix.sourceInformation?.let { if (it.isSimulatedBySoftware) "MOCKED" else "NOT_INDICATED" },
+            fixTimeDevice = fix.timestamp.description,
         ).validate()
     }
 }

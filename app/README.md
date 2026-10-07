@@ -142,3 +142,17 @@ and separate EXIF claims per photo. Android drawing is split across
 `AndroidPlanRenderer.kt`, `AndroidPdfFonts.kt` and `AndroidPdfDrawing.kt`;
 iOS drawing uses `IosPlanRenderer.kt`, `IosPdfText.kt` and `IosPdfImages.kt`.
 Both render only measured positions and fail on decoding/QR errors.
+
+- [Local feature repositories and database definitions](shared/src/commonMain/kotlin/vault/local/README.md).
+
+Report review uses `ReportDetailsSheet.kt`; Property detail uses
+`InspectionProfileDialog.kt` and `PropertyInspectionRow.kt` for profile
+selection and history. `ReportProfilesTest.kt` checks frozen professional
+metadata, direct Property ownership and version history.
+
+`PackageZip.kt` and `PackageZipImport.kt` provide bounded offline archives;
+`PackageZipTest.kt` checks portable verification, corruption and traversal.
+
+`InspectionCompletionRoutes.kt` and `LocalReportRoutes.kt` split the route
+composition. `LocalPdfScreen.kt` verifies READY bytes before sharing and
+lets users select previous versions or export the portable package.

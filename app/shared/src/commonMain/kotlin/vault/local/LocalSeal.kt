@@ -15,6 +15,7 @@ const val SEAL_EMPTY = "empty"
 const val SEAL_UNREADABLE = "unreadable"
 const val SEAL_ALREADY = "already-sealed"
 const val SEAL_NOT_DRAFT = "not-draft"
+const val SEAL_REPORT_DETAILS = "report-details"
 
 data class CoverageGap(
     val roomId: String,
@@ -76,6 +77,7 @@ class LocalSealer(
                 add(if (existing != null) SEAL_ALREADY else SEAL_NOT_DRAFT)
             }
             if (evidences.isEmpty()) add(SEAL_EMPTY)
+            if (inspection.kind == "technical" && runCatching { ReportDetailsRepository(db).get(inspectionId).validate(inspection.kind) }.isFailure) add(SEAL_REPORT_DETAILS)
             if (unreadable.isNotEmpty()) add("$SEAL_UNREADABLE:${unreadable.size}")
         }
         return SealEligibility(
@@ -91,17 +93,17 @@ class LocalSealer(
         )
     }
 
-    suspend fun seal(inspectionId: String): SealOutcome {
-        db.manifestDao().getByInspection(inspectionId)?.let { return SealOutcome.AlreadySealed(it) }
+    suspend fun seal(inspectionId: String): SealOutcome = localWrite {
+        db.manifestDao().getByInspection(inspectionId)?.let { return@localWrite SealOutcome.AlreadySealed(it) }
         val inspection = db.inspectionDao().get(inspectionId)
             ?: throw LocalValidationException("inspection not found")
         if (inspection.status != STATUS_DRAFT) throw SealBlockedException(listOf(SEAL_NOT_DRAFT))
         val eligibility = assess(inspectionId)
         if (!eligibility.canSeal) throw SealBlockedException(eligibility.reasons)
 
-        val tenancy = db.tenancyDao().get(inspection.tenancyId)
-            ?: throw LocalValidationException("tenancy not found")
-        val property = db.propertyDao().get(tenancy.propertyId)
+        val tenancy = inspection.tenancyId?.let { db.tenancyDao().get(it) }
+        val propertyId = inspection.propertyId ?: tenancy?.propertyId ?: throw LocalValidationException("property link missing")
+        val property = db.propertyDao().get(propertyId)
             ?: throw LocalValidationException("property not found")
         val sealedAt = deviceNowIso()
         val canonical = canonicalManifestJson(
@@ -115,6 +117,11 @@ class LocalSealer(
                 findings = db.roomDao().listForInspection(inspectionId)
                     .flatMap { db.findingDao().listForRoom(it.id) },
                 sealedAtDevice = sealedAt,
+                details = ReportDetailsRepository(db).get(inspectionId).validate(inspection.kind),
+                findingLabels = db.roomDao().listForInspection(inspectionId).flatMap { db.findingDao().listForRoom(it.id) }
+                    .map { it.preset }.distinct().associateWith { code ->
+                        FindingProblemRepository(db).resolveCode(code)?.label ?: code
+                    },
             ),
         )
         for (evidence in db.evidenceDao().listForInspection(inspectionId)) {
@@ -139,14 +146,14 @@ class LocalSealer(
             val marked = db.manifestDao().commitSeal(manifest, inspectionId, sealedAt)
             if (marked == 0) {
                 // Lost race with a concurrent seal: return the winner's row.
-                db.manifestDao().getByInspection(inspectionId)?.let { return SealOutcome.AlreadySealed(it) }
+                db.manifestDao().getByInspection(inspectionId)?.let { return@localWrite SealOutcome.AlreadySealed(it) }
             }
         } catch (e: Exception) {
             // Insert aborted on the unique binding: same outcome.
-            db.manifestDao().getByInspection(inspectionId)?.let { return SealOutcome.AlreadySealed(it) }
+            db.manifestDao().getByInspection(inspectionId)?.let { return@localWrite SealOutcome.AlreadySealed(it) }
             throw e
         }
-        return SealOutcome.Sealed(manifest)
+        return@localWrite SealOutcome.Sealed(manifest)
     }
 
     // Any alteration — canonical byte, Room label, note, GPS value —

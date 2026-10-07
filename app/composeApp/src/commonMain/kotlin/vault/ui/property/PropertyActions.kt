@@ -27,6 +27,7 @@ suspend fun createPropertyAndStart(
     complement: String,
     neighborhood: String,
     onReady: (inspectionId: String) -> Unit,
+    technical: Boolean = false,
 ) {
     val session = container.local
     if (session != null) {
@@ -37,8 +38,10 @@ suspend fun createPropertyAndStart(
             neighborhood = neighborhood,
             nickname = nickname,
         )
-        val ten = session.repository.createTenancy(prop.id)
-        val ins = session.repository.createInspection(ten.id)
+        val ins = if (technical) session.repository.createTechnicalInspection(prop.id) else {
+            val ten = session.repository.createTenancy(prop.id)
+            session.repository.createInspection(ten.id)
+        }
         session.navigation.save(NavigationProgress(ins.id))
         onReady(ins.id)
     } else {

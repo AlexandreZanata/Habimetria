@@ -16,6 +16,8 @@ data class LocationClaim(
     val accuracyLevel: String?,
     val status: LocationStatus,
     val isMocked: Boolean = false,
+    val mockSignal: String? = null,
+    val fixTimeDevice: String? = null,
 ) {
     // A claim is only as strong as its coordinates: precise/approximate
     // without coordinates is a programming error, caught before storage.
@@ -25,6 +27,12 @@ data class LocationClaim(
         ) {
             throw LocalValidationException("precise/approximate claim without coordinates")
         }
+        require((latitude == null) == (longitude == null)) { "incomplete coordinates" }
+        require(latitude == null || (latitude.isFinite() && latitude in -90.0..90.0)) { "invalid latitude" }
+        require(longitude == null || (longitude.isFinite() && longitude in -180.0..180.0)) { "invalid longitude" }
+        require(accuracyM == null || (accuracyM.isFinite() && accuracyM >= 0)) { "invalid accuracy" }
+        require(fixAgeMs == null || fixAgeMs >= 0) { "invalid fix age" }
+        require(mockSignal == null || mockSignal in listOf("MOCKED", "NOT_INDICATED")) { "invalid mock signal" }
         return this
     }
 }

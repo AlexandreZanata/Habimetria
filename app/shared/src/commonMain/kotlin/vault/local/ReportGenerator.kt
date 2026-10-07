@@ -28,12 +28,18 @@ class ReportGenerator(
     fun pdfPath(reportId: String): String = artifacts.pdf(reportId)
     fun receiptPath(reportId: String): String = artifacts.receipt(reportId)
     suspend fun existingReport(manifestId: String): LocalReport? = db.reportDao().getByManifest(manifestId)
+    suspend fun versions(manifestId: String): List<LocalReport> = db.reportDao().listForManifest(manifestId)
     suspend fun manifestFor(inspectionId: String) = db.manifestDao().getByInspection(inspectionId)
     suspend fun reportById(reportId: String) = db.reportDao().get(reportId)
 
     suspend fun exportPackage(reportId: String): String = lock.withLock {
         require(verify(reportId).allOk()) { "report verification failed" }
         PackageExporter(db, filesDir, originals, signer, fs).export(reportId)
+    }
+
+    suspend fun exportZip(reportId: String): String {
+        val dir = exportPackage(reportId)
+        return packageZip(dir, "$filesDir/vault/packages/$reportId.zip", fs)
     }
 
     // Explicit removal deletes this artifact; later generation has a new ID.
@@ -51,9 +57,11 @@ class ReportGenerator(
         renderer: PlanRenderer,
         onProgress: (done: Int, total: Int) -> Unit = { _, _ -> },
         isCancelled: () -> Boolean = { false },
+        newVersion: Boolean = false,
     ): LocalReport = lock.withLock {
         val manifest = manifestFor(inspectionId) ?: throw LocalValidationException("seal the inspection first")
-        val existing = existingReport(manifest.id)
+        val prior = existingReport(manifest.id)
+        val existing = if (newVersion && prior?.status == REPORT_READY) null else prior
         if (existing?.status == REPORT_READY) {
             require(verify(existing.id).allOk()) { "existing finalized report was modified; cannot overwrite" }
             return@withLock existing
@@ -67,7 +75,7 @@ class ReportGenerator(
             manifestSha256 = manifest.canonicalSha256, status = REPORT_RENDERING,
             pdfSha256 = null, pdfFileName = null, receiptSignature = null,
             signerKeyId = signer.keyId, algorithm = SEAL_ALGORITHM,
-            hardwareBacked = signer.hardwareBacked, createdAtDevice = deviceNowIso(), completedAtDevice = null,
+            hardwareBacked = signer.hardwareBacked, createdAtDevice = deviceNowIso(), completedAtDevice = null, versionNumber = (versions(manifest.id).maxOfOrNull { it.versionNumber } ?: 0) + 1,
         )
         if (existing == null) db.reportDao().insert(report) else db.reportDao().update(report)
         try {

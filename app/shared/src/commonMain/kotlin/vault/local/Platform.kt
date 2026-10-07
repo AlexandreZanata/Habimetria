@@ -5,3 +5,5 @@ package vault.local
 expect fun newLocalId(prefix: String): String
 
 expect fun deviceNowIso(): String
+
+expect fun deviceUtcOffsetMinutes(): Int

@@ -52,3 +52,17 @@ Per room % + total %. Example prompt:
 > "Bathroom 60% — add ceiling, inside shower, under sink."
 
 Drives completeness and perceived protection.
+
+## Local PDF profiles
+
+- Property detail lets the user start a rental or technical Inspection.
+  Technical Inspection owns Property directly and has no dummy Tenancy.
+- Review includes optional report details for rental use. Technical use
+  requires author/council, scope, methods, limitations, analysis,
+  conclusions, an ART/RRT reference and author acknowledgement before seal.
+  Capture fields remain unchanged; report details save incrementally.
+- SEALED review displays frozen metadata; editing requires a new Inspection
+  or Occurrence, never an unlock. A new PDF version preserves previous bytes.
+- Share checks stored PDF, receipt, Manifest and originals again. Users can
+  share a plain PDF or a portable offline verification package. Unknown
+  installation keys remain unknown; sharing never records party agreement.

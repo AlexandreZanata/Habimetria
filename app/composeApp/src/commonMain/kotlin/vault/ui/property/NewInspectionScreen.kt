@@ -39,6 +39,7 @@ fun NewInspectionScreen(
     var complement by rememberSaveable { mutableStateOf("") }
     var neighborhood by rememberSaveable { mutableStateOf("") }
     var nickname by rememberSaveable { mutableStateOf("") }
+    var technical by rememberSaveable { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
     var error by rememberSaveable { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
@@ -63,6 +64,12 @@ fun NewInspectionScreen(
     ) {
         ScreenTitle(Strings.newInspection)
         if (local != null) {
+            androidx.compose.foundation.layout.Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf(false, true).forEach { mode ->
+                    androidx.compose.material3.FilterChip(selected = technical == mode, onClick = { technical = mode }, enabled = !busy,
+                        label = { androidx.compose.material3.Text(if (mode) "Profissional" else "Locação") })
+                }
+            }
             PropertyAddressForm(
                 nickname, { nickname = it }, street, { street = it },
                 number, { number = it }, complement, { complement = it },
@@ -79,7 +86,7 @@ fun NewInspectionScreen(
                     scope.launch {
                         try {
                             createPropertyAndStart(
-                                container, nickname, street, number, complement, neighborhood, onReady,
+                                container, nickname, street, number, complement, neighborhood, onReady, technical = technical,
                             )
                         } catch (e: Exception) {
                             error = userErrorMessage(e)

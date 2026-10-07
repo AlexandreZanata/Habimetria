@@ -14,7 +14,7 @@ fun manifestSnapshot(manifest: LocalManifest): ManifestInput {
     val inspectionId = root.text("inspectionId")
     require(inspectionId == manifest.inspectionId) { "inspection binding mismatch" }
     val propertyId = root.text("propertyId")
-    val tenancyId = root.text("tenancyId")
+    val tenancyId = root.optionalText("tenancyId")
     val sealedAt = root.text("sealedAtDevice")
     require(sealedAt == manifest.sealedAtDevice) { "seal timestamp binding mismatch" }
     val rooms = root.getValue("rooms").jsonArray.map { item ->
@@ -35,6 +35,9 @@ fun manifestSnapshot(manifest: LocalManifest): ManifestInput {
             provider = row.optionalText("provider"), accuracyLevel = row.optionalText("accuracyLevel"),
             isMocked = row.getValue("isMocked").jsonPrimitive.boolean,
             exifLatitude = row.number("exifLatitude"), exifLongitude = row.number("exifLongitude"),
+            mockSignal = row.optionalText("mockSignal"), fixTimeDevice = row.optionalText("fixTimeDevice"),
+            deviceUtcOffsetMinutes = row.optionalText("deviceUtcOffsetMinutes")?.toInt(),
+            exifOrientation = row.optionalText("exifOrientation")?.toInt(),
         )
     }
     val findings = root.getValue("findings").jsonArray.map { item ->
@@ -54,9 +57,11 @@ fun manifestSnapshot(manifest: LocalManifest): ManifestInput {
     findings.forEach { require(it.roomId == evidenceRooms[it.evidenceId]) { "finding binding mismatch" } }
     require(findings.map { it.id }.distinct().size == findings.size) { "duplicate findings" }
     return ManifestInput(propertyId, root.text("address"),
-        LocalTenancy(tenancyId, propertyId, root.text("tenancyType"), sealedAt),
-        LocalInspection(inspectionId, tenancyId, root.optionalText("kind") ?: "entry", STATUS_SEALED, sealedAt, sealedAt),
-        rooms, evidences, findings, sealedAt)
+        tenancyId?.let { LocalTenancy(it, propertyId, root.text("tenancyType"), sealedAt) },
+        LocalInspection(inspectionId, tenancyId, root.optionalText("kind") ?: "entry", STATUS_SEALED, sealedAt, sealedAt, propertyId),
+        rooms, evidences, findings, sealedAt,
+        root["reportDetails"]?.let { reportDetailsJson.decodeFromJsonElement(ReportDetails.serializer(), it) } ?: ReportDetails(),
+        root["findingLabels"]?.jsonObject?.mapValues { it.value.jsonPrimitive.content }.orEmpty())
 }
 
 private fun JsonObject.text(name: String): String = getValue(name).jsonPrimitive.content

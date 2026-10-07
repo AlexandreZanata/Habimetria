@@ -53,6 +53,7 @@ data class PdfModel(
     val rooms: List<PdfRoomSection>,
     val methodology: List<String>,
     val appendixHashes: List<Pair<String, String>>,
+    val details: ReportDetails = ReportDetails(),
 )
 
 // Fixed model assembly from the sealed snapshot: rooms in sort order,
@@ -79,7 +80,7 @@ fun buildPdfModel(
             )
         }
         val findings = input.findings.filter { it.roomId == room.id }.map { f ->
-            PdfFindingEntry("nº ${evidences.firstOrNull { it.id == f.evidenceId }?.sequence ?: 0}", room.label, f.preset, f.note)
+            PdfFindingEntry("nº ${evidences.firstOrNull { it.id == f.evidenceId }?.sequence ?: 0}", room.label, input.findingLabels[f.preset] ?: f.preset, f.note)
         }
         PdfRoomSection(room.label, coverageOf(room.id), photos, findings)
     }
@@ -98,11 +99,12 @@ fun buildPdfModel(
         rooms = sections,
         methodology = methodologyLines(),
         appendixHashes = appendix,
+        details = input.details,
     )
 }
 
 private fun methodologyLines(): List<String> = listOf(
-    "Fotos capturadas no dispositivo e preservadas sem recompressão.",
+    "Originais preservados sem recompressão; a origem declarada aparece em cada foto.",
     "Cobertura calculada por categorias distintas de foto, nunca por contagem.",
     "Hora e GPS são declarações do dispositivo, sem certificação independente.",
     "Coordenadas EXIF são declaração separada e divergências ficam visíveis.",

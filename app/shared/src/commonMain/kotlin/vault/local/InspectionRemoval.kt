@@ -42,7 +42,7 @@ class InspectionRemovalRepository(
                 }
                 // Same layout as ReportGenerator.reportsDir(); the row is
                 // already gone, so missing files are simply skipped.
-                ready.reportId?.let { reportId ->
+                ready.reportIds.forEach { reportId ->
                     fs.delete("$filesDir/vault/reports/$reportId.pdf".toPath(), mustExist = false)
                     fs.delete("$filesDir/vault/reports/$reportId-receipt.json".toPath(), mustExist = false)
                 }

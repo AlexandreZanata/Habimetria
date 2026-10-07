@@ -32,6 +32,9 @@ class PackageExporter(
         val snapshot = manifestSnapshot(manifest)
         val pdfBytes = readReportPdf(reportId)
         val dir = packageDir(reportId)
+        if (fs.exists(dir.toPath())) {
+            if (PackageVerifier(signer, fs).verify(dir).accepted()) return dir
+        }
         val staging = "$dir.tmp".toPath()
         fs.deleteRecursively(staging)
         fs.createDirectories(staging)
@@ -63,8 +66,12 @@ class PackageExporter(
         }
         require(PackageVerifier(signer, fs).verify(staging.toString()).accepted()) { "staged package verification failed" }
         val final = dir.toPath()
-        fs.deleteRecursively(final)
-        fs.atomicMove(staging, final)
+        val backup = "$dir.previous".toPath()
+        fs.deleteRecursively(backup)
+        if (fs.exists(final)) fs.atomicMove(final, backup)
+        try { fs.atomicMove(staging, final) }
+        catch (e: Exception) { if (fs.exists(backup)) fs.atomicMove(backup, final); throw e }
+        fs.deleteRecursively(backup)
         return dir
     }
 

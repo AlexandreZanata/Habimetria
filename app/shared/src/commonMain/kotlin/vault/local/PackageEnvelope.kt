@@ -43,6 +43,8 @@ internal data class SignerFile(
 @Serializable
 internal data class ManifestSummary(
     val inspectionId: String = "",
+    val formatVersion: Int = 0,
+    val purpose: String = "",
     val evidences: List<ManifestEvidence> = emptyList(),
 )
 
@@ -50,6 +52,7 @@ internal data class ManifestSummary(
 internal data class ManifestEvidence(
     val id: String,
     val sha256: String,
+    val size: Long,
 )
 
 internal val packageJson = Json { ignoreUnknownKeys = true }

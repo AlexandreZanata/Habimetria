@@ -19,7 +19,11 @@ class PackageVerifier(
         packageDir: String,
         pinnedKeys: Set<String> = emptySet(),
         certifiedKeys: Set<String> = emptySet(),
-    ): PackageVerdict {
+    ): PackageVerdict = try { verifyChecked(packageDir, pinnedKeys, certifiedKeys) } catch (_: Exception) {
+        PackageVerdict(FileStatus.MODIFIED, FileStatus.MODIFIED, FileStatus.MODIFIED, 0, emptyList(), emptyList(), false, IssuerTrust.UNKNOWN)
+    }
+
+    private fun verifyChecked(packageDir: String, pinnedKeys: Set<String>, certifiedKeys: Set<String>): PackageVerdict {
         val dir = packageDir.toPath()
         val pdfBytes = readOrNull(dir.resolve("report.pdf"))
         val receiptFile = readUtf8OrNull(dir.resolve("receipt.json"))?.let {
@@ -98,14 +102,20 @@ class PackageVerifier(
 
     private fun checkOriginals(dir: okio.Path, manifestBytes: String): Triple<Int, List<String>, List<String>> {
         val summary = packageJson.decodeFromString<ManifestSummary>(manifestBytes)
+        require(summary.formatVersion in 1..MANIFEST_FORMAT_VERSION && summary.purpose == MANIFEST_PURPOSE) { "unsupported manifest" }
+        require(summary.evidences.size in 1..1000 && summary.evidences.distinctBy { it.id }.size == summary.evidences.size) { "invalid originals" }
+        require(summary.evidences.sumOf { it.size } <= MAX_PACKAGE_BYTES) { "package too large" }
         val missing = mutableListOf<String>()
         val modified = mutableListOf<String>()
         for (evidence in summary.evidences) {
+            require(safeArtifactId(evidence.id) && evidence.size in 1..MAX_ORIGINAL_BYTES) { "invalid original" }
             val path = dir.resolve("originals/${evidence.id}.bin")
             if (!fs.exists(path)) {
                 missing.add(evidence.id)
                 continue
             }
+            require(fs.canonicalize(path).toString().startsWith(fs.canonicalize(dir).toString() + "/")) { "original outside package" }
+            if (fs.metadata(path).size != evidence.size) { modified.add(evidence.id); continue }
             val bytes = fs.read(path) { readByteArray() }
             if (bytes.toByteString().sha256().hex() != evidence.sha256) modified.add(evidence.id)
         }
@@ -113,10 +123,16 @@ class PackageVerifier(
     }
 
     private fun readOrNull(path: okio.Path): ByteArray? =
-        if (fs.exists(path)) fs.read(path) { readByteArray() } else null
+        if (fs.exists(path)) {
+            require(fs.metadata(path).size in 1..MAX_ORIGINAL_BYTES && fs.metadata(path).symlinkTarget == null)
+            fs.read(path) { readByteArray() }
+        } else null
 
     private fun readUtf8OrNull(path: okio.Path): String? =
-        if (fs.exists(path)) fs.read(path) { readUtf8() } else null
+        if (fs.exists(path)) {
+            require(fs.metadata(path).size in 1L..8L * 1024 * 1024 && fs.metadata(path).symlinkTarget == null)
+            fs.read(path) { readUtf8() }
+        } else null
 
     private fun String.decodeHexSafe(): ByteArray =
         try {

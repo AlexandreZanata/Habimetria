@@ -12,6 +12,7 @@ import androidx.room.Transaction
 // and archive never touches originals/derivatives.
 enum class PropertyBlockReason {
     HAS_TENANCIES,
+    HAS_INSPECTIONS,
     HAS_OCCURRENCES,
     HAS_MIRROR_LINK,
 }
@@ -22,9 +23,10 @@ data class PropertyEligibility(
     val tenancyCount: Int,
     val occurrenceCount: Int,
     val hasMirrorLink: Boolean,
+    val inspectionCount: Int = 0,
 ) {
     val canDelete: Boolean =
-        tenancyCount == 0 && occurrenceCount == 0 && !hasMirrorLink
+        tenancyCount == 0 && inspectionCount == 0 && occurrenceCount == 0 && !hasMirrorLink
 }
 
 sealed interface PropertyDeleteOutcome {
@@ -53,6 +55,9 @@ interface PropertyRemovalDao {
     @Query("SELECT COUNT(*) FROM tenancies WHERE propertyId = :propertyId")
     suspend fun countTenancies(propertyId: String): Int
 
+    @Query("SELECT COUNT(*) FROM inspections WHERE propertyId = :propertyId")
+    suspend fun countInspections(propertyId: String): Int
+
     @Query("SELECT COUNT(*) FROM occurrences WHERE propertyId = :propertyId")
     suspend fun countOccurrences(propertyId: String): Int
 
@@ -77,6 +82,7 @@ interface PropertyRemovalDao {
             tenancyCount = countTenancies(propertyId),
             occurrenceCount = countOccurrences(propertyId),
             hasMirrorLink = countMirrorLinks(propertyId) > 0,
+            inspectionCount = countInspections(propertyId),
         )
     }
 
@@ -88,6 +94,7 @@ interface PropertyRemovalDao {
         if (countTenancies(propertyId) > 0) {
             return PropertyDeleteOutcome.Blocked(PropertyBlockReason.HAS_TENANCIES)
         }
+        if (countInspections(propertyId) > 0) return PropertyDeleteOutcome.Blocked(PropertyBlockReason.HAS_INSPECTIONS)
         if (countOccurrences(propertyId) > 0) {
             return PropertyDeleteOutcome.Blocked(PropertyBlockReason.HAS_OCCURRENCES)
         }

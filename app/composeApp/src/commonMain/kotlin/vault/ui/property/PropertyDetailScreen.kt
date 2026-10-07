@@ -49,6 +49,7 @@ fun PropertyDetailScreen(
     var inspections by remember { mutableStateOf<List<LocalInspection>?>(null) }
     var loadError by rememberSaveable { mutableStateOf<String?>(null) }
     var actionError by rememberSaveable { mutableStateOf<String?>(null) }
+    var chooseProfile by remember { mutableStateOf(false) }
     var busy by rememberSaveable { mutableStateOf(false) }
     var filter by rememberSaveable { mutableStateOf("ALL") }
     val scope = rememberCoroutineScope()
@@ -66,6 +67,8 @@ fun PropertyDetailScreen(
     }
 
     LaunchedEffect(local, propertyId) { load() }
+
+    if (chooseProfile) InspectionProfileDialog(container, propertyId, onNewInspection) { chooseProfile = false }
 
     val visible = (inspections.orEmpty()).filter {
         when (filter) {
@@ -163,43 +166,10 @@ fun PropertyDetailScreen(
                 }
                 ErrorText(actionError)
                 OutlinedButton(
-                    onClick = {
-                        busy = true
-                        actionError = null
-                        scope.launch {
-                            try {
-                                startOnProperty(container, propertyId, onNewInspection)
-                                load()
-                            } catch (e: Exception) {
-                                actionError = userErrorMessage(e)
-                            } finally {
-                                busy = false
-                            }
-                        }
-                    },
+                    onClick = { chooseProfile = true },
                     modifier = Modifier.fillMaxWidth(),
                 ) { Text(Strings.newInspection) }
             }
-        }
-    }
-}
-
-@Composable
-private fun InspectionRow(
-    inspection: LocalInspection,
-    busy: Boolean,
-    onResume: () -> Unit,
-    onReview: () -> Unit,
-) {
-    val sealed = inspection.status == STATUS_SEALED
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            if (sealed) PropertyStrings.sealedLabel else PropertyStrings.draftLabel,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        OutlinedButton(onClick = { if (sealed) onReview() else onResume() }, enabled = !busy) {
-            Text(if (sealed) Strings.review else Strings.continueAction)
         }
     }
 }

@@ -51,7 +51,7 @@ class VisualDiffRepository(private val db: VaultDatabase) {
             if (existing == null) {
                 db.visualDiffDao().insert(
                     VisualDiff(
-                        id = newLocalId("dif"), tenancyId = exit.tenancyId,
+                        id = newLocalId("dif"), tenancyId = exit.tenancyId ?: throw LocalValidationException("tenancy required"),
                         exitInspectionId = exitInspectionId,
                         entryRoomId = pair.entryRoomId, exitRoomId = pair.exitRoomId,
                         shotCategory = pair.category.name,

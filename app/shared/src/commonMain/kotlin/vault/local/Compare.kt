@@ -56,7 +56,7 @@ class CompareRepository(private val db: VaultDatabase) {
     }
 
     private suspend fun entryInspectionOf(exit: vault.local.db.LocalInspection): String {
-        val tenancyRooms = db.inspectionDao().listForTenancy(exit.tenancyId)
+        val tenancyRooms = db.inspectionDao().listForTenancy(exit.tenancyId ?: throw LocalValidationException("tenancy required"))
         return tenancyRooms.firstOrNull { it.kind == "entry" }?.id
             ?: throw LocalValidationException("entry inspection not found")
     }
