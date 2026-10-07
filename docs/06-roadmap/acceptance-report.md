@@ -135,6 +135,24 @@ release install, Baseline Profiles collection, five-user usability
 sessions. "All devices" is not a test result; no beta without the
 [beta runbook](beta_readiness.md) matrix filled.
 
+## Linux re-pass on the hardened branch (2026-10-07)
+
+Base: `1ca3c17` on `codex/legal-report-hardening` (usability plan plus
+PDF07 hardening: explicit external-signing intent, PAdES readiness,
+contracted-ACT token binding, offline revocation policy, outline
+consistency). Host: Linux. Code gates only; no device or user session
+was run.
+
+- `make verify`: Go vet + `go test ./...` pass.
+- `:shared:jvmTest` (forced rerun): **194/194 across 65 suites**,
+  0 failures (includes PAdES readiness, timestamp ABSENT/EXTERNAL,
+  revocation UNKNOWN, external intent/preservation and outline cases).
+- `:composeApp:assembleDebug` and `:composeApp:assembleDebugAndroidTest`:
+  green as compilation only. Instrumented tests were not executed and no
+  APK was installed. iOS checking excluded.
+- U12 device runs, five-user sessions, PDF08 manual validation and the
+  beta device matrix stay explicitly unverified and user-owned.
+
 ## Device-pass instructions (macOS + hardware)
 
 Execute the [beta readiness runbook](beta_readiness.md), which consolidates

@@ -1,6 +1,8 @@
 # Local Usability — Execution Plan and Task Backlog
 
-Status: ready for implementation; every task below is unstarted.
+Status: U01–U11 implemented; Linux code gates re-passed on the hardened
+branch (see [acceptance report](acceptance-report.md)). U12 device runs and
+the five-user sessions stay user-owned manual gates and remain unverified.
 Source inspection: `ad42d25`, 2026-10-01. This is planning, not an app release.
 
 Contracts: [navigation UX](../02-product/local_navigation_ux.md),
