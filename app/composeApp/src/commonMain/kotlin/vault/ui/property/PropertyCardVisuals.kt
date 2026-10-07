@@ -54,7 +54,7 @@ internal fun PropertyCover(photoPath: String?, modifier: Modifier) {
             painter = painterResource(Res.drawable.home_brazil_house),
             contentDescription = null,
             modifier = cover.background(MaterialTheme.colorScheme.primaryContainer),
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.Fit,
         )
     }
 }

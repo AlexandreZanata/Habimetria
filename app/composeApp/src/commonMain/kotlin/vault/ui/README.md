@@ -18,6 +18,7 @@ Contract: [report authorship](../../../../../../../docs/05-mobile/report_authors
 
 - [property/HomeHeroBanner.kt](property/HomeHeroBanner.kt): compact mint banner with short native copy, Brazilian house art and Nova vistoria.
 - [property/PropertyCards.kt](property/PropertyCards.kt): property card rows driven by overviews.
+- [property/PropertyCardRow.kt](property/PropertyCardRow.kt): text-first measurement with the cover constrained to the metadata height.
 - [property/PropertyCardMenu.kt](property/PropertyCardMenu.kt): overlaid property options with a full-sized touch target.
 - [property/PropertyCardVisuals.kt](property/PropertyCardVisuals.kt): cover thumbnail and rooms/status chips.
 - [property/PropertyCoverPicker.kt](property/PropertyCoverPicker.kt): durable cover photo pick/capture/remove.

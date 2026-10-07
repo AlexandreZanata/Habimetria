@@ -21,7 +21,12 @@ Preserve the [capture flow](capture-flow.md) and
   serves as fallback cover art only when no saved Property photo is present.
   The hero uses the artwork's 3:2 aspect ratio without a tall empty image
   box, with 12 dp vertical padding and spacing before its action.
-  Property covers are 104 dp wide and span the metadata row. The title
+  Property covers are 104 dp wide and span the metadata row. Measure the
+  metadata first, then constrain the cover to that exact height; image
+  intrinsic dimensions never determine card height. Saved photos use
+  proportional center cropping; fallback art uses proportional fit so
+  the whole house remains visible. Neither image path stretches pixels.
+  The title
   aligns with the cover top and is capped at one line; the address reserves
   two lines with ellipsis. The overlaid options menu keeps its 48 dp target
   without adding height above the address. Compact chips wrap only when
