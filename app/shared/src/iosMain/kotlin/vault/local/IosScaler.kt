@@ -28,8 +28,8 @@ class IosScaler : ImageScaler {
         val w = image.size.useContents { width }
         val h = image.size.useContents { height }
         val longest = maxOf(w, h)
-        if (longest <= maxEdge.toDouble()) return bytes
-        val scale = maxEdge / longest
+        require(maxEdge > 0)
+        val scale = minOf(1.0, maxEdge / longest)
         val target = CGSizeMake(w * scale, h * scale)
         UIGraphicsBeginImageContextWithOptions(target, false, 1.0)
         try {

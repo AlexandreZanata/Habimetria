@@ -113,3 +113,14 @@ Pinned versions and L0 audit: `docs/05-mobile/toolchain.md`.
 AAB download < 15 MB · debug APK 12.7 MB · cold start measured in M5.
 
 See `docs/06-roadmap/mobile-phases.md` and `docs/05-mobile/`.
+
+## Local PDF implementation
+
+`shared/.../vault/local/PdfContract.kt` builds the Report model;
+`PdfTypes.kt` defines drawing ports and geometry; `PdfPagination.kt` places
+photos without stretching. `ExifOrientation.kt` defines EXIF transforms,
+covered by `ExifOrientationTest.kt` and aspect checks in `PdfContractTest.kt`.
+Native adapters use `AndroidImageDecode.kt` for bounded normalized pixels,
+`IosScaler.kt` for orientation-aware derivatives even at small sizes, and
+`JvmImageOrientation.kt` for the independent test codec. Original bytes stay
+unchanged. `PdfDims.kt` returns oriented display dimensions per platform.

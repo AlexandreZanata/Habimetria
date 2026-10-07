@@ -53,3 +53,13 @@ Follows `docs/03-architecture/client-processing.md`. Server never renders.
 - Final PDF ≤ 50 MB (server cap). Target < 10 MB per 100 photos.
 - Render off-main-thread with progress; cancellable; retryable upload
   through the same evidence queue (idempotency-key).
+
+## Photo geometry (PDF02)
+
+EXIF orientations 1–8 include mirrors as well as rotations. Display
+dimensions swap for orientations 5–8. Shared photo placement uses contain
+geometry with centered reduced width when maximum height is reached;
+portrait Evidence is never stretched to full landscape width. Original
+bytes remain immutable. Native/JVM derivative codecs normalize display
+orientation; small iOS images also render to normalized derivative pixels.
+Physical-camera and native-renderer qualification remains a release gate.
