@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 
-// Schema v17 (v16 + displayRotation for manual orientation correction).
+// Schema v18 (v17 + room_presets for Settings-managed preset rooms).
 // Schema JSON exports to shared/schemas; every bump ships an explicit Migration.
 @Database(
     entities = [
@@ -26,8 +26,9 @@ import androidx.room.RoomDatabaseConstructor
         MirrorLink::class,
         LocalFindingProblem::class,
         InspectionReportDetails::class,
+        LocalRoomPreset::class,
     ],
-    version = 17,
+    version = 18,
 )
 @ConstructedBy(VaultDatabaseConstructor::class)
 abstract class VaultDatabase : RoomDatabase() {
@@ -39,6 +40,7 @@ abstract class VaultDatabase : RoomDatabase() {
     abstract fun evidenceDao(): EvidenceDao
     abstract fun findingDao(): FindingDao
     abstract fun findingProblemDao(): FindingProblemDao
+    abstract fun roomPresetDao(): RoomPresetDao
     abstract fun inspectionRemovalDao(): InspectionRemovalDao
     abstract fun manifestDao(): ManifestDao
     abstract fun reportDao(): ReportDao

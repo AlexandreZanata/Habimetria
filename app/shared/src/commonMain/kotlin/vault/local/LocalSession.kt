@@ -60,6 +60,7 @@ class LocalSession(
     val navigation = NavigationStore(fs, filesDir)
     val trust = TrustStore(db)
     val findingProblems = FindingProblemRepository(db)
+    val roomPresets = RoomPresetRepository(db)
     val inspectionRemoval = InspectionRemovalRepository(db, originals, derivatives, filesDir)
     val propertyRemoval = PropertyRemovalRepository(db)
     val occurrences = LocalOccurrenceRepository(db)
