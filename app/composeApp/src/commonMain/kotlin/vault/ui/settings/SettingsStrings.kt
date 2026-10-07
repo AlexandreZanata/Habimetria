@@ -2,6 +2,7 @@ package vault.ui.settings
 
 // Configurações copy: device-local sections only, no placeholders.
 object SettingsStrings {
+    const val toolsTitle = "Ferramentas e referências"
     const val problemsTitle = "Problemas encontrados"
     const val problemsBody = "Ative, oculte e crie os tipos de problema da vistoria."
     const val problemsHint = "Pelo menos um tipo fica ativo. Personalizados podem ser excluídos."
