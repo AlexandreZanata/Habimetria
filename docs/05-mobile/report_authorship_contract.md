@@ -52,9 +52,26 @@ manufactured government signature or a mandatory network dependency.
 External PAdES, Gov.br and ACT timestamp steps are explicit manual handoffs:
 prepare hashes/instructions offline, sign or timestamp a copy outside the app
 with the authorized holder certificate/account/TSA, preserve the READY PDF
-and register the signed copy under a distinct path. External copies stay
+and register the signed copy under a distinct path. Registration requires
+explicit user acknowledgment and a PDF-shaped distinct copy; verification
+checks READY preservation locally. External copies stay
 EXTERNAL_UNVERIFIED locally and require ITI VALIDAR or the issuing authority
-for any validity claim.
+for any validity claim. The app embeds no PAdES/ByteRange and calls no
+Gov.br or TSA API; app-side Gov.br integration would require separate
+credentialing which this delivery does not claim.
+
+Official baselines: PAdES RB/RT profiles follow DOC-ICP-15 with DocMDP
+control (ISO 32000-1) checked by
+[ITI VALIDAR](https://validar.iti.gov.br/) under Portaria ITI 22/2023;
+a signer without DocMDP may yield Indeterminate. Gov.br signing uses the
+official [Assinador](https://assinador.iti.br/), requires a prata or ouro
+account (bronze cannot sign) under Portaria SGD/MGI 11.230/2025 and
+Decreto 10.543/2020, and never takes credentials inside this app.
+ACT timestamps follow RFC 3161 TSP and DOC-ICP-13, are facultative for
+ICP-Brasil signatures, record arrival at the authority rather than shutter
+time, and need a contracted ACT. Offline revocation stays UNKNOWN and
+trusted time stays ABSENT without a registered external token; neither is
+shown as approved.
 
 Declarations form an append-only signed chain with an installation-signed
 index. Its atomic update commits staged declaration digests; recovery finishes

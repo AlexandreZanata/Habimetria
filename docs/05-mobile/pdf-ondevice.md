@@ -96,13 +96,17 @@ Kotlin and the independent Go verifier separate file integrity, signature
 validity and issuer trust. Fingerprints bind actual public-key bytes; an
 included key remains UNKNOWN until independently trusted. Certificate chain
 validity and device-time expiry are reported separately; revocation stays
-UNKNOWN offline and trusted time stays ABSENT without an external ACT token.
-No private key is exported. Hash/QR/installation signatures never imply civil identity or
+UNKNOWN offline and trusted time stays ABSENT without a registered external
+ACT token (EXTERNAL once a contracted-authority token is stored, still
+requiring the issuing ACT for validity). No private key is exported. Hash/QR/installation signatures never imply civil identity or
 ICP-Brasil certification. Embedded PAdES is not produced locally; optional
-external PAdES/Gov.br/ACT handoffs preserve READY bytes, store a distinct
-signed copy and stay EXTERNAL_UNVERIFIED until checked in ITI VALIDAR or the
-issuing authority. They require an authorized certificate, Gov.br account or
-contracted TSA and never block offline generation.
+external PAdES/Gov.br/ACT handoffs preserve READY bytes, require explicit
+user acknowledgment, accept only PDF-shaped distinct copies, store them
+separately and stay EXTERNAL_UNVERIFIED until checked in ITI VALIDAR or the
+issuing authority. They require an authorized holder certificate, Gov.br
+prata/ouro account or contracted TSA and never block offline generation.
+Gov.br takes no credential in the app; PAdES signers should enable DocMDP
+to avoid Indeterminate at VALIDAR.
 
 ## Budgets and qualification
 

@@ -1,6 +1,6 @@
 # Report Authorship — Code Delivery and Manual Qualification
 
-Date: 2026-10-02; PDF07 code extension: 2026-10-06. Branch: `codex/legal-report-hardening`.
+Date: 2026-10-02; PDF07 code extension: 2026-10-06; PDF07 hardening: 2026-10-07. Branch: `codex/legal-report-hardening`.
 Baseline: `ef1736c`. Normative scope:
 [authorship contract](../05-mobile/report_authorship_contract.md).
 
@@ -48,6 +48,15 @@ cover their earlier build only and do not qualify these changes.
    PDF UI for correction and external options. No embedded PAdES, Gov.br API,
    ACT token issuance or independently verified ICP root is claimed. PDF08
    stays pending manual validation.
+8. PDF07 hardening: explicit external-signing intent with PDF-shaped distinct
+   copies and local READY-preservation checks; PAdES readiness helper without
+   local embedding; contracted-ACT token registration (ABSENT versus
+   EXTERNAL, never certified shutter time); offline revocation UNKNOWN
+   policy; Gov.br prata/ouro and contracted-ACT requirements with DocMDP,
+   VALIDAR and no-credential/no-API notes; outline consistency coverage;
+   review/PDF UI for acknowledgment and honest trust display. No embedded
+   PAdES, Gov.br API, ACT issuance or verified ICP root is claimed. PDF08
+   stays pending manual validation.
 
 ## Executed code checks
 
@@ -63,6 +72,10 @@ cover their earlier build only and do not qualify these changes.
   model text, complete editorial sections, declaration omission/alteration,
   foreign Report index, chain reorder, credential errors, unknown/pinned holder
   trust, historical exports and injected commit-move interruption/recovery.
+- Hardening cases cover PAdES-ready PDF shape, explicit external intent,
+  READY preservation with distinct-copy verification, ACT token ABSENT
+  versus EXTERNAL binding, offline revocation UNKNOWN and outline/page
+  consistency.
 
 ## Manual follow-up after all phases (user-owned)
 
