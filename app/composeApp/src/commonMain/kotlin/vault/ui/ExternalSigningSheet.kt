@@ -42,6 +42,7 @@ internal fun ExternalSigningSheet(session: LocalSession, reportId: String, picke
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var method by remember { mutableStateOf(EXTERNAL_METHOD_PADES) }
+    var acknowledged by remember { mutableStateOf(false) }
     val generator = remember(session) {
         ReportGenerator(session.db, session.filesDir, session.originals, session.derivatives, platformSigner(session.filesDir))
     }
@@ -50,6 +51,8 @@ internal fun ExternalSigningSheet(session: LocalSession, reportId: String, picke
             Text("Assinatura externa opcional (PAdES / Gov.br / carimbo do tempo)", style = MaterialTheme.typography.titleLarge)
             Text("O PDF local continua válido offline. A assinatura externa usa uma cópia: o original é preservado e a cópia nunca é marcada como verificada aqui.",
                 style = MaterialTheme.typography.bodyMedium)
+            Text("PAdES exige seu certificado A1 de titular autorizado em assinador externo compatível com ITI (RB/RT, DocMDP). Gov.br exige conta prata ou ouro no Assinador oficial; bronze não assina. Carimbo do tempo exige ACT contratada (RFC 3161). Nenhuma credencial Gov.br é digitada aqui; confira a cópia no ITI VALIDAR ou na autoridade emissora.",
+                style = MaterialTheme.typography.bodySmall)
             listOf(EXTERNAL_METHOD_PADES, EXTERNAL_METHOD_GOVBR, EXTERNAL_METHOD_TIMESTAMP).forEach { choice ->
                 androidx.compose.material3.TextButton(enabled = !busy, onClick = { method = choice }) {
                     Text("${if (choice == method) "● " else "○ "}$choice")
@@ -66,6 +69,9 @@ internal fun ExternalSigningSheet(session: LocalSession, reportId: String, picke
             }
             Text("Para registrar uma cópia assinada externamente, selecione o arquivo no verificador local após assinar fora do app.",
                 style = MaterialTheme.typography.bodySmall)
+            androidx.compose.material3.TextButton(enabled = !busy, onClick = { acknowledged = !acknowledged }) {
+                Text("${if (acknowledged) "● " else "○ "}Confirmo que assinei uma cópia fora do app com o titular/autoridade indicados e que a cópia continua sem verificação local")
+            }
             if (picker != null) {
                 VaultButton("Registrar cópia externa ($method)", {
                     busy = true
@@ -73,6 +79,7 @@ internal fun ExternalSigningSheet(session: LocalSession, reportId: String, picke
                     scope.launch {
                         var picked: PickedLocalFile? = null
                         try {
+                            check(acknowledged) { "confirme a intenção explícita antes de registrar" }
                             val selected = picker.pick("application/pdf", 50L * 1024 * 1024)
                                 ?: error("nenhum arquivo selecionado")
                             picked = selected
@@ -82,7 +89,7 @@ internal fun ExternalSigningSheet(session: LocalSession, reportId: String, picke
                             }
                             val report = generator.reportById(reportId) ?: error("report not found")
                             withContext(Dispatchers.Default) {
-                                vault.local.registerExternalSignedCopy(session.filesDir, report, method, bytes)
+                                vault.local.registerExternalSignedCopy(session.filesDir, report, method, bytes, acknowledged)
                             }
                             FileSystem.SYSTEM.delete(selectedPath.toPath(), mustExist = false)
                             onClose()
@@ -93,7 +100,7 @@ internal fun ExternalSigningSheet(session: LocalSession, reportId: String, picke
                             busy = false
                         }
                     }
-                }, enabled = !busy)
+                }, enabled = !busy && acknowledged)
             }
             ErrorText(error)
             VaultButton("Fechar", onClose, enabled = !busy)

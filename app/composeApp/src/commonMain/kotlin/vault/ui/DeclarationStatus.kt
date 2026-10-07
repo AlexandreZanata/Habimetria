@@ -24,7 +24,9 @@ internal fun DeclarationStatus(item: DeclarationCheck) {
         Text("Cadeia: ${if (status.chainValid) "íntegra" else "inválida"} · " +
             "validade no dispositivo: ${if (status.expiredAtDevice) "expirado" else if (status.notYetValidAtDevice) "ainda não válido" else "vigente"}",
             style = MaterialTheme.typography.bodySmall)
-        Text("Revogação: não verificada (offline) · Hora certificada: ausente · " +
+        val revocationLabel = if (status.revocation == "UNKNOWN") "não verificada (offline)" else status.revocation
+        val timeLabel = if (status.trustedTime == "ABSENT") "ausente" else status.trustedTime
+        Text("Revogação: $revocationLabel · Hora certificada: $timeLabel · " +
             "Confiança: ${if (status.trust == "PINNED") "impressão comparada e marcada pelo usuário" else "não verificada"}",
             style = MaterialTheme.typography.bodySmall)
     } ?: Text("Confiança: ${if (item.trusted) "impressão comparada e marcada pelo usuário" else "não verificada"}. Revogação e hora certificada não verificadas.", style = MaterialTheme.typography.bodySmall)
