@@ -44,8 +44,8 @@ fun HomeHeroBanner(enabled: Boolean, onNewInspection: () -> Unit) {
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(
@@ -68,7 +68,7 @@ fun HomeHeroBanner(enabled: Boolean, onNewInspection: () -> Unit) {
                 Image(
                     painter = painterResource(Res.drawable.home_brazil_house),
                     contentDescription = null,
-                    modifier = Modifier.weight(0.45f).aspectRatio(0.9f),
+                    modifier = Modifier.weight(0.45f).aspectRatio(1.5f),
                     contentScale = ContentScale.Fit,
                 )
             }

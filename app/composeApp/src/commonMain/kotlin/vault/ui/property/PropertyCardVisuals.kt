@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import vault.composeapp.generated.resources.Res
@@ -30,16 +31,16 @@ import vault.ui.Strings
 import vault.ui.decodeThumbnail
 
 // Cover thumbnail: saved photo when present, placeholder art otherwise.
-// Decorative: the title next to it carries the meaning. Fixed square
-// like the reference card; copy next to it is capped so rows stay even.
+// Decorative: the title next to it carries the meaning. The caller sizes
+// the cover to span the full row, including taller accessibility layouts.
 @Composable
-internal fun PropertyCover(photoPath: String?) {
+internal fun PropertyCover(photoPath: String?, modifier: Modifier) {
     val bitmap = remember(photoPath) {
         photoPath?.takeIf { it.isNotBlank() }?.let {
             runCatching { decodeThumbnail(it) }.getOrNull()
         }
     }
-    val cover = Modifier.size(88.dp).clip(RoundedCornerShape(12.dp))
+    val cover = modifier.clip(RoundedCornerShape(12.dp))
         .clearAndSetSemantics {}
     if (bitmap != null) {
         Image(
@@ -53,7 +54,7 @@ internal fun PropertyCover(photoPath: String?) {
             painter = painterResource(Res.drawable.home_brazil_house),
             contentDescription = null,
             modifier = cover.background(MaterialTheme.colorScheme.primaryContainer),
-            contentScale = ContentScale.Fit,
+            contentScale = ContentScale.Crop,
         )
     }
 }
@@ -65,7 +66,7 @@ internal fun RoomsChip(count: Int) {
         shape = CircleShape,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -73,12 +74,14 @@ internal fun RoomsChip(count: Int) {
                 Icons.Filled.Home,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.size(14.dp),
             )
             Text(
                 "$count ${Strings.roomsSuffix}",
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
@@ -91,7 +94,7 @@ internal fun StatusChip(archived: Boolean) {
         shape = CircleShape,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -102,8 +105,10 @@ internal fun StatusChip(archived: Boolean) {
             )
             Text(
                 if (archived) PropertyStrings.archivedBadge else Strings.activeLabel,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.primary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }

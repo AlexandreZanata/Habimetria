@@ -19,6 +19,15 @@ Preserve the [capture flow](capture-flow.md) and
   larger font scales. The value line communicates positioning, without
   a fixed price or guaranteed completion time. The same decorative house
   serves as fallback cover art only when no saved Property photo is present.
+  The hero uses the artwork's 3:2 aspect ratio without a tall empty image
+  box, with 12 dp vertical padding and spacing before its action.
+  Property covers are 104 dp wide and span the metadata row. The title
+  aligns with the cover top and is capped at one line; the address reserves
+  two lines with ellipsis. The overlaid options menu keeps its 48 dp target
+  without adding height above the address. Compact chips wrap only when
+  needed for window width or font scale. Text length does not expand normal
+  cards; larger accessibility fonts can grow the row and its cover together.
+  Full values remain available through Property details and text semantics.
 - `Imóveis`: local Property list, address/nickname, create/rename actions,
   and a Property detail showing its Inspections. Removal follows the
   [Property removal contract](../03-architecture/local_property_removal.md).

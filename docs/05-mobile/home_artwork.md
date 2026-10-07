@@ -8,6 +8,9 @@
 Generated with the built-in ImageGen tool on 2026-10-07, inspired by the
 user's Home reference. Native Compose supplies all text, backgrounds,
 icons and buttons. Transparency lets the artwork use light/dark theme roles.
+The hero image box follows the artwork's 3:2 ratio to avoid vertical
+letterboxing. Fallback card covers crop to the full metadata row, as saved
+photos do; the art itself is unchanged.
 
 ## Validation
 
