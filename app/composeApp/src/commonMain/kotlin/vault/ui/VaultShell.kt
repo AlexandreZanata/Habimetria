@@ -7,15 +7,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -31,10 +33,10 @@ import vault.nav.windowClassFor
 // gesture and keyboard insets once, hosting the shared header, the
 // destination bar/rail and the content. Compact windows use a bottom
 // bar; medium/expanded windows use a side rail (same four destinations,
-// existing vault.nav window classes). Detail screens keep one labeled
-// Back control; destination roots show none. Content centers under a
-// width cap on tablets/foldables; camera surfaces inside may still draw
-// under system bars, controls never do.
+// existing vault.nav window classes). Detail screens keep one arrow Back
+// control (Material arrow, 48dp target); destination roots show none.
+// Content centers under a width cap on tablets/foldables; camera
+// surfaces inside may still draw under system bars, controls never do.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VaultShell(
@@ -67,10 +69,12 @@ fun VaultShell(
                         },
                         navigationIcon = {
                             if (canGoBack) {
-                                TextButton(
-                                    onClick = onBack,
-                                    modifier = Modifier.heightIn(min = 48.dp),
-                                ) { Text(Strings.back) }
+                                IconButton(onClick = onBack) {
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = Strings.back,
+                                    )
+                                }
                             }
                         },
                         colors = TopAppBarDefaults.topAppBarColors(
