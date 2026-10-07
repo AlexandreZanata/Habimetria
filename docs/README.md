@@ -44,6 +44,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `05-mobile/report_authorship_contract.md` — optional identity, signed Share declarations, certificate-holder signatures and editorial presentation
 - `05-mobile/local-store.md` — L1 SQLite schema, files, migration rules
 - `05-mobile/design-system.md` — L2 Material 3 tokens, components, pt-BR
+- [05-mobile/home_artwork.md](05-mobile/home_artwork.md) — generated Brazilian house art and Home presentation
 
 ## 06 Roadmap
 

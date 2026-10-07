@@ -25,7 +25,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import vault.composeapp.generated.resources.Res
-import vault.composeapp.generated.resources.property_placeholder
+import vault.composeapp.generated.resources.home_brazil_house
 import vault.ui.Strings
 import vault.ui.decodeThumbnail
 
@@ -50,10 +50,10 @@ internal fun PropertyCover(photoPath: String?) {
         )
     } else {
         Image(
-            painter = painterResource(Res.drawable.property_placeholder),
+            painter = painterResource(Res.drawable.home_brazil_house),
             contentDescription = null,
-            modifier = cover,
-            contentScale = ContentScale.Crop,
+            modifier = cover.background(MaterialTheme.colorScheme.primaryContainer),
+            contentScale = ContentScale.Fit,
         )
     }
 }

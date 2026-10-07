@@ -7,13 +7,18 @@ Preserve the [capture flow](capture-flow.md) and
 
 ## Global destinations
 
-- `Início`: hero banner (`Vistoria de Imóveis` with cover art, safety lead
-  and three checks) with one `Nova vistoria` action, followed directly by
+- `Início`: compact mint hero with decorative Brazilian single-storey
+  house art and native copy: `Vistoria fácil`, `Fotos, revisão e PDF.`,
+  and `Rápida e econômica`. One `Nova vistoria` action is followed directly by
   `Meus imóveis` cards. No stat cards. Each card shows the cover photo
   (or placeholder art), nickname/address with pin, rooms + status chips
   and `Continuar` for an open draft; the `X imóveis >` header opens `Imóveis`.
   Creation still follows the existing address, Tenancy and manually named
   Room flow.
+  Copy and art occupy separate columns; text grows without truncation at
+  larger font scales. The value line communicates positioning, without
+  a fixed price or guaranteed completion time. The same decorative house
+  serves as fallback cover art only when no saved Property photo is present.
 - `Imóveis`: local Property list, address/nickname, create/rename actions,
   and a Property detail showing its Inspections. Removal follows the
   [Property removal contract](../03-architecture/local_property_removal.md).

@@ -11,6 +11,9 @@ app/
   iosApp/      # Swift host (project assembly in M2, macOS runner)
 ```
 
+Bundled decorative artwork and its generation prompt are documented in
+[Home artwork](../docs/05-mobile/home_artwork.md).
+
 UI chrome lives in `composeApp/.../vault/ui/`:
 `VaultShell` (single inset boundary + header),
 `VaultChrome` (destination bar/rail, header subtitle, shell wiring).
@@ -20,7 +23,7 @@ property management lives in `vault/ui/property/`: `NewInspectionScreen`
 overviews, detail entry), `PropertyDetailScreen` (bounded inspection
 history with DRAFT/SEALED filter), `PropertyDataForm` (editable data
 section), `PropertyForm` (address form, creation block),
-`PropertyCards` (hero + cards),
+`HomeHeroBanner` (short copy + Brazilian house), `PropertyCards` (property rows),
 `HomePropertyStates` (shared loading/error/empty), `PropertyActions`
 (creation helpers), `PropertyStrings` (feature copy).
 Journey destinations read bulk overviews from `LocalOverviewRepository`

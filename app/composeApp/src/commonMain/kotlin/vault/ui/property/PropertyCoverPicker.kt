@@ -1,6 +1,7 @@
 package vault.ui.property
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,7 +28,7 @@ import okio.FileSystem
 import okio.Path.Companion.toPath
 import org.jetbrains.compose.resources.painterResource
 import vault.composeapp.generated.resources.Res
-import vault.composeapp.generated.resources.property_placeholder
+import vault.composeapp.generated.resources.home_brazil_house
 import vault.ui.AppContainer
 import vault.ui.CaptureResult
 import vault.ui.ErrorText
@@ -68,11 +69,12 @@ fun PropertyCoverSection(
             )
         } else {
             Image(
-                painter = painterResource(Res.drawable.property_placeholder),
+                painter = painterResource(Res.drawable.home_brazil_house),
                 contentDescription = null,
                 modifier = Modifier.size(84.dp).clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer)
                     .clearAndSetSemantics {},
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.Fit,
             )
         }
         ErrorText(error)
