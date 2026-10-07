@@ -62,12 +62,18 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                 vault.ui.settings.SettingsScreen(
                     onOpenReports = { navigator.navigate(Route.Reports) },
                     onOpenProblems = { navigator.navigate(Route.FindingProblems) },
+                    onOpenRoomPresets = { navigator.navigate(Route.RoomPresets) },
                 )
             }
             Route.FindingProblems -> ChromeShell(r, container, navigator, SettingsStrings.problemsTitle, true, {
                 navigator.goBackOr(Route.Settings)
             }) {
                 vault.ui.settings.FindingProblemsScreen(container)
+            }
+            Route.RoomPresets -> ChromeShell(r, container, navigator, SettingsStrings.roomPresetsTitle, true, {
+                navigator.goBackOr(Route.Settings)
+            }) {
+                vault.ui.settings.RoomPresetsScreen(container)
             }
             Route.Reports -> ChromeShell(r, container, navigator, Strings.reports, true, {
                 navigator.goBackOr(Route.Settings)

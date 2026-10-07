@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -47,6 +48,7 @@ fun LocalRoomsScreen(
     var error by remember { mutableStateOf<String?>(null) }
     var kind by remember { mutableStateOf("entry") }
     var sealedRedirected by remember { mutableStateOf(false) }
+    var presetCount by remember { mutableStateOf(0) }
 
     fun refresh() {
         scope.launch {
@@ -62,6 +64,7 @@ fun LocalRoomsScreen(
                 rooms = list
                 percents = list.associate { it.id to session.coverage.roomCoverage(it.id).percent() }
                 counts = list.associate { it.id to session.repository.evidencesForRoom(it.id).size }
+                presetCount = session.roomPresets.list().size
                 error = null
             } catch (e: Exception) {
                 error = userErrorMessage(e)
@@ -96,6 +99,22 @@ fun LocalRoomsScreen(
             },
         )
         if (rooms.isEmpty()) RoomEmptyState()
+        if (presetCount > 0) {
+            // Copies Settings presets into this DRAFT; existing labels are
+            // skipped. Presets stay untouched and reusable across jobs.
+            TextButton(
+                onClick = {
+                    scope.launch {
+                        try {
+                            session.repository.addRoomsFromPresets(inspectionId)
+                            refresh()
+                        } catch (e: Exception) {
+                            error = userErrorMessage(e)
+                        }
+                    }
+                },
+            ) { Text("${Strings.addPresetRooms} ($presetCount)") }
+        }
         LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             items(rooms, key = { it.id }) { room ->
                 RoomListRow(

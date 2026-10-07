@@ -18,6 +18,7 @@ sealed interface Route {
     data object Reports : Route
     data object Settings : Route
     data object FindingProblems : Route
+    data object RoomPresets : Route
     data class Rooms(val inspectionId: String) : Route
     data class Room(val inspectionId: String, val roomId: String, val label: String) : Route
     data class Review(val inspectionId: String) : Route

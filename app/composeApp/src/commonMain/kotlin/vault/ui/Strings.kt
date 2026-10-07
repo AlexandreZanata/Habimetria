@@ -76,6 +76,7 @@ object Strings {
     const val roomNamePlaceholder = "Ex.: Suíte principal"
     const val roomsEmptyTitle = "Nenhum cômodo ainda."
     const val roomsEmptyHint = "Digite o nome acima para adicionar o primeiro cômodo."
+    const val addPresetRooms = "Adicionar cômodos padrão"
     const val startInspection = "Iniciar vistoria"
     const val nextRoom = "Próximo cômodo"
     const val myProperties = "Meus imóveis"

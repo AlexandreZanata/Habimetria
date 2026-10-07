@@ -21,12 +21,13 @@ import vault.ui.ScreenTitle
 import vault.ui.Strings
 
 // Settings destination: device-local sections live here (reports,
-// finding problems, future additions). Every entry navigates; there
-// are no placeholder actions.
+// finding problems, room presets). Every entry navigates; there are no
+// placeholder actions.
 @Composable
 fun SettingsScreen(
     onOpenReports: () -> Unit,
     onOpenProblems: () -> Unit,
+    onOpenRoomPresets: () -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 16.dp)
@@ -55,6 +56,27 @@ fun SettingsScreen(
                 )
                 Text(
                     Strings.settingsReportsBody,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        Card(
+            onClick = onOpenRoomPresets,
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+            ),
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(
+                    SettingsStrings.roomPresetsTitle,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Text(
+                    SettingsStrings.roomPresetsBody,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
