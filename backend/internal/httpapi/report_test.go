@@ -3,9 +3,11 @@ package httpapi
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -88,5 +90,43 @@ func TestVerifyOK(t *testing.T) {
 	h.Verify(rec, req)
 	if rec.Code != http.StatusOK {
 		t.Fatalf("want 200, got %d", rec.Code)
+	}
+}
+
+// The public verify view is an allowlisted shape: any new key fails this
+// test until the redaction policy reviews it, and forbidden personal-data
+// keys (identity, contact, location) must never appear here.
+func TestVerifyPublicKeyAllowlist(t *testing.T) {
+	sha := "ab"
+	h := NewVerifyHandler(stubReport{verify: service.VerifyResult{
+		Authentic: true, VerifyCode: "ABC", SealedAt: "t", EvidenceCount: 1,
+		ManifestSHA256: "m", SignatureValid: true, ReportSHA256: &sha, PDFReady: true,
+	}}, "k")
+	req := httptest.NewRequest("GET", "/v/ABC", nil)
+	req.SetPathValue("code", "ABC")
+	rec := httptest.NewRecorder()
+	h.Verify(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("want 200, got %d", rec.Code)
+	}
+	var body map[string]any
+	if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
+		t.Fatalf("decode public view: %v", err)
+	}
+	allowed := map[string]bool{
+		"authentic": true, "verify_code": true, "sealed_at": true,
+		"evidence_count": true, "manifest_sha256": true, "signature_valid": true,
+		"report_sha256": true, "pdf_ready": true,
+	}
+	for key := range body {
+		if !allowed[key] {
+			t.Fatalf("unreviewed public key %q: update the redaction policy first", key)
+		}
+		lower := strings.ToLower(key)
+		for _, forbidden := range []string{"cpf", "email", "phone", "contact", "address", "gps", "lat", "name"} {
+			if strings.Contains(lower, forbidden) {
+				t.Fatalf("personal-data key %q in public view", key)
+			}
+		}
 	}
 }
