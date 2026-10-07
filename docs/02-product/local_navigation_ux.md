@@ -7,8 +7,8 @@ Preserve the [capture flow](capture-flow.md) and
 
 ## Global destinations
 
-- `Início`: hero banner (`Vistoria de Imóveis` with cover art, safety lead
-  and three checks) with one `Nova vistoria` action, followed directly by
+- `Início`: hero banner (cover art with the title and one `Nova vistoria`
+  action), followed directly by
   `Meus imóveis` cards. No stat cards. Each card shows the cover photo
   (or placeholder art), nickname/address with pin, rooms + status chips
   and `Continuar` for an open draft; the `X imóveis >` header opens `Imóveis`.

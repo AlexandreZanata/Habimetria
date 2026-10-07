@@ -16,7 +16,7 @@ Contract: [report authorship](../../../../../../../docs/05-mobile/report_authors
 
 # Home and properties
 
-- [property/HomeHeroBanner.kt](property/HomeHeroBanner.kt): banner art with safety lead, checks and Nova vistoria.
+- [property/HomeHeroBanner.kt](property/HomeHeroBanner.kt): tall banner art with title and Nova vistoria.
 - [property/PropertyCards.kt](property/PropertyCards.kt): property card rows driven by overviews.
 - [property/PropertyCardVisuals.kt](property/PropertyCardVisuals.kt): cover thumbnail and rooms/status chips.
 - [property/PropertyCoverPicker.kt](property/PropertyCoverPicker.kt): durable cover photo pick/capture/remove.
