@@ -2,10 +2,12 @@ package vault.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.CompareArrows
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,12 +24,18 @@ import vault.local.db.LocalEvidence
 import vault.local.db.LocalFinding
 import vault.local.db.LocalRoom
 import vault.ui.journey.FindingInputSheet
-import vault.ui.journey.JourneyShortcuts
-import vault.ui.journey.ReviewEvidenceRow
+import vault.ui.report.PdfJourneySegments
+import vault.ui.report.PdfOptionCard
+import vault.ui.report.PdfSectionDivider
+import vault.ui.report.PdfSectionHeader
+import vault.ui.review.ReviewRoomCard
+import vault.ui.review.ReviewStatusCard
 
-// LocalReviewScreen: the sealed-truth preview while in DRAFT — every
-// room with its label unchanged, every evidence, every finding and the
-// honest coverage gaps. Sealing arrives in L5; this screen never seals.
+// LocalReviewScreen in the Relatório PDF style: segmented Cômodos/Revisão
+// shortcuts, a green status card with the seal action, room cards with
+// every evidence and finding, then option cards for report data,
+// assistant and entry-vs-exit compare. Sealing arrives in L5; this screen
+// never seals.
 @Composable
 fun LocalReviewScreen(
     container: AppContainer,
@@ -70,38 +78,55 @@ fun LocalReviewScreen(
     LaunchedEffect(inspectionId) { refresh() }
 
     ScreenColumn {
-        ScreenTitle("${Strings.review} — ${evidences.size} ${Strings.photosSuffix}")
-        JourneyShortcuts(onRooms = onRoomsShortcut, onReview = null)
+        ScreenTitle(Strings.review)
+        PdfJourneySegments(onRooms = onRoomsShortcut, onReview = {}, activeReview = true)
         ErrorText(error)
-        LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(rooms, key = { it.id }) { room ->
-                val roomEvidence = evidences.filter { it.roomId == room.id }
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(
-                        "${room.label} · ${percents[room.id] ?: 0}%",
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                    roomEvidence.forEach { evidence ->
-                        ReviewEvidenceRow(
-                            session = session,
-                            evidence = evidence,
-                            findingCount = findings.count { it.evidenceId == evidence.id },
-                            onIssue = if (sealed) null else ({ sheetFor = evidence }),
-                        )
-                        vault.ui.journey.OrientationCorrectionRow(session, evidence, sealed, onChanged = { refresh() })
-                    }
-                }
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            ReviewStatusCard(
+                sealed = sealed,
+                photoCount = evidences.size,
+                roomCount = rooms.size,
+                sealEnabled = true,
+                onSeal = onSeal,
+            )
+            PdfSectionHeader(Strings.rooms, Strings.reviewRoomsBody)
+            rooms.forEach { room ->
+                ReviewRoomCard(
+                    session = session,
+                    room = room,
+                    evidences = evidences.filter { it.roomId == room.id },
+                    findings = findings,
+                    percent = percents[room.id] ?: 0,
+                    sealed = sealed,
+                    onIssue = { sheetFor = it },
+                    onEvidenceChanged = { refresh() },
+                )
             }
-        }
-        VaultButton(text = "Dados do relatório", onClick = { reportDetails = true })
-        if (sealed) {
-            Text(Strings.sealedLocked, style = MaterialTheme.typography.bodyMedium)
-        } else {
-            VaultButton(text = "${Strings.sealNow} →", onClick = onSeal)
-        }
-        VaultButton(text = "${Strings.inspectorTitle} →", onClick = onInspector)
-        if (kind == "exit") {
-            VaultButton(text = "${Strings.compareTitle} →", onClick = onCompare)
+            PdfSectionDivider()
+            PdfSectionHeader(Strings.pdfMoreOptions, Strings.reviewMoreOptionsBody)
+            PdfOptionCard(
+                Icons.Filled.Description,
+                Strings.reviewReportData,
+                Strings.reviewReportDataBody,
+                enabled = true,
+                onClick = { reportDetails = true },
+            )
+            PdfOptionCard(
+                Icons.Filled.AutoAwesome,
+                Strings.inspectorTitle,
+                Strings.reviewAssistantBody,
+                enabled = true,
+                onClick = onInspector,
+            )
+            if (kind == "exit") {
+                PdfOptionCard(
+                    Icons.Filled.CompareArrows,
+                    Strings.compareTitle,
+                    Strings.reviewCompareBody,
+                    enabled = true,
+                    onClick = onCompare,
+                )
+            }
         }
     }
 

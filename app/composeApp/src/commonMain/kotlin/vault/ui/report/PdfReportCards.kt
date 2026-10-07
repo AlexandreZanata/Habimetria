@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -168,7 +169,28 @@ fun PdfSectionDivider() {
 // entry highlighted. Secondary chrome only; header Back plus the global
 // bar stay the hierarchical navigation.
 @Composable
-fun PdfJourneySegments(onRooms: () -> Unit, onReview: () -> Unit) {
+fun PdfJourneySegments(onRooms: () -> Unit, onReview: () -> Unit, activeReview: Boolean = false) {
+    @Composable fun RowScope.segment(
+        label: String,
+        active: Boolean,
+        onClick: () -> Unit,
+    ) {
+        Box(
+            modifier = Modifier.weight(1f)
+                .clip(RoundedCornerShape(24.dp))
+                .then(if (active) Modifier.background(MaterialTheme.colorScheme.primaryContainer) else Modifier)
+                .clickable(role = Role.Button, onClick = onClick)
+                .padding(vertical = 12.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                label,
+                style = MaterialTheme.typography.titleMedium,
+                color = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+            )
+        }
+    }
     Row(
         modifier = Modifier.fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
@@ -177,35 +199,8 @@ fun PdfJourneySegments(onRooms: () -> Unit, onReview: () -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(
-            modifier = Modifier.weight(1f)
-                .clip(RoundedCornerShape(24.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .clickable(role = Role.Button, onClick = onRooms)
-                .padding(vertical = 12.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                Strings.rooms,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                maxLines = 1,
-            )
-        }
-        Box(
-            modifier = Modifier.weight(1f)
-                .clip(RoundedCornerShape(24.dp))
-                .clickable(role = Role.Button, onClick = onReview)
-                .padding(vertical = 12.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                Strings.reviewShort,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-            )
-        }
+        segment(Strings.rooms, !activeReview, onRooms)
+        segment(Strings.reviewShort, activeReview, onReview)
     }
 }
 
