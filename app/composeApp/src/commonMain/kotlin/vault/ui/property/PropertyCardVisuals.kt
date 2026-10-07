@@ -30,16 +30,17 @@ import vault.ui.Strings
 import vault.ui.decodeThumbnail
 
 // Cover thumbnail: saved photo when present, placeholder art otherwise.
-// Decorative: the title next to it carries the meaning. Size comes from
-// the caller; the card stretches it to the row height so no gap remains.
+// Decorative: the title next to it carries the meaning. Fixed square
+// like the reference card; copy next to it is capped so rows stay even.
 @Composable
-internal fun PropertyCover(photoPath: String?, modifier: Modifier = Modifier) {
+internal fun PropertyCover(photoPath: String?) {
     val bitmap = remember(photoPath) {
         photoPath?.takeIf { it.isNotBlank() }?.let {
             runCatching { decodeThumbnail(it) }.getOrNull()
         }
     }
-    val cover = modifier.clip(RoundedCornerShape(12.dp)).clearAndSetSemantics {}
+    val cover = Modifier.size(88.dp).clip(RoundedCornerShape(12.dp))
+        .clearAndSetSemantics {}
     if (bitmap != null) {
         Image(
             bitmap = bitmap,
