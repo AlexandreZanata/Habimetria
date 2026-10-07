@@ -6,6 +6,10 @@ import kotlinx.cinterop.convert
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.usePinned
+import kotlinx.cinterop.alloc
+import kotlinx.cinterop.DoubleVar
+import kotlinx.cinterop.ptr
+import kotlinx.cinterop.value
 import platform.CoreFoundation.CFCopyDescription
 import platform.CoreFoundation.CFDataCreate
 import platform.CoreFoundation.CFDataRef
@@ -28,28 +32,28 @@ actual fun imageDimensions(bytes: ByteArray): ImageDims? {
 
 @OptIn(ExperimentalForeignApi::class)
 private fun readDims(bytes: ByteArray): ImageDims? = memScoped {
-    val data: CFDataRef = bytes.usePinned {
+    val data = bytes.usePinned {
         CFDataCreate(kCFAllocatorDefault, it.addressOf(0).reinterpret(), bytes.size.convert())
     } ?: return null
-    val source = CGImageSourceCreateWithData(data, null) ?: return null
-    val props = CGImageSourceCopyPropertiesAtIndex(source, 0u, null) as CFDictionaryRef?
-        ?: return null
-    val width = numberProp(props, kCGImagePropertyPixelWidth) ?: return null
-    val height = numberProp(props, kCGImagePropertyPixelHeight) ?: return null
-    if (width <= 0 || height <= 0) return null
-    orientedDimensions(width.toInt(), height.toInt(), numberProp(props, kCGImagePropertyOrientation)?.toInt() ?: 1)
+    try {
+        val source = CGImageSourceCreateWithData(data, null) ?: return null
+        try {
+            val props = CGImageSourceCopyPropertiesAtIndex(source, 0u, null) ?: return null
+            try {
+                val width = numberProp(props, kCGImagePropertyPixelWidth) ?: return null
+                val height = numberProp(props, kCGImagePropertyPixelHeight) ?: return null
+                if (width <= 0 || height <= 0) return null
+                orientedDimensions(width.toInt(), height.toInt(), numberProp(props, kCGImagePropertyOrientation)?.toInt() ?: 1)
+            } finally { CFRelease(props) }
+        } finally { CFRelease(source) }
+    } finally { CFRelease(data) }
 }
 
 @OptIn(ExperimentalForeignApi::class)
-private fun numberProp(props: CFDictionaryRef?, key: CFStringRef?): Double? {
-    val raw = CFDictionaryGetValue(props, key) as CFNumberRef?
-        ?: return null
-    val description = CFCopyDescription(raw) ?: return null
-    try {
-        return description.toString().toDoubleOrNull()
-    } finally {
-        CFRelease(description)
-    }
+private fun numberProp(props: CFDictionaryRef?, key: CFStringRef?): Double? = memScoped {
+    val raw = CFDictionaryGetValue(props, key) as CFNumberRef? ?: return null
+    val value = alloc<DoubleVar>()
+    if (platform.CoreFoundation.CFNumberGetValue(raw, platform.CoreFoundation.kCFNumberDoubleType, value.ptr)) value.value else null
 }
 
 actual fun formatSealedAtDevice(iso: String): String {

@@ -16,8 +16,8 @@ const val PDF_MARGIN_BOTTOM_PT = 56.0
 const val PDF_MAX_PHOTO_HEIGHT_PT = 300.0
 const val PDF_TITLE_SIZE = 20.0
 const val PDF_HEADING_SIZE = 16.0
-const val PDF_BODY_SIZE = 10.0
-const val PDF_SMALL_SIZE = 8.0
+const val PDF_BODY_SIZE = 10.5
+const val PDF_SMALL_SIZE = 9.0
 
 // One entry per sealed Evidence, in manifest sequence order.
 data class PdfPhotoEntry(
@@ -75,7 +75,7 @@ fun buildPdfModel(
                 roomLabel = room.label,
                 sequence = e.sequence,
                 caption = "${room.label} — nº ${e.sequence}",
-                claimLine = e.claimLine(),
+                claimLine = e.reportClaimLines(),
             )
         }
         val findings = input.findings.filter { it.roomId == room.id }.map { f ->
@@ -99,12 +99,6 @@ fun buildPdfModel(
         methodology = methodologyLines(),
         appendixHashes = appendix,
     )
-}
-
-private fun LocalEvidence.claimLine(): String? {
-    if (latitude == null || longitude == null) return null
-    val acc = accuracyM?.let { " ±${it.toInt()} m" } ?: ""
-    return "${canonicalDouble(latitude)}, ${canonicalDouble(longitude)}$acc (${locationStatus.lowercase()})"
 }
 
 private fun methodologyLines(): List<String> = listOf(

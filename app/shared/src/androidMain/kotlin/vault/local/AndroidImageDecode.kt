@@ -12,7 +12,7 @@ internal fun androidImageOrientation(bytes: ByteArray): Int = try {
     1
 }
 
-internal fun decodeOrientedAndroid(bytes: ByteArray, maxEdge: Int): Bitmap {
+fun decodeOrientedAndroid(bytes: ByteArray, maxEdge: Int): Bitmap {
     require(maxEdge > 0)
     val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
     BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)

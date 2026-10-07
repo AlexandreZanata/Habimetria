@@ -47,4 +47,3 @@ data class PackageVerdict(
         pdf == FileStatus.OK && receipt == FileStatus.OK && manifest == FileStatus.OK &&
             evidencesMissing.isEmpty() && evidencesModified.isEmpty() && signatureValid
 }
-

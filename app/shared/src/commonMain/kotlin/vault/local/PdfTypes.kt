@@ -5,19 +5,27 @@ data class PdfRect(val x: Double, val y: Double, val w: Double, val h: Double)
 
 sealed interface PageItem {
     data class Photo(val entry: PdfPhotoEntry, val rect: PdfRect) : PageItem
-    data class Text(val kind: TextKind, val text: String) : PageItem
+    data class Text(val kind: TextKind, val text: String, val rect: PdfRect? = null) : PageItem
+    // Semantic audit markers; their visible text is positioned separately.
     data class Finding(val entry: PdfFindingEntry) : PageItem
     data class HashRow(val label: String, val hex: String) : PageItem
     // QR identifies Report/Manifest/format for local import. It never
     // certifies bytes on its own; the detached receipt does that.
-    data class Qr(val content: String) : PageItem
+    data class Qr(val content: String, val rect: PdfRect? = null) : PageItem
 }
 
 class RenderCancelledException : IllegalStateException("render cancelled")
 
-// Platform drawing port. Photos arrive through loadPhoto (preview bytes
-// preferred, bounded decode inside). Cancellation is cooperative.
-interface PlanRenderer {
+// Drawing port: all photo bytes are normalized from verified originals.
+// Native font metrics paginate before drawing; cancellation is cooperative.
+interface PdfTextMetrics {
+    fun measureText(text: String, kind: TextKind, width: Double): List<String> =
+        measuredPdfLines(text, width) { it.length * textSize(kind) * 0.55 }
+    fun lineHeight(kind: TextKind): Double = textSize(kind) * 1.4
+
+}
+
+interface PlanRenderer : PdfTextMetrics {
     suspend fun render(
         pages: List<RenderPage>,
         loadPhoto: suspend (evidenceId: String) -> ByteArray?,

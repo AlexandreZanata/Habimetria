@@ -1,73 +1,76 @@
 package vault.local
 
-// Paginates the whole model. Every photo and finding lands exactly once;
-// pages carry sequential numbers starting at 1 (cover).
-fun paginateModel(
-    model: PdfModel,
-    dimsOf: (evidenceId: String) -> ImageDims?,
-): List<RenderPage> {
-    val pages = mutableListOf<RenderPage>()
-    var number = 0
-    fun newPage(): MutableList<PageItem> {
-        number++
-        return mutableListOf()
-    }
-    var current = newPage()
-    fun flush() {
-        pages.add(RenderPage(number, model.reportId, current.toList()))
-        current = newPage()
-    }
-    // Cover.
-    current.add(PageItem.Text(TextKind.TITLE, "Relatório de Vistoria"))
-    current.add(PageItem.Text(TextKind.BODY, model.address))
-    current.add(PageItem.Text(TextKind.BODY, "Inspeção ${model.inspectionId}"))
-    current.add(PageItem.Text(TextKind.BODY, "Lacrado (dispositivo): ${formatSealedAtDevice(model.sealedAtDevice)}"))
-    current.add(PageItem.Text(TextKind.BODY, "Manifesto ${model.manifestSha256.take(16)}…"))
-    current.add(PageItem.Text(TextKind.BODY, "Chave ${model.signerKeyId.take(16)}…"))
-    current.add(PageItem.Qr(qrContent(model.reportId, model.manifestSha256)))
-    current.add(
-        PageItem.Text(
-            TextKind.SMALL,
-            "O QR identifica o relatório. A integridade se verifica no app com o recibo assinado.",
-        ),
-    )
-    flush()
-    // Rooms.
+private object DefaultPdfMetrics : PdfTextMetrics
+
+fun paginateModel(model: PdfModel, dimsOf: (String) -> ImageDims?): List<RenderPage> =
+    paginateModel(model, DefaultPdfMetrics, dimsOf)
+
+fun paginateModel(model: PdfModel, renderer: PdfTextMetrics, dimsOf: (String) -> ImageDims?): List<RenderPage> {
+    val cover = PdfLayoutBuilder(renderer, model.reportId)
+    cover.text("RELATÓRIO DE VISTORIA", TextKind.TITLE, 14.0)
+    cover.text("Registro fotográfico do imóvel", TextKind.HEADING)
+    cover.text(model.address)
+    cover.text("Vistoria: ${model.inspectionId}", TextKind.SMALL)
+    cover.text("Lacre informado pelo dispositivo: ${model.sealedAtDevice}")
+    cover.text("${model.rooms.size} ambientes · ${model.rooms.sumOf { it.photos.size }} fotografias · " +
+        "${model.rooms.sumOf { it.findings.size }} observações")
+    cover.gap(20.0)
+    cover.qr(qrContent(model.reportId, model.manifestSha256))
+    cover.text("O QR identifica o relatório. Para verificar seus bytes, utilize o PDF e o recibo assinado.", TextKind.SMALL)
+    cover.text("Hora e localização são informações do dispositivo. Compartilhamento não significa concordância.", TextKind.SMALL)
+    cover.flush()
+
+    val body = PdfLayoutBuilder(renderer, model.reportId)
+    val roomStarts = mutableListOf<Pair<PdfRoomSection, Int>>()
     for (room in model.rooms) {
-        current.add(PageItem.Text(TextKind.HEADING, "${room.label} — ${room.coveragePercent}%"))
-        var cursorY = PDF_MARGIN_TOP_PT + 24.0
+        body.flush()
+        roomStarts.add(room to body.currentNumber)
+        body.text(room.label, TextKind.HEADING)
+        body.text("Cobertura por categorias: ${room.coveragePercent}% · ${room.photos.size} fotos", TextKind.SMALL)
         for (photo in room.photos) {
-            val dims = dimsOf(photo.evidenceId) ?: ImageDims(4, 3)
-            val aspect = dims.width.toDouble() / dims.height.toDouble().coerceAtLeast(1.0)
-            val height = (contentWidthPt() / aspect).coerceAtMost(PDF_MAX_PHOTO_HEIGHT_PT)
-            val width = height * aspect
-            if (cursorY + height + 30.0 > bottomLimitPt()) {
-                flush()
-                cursorY = PDF_MARGIN_TOP_PT
-            }
-            current.add(
-                PageItem.Photo(
-                    photo,
-                    PdfRect(PDF_MARGIN_LEFT_PT + (contentWidthPt() - width) / 2, cursorY, width, height),
-                ),
-            )
-            // Image plus single-line caption and claim (drawn by platform).
-            cursorY += height + 30.0
+            val dims = dimsOf(photo.evidenceId) ?: throw LocalValidationException("undecodable photo: ${photo.evidenceId}")
+            body.photo(photo, dims)
         }
-        for (finding in room.findings) current.add(PageItem.Finding(finding))
-        if (current.isNotEmpty()) flush()
+        if (room.findings.isNotEmpty()) body.text("Observações registradas", TextKind.HEADING)
+        for (finding in room.findings) {
+            body.marker(PageItem.Finding(finding))
+            body.text("${finding.preset} · ${finding.evidenceRef}")
+            finding.note?.let { body.text(it) }
+        }
     }
-    // Methodology.
-    current.add(PageItem.Text(TextKind.HEADING, "Metodologia"))
-    model.methodology.forEach { current.add(PageItem.Text(TextKind.BODY, it)) }
-    flush()
-    // Appendix: every digest in full.
-    current.add(PageItem.Text(TextKind.HEADING, "Apêndice — resumos"))
-    current.add(PageItem.Text(TextKind.BODY, "Manifesto ${model.manifestId}"))
+    body.flush()
+    body.text("Metodologia e limitações", TextKind.HEADING)
+    model.methodology.forEach { body.text(it) }
+    body.flush()
+    body.text("Verificação de integridade", TextKind.HEADING)
+    body.text("Relatório: ${model.reportId}", TextKind.SMALL)
+    body.text("Manifesto: ${model.manifestId}", TextKind.SMALL)
+    body.text("Chave da instalação (identidade civil não verificada): ${model.signerKeyId}", TextKind.SMALL)
+    body.text("O hash do arquivo PDF final consta no recibo separado. Originais podem ser verificados no pacote completo.")
     for ((label, hex) in model.appendixHashes) {
-        if (current.size >= 40) flush()
-        current.add(PageItem.HashRow(label, hex))
+        body.marker(PageItem.HashRow(label, hex))
+        body.text(label, TextKind.SMALL, 0.0)
+        body.text(hex, TextKind.SMALL)
     }
-    flush()
-    return pages.dropLastWhile { it.items.isEmpty() }
+    body.flush()
+
+    fun summary(offset: Int): List<RenderPage> {
+        val index = PdfLayoutBuilder(renderer, model.reportId)
+        index.text("Ambientes e cobertura", TextKind.HEADING)
+        for ((room, page) in roomStarts) {
+            index.text("${room.label} · ${room.coveragePercent}% · ${room.photos.size} fotos · página ${page + offset}")
+        }
+        index.text("Cobertura indica categorias fotografadas; não certifica ausência de defeitos.", TextKind.SMALL)
+        index.flush()
+        return index.pages
+    }
+    var index = summary(cover.pages.size + 1)
+    repeat(3) {
+        val resolved = summary(cover.pages.size + index.size)
+        if (resolved.size == index.size) {
+            return (cover.pages + resolved + body.pages).mapIndexed { i, page -> page.copy(number = i + 1) }
+        }
+        index = resolved
+    }
+    throw LocalValidationException("page index did not converge")
 }
