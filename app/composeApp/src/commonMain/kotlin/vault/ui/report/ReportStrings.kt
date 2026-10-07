@@ -17,4 +17,6 @@ object ReportStrings {
             "e o recibo ficam guardados. Gere de novo quando precisar."
     const val deleteConfirm = "Excluir"
     const val deletedOk = "Relatório excluído."
+    const val verifyShort = "Verificar"
+    const val versionTitle = "Relatório"
 }

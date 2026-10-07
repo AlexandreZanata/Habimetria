@@ -9,10 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -161,10 +157,7 @@ fun ReportListScreen(
                             )
                         }
                         items(group, key = { it.inspectionId }) { item ->
-                            OutlinedButton(
-                                onClick = { onGenerate(item.inspectionId) },
-                                modifier = Modifier.fillMaxWidth(),
-                            ) { Text(Strings.generatePdf) }
+                            PendingRow(onGenerate = { onGenerate(item.inspectionId) })
                         }
                     }
                 }
