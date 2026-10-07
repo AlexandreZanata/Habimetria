@@ -21,3 +21,10 @@ actual fun imageDimensions(bytes: ByteArray): ImageDims? {
         null
     }
 }
+
+actual fun formatSealedAtDevice(iso: String): String = try {
+    val zoned = java.time.Instant.parse(iso).atZone(java.time.ZoneId.systemDefault())
+    java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm").format(zoned)
+} catch (_: Exception) {
+    iso
+}

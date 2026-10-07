@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import vault.local.LocalSession
 import vault.local.LocalValidationException
+import vault.local.STATUS_DRAFT
 import vault.local.db.LocalRoom
 
 // LocalRoomsScreen: manually named rooms, offline. Add, rename, reorder
@@ -33,6 +34,8 @@ fun LocalRoomsScreen(
     session: LocalSession,
     inspectionId: String,
     onOpenRoom: (roomId: String, label: String) -> Unit,
+    onStartCapture: (roomId: String, label: String) -> Unit,
+    onSealed: () -> Unit,
     onBack: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -45,18 +48,25 @@ fun LocalRoomsScreen(
     var deleting by remember { mutableStateOf<LocalRoom?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     var kind by remember { mutableStateOf("entry") }
+    var sealedRedirected by remember { mutableStateOf(false) }
 
     fun refresh() {
         scope.launch {
             try {
-                kind = session.repository.getInspection(inspectionId)?.kind ?: "entry"
+                val inspection = session.repository.getInspection(inspectionId)
+                if (inspection != null && inspection.status != STATUS_DRAFT && !sealedRedirected) {
+                    sealedRedirected = true
+                    onSealed()
+                    return@launch
+                }
+                kind = inspection?.kind ?: "entry"
                 val list = session.repository.roomsFor(inspectionId)
                 rooms = list
                 percents = list.associate { it.id to session.coverage.roomCoverage(it.id).percent() }
                 counts = list.associate { it.id to session.repository.evidencesForRoom(it.id).size }
                 error = null
             } catch (e: Exception) {
-                error = e.message?.take(160)
+                error = userErrorMessage(e)
             }
         }
     }
@@ -84,7 +94,7 @@ fun LocalRoomsScreen(
                             newLabel = ""
                             refresh()
                         } catch (e: Exception) {
-                            error = e.message?.take(160)
+                            error = userErrorMessage(e)
                         }
                     }
                 },
@@ -109,7 +119,7 @@ fun LocalRoomsScreen(
                                 session.repository.moveRoom(room.id, idx + delta)
                                 refresh()
                             } catch (e: Exception) {
-                                error = e.message?.take(160)
+                                error = userErrorMessage(e)
                             }
                         }
                     },
@@ -117,6 +127,14 @@ fun LocalRoomsScreen(
                 )
             }
         }
+        VaultButton(
+            text = Strings.startInspection,
+            onClick = {
+                val first = rooms.firstOrNull() ?: return@VaultButton
+                onStartCapture(first.id, first.label)
+            },
+            enabled = rooms.isNotEmpty(),
+        )
         VaultButton(text = Strings.back, onClick = onBack)
     }
 
@@ -135,7 +153,7 @@ fun LocalRoomsScreen(
                             renaming = null
                             refresh()
                         } catch (e: Exception) {
-                            error = e.message?.take(160)
+                            error = userErrorMessage(e)
                         }
                     }
                 }) { Text(Strings.save) }
@@ -161,7 +179,7 @@ fun LocalRoomsScreen(
                                 deleting = null
                                 refresh()
                             } catch (e: LocalValidationException) {
-                                error = e.message?.take(200)
+                                error = userErrorMessage(e)
                                 deleting = null
                             }
                         }

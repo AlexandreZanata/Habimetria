@@ -1,16 +1,10 @@
 package vault.ui
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.LinearProgressIndicator
@@ -23,8 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,15 +24,12 @@ import kotlinx.coroutines.withContext
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import vault.api.Coverage
-import vault.nav.useSideBySide
-import vault.nav.windowClassFor
 import vault.queue.QueueItem
 import vault.queue.QueueStatus
 
-// Room: preview + shutter + queue truth + coverage.
+// Room: shutter + queue truth + coverage. No embedded preview: tapping
+// Fotografar opens the camera full-screen and shots return to the queue.
 // Shutter never blocks on network: capture → file → queue → worker.
-// Compact phones stack preview above controls; wide windows
-// (landscape, tablet, foldable) place them side by side.
 @Composable
 fun RoomScreen(
     container: AppContainer,
@@ -101,7 +90,7 @@ fun RoomScreen(
                         }
                         container.onQueued()
                     } catch (e: Exception) {
-                error = e.message?.take(160)
+                error = userErrorMessage(e)
             } finally {
                 busy = false
                 refresh()
@@ -109,38 +98,16 @@ fun RoomScreen(
         }
     }
 
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        if (useSideBySide(windowClassFor(maxWidth.value.toInt()))) {
-            Row(
-                modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 16.dp).imePadding(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                CameraPreview(
-                    modifier = Modifier.weight(1f).fillMaxHeight()
-                        .semantics { contentDescription = Strings.cameraPreview },
-                )
-                Column(
-                    modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    RoomControls(
-                        roomId, mine, coverage,
-                        busy, error, capture, onOpenRoom, onReview, onBack,
-                    )
-                }
-            }
-        } else {
-            ScreenColumn {
-                ScreenTitle(roomLabel)
-                CameraPreview(
-                    modifier = Modifier.fillMaxWidth().height(280.dp)
-                        .semantics { contentDescription = Strings.cameraPreview },
-                )
-                RoomControls(
-                    roomId, mine, coverage,
-                    busy, error, capture, onOpenRoom, onReview, onBack,
-                )
-            }
+    ScreenColumn {
+        ScreenTitle(roomLabel)
+        Column(
+            modifier = Modifier.verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            RoomControls(
+                roomId, mine, coverage,
+                busy, error, capture, onOpenRoom, onReview, onBack,
+            )
         }
     }
 }
@@ -161,7 +128,7 @@ private fun ColumnScope.RoomControls(
     val sending = mine.count { it.status == QueueStatus.UPLOADING || it.status == QueueStatus.QUEUED }
     val failed = mine.count { it.status == QueueStatus.FAILED }
     VaultButton(
-        text = if (busy) Strings.saving else Strings.capture,
+        text = if (busy) Strings.saving else Strings.photograph,
         onClick = onCapture,
         enabled = !busy,
     )

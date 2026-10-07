@@ -28,6 +28,7 @@ import kotlinx.coroutines.launch
 import vault.findings.FindingPreset
 import vault.local.ExifGps
 import vault.local.LocalSession
+import vault.local.STATUS_SEALED
 import vault.local.db.LocalEvidence
 import vault.local.distanceMeters
 import vault.local.exifDisagrees
@@ -55,11 +56,14 @@ fun LocalReviewScreen(
     var sheetFor by remember { mutableStateOf<LocalEvidence?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     var kind by remember { mutableStateOf("entry") }
+    var sealed by remember { mutableStateOf(false) }
 
     fun refresh() {
         scope.launch {
             try {
-                kind = session.repository.getInspection(inspectionId)?.kind ?: "entry"
+                val inspection = session.repository.getInspection(inspectionId)
+                sealed = inspection?.status == STATUS_SEALED
+                kind = inspection?.kind ?: "entry"
                 val roomList = session.repository.roomsFor(inspectionId)
                 rooms = roomList
                 evidences = session.repository.evidencesFor(inspectionId)
@@ -67,7 +71,7 @@ fun LocalReviewScreen(
                 percents = roomList.associate { it.id to session.coverage.roomCoverage(it.id).percent() }
                 error = null
             } catch (e: Exception) {
-                error = e.message?.take(160)
+                error = userErrorMessage(e)
             }
         }
     }
@@ -90,13 +94,17 @@ fun LocalReviewScreen(
                             session = session,
                             evidence = evidence,
                             findingCount = findings.count { it.evidenceId == evidence.id },
-                            onIssue = { sheetFor = evidence },
+                            onIssue = if (sealed) null else ({ sheetFor = evidence }),
                         )
                     }
                 }
             }
         }
-        VaultButton(text = "${Strings.sealNow} →", onClick = onSeal)
+        if (sealed) {
+            Text(Strings.sealedLocked, style = MaterialTheme.typography.bodyMedium)
+        } else {
+            VaultButton(text = "${Strings.sealNow} →", onClick = onSeal)
+        }
         VaultButton(text = "${Strings.inspectorTitle} →", onClick = onInspector)
         if (kind == "exit") {
             VaultButton(text = "${Strings.compareTitle} →", onClick = onCompare)
@@ -123,7 +131,7 @@ private fun LocalEvidenceRow(
     session: LocalSession,
     evidence: LocalEvidence,
     findingCount: Int,
-    onIssue: () -> Unit,
+    onIssue: (() -> Unit)?,
 ) {
     val thumb = remember(evidence.id) {
         val path = session.derivatives.ensureForDisplay(
@@ -160,7 +168,9 @@ private fun LocalEvidenceRow(
             }
             if (findingCount > 0) Text("$findingCount ${Strings.findingsList.lowercase()}")
         }
-        Button(onClick = onIssue) { Text(Strings.reportIssue) }
+        if (onIssue != null) {
+            Button(onClick = onIssue) { Text(Strings.reportIssue) }
+        }
     }
 }
 
@@ -208,7 +218,7 @@ private fun LocalFindingSheet(
                             session.repository.addFinding(roomId, evidenceId, preset, note.ifBlank { null })
                             onDone()
                         } catch (e: Exception) {
-                            error = e.message?.take(160)
+                            error = userErrorMessage(e)
                         } finally {
                             busy = false
                         }

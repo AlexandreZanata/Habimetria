@@ -26,6 +26,10 @@ func main() {
 
 	cfg := config.FromEnv()
 
+	if err := cfg.Validate(); err != nil {
+		log.Fatalf("invalid config: %v", err)
+	}
+
 	dbCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 

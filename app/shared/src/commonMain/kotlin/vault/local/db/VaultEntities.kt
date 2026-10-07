@@ -11,6 +11,14 @@ import androidx.room.PrimaryKey
 data class LocalProperty(
     @PrimaryKey val id: String,
     val address: String,
+    // Structured parts (v12): checkout-style input. `address` stays the
+    // formatted display line; legacy rows keep street backfilled from it.
+    val street: String = "",
+    val number: String = "",
+    val complement: String? = null,
+    val neighborhood: String = "",
+    // Friendly name for the property picker ("Casa da praia").
+    val nickname: String = "",
     val createdAtDevice: String,
 )
 

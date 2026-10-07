@@ -3,11 +3,17 @@
 ## Local journey (L0 authority)
 
 1. `Start inspection` (no signup, no payment, no network).
-2. Property address (minimal) + Tenancy + Inspection created locally.
+2. Checkout-style address (street + number + optional complement +
+   neighborhood) + Tenancy + Inspection created locally. The form
+   prefills from the latest unfinished inspection.
 3. Rooms typed manually by the user (for example "Suite principal").
    Automatic templates are not part of the primary flow.
+   Unfinished inspections resume from Home with rooms intact;
+   `Iniciar vistoria` opens the first room's capture with one tap.
 4. Per room guided checklist, five categories:
    overview → walls → openings → floor → ceiling.
+   `Próximo cômodo` moves forward in room order; the last room
+   leads to review. Skipped rooms stay visible as gaps.
 5. `+ Report issue` or `All good`.
 6. Review → coverage % → seal locally → PDF on-device → share via system UI.
 

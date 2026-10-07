@@ -89,6 +89,14 @@ class LocalSession(
         return SessionStartup(migration, originals.reconcile(db), migrationError)
     }
 
+    // Delete one photo end to end: findings, row, derivatives, then the
+    // original. Sealed inspections stay frozen (repository throws).
+    suspend fun deleteEvidence(evidenceId: String) {
+        repository.deleteEvidence(evidenceId)
+        derivatives.deleteDerivatives(evidenceId)
+        originals.deleteOriginal(evidenceId)
+    }
+
     fun close() {
         db.close()
     }

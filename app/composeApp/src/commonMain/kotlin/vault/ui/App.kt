@@ -14,10 +14,10 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
     val route by navigator.route.collectAsState()
     VaultTheme {
         when (val r = route) {
-            Route.Home -> VaultShell(Strings.appName, false, {}) {
+            Route.Home -> VaultShell("", false, {}) {
                 HomeScreen(container, onReady = { navigator.startInspection(it) })
             }
-            is Route.Rooms -> VaultShell(Strings.rooms, true, { navigator.goBack() }) {
+            is Route.Rooms -> VaultShell(Strings.rooms, true, { navigator.goBackOr(Route.Home) }) {
                 val local = container.local
                 if (local != null) {
                     LocalRoomsScreen(
@@ -29,7 +29,14 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                             )
                             navigator.navigate(Route.Room(r.inspectionId, roomId, label))
                         },
-                        onBack = { navigator.goBack() },
+                        onStartCapture = { roomId, label ->
+                            local.navigation.save(
+                                vault.local.NavigationProgress(r.inspectionId, roomId, label),
+                            )
+                            navigator.navigate(Route.Room(r.inspectionId, roomId, label))
+                        },
+                        onSealed = { navigator.openSealedReview(r.inspectionId) },
+                        onBack = { navigator.goBackOr(Route.Home) },
                     )
                 } else {
                     RoomsScreen(
@@ -39,11 +46,11 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                             navigator.navigate(Route.Room(r.inspectionId, roomId, label))
                         },
                         onReview = { navigator.navigate(Route.Review(r.inspectionId)) },
-                        onBack = { navigator.goBack() },
+                        onBack = { navigator.goBackOr(Route.Home) },
                     )
                 }
             }
-            is Route.Room -> VaultShell(r.label, true, { navigator.goBack() }) {
+            is Route.Room -> VaultShell(r.label, true, { navigator.goBackOr(Route.Rooms(r.inspectionId)) }) {
                 val local = container.local
                 if (local != null) {
                     LocalRoomScreen(
@@ -52,8 +59,15 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                         inspectionId = r.inspectionId,
                         roomId = r.roomId,
                         roomLabel = r.label,
+                        onOpenRoom = { nextId, nextLabel ->
+                            local.navigation.save(
+                                vault.local.NavigationProgress(r.inspectionId, nextId, nextLabel),
+                            )
+                            navigator.navigate(Route.Room(r.inspectionId, nextId, nextLabel))
+                        },
+                        onSealed = { navigator.openSealedReview(r.inspectionId) },
                         onReview = { navigator.navigate(Route.Review(r.inspectionId)) },
-                        onBack = { navigator.goBack() },
+                        onBack = { navigator.goBackOr(Route.Rooms(r.inspectionId)) },
                     )
                 } else {
                     RoomScreen(
@@ -65,7 +79,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                             navigator.navigate(Route.Room(r.inspectionId, nextId, nextLabel))
                         },
                         onReview = { navigator.navigate(Route.Review(r.inspectionId)) },
-                        onBack = { navigator.goBack() },
+                        onBack = { navigator.goBackOr(Route.Rooms(r.inspectionId)) },
                     )
                 }
             }

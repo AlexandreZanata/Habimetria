@@ -69,7 +69,7 @@ fun FindingSheet(
                             container.api.createFinding(roomId, evidenceId, preset, note.ifBlank { null })
                             onDone()
                         } catch (e: Exception) {
-                            error = e.message?.take(160)
+                            error = userErrorMessage(e)
                         } finally {
                             busy = false
                         }

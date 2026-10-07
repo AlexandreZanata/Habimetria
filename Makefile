@@ -1,4 +1,4 @@
-.PHONY: verify verify-mobile verify-ios-macos verify-all bench bench-apk up down test vet
+.PHONY: verify verify-mobile verify-ios-macos verify-all bench bench-apk up down test test-integration vet
 
 verify: vet test
 
@@ -24,6 +24,9 @@ vet:
 
 test:
 	cd backend && go test ./...
+
+test-integration:
+	cd backend && go test -run Integration ./...
 
 up:
 	cp -n infra/.env.example infra/.env 2>/dev/null || true

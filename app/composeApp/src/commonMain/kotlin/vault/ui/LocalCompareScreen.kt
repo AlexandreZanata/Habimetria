@@ -50,7 +50,7 @@ fun LocalCompareScreen(
                 pairs = session.compare.pairsForExit(exitInspectionId)
                 error = null
             } catch (e: Exception) {
-                error = e.message?.take(160)
+                error = userErrorMessage(e)
             }
         }
     }
@@ -166,7 +166,7 @@ private fun saveTag(
             )
             onTagged()
         } catch (e: Exception) {
-            onError(e.message?.take(160) ?: "")
+            onError(userErrorMessage(e))
         }
     }
 }

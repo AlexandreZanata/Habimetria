@@ -28,6 +28,8 @@ private val PaperSoft = Color(0xFFECE7DA)
 private val InkRaised = Color(0xFF23211D)
 private val Danger = Color(0xFF9C3B2E)
 private val DangerDark = Color(0xFFE8A79D)
+private val CardLight = Color(0xFFFFFFFF)
+private val CardDark = Color(0xFF23211D)
 
 private val LightColors = lightColorScheme(
     primary = SealGreen,
@@ -42,6 +44,7 @@ private val LightColors = lightColorScheme(
     surfaceVariant = PaperSoft,
     onSurfaceVariant = InkSoft,
     surfaceContainer = PaperSoft,
+    surfaceContainerHighest = CardLight,
     error = Danger,
     onError = Color.White,
 )
@@ -59,12 +62,14 @@ private val DarkColors = darkColorScheme(
     surfaceVariant = InkRaised,
     onSurfaceVariant = PaperSoft,
     surfaceContainer = InkRaised,
+    surfaceContainerHighest = CardDark,
     error = DangerDark,
     onError = Ink,
 )
 
 private val VaultTypography = Typography(
     headlineSmall = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.SemiBold, lineHeight = 32.sp),
+    headlineMedium = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, lineHeight = 40.sp),
     titleLarge = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.SemiBold, lineHeight = 28.sp),
     titleMedium = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.SemiBold, lineHeight = 24.sp),
     bodyLarge = TextStyle(fontSize = 16.sp, lineHeight = 24.sp),

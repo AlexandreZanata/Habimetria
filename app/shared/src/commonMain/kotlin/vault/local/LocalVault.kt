@@ -13,8 +13,23 @@ class SealedModificationException(message: String) : IllegalStateException(messa
 class LocalValidationException(message: String) : IllegalArgumentException(message)
 
 const val MAX_ROOM_LABEL = 80
+const val MAX_NICKNAME = 40
 const val STATUS_DRAFT = "DRAFT"
 const val STATUS_SEALED = "SEALED"
+
+// Structured address parts for prefill and display.
+data class AddressParts(
+    val street: String = "",
+    val number: String = "",
+    val complement: String = "",
+    val neighborhood: String = "",
+)
+
+// Brazilian display line: "Rua das Flores, 42, Apto 101 — Centro".
+fun formatAddress(street: String, number: String, complement: String, neighborhood: String): String {
+    val head = "$street, $number" + (complement.ifEmpty { null }?.let { ", $it" } ?: "")
+    return "$head — $neighborhood"
+}
 
 // LocalVaultRepository is the offline application core: every capture,
 // room and finding flows through here. No network, no VaultApi.
@@ -23,10 +38,53 @@ class LocalVaultRepository(private val db: VaultDatabase) {
     suspend fun createProperty(address: String): LocalProperty {
         val clean = address.trim()
         if (clean.length < 3) throw LocalValidationException("address too short")
-        val row = LocalProperty(newLocalId("prop"), clean, deviceNowIso())
+        val row = LocalProperty(id = newLocalId("prop"), address = clean, createdAtDevice = deviceNowIso())
         db.propertyDao().insert(row)
         return row
     }
+
+    // Checkout-style address: street + number + optional complement +
+    // neighborhood. The formatted line stays on `address` so every
+    // consumer (review, PDF, resume) keeps working unchanged.
+    suspend fun createPropertyStructured(
+        street: String,
+        number: String,
+        complement: String?,
+        neighborhood: String,
+        nickname: String = "",
+    ): LocalProperty {
+        val cleanStreet = street.trim()
+        val cleanNumber = number.trim()
+        val cleanComplement = complement?.trim().orEmpty()
+        val cleanNeighborhood = neighborhood.trim()
+        if (cleanStreet.length < 3) throw LocalValidationException("street too short")
+        if (cleanNumber.isEmpty()) throw LocalValidationException("number required")
+        if (cleanNeighborhood.length < 2) throw LocalValidationException("neighborhood too short")
+        val row = LocalProperty(
+            id = newLocalId("prop"),
+            address = formatAddress(cleanStreet, cleanNumber, cleanComplement, cleanNeighborhood),
+            street = cleanStreet,
+            number = cleanNumber,
+            complement = cleanComplement.ifEmpty { null },
+            neighborhood = cleanNeighborhood,
+            nickname = nickname.trim().take(MAX_NICKNAME),
+            createdAtDevice = deviceNowIso(),
+        )
+        db.propertyDao().insert(row)
+        return row
+    }
+
+    // Friendly name for the home picker. Organizational only: allowed
+    // even when inspections under it are sealed.
+    suspend fun setNickname(propertyId: String, nickname: String): LocalProperty {
+        val property = db.propertyDao().get(propertyId)
+            ?: throw LocalValidationException("property not found")
+        val updated = property.copy(nickname = nickname.trim().take(MAX_NICKNAME))
+        db.propertyDao().update(updated)
+        return updated
+    }
+
+    suspend fun listProperties(): List<LocalProperty> = db.propertyDao().listAll()
 
     suspend fun createTenancy(propertyId: String, type: String = "entry"): LocalTenancy {
         requireProperty(propertyId)
@@ -182,6 +240,17 @@ class LocalVaultRepository(private val db: VaultDatabase) {
         }
     }
 
+    // Deleting one photo removes its findings first (FK has no cascade),
+    // then the row. Files go through LocalSession so DB and disk stay
+    // bound. Frozen when sealed, like every other edit.
+    suspend fun deleteEvidence(evidenceId: String) {
+        val evidence = db.evidenceDao().get(evidenceId)
+            ?: throw LocalValidationException("evidence not found")
+        requireDraft(evidence.inspectionId)
+        db.findingDao().deleteForEvidence(evidenceId)
+        db.evidenceDao().delete(evidenceId)
+    }
+
     suspend fun addFinding(
         roomId: String,
         evidenceId: String,
@@ -207,6 +276,36 @@ class LocalVaultRepository(private val db: VaultDatabase) {
     suspend fun getInspection(id: String): LocalInspection? = db.inspectionDao().get(id)
 
     suspend fun listDrafts(): List<LocalInspection> = db.inspectionDao().listDrafts()
+
+    // Property address behind an inspection, for resume rows. Null when
+    // any link in the chain is gone; never throws for UI listing.
+    suspend fun addressFor(inspectionId: String): String? {
+        val inspection = db.inspectionDao().get(inspectionId) ?: return null
+        val tenancy = db.tenancyDao().get(inspection.tenancyId) ?: return null
+        return db.propertyDao().get(tenancy.propertyId)?.address
+    }
+
+    // Property behind an inspection, for grouping drafts on Home.
+    // Null when the chain is gone; never throws for UI listing.
+    suspend fun propertyFor(inspectionId: String): LocalProperty? {
+        val inspection = db.inspectionDao().get(inspectionId) ?: return null
+        val tenancy = db.tenancyDao().get(inspection.tenancyId) ?: return null
+        return db.propertyDao().get(tenancy.propertyId)
+    }
+
+    // Structured parts behind an inspection, for prefilling the Home
+    // form when the user goes back. Null when the chain is gone.
+    suspend fun addressPartsFor(inspectionId: String): AddressParts? {
+        val inspection = db.inspectionDao().get(inspectionId) ?: return null
+        val tenancy = db.tenancyDao().get(inspection.tenancyId) ?: return null
+        val property = db.propertyDao().get(tenancy.propertyId) ?: return null
+        return AddressParts(
+            street = property.street.ifEmpty { property.address },
+            number = property.number,
+            complement = property.complement.orEmpty(),
+            neighborhood = property.neighborhood,
+        )
+    }
 
     suspend fun roomsFor(inspectionId: String): List<LocalRoom> =
         db.roomDao().listForInspection(inspectionId)

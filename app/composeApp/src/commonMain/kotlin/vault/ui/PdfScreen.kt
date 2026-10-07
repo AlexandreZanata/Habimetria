@@ -48,7 +48,7 @@ fun PdfScreen(
             manifestSha = detail.report.manifestSha256
             sealedAt = detail.report.sealedAt
         } catch (e: Exception) {
-            error = e.message?.take(160)
+            error = userErrorMessage(e)
         }
     }
 
@@ -126,7 +126,7 @@ fun PdfScreen(
                             status = "${Strings.savedOnDevice} ✓ ${bytes.size / 1024} KB"
                         }
                     } catch (e: Exception) {
-                        error = e.message?.take(200)
+                        error = userErrorMessage(e)
                         status = "Failed."
                     } finally {
                         busy = false
@@ -148,7 +148,7 @@ fun PdfScreen(
                     try {
                         check = container.api.verify(verifyCode)
                     } catch (e: Exception) {
-                        error = e.message?.take(160)
+                        error = userErrorMessage(e)
                     }
                 }
             },

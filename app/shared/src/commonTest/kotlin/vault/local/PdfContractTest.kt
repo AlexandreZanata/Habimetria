@@ -80,4 +80,13 @@ class PdfContractTest {
             .map { it.entry.evidenceId }
         assertEquals(listOf("e0", "e1", "e2"), photoIds)
     }
+
+    @Test
+    fun sealTimestampRendersBrazilianDisplayFormat() {
+        val rendered = formatSealedAtDevice("2026-10-01T15:10:51.619137Z")
+        assertTrue(Regex("""\d{2}/\d{2}/\d{4} às \d{2}:\d{2}""").matches(rendered), rendered)
+        assertTrue(!rendered.contains("T"), rendered)
+        // Garbage never breaks the cover page.
+        assertEquals("not-a-date", formatSealedAtDevice("not-a-date"))
+    }
 }

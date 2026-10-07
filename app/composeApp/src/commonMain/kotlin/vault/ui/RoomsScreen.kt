@@ -43,7 +43,7 @@ fun RoomsScreen(
             rooms = container.api.listRooms(inspectionId)
             counts = container.api.coverage(inspectionId).rooms.associate { it.roomId to it.photos }
         } catch (e: Exception) {
-            error = e.message?.take(160)
+            error = userErrorMessage(e)
         }
     }
 

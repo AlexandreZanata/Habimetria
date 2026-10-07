@@ -1,6 +1,9 @@
 # Database — PostgreSQL 18.6-alpine
 
-Single source: `backend/migrations/0001_init.sql`. One version per file.
+Migrations: `backend/migrations/0001_init.sql` (MVP core) →
+`0002_geo.sql` (device geolocation claims) →
+`0003_seal.sql` (manifest vault + nullable report artifacts) →
+`0004_comparisons.sql` (V1.3 entry-vs-exit tags). One version per file.
 
 ## Core tables
 

@@ -61,4 +61,46 @@ class NavigatorTest {
         assertEquals(Route.Home, nav.route.value)
         assertFalse(nav.canGoBack)
     }
+
+    @Test
+    fun backOrFallsBackOnSingleRouteStack() {
+        // Resume straight into a room: stack holds one route.
+        val resumed = VaultNavigator(Route.Room("ins1", "r1", "Sala"))
+        resumed.goBackOr(Route.Rooms("ins1"))
+        assertEquals(Route.Rooms("ins1"), resumed.route.value)
+
+        // Normal stack pops instead of jumping to the fallback.
+        val nav = VaultNavigator()
+        nav.startInspection("ins1")
+        nav.navigate(Route.Room("ins1", "r1", "Sala"))
+        nav.navigate(Route.Room("ins1", "r2", "Cozinha"))
+        nav.goBackOr(Route.Rooms("ins1"))
+        assertEquals(Route.Room("ins1", "r1", "Sala"), nav.route.value)
+    }
+
+    @Test
+    fun sealedReviewDropsDeadEditRoutes() {
+        val nav = VaultNavigator()
+        nav.startInspection("ins1")
+        nav.navigate(Route.Room("ins1", "r1", "Sala"))
+        nav.openSealedReview("ins1")
+        assertEquals(Route.Review("ins1"), nav.route.value)
+        assertTrue(nav.goBack())
+        assertEquals(Route.Home, nav.route.value)
+
+        // Single-route resume never traps back.
+        val resumed = VaultNavigator(Route.Room("ins1", "r1", "Sala"))
+        resumed.openSealedReview("ins1")
+        assertEquals(Route.Review("ins1"), resumed.route.value)
+        assertTrue(resumed.goBack())
+        assertEquals(Route.Home, resumed.route.value)
+
+        // Other inspections are left alone.
+        val other = VaultNavigator()
+        other.startInspection("ins2")
+        other.openSealedReview("ins1")
+        assertEquals(Route.Review("ins1"), other.route.value)
+        assertTrue(other.goBack())
+        assertEquals(Route.Rooms("ins2"), other.route.value)
+    }
 }

@@ -51,6 +51,11 @@ class OriginalStore(
         return fs.read(path) { readByteArray() }
     }
 
+    fun deleteOriginal(evidenceId: String) {
+        val path = originalPath(evidenceId).toPath()
+        if (fs.exists(path)) fs.delete(path)
+    }
+
     // Reconcile DB rows against files after every startup. Throws nothing;
     // problems are returned for explicit UI surfacing.
     suspend fun reconcile(db: VaultDatabase): ReconcileReport {

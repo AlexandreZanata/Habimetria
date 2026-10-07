@@ -35,8 +35,8 @@ type Config struct {
 func FromEnv() Config {
 	return Config{
 		Port:        envOr("PORT", "8080"),
-		DatabaseURL: envOr("DATABASE_URL", "postgres://vault:vault@postgres:5432/vault?sslmode=disable"),
-		S3Endpoint:  envOr("S3_ENDPOINT", "http://minio:9000"),
+		DatabaseURL: envOr("DATABASE_URL", "postgres://vault:vault@localhost:5432/vault?sslmode=disable"),
+		S3Endpoint:  envOr("S3_ENDPOINT", "http://localhost:9000"),
 		HMACKey:     envOr("HMAC_KEY", "dev-only-change-me"),
 
 		StorageBackend: envOr("STORAGE_BACKEND", "s3"),

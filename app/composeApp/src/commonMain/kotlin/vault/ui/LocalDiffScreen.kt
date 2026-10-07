@@ -47,7 +47,7 @@ fun LocalDiffScreen(
                     .associate { it.id to it.label }
                 error = null
             } catch (e: Exception) {
-                error = e.message?.take(160)
+                error = userErrorMessage(e)
             }
         }
     }
@@ -67,7 +67,7 @@ fun LocalDiffScreen(
                         session.diff.runDiff(exitInspectionId)
                         refresh()
                     } catch (e: Exception) {
-                        error = e.message?.take(160)
+                        error = userErrorMessage(e)
                     } finally {
                         busy = false
                     }
@@ -91,7 +91,7 @@ fun LocalDiffScreen(
                                     session.diff.markReviewed(row.id)
                                     refresh()
                                 } catch (e: Exception) {
-                                    error = e.message?.take(160)
+                                    error = userErrorMessage(e)
                                 }
                             }
                         },
@@ -101,7 +101,7 @@ fun LocalDiffScreen(
                                     session.diff.dismiss(row.id)
                                     refresh()
                                 } catch (e: Exception) {
-                                    error = e.message?.take(160)
+                                    error = userErrorMessage(e)
                                 }
                             }
                         },

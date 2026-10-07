@@ -48,4 +48,33 @@ class VaultNavigator(initial: Route = Route.Home) {
         _route.value = stack.last()
         return true
     }
+
+    // Back with a floor: resuming straight into a screen leaves a
+    // single-route stack where goBack() dies. The floor keeps the
+    // bottom Voltar identical to the header back in every entry point:
+    // first room → rooms list, rooms list → home.
+    fun goBackOr(fallback: Route) {
+        if (!goBack()) navigate(fallback)
+    }
+
+    // Sealed inspections are read-only: edit screens bounce to review
+    // instead of trapping back behind dead routes. Trailing Rooms/Room
+    // of the same inspection are dropped so Voltar from review never
+    // lands back on a sealed editor.
+    fun openSealedReview(inspectionId: String) {
+        while (true) {
+            val last = stack.lastOrNull() ?: break
+            val sameInspection = when (last) {
+                is Route.Rooms -> last.inspectionId == inspectionId
+                is Route.Room -> last.inspectionId == inspectionId
+                else -> false
+            }
+            if (!sameInspection) break
+            stack.removeLast()
+        }
+        if (stack.isEmpty()) stack.add(Route.Home)
+        val review = Route.Review(inspectionId)
+        stack.add(review)
+        _route.value = review
+    }
 }

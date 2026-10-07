@@ -74,4 +74,24 @@ class LocalSessionTest {
         val local = StorageStatus(storedLocally = true, sync = SyncIndicator.LOCAL_ONLY)
         assertTrue(local.storedLocally)
     }
+
+    @Test
+    fun deleteEvidenceRemovesRowsAndFiles() = runTest {
+        val session = openLocalSession(tempDir("vault-sess-del"), SyncMode.LOCAL_ONLY)
+        val repo = session.repository
+        val prop = repo.createProperty("Rua X, 1")
+        val inspection = repo.createInspection(repo.createTenancy(prop.id).id).id
+        val room = repo.addRoom(inspection, "Sala")
+        val id = newLocalId("ev")
+        val bytes = "photo-bytes".encodeToByteArray()
+        val stored = session.originals.storeOriginal(id, bytes)
+        repo.recordEvidence(
+            inspection, room.id, "$id.bin", "image/jpeg",
+            stored.size, stored.sha256, evidenceId = id,
+        )
+        session.deleteEvidence(id)
+        assertNull(session.db.evidenceDao().get(id))
+        assertFalse(FileSystem.SYSTEM.exists(session.originals.originalPath(id).toPath()))
+        session.close()
+    }
 }

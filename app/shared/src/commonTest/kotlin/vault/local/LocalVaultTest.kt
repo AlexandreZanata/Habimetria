@@ -147,4 +147,76 @@ class LocalVaultTest {
         }
         db.close()
     }
+
+    @Test
+    fun addressForResolvesResumeLabel() = runTest {
+        val (db, repo) = freshVault()
+        val inspectionId = seedInspection(repo)
+        assertEquals("Rua das Flores, 42", repo.addressFor(inspectionId))
+        assertEquals(null, repo.addressFor("ins_missing"))
+        db.close()
+    }
+
+    @Test
+    fun structuredPropertyFormatsAndPrefills() = runTest {
+        val (db, repo) = freshVault()
+        val prop = repo.createPropertyStructured("Rua das Flores", "42", "Apto 101", "Centro")
+        assertEquals("Rua das Flores, 42, Apto 101 — Centro", prop.address)
+        val ten = repo.createTenancy(prop.id)
+        val inspection = repo.createInspection(ten.id)
+        assertEquals(
+            AddressParts("Rua das Flores", "42", "Apto 101", "Centro"),
+            repo.addressPartsFor(inspection.id),
+        )
+        assertEquals("Rua das Flores", repo.createPropertyStructured("Rua das Flores", "s/n", null, "Centro").street)
+        assertFailsWith<LocalValidationException> {
+            repo.createPropertyStructured("Ru", "42", null, "Centro")
+        }
+        assertFailsWith<LocalValidationException> {
+            repo.createPropertyStructured("Rua das Flores", "", null, "Centro")
+        }
+        assertFailsWith<LocalValidationException> {
+            repo.createPropertyStructured("Rua das Flores", "42", null, "C")
+        }
+        assertEquals(null, repo.addressPartsFor("ins_missing"))
+        db.close()
+    }
+
+    @Test
+    fun deleteEvidenceRemovesRowsAndFindings() = runTest {
+        val (db, repo) = freshVault()
+        val inspectionId = seedInspection(repo)
+        val room = repo.addRoom(inspectionId, "Sala")
+        val ev = repo.recordEvidence(
+            inspectionId, room.id, "ev.bin", "image/jpeg", 10, "ee".repeat(32),
+            shotCategory = ShotCategory.WALLS,
+        )
+        repo.addFinding(room.id, ev.id, FindingPreset.STAIN, "mancha")
+        repo.deleteEvidence(ev.id)
+        assertEquals(null, db.evidenceDao().get(ev.id))
+        assertTrue(db.findingDao().listForEvidence(ev.id).isEmpty())
+        assertEquals(0, repo.evidencesForRoom(room.id).size)
+        assertFailsWith<LocalValidationException> { repo.deleteEvidence(ev.id) }
+        assertFailsWith<LocalValidationException> { repo.deleteEvidence("ev_missing") }
+        db.close()
+    }
+
+    @Test
+    fun propertiesCarryNicknamesForThePicker() = runTest {
+        val (db, repo) = freshVault()
+        val beach = repo.createPropertyStructured("Rua A", "1", null, "Centro", "Casa da praia")
+        assertEquals("Casa da praia", beach.nickname)
+        val other = repo.createPropertyStructured("Rua B", "2", null, "Norte")
+        assertEquals("", other.nickname)
+        assertEquals(setOf(beach.id, other.id), repo.listProperties().map { it.id }.toSet())
+
+        val inspection = repo.createInspection(repo.createTenancy(beach.id).id).id
+        assertEquals(beach.id, repo.propertyFor(inspection)?.id)
+        assertEquals(null, repo.propertyFor("ins_missing"))
+
+        val renamed = repo.setNickname(other.id, "  Apê alugado  ")
+        assertEquals("Apê alugado", renamed.nickname)
+        assertFailsWith<LocalValidationException> { repo.setNickname("prop_missing", "X") }
+        db.close()
+    }
 }
