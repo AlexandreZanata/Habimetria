@@ -17,8 +17,8 @@ func TestSecurityHeadersPresent(t *testing.T) {
 	}
 	for header, want := range map[string]string{
 		"X-Content-Type-Options": "nosniff",
-		"X-Frame-Options":       "DENY",
-		"Referrer-Policy":       "no-referrer",
+		"X-Frame-Options":        "DENY",
+		"Referrer-Policy":        "no-referrer",
 	} {
 		if got := rec.Header().Get(header); got != want {
 			t.Fatalf("%s: want %q, got %q", header, want, got)

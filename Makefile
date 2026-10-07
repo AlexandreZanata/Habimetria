@@ -39,6 +39,12 @@ cover:
 secrets:
 	! git grep -n -E "AKIA[0-9A-Z]{16}|sk_live_[A-Za-z0-9]+|ghp_[A-Za-z0-9]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY-----" -- . ':!*.md' || (echo "possible secret committed" && exit 1)
 
+# Audit pack for controladoria: one command exporting the evidence bundle
+# (commit, gates, migrations, coverage, fixture verification) to a
+# timestamped text file. Evidence only; legal conclusions stay counsel-owned.
+audit:
+	./audit_pack.sh
+
 up:
 	cp -n infra/.env.example infra/.env 2>/dev/null || true
 	docker compose -f infra/docker-compose.yml up --build
