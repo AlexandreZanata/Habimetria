@@ -172,12 +172,11 @@ fun LocalRoomScreen(
     // selected category bound. Everything scrolls so no action hides
     // below the fold.
     ScreenColumn {
-        ScreenTitle(roomLabel)
-        JourneyShortcuts(onRooms = onRoomsShortcut, onReview = onReview)
         Column(
-            modifier = Modifier.verticalScroll(rememberScrollState()),
+            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            JourneyShortcuts(onRooms = onRoomsShortcut, onReview = onReview)
             RoomCaptureControls(
                 session, evidences, nextRoom, coverage, na, selected,
                 { selectedName = it.name }, busy, error, lastClaim, ::toggleNa, ::capture,

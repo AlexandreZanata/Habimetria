@@ -29,3 +29,17 @@ Contract: [report authorship](../../../../../../../docs/05-mobile/report_authors
 
 - [review/ReviewCards.kt](review/ReviewCards.kt): status card with seal action and room cards in the Relatório PDF style.
   Sealed inspections have no Rooms destination, so the Cômodos segment scrolls to the rooms section in place.
+
+# Room setup and capture
+
+- [journey/RoomSetup.kt](journey/RoomSetup.kt): scrollable setup intro, rounded input with keyboard add, presets and empty state.
+- [journey/RoomListRow.kt](journey/RoomListRow.kt): outlined Room cards with progress, photo count and management menu.
+- [journey/JourneyShortcuts.kt](journey/JourneyShortcuts.kt): secondary Rooms/Review shortcuts without a false active state during capture.
+- [journey/JourneyAction.kt](journey/JourneyAction.kt): prominent icon task action with an adaptive height.
+- [journey/JourneyStrings.kt](journey/JourneyStrings.kt): feature-owned pt-BR copy and accessible action labels.
+- [journey/RoomCaptureCard.kt](journey/RoomCaptureCard.kt): wrapping green category selectors and system-camera shutter.
+- [journey/RoomCoverageCard.kt](journey/RoomCoverageCard.kt): distinct applicable-category coverage and explicit N/A states.
+- [journey/RoomCaptureControls.kt](journey/RoomCaptureControls.kt): capture sections, saved photos and onward actions.
+- [journey/RoomPhotos.kt](journey/RoomPhotos.kt): bounded thumbnails, viewer and individual removal.
+
+Contract: [capture UX](../../../../../../../docs/05-mobile/capture-ux.md).

@@ -4,76 +4,104 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import vault.ui.ErrorText
 import vault.ui.Strings
-import vault.ui.VaultTextField
 
-// First rooms-stage header: labeled name input with an inline
-// pale-green add action, and a text-only empty state (no decorative
-// artwork). Behavior unchanged: add/rename/reorder/delete keep
-// working below this header.
-
-// Labeled input with the add action beside it (never below the fold).
+// The field and keyboard share the same explicit add operation.
 @Composable
-fun RoomNameInput(
-    value: String,
-    onValue: (String) -> Unit,
-    enabled: Boolean,
-    onAdd: () -> Unit,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(Strings.roomNameLabel, style = MaterialTheme.typography.titleSmall)
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            VaultTextField(
-                value = value,
-                onValueChange = onValue,
-                label = Strings.roomNameLabel,
-                placeholder = Strings.roomNamePlaceholder,
-                leadingIcon = Icons.Outlined.Home,
-                modifier = Modifier.weight(1f),
+fun RoomNameInput(value: String, onValue: (String) -> Unit, enabled: Boolean, onAdd: () -> Unit) {
+    val keyboard = LocalSoftwareKeyboardController.current
+    fun submit() {
+        if (enabled) {
+            onAdd()
+            keyboard?.hide()
+        }
+    }
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Bottom) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValue,
+            label = { Text(Strings.roomNameLabel) },
+            placeholder = { Text(Strings.roomNamePlaceholder) },
+            leadingIcon = { Icon(Icons.Outlined.Home, contentDescription = null) },
+            singleLine = true,
+            shape = RoundedCornerShape(16.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                unfocusedBorderColor = MaterialTheme.colorScheme.surfaceContainer,
+            ),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { submit() }),
+            modifier = Modifier.weight(1f),
+        )
+        Button(
+            onClick = { submit() },
+            enabled = enabled,
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.size(56.dp),
+            contentPadding = PaddingValues(0.dp),
+        ) { Icon(Icons.Filled.Add, contentDescription = Strings.add) }
+    }
+}
+
+@Composable
+fun RoomEmptyState() {
+    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(Strings.roomsEmptyTitle, style = MaterialTheme.typography.titleMedium)
+            Text(
+                Strings.roomsEmptyHint,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            // Square "+" matching the single-line input height (56dp);
-            // screen readers still hear "Adicionar" via description.
-            Button(
-                onClick = onAdd,
-                enabled = enabled,
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.primary,
-                ),
-                modifier = Modifier.size(56.dp),
-                contentPadding = PaddingValues(0.dp),
-            ) { Icon(Icons.Filled.Add, contentDescription = Strings.add) }
         }
     }
 }
 
-// Text-only empty state: title plus next-step hint, no artwork.
+// Intro and optional presets belong to the same scrollable setup section.
 @Composable
-fun RoomEmptyState() {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(Strings.roomsEmptyTitle, style = MaterialTheme.typography.titleMedium)
-        Text(
-            Strings.roomsEmptyHint,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+fun RoomSetupHeader(
+    isExit: Boolean,
+    error: String?,
+    value: String,
+    onValue: (String) -> Unit,
+    onAdd: () -> Unit,
+    presetCount: Int,
+    onAddPresets: () -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        if (isExit) {
+            Text(Strings.exitKind, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+        }
+        Text(Strings.roomsSubtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        ErrorText(error)
+        RoomNameInput(value, onValue, value.isNotBlank(), onAdd)
+        if (presetCount > 0) {
+            TextButton(onClick = onAddPresets) { Text("${Strings.addPresetRooms} ($presetCount)") }
+        }
     }
 }
