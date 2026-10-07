@@ -94,7 +94,6 @@ fun LocalReviewScreen(
     }
 
     ScreenColumn {
-        ScreenTitle(Strings.review)
         PdfJourneySegments(onRooms = ::openRooms, onReview = {}, activeReview = true)
         ErrorText(error)
         LazyColumn(

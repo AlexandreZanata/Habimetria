@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.FactCheck
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.filled.Draw
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -163,42 +165,55 @@ fun PdfSectionDivider() {
     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 }
 
-// Segmented Cômodos/Revisão shortcuts: one pill container, the active
-// entry highlighted. Secondary chrome only; header Back plus the global
+// Segmented Cômodos/Revisão shortcuts: one pill container with icon
+// options, the active entry highlighted. Same pattern as the capture
+// JourneyShortcuts. Secondary chrome only; header Back plus the global
 // bar stay the hierarchical navigation.
 @Composable
 fun PdfJourneySegments(onRooms: () -> Unit, onReview: () -> Unit, activeReview: Boolean = false) {
     @Composable fun RowScope.segment(
         label: String,
+        icon: ImageVector,
         active: Boolean,
         onClick: () -> Unit,
     ) {
         Box(
             modifier = Modifier.weight(1f)
-                .clip(RoundedCornerShape(24.dp))
+                .clip(RoundedCornerShape(20.dp))
                 .then(if (active) Modifier.background(MaterialTheme.colorScheme.primaryContainer) else Modifier)
                 .clickable(role = Role.Button, onClick = onClick)
                 .padding(vertical = 12.dp),
             contentAlignment = Alignment.Center,
         ) {
-            Text(
-                label,
-                style = MaterialTheme.typography.titleMedium,
-                color = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    tint = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp),
+                )
+                Text(
+                    label,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                )
+            }
         }
     }
     Row(
         modifier = Modifier.fillMaxWidth()
-            .clip(RoundedCornerShape(28.dp))
+            .clip(RoundedCornerShape(20.dp))
             .background(MaterialTheme.colorScheme.surfaceContainerHighest)
             .padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        segment(Strings.rooms, !activeReview, onRooms)
-        segment(Strings.reviewShort, activeReview, onReview)
+        segment(Strings.rooms, Icons.Outlined.GridView, !activeReview, onRooms)
+        segment(Strings.reviewShort, Icons.AutoMirrored.Outlined.FactCheck, activeReview, onReview)
     }
 }
 
