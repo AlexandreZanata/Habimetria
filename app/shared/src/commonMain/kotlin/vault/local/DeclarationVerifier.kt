@@ -36,17 +36,19 @@ internal fun verifyDeclarations(directory: String, reportId: String, pdfHash: St
             body.manifestSha256 == manifestHash && body.previousSha256 == previous) { "declaration binding mismatch" }
         val certificate = file.certificate?.let { proof ->
             require(file.publicKey.isEmpty() && file.signature == proof.signature)
-            val identity = personalCertificateSigner()?.verify(proof, file.payload.encodeToByteArray())
+            val (identity, status) = certificateStatus(proof, file.payload.encodeToByteArray(), pinned)
+            val verified = identity
                 ?: error("certificate signature verification unavailable or invalid")
-            require(identity.fingerprint == file.keyId) { "certificate fingerprint mismatch" }
-            identity
+            require(verified.fingerprint == file.keyId) { "certificate fingerprint mismatch" }
+            verified to status
         }
         if (certificate == null) {
             val key = file.publicKey.decodeHex().toByteArray()
             require(file.keyId == keyFingerprint(key) && signer.verify(key, file.payload.encodeToByteArray(), file.signature.decodeHex().toByteArray()))
         }
         previous = reference.sha256
+        val (identity, status) = certificate ?: (null to null)
         DeclarationCheck(body.intent, body.actorName, body.actorRole, body.note, body.createdAtDevice, true,
-            file.keyId, certificate, file.keyId in pinned)
+            file.keyId, identity, file.keyId in pinned, status)
     }
 }

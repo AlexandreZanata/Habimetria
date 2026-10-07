@@ -1,8 +1,12 @@
 # Local PDF — Focused Delivery Plan
 
-Status: local core implemented; Android emulator proof executed. Physical
-devices, iOS runtime and external professional/legal qualification remain
-gated. See [execution evidence](local_pdf_execution.md).
+Status: local core implemented; earlier Android evidence is historical.
+Current authorship/editorial extension delivers code and code tests only.
+By user instruction, do not run emulator/physical devices/native PDF probes
+or visual artifact generation in any current phase. The user validates
+manually after all phases; iOS checking is excluded. See
+[current delivery](report_authorship_execution.md) and
+[historical execution evidence](local_pdf_execution.md).
 Planning baseline reviewed: `f0493c6`.
 Research date: 2026-10-02. Scope: Brazil, residential tenancy records and
 architecture/engineering work. This document does not certify the app.
@@ -143,10 +147,13 @@ including ITI VALIDAR when supported; no unsupported certification label.
 
 ### PDF08 — Execute release proof
 
-Priority P0 release gate; depends on all locally promised slices. Execute
-[acceptance](local_pdf_acceptance.md) on real Android/iOS devices, inspect
-rendered PDFs and independent readers, test tampering/crashes/storage loss,
-and record measured time/size/memory with build IDs and synthetic artifacts.
+Priority P0 release gate; depends on all locally promised slices. Current
+delivery runs semantic code tests and Android compilation only. After all
+phases, the user manually executes applicable [acceptance](local_pdf_acceptance.md),
+including PDF readers/print, orientation/sensors and storage/memory/crashes.
+Do not launch an emulator, install on a phone or generate native PDF test
+artifacts for this delivery. iOS checking is excluded. Record future manual
+results by build/scenario rather than copying earlier measurements.
 Accept: no omitted, rotated incorrectly, stretched or falsely certified
 content; unexecuted platforms and regulatory checks remain unverified.
 

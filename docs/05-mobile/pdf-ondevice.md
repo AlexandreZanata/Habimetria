@@ -22,10 +22,10 @@ it does not validate council registration, professional attribution, an
 external signature or whether the document is an authentic registered ART/RRT.
 Recommendations and standards are included when supplied by the author.
 
-Manifest v3 freezes these declarations, attachment hash, Finding labels and
+Manifest v4 freezes these declarations, attachment hash, Finding labels and
 encoded/display photo dimensions. Generation validates the canonical schema,
 Manifest digest/signature and historical public key, then reads only signed
-substantive inputs. Old v1/v2 artifacts retain their original signed bytes.
+substantive inputs. Old v1–v3 artifacts retain their original signed bytes.
 SEALED is terminal; later corrections use Occurrence/Addendum.
 
 ## Photo geometry and measured layout
@@ -39,7 +39,7 @@ Bounded codecs prevent full-resolution camera pixels from entering PDF drawing.
 A4 portrait pages contain each portrait/landscape image without crop or stretch.
 Standard image height is at most 300 pt; detail presentation allows 520 pt.
 Changing height changes width to preserve the oriented aspect ratio. Images
-are derivatives up to 1600 px; layout identity is local-pdf/v3. Presentation
+are derivatives up to 1600 px; layout identity is local-pdf/v4. Presentation
 is selected before seal; new rendering requires a new Report ID/version.
 
 Native font metrics feed shared pagination before drawing. Cover, physical
@@ -47,9 +47,12 @@ Room index, reviewed professional sections, photo references/categories,
 coverage gaps/non-applicable categories, all Findings/notes, methodology and
 full hash appendix use complete text. Long paragraphs split across pages;
 no silent truncation, guessed photo aspect or emergency unnumbered pages.
-Native adapters render exact positions and final page/total values.
+A logical outline carries physical page references; current Android/iOS
+writers do not embed native bookmarks. Native adapters render exact positions and final page/total values.
 Android uses PdfDocument; iOS uses UIKit PDF, CoreText and ImageIO. iOS closes
 its PDF context before consuming final bytes. Bytes may differ by platform.
+Manual display rotation (DRAFT-only quarter turns) is frozen in Manifest v5;
+originals stay immutable and derivatives are regenerated from verified bytes.
 
 ## Device claims
 
@@ -91,10 +94,19 @@ Compressed/repacked third-party ZIPs are explicitly unsupported.
 
 Kotlin and the independent Go verifier separate file integrity, signature
 validity and issuer trust. Fingerprints bind actual public-key bytes; an
-included key remains UNKNOWN until independently trusted. No private key is
-exported. Hash/QR/installation signatures never imply civil identity or
-ICP-Brasil certification. Optional external PAdES/ACT/Gov.br integrations
-are not implemented; they require a separate authorized workflow/version.
+included key remains UNKNOWN until independently trusted. Certificate chain
+validity and device-time expiry are reported separately; revocation stays
+UNKNOWN offline and trusted time stays ABSENT without a registered external
+ACT token (EXTERNAL once a contracted-authority token is stored, still
+requiring the issuing ACT for validity). No private key is exported. Hash/QR/installation signatures never imply civil identity or
+ICP-Brasil certification. Embedded PAdES is not produced locally; optional
+external PAdES/Gov.br/ACT handoffs preserve READY bytes, require explicit
+user acknowledgment, accept only PDF-shaped distinct copies, store them
+separately and stay EXTERNAL_UNVERIFIED until checked in ITI VALIDAR or the
+issuing authority. They require an authorized holder certificate, Gov.br
+prata/ouro account or contracted TSA and never block offline generation.
+Gov.br takes no credential in the app; PAdES signers should enable DocMDP
+to avoid Indeterminate at VALIDAR.
 
 ## Budgets and qualification
 
@@ -108,3 +120,29 @@ Android emulator measurements and independent reader checks. Physical-camera
 orientation, physical-device memory, iOS native runtime, print and scoped
 professional/legal compliance remain release gates. Local processing detects
 changes against signed references; it cannot guarantee universal legal acceptance.
+
+## Authorship and corporate editorial extension
+
+[Authorship contract](report_authorship_contract.md) defines optional rental
+identification, professional applicability declarations, A4 editorial margins
+(30 mm top/left, 20 mm bottom/right), 12 pt body, summary/keywords, numbered
+sections and a contents list with physical page references. Personal CPF is
+masked unless the user selects full display; the ZIP retains supplied data.
+Analysis/conclusions follow photographic evidence. Navy accents and black
+body text provide a restrained corporate presentation using local fonts.
+This editorial baseline does not certify full ABNT technical conformity.
+
+New receipt v2 requires an installation-signed declaration index. Explicit
+Share declarations can be appended without changing PDF/Manifest/receipt;
+fresh export includes current verified statements and older exported snapshots
+remain valid. Optional Android/JVM PKCS12 holder signatures are separate
+from installation signatures and do not manufacture external certificate trust.
+Android backup is disabled; credential copies are bounded/deleted and stale
+picker imports are removed at startup. Inspection/Report removal cleans the
+associated private declarations and generated package copies.
+
+Current extension delivery uses code tests/compilation only, by user request.
+No emulator, phone, native PDF probe, generated sample or visual/print review
+is run. The user performs manual validation after all implementation phases;
+iOS runtime qualification remains outside this request. Earlier native evidence
+belongs only to its documented earlier build.

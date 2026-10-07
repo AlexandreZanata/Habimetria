@@ -25,8 +25,8 @@ support must be explicitly qualified per adapter; unknown formats fail clearly.
 
 Original bytes and their hashes never change. Store orientation, encoded/display
 dimensions and any user-selected display correction as Evidence metadata;
-freeze relevant new fields in the next Manifest version. Corrections are
-DRAFT-only, explicitly indicated and applied to derivatives, not the original.
+freeze the manual quarter-turn rotation in Manifest v5. Corrections are
+DRAFT-only through an explicit review control, explicitly indicated and applied to derivatives, not the original.
 New renderings of old snapshots cannot silently add unsealed user edits.
 
 All grid, review and PDF adapters consume the same display convention.
@@ -38,7 +38,8 @@ For display size `(iw, ih)` and available box `(bw, bh)`:
 `scale = min(bw / iw, bh / ih)`; draw `(iw * scale, ih * scale)` centered.
 Changing maximum height also changes width. Use contain, never cover/stretch.
 Leave whitespace rather than crop Evidence. A4 portrait is the default page;
-landscape Evidence stays a landscape image within it. No manual display-correction editor is shipped in this slice. Provide larger detail
+landscape Evidence stays a landscape image within it. Manual display correction
+uses DRAFT-only quarter turns with originals preserved. Provide larger detail
 pages for professional Evidence without replacing the original attachment.
 
 ## Page composition and output quality
@@ -61,7 +62,10 @@ margins and embedded/local font resources when required. Body/captions should
 be comfortably legible in A4 print; complete digests can use compact monospaced
 text. Use 12 pt body text, 30 mm left/top and 20 mm right/bottom margins.
 Number textual sections and show declared references; smaller captions and
-source/footer text remain measured. Manual print/layout review is user-owned
+source/footer text remain measured. A logical outline with physical page
+references is emitted for navigation; native PDF bookmarks are exposed only
+where the writer supports outlines (current Android/iOS writers do not embed
+them, so the contents page stays the portable surface). Manual print/layout review is user-owned
 after this code-only delivery. See [editorial scope](report_authorship_contract.md).
 Keep all Portuguese accents and all original notes; do not use `.take()` to
 silently discard Report content. Separate technical identifiers into appendix

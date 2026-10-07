@@ -1,5 +1,8 @@
 # Local PDF — Implementation and Executed Evidence
 
+Historical build evidence only. Current code-only authorship extension and
+user-owned manual validation: [current delivery](report_authorship_execution.md).
+
 Evidence date: 2026-10-02. Status: implemented local core with Android
 emulator proof; physical-device and iOS runtime release qualification pending.
 References: [delivery plan](local_pdf_plan.md),

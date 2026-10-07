@@ -69,7 +69,7 @@ func verifyPackage(dir string, trusted, certified map[string]bool) verdict {
 
 	if manifestFound {
 		var doc manifestDoc
-		if json.Unmarshal(manifestBytes, &doc) == nil && doc.FormatVersion >= 1 && doc.FormatVersion <= 4 && doc.Purpose == "local-seal/v1" && len(doc.Evidences) > 0 && len(doc.Evidences) <= 1000 {
+		if json.Unmarshal(manifestBytes, &doc) == nil && doc.FormatVersion >= 1 && doc.FormatVersion <= 5 && doc.Purpose == "local-seal/v1" && len(doc.Evidences) > 0 && len(doc.Evidences) <= 1000 {
 			v.EvidencesChecked = len(doc.Evidences)
 			originals := append([]manifestEvidence{}, doc.Evidences...)
 			if doc.ReportDetails.ResponsibilityDocument != nil {

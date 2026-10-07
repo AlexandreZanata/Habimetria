@@ -38,6 +38,7 @@ fun manifestSnapshot(manifest: LocalManifest): ManifestInput {
             mockSignal = row.optionalText("mockSignal"), fixTimeDevice = row.optionalText("fixTimeDevice"),
             deviceUtcOffsetMinutes = row.optionalText("deviceUtcOffsetMinutes")?.toInt(),
             exifOrientation = row.optionalText("exifOrientation")?.toInt(),
+            displayRotation = row["displayRotation"]?.jsonPrimitive?.int ?: 0,
         )
     }
     val findings = root.getValue("findings").jsonArray.map { item ->
@@ -51,6 +52,7 @@ fun manifestSnapshot(manifest: LocalManifest): ManifestInput {
     val roomIds = rooms.map { it.id }.toSet()
     evidences.forEach {
         require(safeArtifactId(it.id) && it.roomId in roomIds && it.size in 1..MAX_ORIGINAL_BYTES) { "invalid evidence" }
+        require(validDisplayRotation(it.displayRotation)) { "invalid display rotation" }
         require(it.latitude == null || (it.latitude.isFinite() && it.latitude in -90.0..90.0)) { "invalid latitude" }
         require(it.longitude == null || (it.longitude.isFinite() && it.longitude in -180.0..180.0)) { "invalid longitude" }
         require((it.latitude == null) == (it.longitude == null)) { "incomplete location" }
