@@ -148,6 +148,7 @@ func checkGeo(lat, lng *float64) error {
 	}
 	return nil
 }
+
 // bufferAndHash streams content to a temp file while hashing.
 // Returns hex SHA-256, byte size, and the open temp file.
 func bufferAndHash(r io.Reader) (string, int64, *os.File, error) {

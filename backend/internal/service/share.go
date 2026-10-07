@@ -94,7 +94,7 @@ func (s *ShareService) Open(ctx context.Context, token, ip string) (ShareView, e
 	}
 	view := ShareView{
 		Share: share, URL: s.ShareURL(token), VerifyCode: rep.VerifyCode,
-		SealedAt: rep.SealedAt.UTC().Format(time.RFC3339),
+		SealedAt:      rep.SealedAt.UTC().Format(time.RFC3339),
 		EvidenceCount: rep.EvidenceCount, PDFReady: rep.PDFReady,
 	}
 	if rep.PDFReady {

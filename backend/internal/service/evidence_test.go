@@ -15,13 +15,13 @@ import (
 )
 
 type fakeEvidenceStore struct {
-	uc       postgres.UploadContext
-	ucErr    error
-	create   func(postgres.EvidenceInput) (postgres.Evidence, error)
-	get      postgres.Evidence
-	getErr   error
-	roomOK   bool
-	roomErr  error
+	uc      postgres.UploadContext
+	ucErr   error
+	create  func(postgres.EvidenceInput) (postgres.Evidence, error)
+	get     postgres.Evidence
+	getErr  error
+	roomOK  bool
+	roomErr error
 }
 
 func (f fakeEvidenceStore) UploadContext(context.Context, string) (postgres.UploadContext, error) {
@@ -170,8 +170,10 @@ func TestUploadBadTypeMime(t *testing.T) {
 func TestUploadDBFailureDeletesOrphan(t *testing.T) {
 	st := &fakeStorage{}
 	svc := NewEvidenceWithStore(nil, fakeEvidenceStore{
-		uc:     draftContext(),
-		create: func(postgres.EvidenceInput) (postgres.Evidence, error) { return postgres.Evidence{}, errors.New("db down") },
+		uc: draftContext(),
+		create: func(postgres.EvidenceInput) (postgres.Evidence, error) {
+			return postgres.Evidence{}, errors.New("db down")
+		},
 	}, st)
 	_, err := svc.Upload(context.Background(), UploadInput{
 		InspectionID: "123e4567-e89b-12d3-a456-426614174000",

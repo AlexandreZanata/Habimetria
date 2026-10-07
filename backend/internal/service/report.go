@@ -156,7 +156,7 @@ func (s *ReportService) Verify(ctx context.Context, code string, hmacKey string)
 	)
 	return VerifyResult{
 		Authentic: true, VerifyCode: rep.VerifyCode,
-		SealedAt: rep.SealedAt.UTC().Format(time.RFC3339),
+		SealedAt:      rep.SealedAt.UTC().Format(time.RFC3339),
 		EvidenceCount: rep.EvidenceCount, ManifestSHA256: rep.ManifestSHA,
 		SignatureValid: valid, ReportSHA256: rep.ReportSHA256, PDFReady: rep.PDFReady,
 	}, nil

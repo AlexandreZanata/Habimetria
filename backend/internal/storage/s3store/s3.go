@@ -13,26 +13,26 @@ import (
 
 // Config holds S3/MinIO connection settings. Path-style is required for MinIO.
 type Config struct {
-	Endpoint  string
-	Region    string
-	Bucket    string
-	AccessKey string
-	SecretKey string
+	Endpoint     string
+	Region       string
+	Bucket       string
+	AccessKey    string
+	SecretKey    string
 	UsePathStyle bool
 }
 
 // Store implements storage.Port over S3-compatible APIs.
 type Store struct {
-	client *s3.Client
+	client  *s3.Client
 	presign *s3.PresignClient
-	bucket string
+	bucket  string
 }
 
 // New builds an S3 store. Static credentials only — no IAM discovery in MVP.
 func New(cfg Config) *Store {
 	client := s3.New(s3.Options{
-		Region:      cfg.Region,
-		Credentials: credentials.NewStaticCredentialsProvider(cfg.AccessKey, cfg.SecretKey, ""),
+		Region:       cfg.Region,
+		Credentials:  credentials.NewStaticCredentialsProvider(cfg.AccessKey, cfg.SecretKey, ""),
 		BaseEndpoint: aws.String(cfg.Endpoint),
 		UsePathStyle: cfg.UsePathStyle,
 	})

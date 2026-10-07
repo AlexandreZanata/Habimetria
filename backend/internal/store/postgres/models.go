@@ -69,19 +69,19 @@ type Room struct {
 // Evidence is one sealed file: original bytes + server-side hash + timestamp.
 // Geolocation and device time are device-reported claims, not certified facts.
 type Evidence struct {
-	ID                string     `json:"id"`
-	InspectionID      string     `json:"inspection_id"`
-	RoomID            *string    `json:"room_id"`
-	Type              string     `json:"type"`
-	Mime              string     `json:"mime"`
-	Size              int64      `json:"size"`
-	StorageKey        string     `json:"storage_key"`
-	SHA256            string     `json:"sha256"`
-	CapturedAtDevice  *time.Time `json:"captured_at_device"`
-	Latitude          *float64   `json:"latitude"`
-	Longitude         *float64   `json:"longitude"`
-	ReceivedAtServer  time.Time  `json:"received_at_server"`
-	Sequence          int        `json:"sequence"`
+	ID               string     `json:"id"`
+	InspectionID     string     `json:"inspection_id"`
+	RoomID           *string    `json:"room_id"`
+	Type             string     `json:"type"`
+	Mime             string     `json:"mime"`
+	Size             int64      `json:"size"`
+	StorageKey       string     `json:"storage_key"`
+	SHA256           string     `json:"sha256"`
+	CapturedAtDevice *time.Time `json:"captured_at_device"`
+	Latitude         *float64   `json:"latitude"`
+	Longitude        *float64   `json:"longitude"`
+	ReceivedAtServer time.Time  `json:"received_at_server"`
+	Sequence         int        `json:"sequence"`
 }
 
 // Finding is one reported defect: photo evidence + preset + optional note.
@@ -114,13 +114,13 @@ type OccurrenceEvidence struct {
 // Comparison is one user-confirmed entry-vs-exit tag per room position.
 // Tags describe visual state only, never liability.
 type Comparison struct {
-	ID             string  `json:"id"`
-	TenancyID      string  `json:"tenancy_id"`
-	EntryRoomID    string  `json:"entry_room_id"`
-	ExitRoomID     string  `json:"exit_room_id"`
-	ShotCategory   string  `json:"shot_category"`
-	EntryEvidenceID *string `json:"entry_evidence_id"`
-	ExitEvidenceID  *string `json:"exit_evidence_id"`
-	Tag            string  `json:"tag"`
-	CreatedAt      time.Time `json:"created_at"`
+	ID              string    `json:"id"`
+	TenancyID       string    `json:"tenancy_id"`
+	EntryRoomID     string    `json:"entry_room_id"`
+	ExitRoomID      string    `json:"exit_room_id"`
+	ShotCategory    string    `json:"shot_category"`
+	EntryEvidenceID *string   `json:"entry_evidence_id"`
+	ExitEvidenceID  *string   `json:"exit_evidence_id"`
+	Tag             string    `json:"tag"`
+	CreatedAt       time.Time `json:"created_at"`
 }

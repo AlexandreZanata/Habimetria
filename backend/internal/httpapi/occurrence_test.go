@@ -12,11 +12,11 @@ import (
 )
 
 type stubOccurrence struct {
-	occ      postgres.Occurrence
-	list     []postgres.Occurrence
-	link     postgres.OccurrenceEvidence
+	occ       postgres.Occurrence
+	list      []postgres.Occurrence
+	link      postgres.OccurrenceEvidence
 	evidences []postgres.Evidence
-	err      error
+	err       error
 }
 
 func (s stubOccurrence) Create(context.Context, string, string, *string) (postgres.Occurrence, error) {
