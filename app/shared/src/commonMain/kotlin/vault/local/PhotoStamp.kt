@@ -24,3 +24,13 @@ internal fun photoStampLines(evidence: LocalEvidence, address: String): List<Str
         add("${canonicalDouble(evidence.latitude)}, ${canonicalDouble(evidence.longitude)}$accuracy$approximate")
     }
 }
+
+// Wraps stamp lines to the photo width so the overlay never spills past
+// the rect. Every character is preserved; wrapping only adds line breaks.
+internal fun wrapStampLines(
+    lines: List<String>,
+    maxWidth: Double,
+    measure: (String, TextKind, Double) -> List<String>,
+): List<String> = lines.filter { it.isNotBlank() }
+    .flatMap { measure(it, TextKind.SMALL, maxWidth) }
+    .filter { it.isNotEmpty() }

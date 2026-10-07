@@ -1,6 +1,9 @@
 package vault.local
 
 import vault.local.db.LocalEvidence
+import vault.local.db.LocalInspection
+import vault.local.db.LocalRoom
+import vault.local.db.LocalTenancy
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -48,5 +51,39 @@ class PhotoStampTest {
         val lines = photoStampLines(stampEvidence(), "   ")
         assertEquals(2, lines.size)
         assertTrue(lines.none { it.contains("0.0, 0.0") })
+    }
+
+    @Test
+    fun wrapKeepsEveryCharacterWithinPhotoWidth() {
+        val long = "Rua das Palmeiras Imperial do Oeste, 1234, Fundos, Bairro Alto da Serra"
+        val wrapped = wrapStampLines(listOf("t (hora do dispositivo)", long, "-12.7, -55.7"), 100.0) { text, _, width ->
+            measuredPdfLines(text, width) { it.length * 5.0 }
+        }
+        assertTrue(wrapped.size >= 3)
+        assertTrue(wrapped.all { it.length * 5.0 <= 100.0 })
+        assertEquals(
+            listOf("t (hora do dispositivo)", long, "-12.7, -55.7").joinToString("").replace(" ", ""),
+            wrapped.joinToString("").replace(" ", ""),
+        )
+    }
+
+    @Test
+    fun modelCarriesStampIntoPaginatedPhoto() {
+        val evidence = stampEvidence()
+        val input = ManifestInput(
+            propertyId = "p1", address = "Rua X, 10",
+            tenancy = LocalTenancy("t1", "p1", "entry", "t"),
+            inspection = LocalInspection("i1", "t1", "entry", "SEALED", "t", "t"),
+            rooms = listOf(LocalRoom("r1", "i1", "k1", "Sala", 0, "")),
+            evidences = listOf(evidence.copy(id = "e1", roomId = "r1", sequence = 1)),
+            findings = emptyList(), sealedAtDevice = "t",
+        )
+        val model = buildPdfModel("rep1", "Rua X, 10", input, "man1", "m".repeat(64), "key1") { 80 }
+        val entry = model.rooms.single().photos.single()
+        assertEquals(photoStampLines(evidence, "Rua X, 10"), entry.stampLines)
+        val photos = paginateModel(model) { ImageDims(800, 600) }
+            .flatMap { it.items }.filterIsInstance<PageItem.Photo>()
+        assertTrue(photos.isNotEmpty())
+        assertTrue(photos.all { it.entry.stampLines.isNotEmpty() })
     }
 }

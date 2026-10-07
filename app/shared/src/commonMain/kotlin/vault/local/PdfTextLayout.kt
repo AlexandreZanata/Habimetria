@@ -72,9 +72,7 @@ internal class PdfLayoutBuilder(private val renderer: PdfTextMetrics, private va
         ensure(height + minOf(captionHeight, 100.0))
         // Wrap the on-photo stamp to the photo width so no line spills past
         // the rect; the overlay keeps every character, it never truncates.
-        val stamp = entry.stampLines.filter { it.isNotBlank() }
-            .flatMap { renderer.measureText(it, TextKind.SMALL, width) }
-            .filter { it.isNotEmpty() }
+        val stamp = wrapStampLines(entry.stampLines, width, renderer::measureText)
         items.add(PageItem.Photo(entry.copy(stampLines = stamp), PdfRect(PDF_MARGIN_LEFT_PT + (contentWidthPt() - width) / 2, y, width, height)))
         y += height + 6.0
         text(entry.caption, TextKind.SMALL, 2.0)
