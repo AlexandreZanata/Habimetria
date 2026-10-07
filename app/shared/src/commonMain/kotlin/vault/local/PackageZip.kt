@@ -7,12 +7,12 @@ import okio.Path.Companion.toPath
 // the number of originals. Only exported package names are admitted.
 private data class ZipItem(val name: ByteArray, val path: Path, val size: Long, val crc: Int, val offset: Long)
 internal const val MAX_PACKAGE_BYTES = 512L * 1024 * 1024
-internal const val MAX_PACKAGE_FILES = 1006
+internal const val MAX_PACKAGE_FILES = 1039
 
 fun packageZip(directory: String, destination: String, fs: FileSystem = FileSystem.SYSTEM): String {
     val root = directory.toPath()
     val paths = fs.list(root).filter { fs.metadata(it).isRegularFile } +
-        listOf("originals", "responsibility").flatMap { name ->
+        listOf("originals", "responsibility", "declarations").flatMap { name ->
             val folder = root.resolve(name)
             if (fs.exists(folder)) fs.list(folder) else emptyList()
         }
@@ -53,8 +53,9 @@ fun packageZip(directory: String, destination: String, fs: FileSystem = FileSyst
     } catch (e: Exception) { fs.delete(temporary, mustExist = false); throw e }
 }
 
-internal fun packageEntryAllowed(name: String): Boolean = name in setOf("report.pdf", "receipt.json", "manifest.json", "manifest.sig.json", "signer.json") ||
-    name.matches(Regex("originals/[A-Za-z0-9_-]{1,128}\\.bin")) || name.matches(Regex("responsibility/[A-Za-z0-9_-]{1,128}\\.bin"))
+internal fun packageEntryAllowed(name: String): Boolean = name in setOf("report.pdf", "receipt.json", "manifest.json", "manifest.sig.json", "signer.json", "declarations-index.json") ||
+    name.matches(Regex("originals/[A-Za-z0-9_-]{1,128}\\.bin")) || name.matches(Regex("responsibility/[A-Za-z0-9_-]{1,128}\\.bin")) ||
+    name.matches(Regex("declarations/[A-Za-z0-9_-]{1,128}\\.json"))
 
 internal fun crcSource(source: BufferedSource, size: Long): Int {
     var crc = -1

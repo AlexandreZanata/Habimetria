@@ -45,6 +45,7 @@ func main() {
 		fmt.Printf("evidences: %d checked, %d missing, %d modified\n",
 			v.EvidencesChecked, len(v.EvidencesMissing), len(v.EvidencesModified))
 		fmt.Printf("signature: %v\nissuer trust: %s\n", v.SignatureValid, v.IssuerTrust)
+		fmt.Printf("declarations: %d checked, intact: %v\n", len(v.Declarations), v.DeclarationsIntact)
 		fmt.Printf("verdict: %s\n", map[bool]string{true: "ACCEPT", false: "REJECT"}[v.Accepted])
 	}
 	if !v.Accepted {

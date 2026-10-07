@@ -21,6 +21,11 @@ internal class ReportArtifacts(private val filesDir: String, private val fs: Fil
     }
 
     fun hash(path: String): String = fs.read(path.toPath()) { readByteArray() }.toByteString().sha256().hex()
+    fun receiptVersion(id: String): Int {
+        val path = receipt(id).toPath()
+        require((fs.metadata(path).size ?: 0L) in 1L..16_384L)
+        return Json.parseToJsonElement(fs.read(path) { readUtf8() }).jsonObject.getValue("receipt").jsonObject.getValue("formatVersion").jsonPrimitive.int
+    }
 
     fun receiptValid(report: LocalReport, crypto: InstallationSigner, publicKey: ByteArray): Boolean = try {
         val path = receipt(report.id).toPath()
@@ -29,14 +34,16 @@ internal class ReportArtifacts(private val filesDir: String, private val fs: Fil
         val body = root.getValue("receipt").jsonObject
         fun value(name: String) = body.getValue(name).jsonPrimitive.content
         require(value("algorithm") == SEAL_ALGORITHM && value("purpose") == RECEIPT_PURPOSE)
-        require(value("formatVersion").toInt() == RECEIPT_FORMAT_VERSION)
+        val version = value("formatVersion").toInt()
+        require(version in 1..RECEIPT_FORMAT_VERSION)
+        require((body["declarationsRequired"]?.jsonPrimitive?.booleanOrNull ?: false) == (version >= 2))
         require(value("reportId") == report.id && value("manifestId") == report.manifestId)
         require(value("manifestSha256") == report.manifestSha256 && value("pdfSha256") == report.pdfSha256)
         require(value("signerKeyId") == report.signerKeyId && keyFingerprint(publicKey) == report.signerKeyId)
         val signature = root.getValue("signature").jsonPrimitive.content
         require(signature == report.receiptSignature) { "receipt signature differs from stored record" }
         crypto.verify(publicKey, receiptBytes(report.id, report.manifestId,
-            report.manifestSha256, report.pdfSha256!!, report.signerKeyId), signature.decodeHex().toByteArray())
+            report.manifestSha256, report.pdfSha256!!, report.signerKeyId, version), signature.decodeHex().toByteArray())
     } catch (_: Exception) {
         false
     }

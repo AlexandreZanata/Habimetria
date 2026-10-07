@@ -49,6 +49,7 @@ class InspectionRemovalRepository(
                     require(safeArtifactId(reportId)) { "invalid report id" }
                     fs.deleteRecursively("$filesDir/vault/packages/$reportId".toPath())
                     fs.delete("$filesDir/vault/packages/$reportId.zip".toPath(), mustExist = false)
+                    fs.deleteRecursively("$filesDir/vault/declarations/$reportId".toPath())
                 }
                 document?.let { fs.delete(ResponsibilityDocuments(filesDir, fs).path(it.id).toPath(), mustExist = false) }
                 InspectionDeleteOutcome.Deleted

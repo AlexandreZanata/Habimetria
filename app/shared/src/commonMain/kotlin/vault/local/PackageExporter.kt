@@ -32,9 +32,6 @@ class PackageExporter(
         val snapshot = manifestSnapshot(manifest)
         val pdfBytes = readReportPdf(reportId)
         val dir = packageDir(reportId)
-        if (fs.exists(dir.toPath())) {
-            if (PackageVerifier(signer, fs).verify(dir).accepted()) return dir
-        }
         val staging = "$dir.tmp".toPath()
         fs.deleteRecursively(staging)
         fs.createDirectories(staging)
@@ -69,6 +66,17 @@ class PackageExporter(
             fs.createDirectories(documentsDir)
             fs.write(documentsDir.resolve("${document.id}.bin")) { write(ResponsibilityDocuments(filesDir, fs).verified(document)) }
         }
+        if (ReportArtifacts(filesDir, fs).receiptVersion(reportId) >= 2) {
+            val declarations = ReportDeclarations(db, filesDir, signer, fs)
+            declarations.check(report)
+            val source = declarations.directory(reportId).toPath()
+            fs.copy(source.resolve("declarations-index.json"), staging.resolve("declarations-index.json"))
+            val folder = source.resolve("declarations")
+            if (fs.exists(folder)) {
+                fs.createDirectories(staging.resolve("declarations"))
+                fs.list(folder).forEach { fs.copy(it, staging.resolve("declarations/${it.name}")) }
+            }
+        }
         require(PackageVerifier(signer, fs).verify(staging.toString()).accepted()) { "staged package verification failed" }
         val final = dir.toPath()
         val backup = "$dir.previous".toPath()
@@ -92,4 +100,3 @@ class PackageExporter(
         fs.copy(source, to)
     }
 }
-

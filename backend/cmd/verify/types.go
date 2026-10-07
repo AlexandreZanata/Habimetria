@@ -1,14 +1,15 @@
 package main
 
 type receiptBody struct {
-	Algorithm     string `json:"algorithm"`
-	FormatVersion int    `json:"formatVersion"`
-	Purpose       string `json:"purpose"`
-	ReportID      string `json:"reportId"`
-	ManifestID    string `json:"manifestId"`
-	ManifestSHA   string `json:"manifestSha256"`
-	PDFSHA        string `json:"pdfSha256"`
-	SignerKeyID   string `json:"signerKeyId"`
+	DeclarationsRequired bool   `json:"declarationsRequired"`
+	Algorithm            string `json:"algorithm"`
+	FormatVersion        int    `json:"formatVersion"`
+	Purpose              string `json:"purpose"`
+	ReportID             string `json:"reportId"`
+	ManifestID           string `json:"manifestId"`
+	ManifestSHA          string `json:"manifestSha256"`
+	PDFSHA               string `json:"pdfSha256"`
+	SignerKeyID          string `json:"signerKeyId"`
 }
 
 type receiptFile struct {
@@ -44,15 +45,17 @@ type manifestDoc struct {
 }
 
 type verdict struct {
-	PDF               string   `json:"pdf"`
-	Receipt           string   `json:"receipt"`
-	Manifest          string   `json:"manifest"`
-	EvidencesChecked  int      `json:"evidencesChecked"`
-	EvidencesMissing  []string `json:"evidencesMissing"`
-	EvidencesModified []string `json:"evidencesModified"`
-	SignatureValid    bool     `json:"signatureValid"`
-	IssuerTrust       string   `json:"issuerTrust"`
-	Accepted          bool     `json:"accepted"`
+	DeclarationsIntact bool                 `json:"declarationsIntact"`
+	Declarations       []declarationVerdict `json:"declarations"`
+	PDF                string               `json:"pdf"`
+	Receipt            string               `json:"receipt"`
+	Manifest           string               `json:"manifest"`
+	EvidencesChecked   int                  `json:"evidencesChecked"`
+	EvidencesMissing   []string             `json:"evidencesMissing"`
+	EvidencesModified  []string             `json:"evidencesModified"`
+	SignatureValid     bool                 `json:"signatureValid"`
+	IssuerTrust        string               `json:"issuerTrust"`
+	Accepted           bool                 `json:"accepted"`
 }
 
 const (
