@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -48,8 +49,8 @@ fun PropertyListScreen(
     var busy by rememberSaveable { mutableStateOf(false) }
     var error by rememberSaveable { mutableStateOf<String?>(null) }
     var loadError by rememberSaveable { mutableStateOf<String?>(null) }
-    var cards by mutableStateOf<List<PropertyOverview>?>(null)
-    var removing by mutableStateOf<PropertyOverview?>(null)
+    var cards by remember { mutableStateOf<List<PropertyOverview>?>(null) }
+    var removing by remember { mutableStateOf<PropertyOverview?>(null) }
     var feedback by rememberSaveable { mutableStateOf<String?>(null) }
     var visibility by rememberSaveable { mutableStateOf(VISIBILITY_ACTIVE) }
     val scope = rememberCoroutineScope()
