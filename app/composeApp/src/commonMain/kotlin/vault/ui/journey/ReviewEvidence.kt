@@ -22,6 +22,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import vault.findings.FindingPreset
@@ -42,7 +43,8 @@ import vault.ui.decodeThumbnail
 import vault.ui.userErrorMessage
 
 // One evidence row in review: thumbnail, sequence, location claim and
-// finding count. The issue entry stays available until sealed.
+// finding count. The issue entry stays available until sealed. The
+// thumbnail turns inside its box with the chosen display correction.
 @Composable
 fun ReviewEvidenceRow(
     session: LocalSession,
@@ -61,7 +63,9 @@ fun ReviewEvidenceRow(
             Image(
                 bitmap = thumb,
                 contentDescription = "${Strings.photosSuffix}: ${evidence.shotCategory}",
-                modifier = Modifier.size(72.dp),
+                modifier = Modifier.size(72.dp).graphicsLayer {
+                    rotationZ = evidence.displayRotation.toFloat()
+                },
             )
         }
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
