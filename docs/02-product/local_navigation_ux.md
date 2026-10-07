@@ -7,9 +7,13 @@ Preserve the [capture flow](capture-flow.md) and
 
 ## Global destinations
 
-- `Início`: a short overview, `Nova vistoria`, and `Continuar vistoria`
-  for an existing unfinished Inspection. Creation still follows the
-  existing address, Tenancy and manually named Room flow.
+- `Início`: hero banner (`Vistoria de Imóveis` with cover art, safety lead
+  and three checks) with one `Nova vistoria` action, followed directly by
+  `Meus imóveis` cards. No stat cards. Each card shows the cover photo
+  (or placeholder art), nickname/address with pin, rooms + status chips
+  and `Continuar` for an open draft; the `X imóveis >` header opens `Imóveis`.
+  Creation still follows the existing address, Tenancy and manually named
+  Room flow.
 - `Imóveis`: local Property list, address/nickname, create/rename actions,
   and a Property detail showing its Inspections. Removal follows the
   [Property removal contract](../03-architecture/local_property_removal.md).

@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,23 +20,25 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import vault.local.NavigationProgress
 import vault.local.PropertyOverview
-import vault.ui.property.HeroNewInspection
+import vault.ui.property.HomeHeroBanner
 import vault.ui.property.HomePropertyStates
 import vault.ui.property.PropertyRemovalHost
 import vault.ui.property.RemovalFeedback
 import vault.ui.property.startOnProperty
 
-// Home prioritizes new/resume: hero entry to the dedicated address
+// Home prioritizes new/resume: hero banner entry to the dedicated address
 // screen and Continuar for the latest draft. The address form lives
 // on Route.NewInspection, never squeezed under these cards. Full
 // management lives in Imóveis; this screen keeps cards read-mostly.
-// Loading, error and empty are distinct states with retry.
+// Loading, error and empty are distinct states with retry. No stat cards:
+// the banner leads straight into Meus imóveis.
 @Composable
 fun HomeScreen(
     container: AppContainer,
     onReady: (inspectionId: String) -> Unit,
     onNewInspection: () -> Unit,
     onOpenDetail: (propertyId: String) -> Unit,
+    onOpenAllProperties: () -> Unit,
 ) {
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -94,14 +94,8 @@ fun HomeScreen(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text(Strings.appName, style = MaterialTheme.typography.headlineSmall)
-        Text(
-            Strings.tagline,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
         if (local != null) {
-            HeroNewInspection(enabled = !busy, onClick = onNewInspection)
+            HomeHeroBanner(enabled = !busy, onNewInspection = onNewInspection)
             HomePropertyStates(
                 rows = cards,
                 loadError = loadError,
@@ -110,6 +104,7 @@ fun HomeScreen(
                 onResume = ::resume,
                 onNewInspection = ::startProperty,
                 onOpenDetail = { onOpenDetail(it.property.id) },
+                onOpenAllProperties = onOpenAllProperties,
                 onRemove = { removing = it },
             )
         }

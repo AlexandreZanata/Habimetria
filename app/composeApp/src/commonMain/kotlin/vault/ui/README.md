@@ -13,3 +13,10 @@ The existing offline review → seal → PDF → share journey is unchanged.
 - [PackageVerdictBlock.kt](PackageVerdictBlock.kt): separate integrity/declaration results.
 
 Contract: [report authorship](../../../../../../../docs/05-mobile/report_authorship_contract.md).
+
+# Home and properties
+
+- [property/HomeHeroBanner.kt](property/HomeHeroBanner.kt): banner art with safety lead, checks and Nova vistoria.
+- [property/PropertyCards.kt](property/PropertyCards.kt): property card rows driven by overviews.
+- [property/PropertyCardVisuals.kt](property/PropertyCardVisuals.kt): cover thumbnail and rooms/status chips.
+- [property/PropertyCoverPicker.kt](property/PropertyCoverPicker.kt): durable cover photo pick/capture/remove.

@@ -45,6 +45,10 @@ object PropertyStrings {
     const val restoreAction = "Restaurar imóvel"
     const val restoredOk = "Imóvel restaurado."
     const val archivedHint = "Veja em Arquivados."
+    const val coverTitle = "Foto de capa"
+    const val coverPick = "Adicionar foto de capa"
+    const val coverChange = "Trocar foto"
+    const val coverRemove = "Remover foto"
     const val archivedDetailNote =
         "Imóvel arquivado. Vistorias, fotos e relatórios ficam guardados " +
             "neste dispositivo. Restaure para iniciar uma nova vistoria."
