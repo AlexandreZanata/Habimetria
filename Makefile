@@ -1,6 +1,6 @@
-.PHONY: verify verify-mobile verify-ios-macos verify-all bench bench-apk up down test test-integration vet
+.PHONY: verify verify-mobile verify-ios-macos verify-all bench bench-apk up down test test-integration vet fmt-check cover secrets
 
-verify: vet test
+verify: vet fmt-check test
 
 verify-mobile:
 	cd app && ./gradlew :shared:jvmTest :shared:compileKotlinIosSimulatorArm64 :composeApp:assembleDebug
@@ -27,6 +27,17 @@ test:
 
 test-integration:
 	cd backend && go test -run Integration ./...
+
+fmt-check:
+	cd backend && test -z "$$(gofmt -l .)" || (gofmt -l . && exit 1)
+
+cover:
+	cd backend && ./check_coverage.sh
+
+# Coarse high-confidence secret patterns (no dependencies, runs anywhere).
+# CI additionally runs gitleaks over the full history.
+secrets:
+	! git grep -n -E "AKIA[0-9A-Z]{16}|sk_live_[A-Za-z0-9]+|ghp_[A-Za-z0-9]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY-----" -- . ':!*.md' || (echo "possible secret committed" && exit 1)
 
 up:
 	cp -n infra/.env.example infra/.env 2>/dev/null || true
