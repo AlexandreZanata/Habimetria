@@ -9,7 +9,7 @@ import vault.local.db.LocalEvidence
 // sealed field is introduced. Missing GPS stays explicit; the reported
 // address is a user-supplied place, never a GPS-certified fact.
 internal fun photoStampLines(evidence: LocalEvidence, address: String): List<String> = buildList {
-    add("${evidence.capturedAtDevice} (hora do dispositivo)")
+    add("${evidence.capturedAtDevice} (dispositivo)")
     val place = address.trim()
     if (place.isNotEmpty()) add(place)
     if (evidence.latitude == null || evidence.longitude == null) {

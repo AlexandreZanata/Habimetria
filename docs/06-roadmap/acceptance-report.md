@@ -200,6 +200,34 @@ overviews 4 ms, coverage over 75 inspections 21 ms, 3 MB write 18 ms
 201 tests green. Device timings, ANR rates, five-user sessions and PDF08
 stay manual and user-owned.
 
+## Physical-device proof (2026-10-07, agent-executed smoke)
+
+Device: Xiaomi 2311DRK48G, Android 16 (API 36), arm64, via ADB on the
+user-provided phone. Isolated `pdf-device-probe` folder with synthetic
+data only; user DB never opened. `am instrument
+vault.app.test/vault.pdf.PdfDeviceRunner` twice (second run after
+shortening the stamp time line), both RESULT_OK:
+
+- rental: 100 photos, 115 pages, ~10.0 MB, 10.5 s render; technical:
+  20 photos, 32 pages, ~2.1 MB, 3.2 s. Page size 595×842 pt verified
+  per page via PdfRenderer; generate→verify→export→import→verify
+  accepted on both.
+- EXIF 1–8 dimensions plus all four corners passed; 100/100 QR
+  identities decoded with native detection; peak PSS ≈ 573 MB.
+- Cold start `am start -W`: TotalTime 1513 ms vs the <1.5 s budget
+  (first launch after install; essentially at budget).
+- On-photo stamp renders white with shadow, bottom-right, legible over
+  synthetic photos; a mid-phrase wrap found on narrow rects was fixed by
+  shortening the time line, re-verified on-device. Stamp glyphs are not
+  text-extractable (shadow path flattens them); the caption block below
+  each photo extracts normally and carries the same claims.
+- Marginal misses vs budgets: 100-photo render 10.5 s vs <10 s; cold
+  start +13 ms. No failure, no ANR, no data loss.
+
+This is an agent-executed technical smoke, not user acceptance: real
+camera/GPS flows, five-user sessions, PDF08 visual approval and the
+iOS/beta matrix stay user-owned and unverified.
+
 ## Device-pass instructions (macOS + hardware)
 
 Execute the [beta readiness runbook](beta_readiness.md), which consolidates
