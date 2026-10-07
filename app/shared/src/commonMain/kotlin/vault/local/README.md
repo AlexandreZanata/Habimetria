@@ -13,6 +13,7 @@ LocalVaultRepository delegates feature operations to:
 
 - [ReportDetails.kt](ReportDetails.kt): reviewed report metadata and validation.
 - [RoomPresets.kt](RoomPresets.kt): Settings-managed preset room names copied into DRAFT inspections on demand.
+- [PropertyCovers.kt](PropertyCovers.kt): durable per-property cover photo files.
 - [LocalWriteLock.kt](LocalWriteLock.kt): draft writes serialized with seal.
 - [ManifestEncoding.kt](ManifestEncoding.kt): canonical numbers and JSON quoting.
 - [PdfReportDetails.kt](PdfReportDetails.kt): frozen report details pagination.

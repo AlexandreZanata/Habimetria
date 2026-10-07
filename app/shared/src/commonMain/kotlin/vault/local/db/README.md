@@ -59,4 +59,5 @@ VaultMigrations.kt is split into:
 - [Migration1516.kt](Migration1516.kt): optional Tenancy, direct Property, report details and Report history.
 - [Migration1617.kt](Migration1617.kt): manual display rotation for photo orientation correction.
 - [Migration1718.kt](Migration1718.kt): room_presets table for Settings-managed preset rooms.
+- [Migration1819.kt](Migration1819.kt): nullable properties.photoPath cover photo.
 - [InspectionReportDetails.kt](InspectionReportDetails.kt): DRAFT report details.

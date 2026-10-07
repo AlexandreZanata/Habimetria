@@ -29,6 +29,8 @@ interface PropertiesOperations {
         neighborhood: String,
     ): LocalProperty
 
+    suspend fun setPropertyPhoto(propertyId: String, photoPath: String?): LocalProperty
+
     suspend fun listProperties(): List<LocalProperty>
 
     suspend fun getProperty(id: String): LocalProperty?
@@ -114,6 +116,17 @@ internal class LocalProperties(private val db: VaultDatabase) : PropertiesOperat
         db.propertyDao().update(updated)
         return@localWrite updated
     }
+
+    // Cover photo for the home card. Organizational only: allowed even
+    // when inspections under it are sealed. Null clears the cover.
+    override suspend fun setPropertyPhoto(propertyId: String, photoPath: String?): LocalProperty =
+        localWrite {
+            val property = db.propertyDao().get(propertyId)
+                ?: throw LocalValidationException("property not found")
+            val updated = property.copy(photoPath = photoPath?.takeIf { it.isNotBlank() })
+            db.propertyDao().update(updated)
+            return@localWrite updated
+        }
 
     override suspend fun listProperties(): List<LocalProperty> = db.propertyDao().listAll()
 

@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 
-// Schema v18 (v17 + room_presets for Settings-managed preset rooms).
+// Schema v19 (v18 + property cover photo for the home card).
 // Schema JSON exports to shared/schemas; every bump ships an explicit Migration.
 @Database(
     entities = [
@@ -28,7 +28,7 @@ import androidx.room.RoomDatabaseConstructor
         InspectionReportDetails::class,
         LocalRoomPreset::class,
     ],
-    version = 18,
+    version = 19,
 )
 @ConstructedBy(VaultDatabaseConstructor::class)
 abstract class VaultDatabase : RoomDatabase() {

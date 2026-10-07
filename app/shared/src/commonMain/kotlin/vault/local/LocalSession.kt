@@ -57,6 +57,7 @@ class LocalSession(
     val coverage = VaultCoverage(db)
     val originals = OriginalStore(fs, filesDir)
     val derivatives = DerivativeStore(fs, filesDir, platformScaler())
+    val propertyCovers = PropertyCovers(filesDir, fs)
     val navigation = NavigationStore(fs, filesDir)
     val trust = TrustStore(db)
     val findingProblems = FindingProblemRepository(db)
