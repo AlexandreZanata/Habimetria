@@ -117,6 +117,10 @@ class LocalSealer(
                 sealedAtDevice = sealedAt,
             ),
         )
+        for (evidence in db.evidenceDao().listForInspection(inspectionId)) {
+            ReportSources(originals, fs).original(evidence)
+        }
+        SignerMaterial(originals.filesDir, fs).retain(signer)
         val hash = manifestSha256(canonical)
         val signature = signer.sign(canonical.encodeToByteArray()).toByteString().hex()
         val manifest = LocalManifest(
@@ -149,6 +153,9 @@ class LocalSealer(
     // fails verification. Malformed signatures fail closed (false).
     fun verifyManifest(manifest: LocalManifest, publicKey: ByteArray): Boolean =
         try {
+            manifest.algorithm == SEAL_ALGORITHM &&
+            keyFingerprint(publicKey) == manifest.signerKeyId &&
+            manifestSha256(manifest.canonicalJson) == manifest.canonicalSha256 &&
             signer.verify(
                 publicKey,
                 manifest.canonicalJson.encodeToByteArray(),

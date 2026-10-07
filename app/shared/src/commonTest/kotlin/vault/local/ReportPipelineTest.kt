@@ -44,7 +44,7 @@ private class FakeRenderer(
     }
 }
 
-private suspend fun sealedHarness(photos: Int = 3): Triple<VaultDatabase, LocalSession, InstallationSigner> {
+internal suspend fun sealedHarness(photos: Int = 3): Triple<VaultDatabase, LocalSession, InstallationSigner> {
     pipelineSeq++
     val fs = FileSystem.SYSTEM
     val dir = FileSystem.SYSTEM_TEMPORARY_DIRECTORY.resolve("vault-pipe-$pipelineSeq").toString()
@@ -57,7 +57,7 @@ private suspend fun sealedHarness(photos: Int = 3): Triple<VaultDatabase, LocalS
     val inspection = repo.createInspection(repo.createTenancy(repo.createProperty("Rua PDF").id).id).id
     val room = repo.addRoom(inspection, "Sala")
     repeat(photos) { i ->
-        val bytes = "photo-$i".encodeToByteArray()
+        val bytes = pdfTestPhoto()
         val id = "ev$i"
         val stored = session.originals.storeOriginal(id, bytes)
         repo.recordEvidence(
@@ -88,7 +88,7 @@ class ReportPipelineTest {
         val verification = generator.verify(report.id)
         assertTrue(verification.allOk())
 
-        // Re-rendering the same snapshot updates the same row.
+        // A finalized Report returns unchanged; the renderer is not invoked again.
         val again = generator.generate(inspection, renderer)
         assertEquals(report.id, again.id)
         assertEquals(REPORT_READY, again.status)
