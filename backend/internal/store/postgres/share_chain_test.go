@@ -10,6 +10,7 @@ import (
 
 	"vault/migrations"
 )
+
 func TestShareChainIntegration(t *testing.T) {
 	// Unique per run so reruns never collide with leftover rows.
 	// TestShareChainIntegration walks the property→tenancy→inspection→
