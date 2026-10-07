@@ -101,7 +101,7 @@ object Strings {
     const val settingsReportsBody = "Abrir, verificar e remover PDFs gerados neste dispositivo."
     const val propertySingular = "imóvel"
     const val propertyPlural = "imóveis"
-    const val newProperty = "+ Novo imóvel"
+    const val newProperty = "Novo imóvel"
     const val nicknameTitle = "Apelido do imóvel"
     const val nicknameLabel = "Apelido (opcional, ex.: Casa da praia)"
     const val newInspection = "Nova vistoria"

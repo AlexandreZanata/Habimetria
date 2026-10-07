@@ -17,6 +17,9 @@ Contract: [report authorship](../../../../../../../docs/05-mobile/report_authors
 # Home and properties
 - [property/HomeHeroBanner.kt](property/HomeHeroBanner.kt): compact mint banner with short native copy, Brazilian house art and Nova vistoria.
 - [property/PropertyCards.kt](property/PropertyCards.kt): property card rows driven by overviews.
+- [property/PropertyListCard.kt](property/PropertyListCard.kt): integrated open/restore actions for property management.
+- [property/PropertyListEmptyState.kt](property/PropertyListEmptyState.kt): distinct search, archive and first-use empty messages.
+- [property/PropertySearchField.kt](property/PropertySearchField.kt): rounded labeled search with clear and keyboard actions.
 - [property/PropertyCardRow.kt](property/PropertyCardRow.kt): text-first measurement with the cover constrained to the metadata height.
 - [property/PropertyCardMenu.kt](property/PropertyCardMenu.kt): overlaid property options with a full-sized touch target.
 - [property/PropertyCardVisuals.kt](property/PropertyCardVisuals.kt): cover thumbnail and rooms/status chips.

@@ -13,7 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
@@ -36,6 +35,7 @@ fun PropertyCardView(
     onNewInspection: () -> Unit,
     onOpenDetail: () -> Unit,
     onRemove: (() -> Unit)? = null,
+    actions: (@Composable () -> Unit)? = null,
 ) {
     val property = overview.property
     val title = property.nickname.ifBlank { property.address }
@@ -109,6 +109,7 @@ fun PropertyCardView(
                     enabled = !busy,
                 )
             }
+            actions?.invoke()
         }
     }
 }

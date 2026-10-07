@@ -15,6 +15,11 @@ object PropertyStrings {
     const val noMatch = "Nenhuma vistoria neste filtro."
     const val openDetail = "Abrir"
     const val search = "Buscar imóvel"
+    const val searchHint = "Nome ou endereço"
+    const val clearSearch = "Limpar busca"
+    const val openProperty = "Abrir imóvel"
+    const val noPropertyMatch = "Nenhum imóvel encontrado para esta busca."
+    const val closeCreateForm = "Fechar cadastro"
     const val deleteTitle = "Excluir imóvel?"
     const val deleteBody =
         "O cadastro vazio deste imóvel será apagado neste dispositivo. " +

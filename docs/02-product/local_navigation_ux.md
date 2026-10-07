@@ -36,6 +36,18 @@ Preserve the [capture flow](capture-flow.md) and
 - `Imóveis`: local Property list, address/nickname, create/rename actions,
   and a Property detail showing its Inspections. Removal follows the
   [Property removal contract](../03-architecture/local_property_removal.md).
+  Match the PDF pages' outlined, rounded cards without shadows. Search is
+  a neutral rounded field with a visible label, search icon, clear action
+  and search-keyboard submit. Ativos/Arquivados use a full-width segmented
+  control with theme-green selection, a check icon and selected semantics.
+  Novo imóvel is the primary green action before the list; it expands the
+  existing address form in an outlined card, with a secondary Fechar cadastro
+  toggle. Field values stay saveable when the form closes. Creation retains
+  the existing create-and-start journey. Abrir imóvel is a labeled action
+  inside each Property card, with a divider and chevron. Archived cards
+  also retain restoration inside the same card. Loading, retry, search-empty
+  and archived-empty states stay distinct; management errors are visible
+  even when the creation form is closed. No API or persistence changes.
 - `Vistorias`: local Inspections grouped by Property, with clearly labeled
   `Em andamento` and `Selada` filters. DRAFT resumes capture/review;
   SEALED opens read-only review. Archived Properties remain discoverable

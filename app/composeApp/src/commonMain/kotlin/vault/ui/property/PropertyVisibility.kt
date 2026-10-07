@@ -1,14 +1,31 @@
 package vault.ui.property
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.FilterChip
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 
 // U09 visibility: archived Properties leave active pickers/lists and
@@ -21,17 +38,55 @@ const val VISIBILITY_ARCHIVED = "ARCHIVED"
 // across rotation via the caller's saveable state.
 @Composable
 fun VisibilityFilterRow(selected: String, onSelect: (String) -> Unit) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        FilterChip(
+    Row(
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+            .padding(4.dp).selectableGroup(),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        VisibilitySegment(
             selected = selected == VISIBILITY_ACTIVE,
             onClick = { onSelect(VISIBILITY_ACTIVE) },
-            label = { Text(PropertyStrings.visibilityActive) },
+            label = PropertyStrings.visibilityActive,
+            icon = Icons.Filled.Home,
         )
-        FilterChip(
+        VisibilitySegment(
             selected = selected == VISIBILITY_ARCHIVED,
             onClick = { onSelect(VISIBILITY_ARCHIVED) },
-            label = { Text(PropertyStrings.visibilityArchived) },
+            label = PropertyStrings.visibilityArchived,
+            icon = Icons.Filled.Archive,
         )
+    }
+}
+
+@Composable
+private fun RowScope.VisibilitySegment(
+    label: String,
+    icon: ImageVector,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier.weight(1f).clip(RoundedCornerShape(24.dp))
+            .selectable(selected = selected, role = Role.Tab, onClick = onClick),
+        shape = RoundedCornerShape(24.dp),
+        color = if (selected) MaterialTheme.colorScheme.primaryContainer
+            else MaterialTheme.colorScheme.surfaceContainerHighest,
+        contentColor = if (selected) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.onSurfaceVariant,
+    ) {
+        Row(
+            modifier = Modifier.heightIn(min = 48.dp).padding(horizontal = 8.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                if (selected) Icons.Filled.Check else icon,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+            )
+            Text(label, style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
+        }
     }
 }
 

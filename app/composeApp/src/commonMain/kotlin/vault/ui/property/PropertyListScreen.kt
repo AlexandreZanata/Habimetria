@@ -3,7 +3,6 @@ package vault.ui.property
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,14 +20,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import vault.local.NavigationProgress
 import vault.local.PropertyOverview
-import vault.local.db.PropertyRestoreOutcome
 import vault.ui.AppContainer
 import vault.ui.ErrorText
 import vault.ui.ProgressStatus
 import vault.ui.Strings
-import vault.ui.VaultTextField
 import vault.ui.userErrorMessage
 
 // Imóveis owns management/history; Home stays resume-focused.
@@ -91,106 +87,9 @@ fun PropertyListScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
-            VaultTextField(
-                value = query,
-                onValueChange = { query = it },
-                label = PropertyStrings.search,
-            )
+            PropertySearchField(query = query, onQueryChange = { query = it })
         }
         item { VisibilityFilterRow(selected = visibility, onSelect = { visibility = it }) }
-        val done = feedback
-        if (done != null) {
-            item { RemovalFeedback(done) }
-        }
-        when {
-            loadError != null -> {
-                item {
-                    ErrorText(loadError)
-                    OutlinedButton(onClick = { scope.launch { load() } }) { Text(Strings.retry) }
-                }
-            }
-            cards == null -> {
-                item {
-                    ProgressStatus(true)
-                    Text(Strings.loadingProperties)
-                }
-            }
-            filtered.isEmpty() -> {
-                item {
-                    Text(
-                        if (query.isNotBlank()) {
-                            PropertyStrings.noMatch
-                        } else if (visibility == VISIBILITY_ARCHIVED) {
-                            PropertyStrings.noArchived
-                        } else {
-                            Strings.propertiesEmpty
-                        },
-                    )
-                }
-            }
-            else -> {
-                items(filtered, key = { it.property.id }) { overview ->
-                    PropertyCardView(
-                        overview = overview,
-                        busy = busy,
-                        onResume = {
-                            scope.launch {
-                                try {
-                                    local?.navigation?.save(NavigationProgress(it))
-                                    onReady(it)
-                                } catch (e: Exception) {
-                                    error = userErrorMessage(e)
-                                }
-                            }
-                        },
-                        onNewInspection = {
-                            scope.launch {
-                                busy = true
-                                try {
-                                    startOnProperty(container, overview.property.id, onReady)
-                                } catch (e: Exception) {
-                                    error = userErrorMessage(e)
-                                } finally {
-                                    busy = false
-                                }
-                            }
-                        },
-                        onOpenDetail = { onOpenDetail(overview.property.id) },
-                        onRemove = { removing = overview },
-                    )
-                    if (overview.property.archived) {
-                        RestoreButton(busy = busy) {
-                            scope.launch {
-                                busy = true
-                                try {
-                                    when (
-                                        local?.propertyRemoval?.restore(overview.property.id)
-                                    ) {
-                                        PropertyRestoreOutcome.Restored,
-                                        PropertyRestoreOutcome.AlreadyActive,
-                                        -> {
-                                            load()
-                                            feedback = PropertyStrings.restoredOk
-                                        }
-                                        PropertyRestoreOutcome.Missing, null -> {
-                                            error = Strings.recordMissing
-                                        }
-                                    }
-                                } catch (e: Exception) {
-                                    error = userErrorMessage(e)
-                                } finally {
-                                    busy = false
-                                }
-                            }
-                        }
-                    }
-                    OutlinedButton(
-                        onClick = { onOpenDetail(overview.property.id) },
-                        modifier = Modifier.fillMaxWidth(),
-                    ) { Text(PropertyStrings.openDetail) }
-                }
-            }
-        }
         propertyCreateItems(
             showForm = showForm,
             onToggle = { showForm = !showForm },
@@ -224,6 +123,49 @@ fun PropertyListScreen(
                 }
             },
         )
+        if (error != null && !showForm) {
+            item { ErrorText(error) }
+        }
+        val done = feedback
+        if (done != null) {
+            item { RemovalFeedback(done) }
+        }
+        when {
+            loadError != null -> {
+                item {
+                    ErrorText(loadError)
+                    OutlinedButton(onClick = { scope.launch { load() } }) { Text(Strings.retry) }
+                }
+            }
+            cards == null -> {
+                item {
+                    ProgressStatus(true)
+                    Text(Strings.loadingProperties)
+                }
+            }
+            filtered.isEmpty() -> {
+                item { PropertyListEmptyState(query = query, visibility = visibility) }
+            }
+            else -> {
+                items(filtered, key = { it.property.id }) { overview ->
+                    PropertyListCard(
+                        container = container,
+                        overview = overview,
+                        scope = scope,
+                        busy = busy,
+                        onBusy = { busy = it },
+                        onError = { error = it },
+                        onReady = onReady,
+                        onOpenDetail = { onOpenDetail(overview.property.id) },
+                        onRemove = { removing = overview },
+                        onRestored = {
+                            load()
+                            feedback = PropertyStrings.restoredOk
+                        },
+                    )
+                }
+            }
+        }
     }
 
     removing?.let { target ->
