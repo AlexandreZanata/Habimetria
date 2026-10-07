@@ -63,3 +63,14 @@ Types: `feat, fix, docs, chore, db, api, app, infra`.
 - [ ] No secrets committed
 - [ ] Committed + pushed to GitHub
 - [ ] Small PR, English description
+
+## 8. Branching (refinement phase)
+
+- Only two branches exist: `main` (canonical, always green) and `dev`
+  (integration for refinement). No long-lived feature branches, no stacks.
+- All work happens on `dev`: small commits per §3.5, pushed after every
+  change. `main` receives only merges from `dev` via a small PR with an
+  English description, after `make verify` and applicable mobile checks
+  pass. Never commit directly to `main`.
+- Device, visual-PDF, iOS and user-session gates stay manual and user-owned;
+  they are recorded as unverified, never marked approved by code delivery.
