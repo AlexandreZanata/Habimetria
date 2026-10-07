@@ -25,6 +25,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `03-architecture/local_validation_architecture.md` — planned local authority, immutable snapshots and offline verification
 - `03-architecture/offline-package.md` — L7 published package/verify format
 - `03-architecture/local_property_removal.md` — planned empty deletion, reversible archive and preservation of sealed history
+- `03-architecture/brazil_report_legal_requirements.md` — official Brazilian sources, tenancy/professional applicability and limits of legal claims
 
 ## 04 Backend
 
@@ -39,6 +40,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `05-mobile/app-performance.md` — budgets, 2026 stack, size/speed discipline
 - `05-mobile/capture-ux.md` — photo-first flow, zero friction rules
 - `05-mobile/pdf-ondevice.md` — two-pass seal PDF, QR, budgets
+- `05-mobile/local_pdf_contract.md` — planned photo orientation, complete layout, per-photo claims and immutable Report integrity
 - `05-mobile/local-store.md` — L1 SQLite schema, files, migration rules
 - `05-mobile/design-system.md` — L2 Material 3 tokens, components, pt-BR
 
@@ -53,6 +55,8 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `06-roadmap/beta_readiness.md` — device-pass runbook and beta exit criteria (consolidates M5 + acceptance gates)
 - `06-roadmap/local_usability_plan.md` — U01–U12 tasks for navigation, Property removal and local usability
 - `06-roadmap/local_usability_acceptance.md` — planned usability, accessibility, integrity and performance gates
+- `06-roadmap/local_pdf_plan.md` — PDF-only delivery sequence for tenancy and architecture/engineering use
+- `06-roadmap/local_pdf_acceptance.md` — planned orientation, completeness, offline integrity and professional-release proof
 
 ## 07 AI Ops
 
