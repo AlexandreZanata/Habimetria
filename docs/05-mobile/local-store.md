@@ -4,9 +4,12 @@ Normative for the on-device core. Code: `vault.local.db` in `:shared`.
 
 ## Database
 
-- Room KMP, `VaultDatabase`, schema v3, entities:
+- Room KMP, `VaultDatabase`, schema v14, entities:
   `properties → tenancies → inspections → rooms → evidences → findings`
   plus `manifests` (unique per inspection).
+- `properties.archived` (v14, U07): active vs archived visibility.
+  Organizational only, never in Manifest payloads; legacy rows migrate
+  as active. Empty unlinked Properties delete, populated ones archive.
 - Schema JSON exports to `app/shared/schemas/` and is committed.
   Version bumps require explicit `Migration` SQL; destructive
   migration is forbidden (photos must survive upgrades).

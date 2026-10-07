@@ -86,6 +86,55 @@ independent readers, signed release install, Swift/Xcode compile and
 link, Baseline Profiles, cold start, shutter latency, ANR rates.
 "All devices" is not a test result.
 
+## U12 offline acceptance pass (Linux, 2026-10-01)
+
+Build: `7dfee44` on `codex/local-usability-plan` (U01–U11 complete).
+Host: Linux x86_64, JDK 21 Temurin, Gradle 8.14.3, Go 1.25.0,
+Kotlin 2.3.10, AGP 8.13.2, Room 2.8.5. The suites below are the
+automatable subset of the [usability acceptance gates](local_usability_acceptance.md);
+device and five-user sessions stay explicitly unverified (see below).
+
+- `make verify-all` green: Go vet + `go test ./...` pass;
+  `:shared:jvmTest` **143/143 across 39 suites** (0 failures), including
+  the U07–U09 removal trilogy (`PropertyRemovalTest` 5/5,
+  `RestoreValidationTest` 5/5), the U11 bulk set (`BulkPerformanceTest`
+  3/3: 200 overviews 4 ms, coverage over 75 inspections 21 ms, 3 MB
+  evidence write 18 ms vs the 500 ms budget) and the navigation/recovery
+  suites; `:shared:compileKotlinIosSimulatorArm64` and
+  `:composeApp:assembleDebug` green.
+- `make bench`: `PerfProbe` best-of-3 `canonicalManifest+sha(100ev)` 3 ms /
+  `paginateModel(100photos)` 1 ms (JVM host-relative, not device claims).
+- `make bench-apk`: release R8 APK
+  `composeApp-release-unsigned.apk` **8.2 MB** vs the 15 MB budget.
+- Independent verifier `accepted: true` on
+  `backend/testdata/fixture-package/` (signature valid, issuer `UNKNOWN`).
+- `make test-integration` **PASS against real PostgreSQL 18.6-alpine**
+  (dedicated container via `TEST_DATABASE_URL`; skip verified when unset).
+
+Gate mapping (usability acceptance): navigation/comprehension gates 1–5,
+removal/integrity gates 1–6 (minus on-device relaunch/TalkBack items),
+offline-independence (LOCAL_ONLY paths, API-stopped design) and the
+bulk/coverage scale checks execute here. Appearance/a11y on-device items,
+window-matrix items, release timings, camera/GPS behavior and the five
+first-time-user sessions require hardware and stay open.
+
+Residual risks: sealed-package tamper rejection is proven by unit tests,
+not by tampered files on a device; accessibility beyond static semantics
+(headings, live regions, 48 dp targets) needs TalkBack/VoiceOver runs;
+cold start, shutter latency and 100-photo render need the reference
+device; no data-loss/false-trust defect is known, none is claimed absent
+on hardware.
+
+## Explicitly unverified environments (U12)
+
+Physical Android/iOS devices and emulators/simulators, macOS/Xcode
+(`make verify-ios-macos`), window-size/foldable/split-screen/cutout
+matrix, TalkBack/VoiceOver, 200% font scale on device, real camera and
+GPS, release cold start/shutter/100-photo timings, ANR rates, signed
+release install, Baseline Profiles collection, five-user usability
+sessions. "All devices" is not a test result; no beta without the
+[beta runbook](beta_readiness.md) matrix filled.
+
 ## Device-pass instructions (macOS + hardware)
 
 Execute the [beta readiness runbook](beta_readiness.md), which consolidates

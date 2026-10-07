@@ -1,13 +1,16 @@
 package vault.ui
 
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,7 +35,8 @@ fun LocalPdfScreen(
     inspectionId: String,
     onSharePdf: (path: String) -> Unit,
     onVerify: () -> Unit,
-    onBack: () -> Unit,
+    onRoomsShortcut: () -> Unit,
+    onReviewShortcut: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val signer = remember(session.filesDir) { platformSigner(session.filesDir) }
@@ -46,6 +50,7 @@ fun LocalPdfScreen(
     var busy by remember { mutableStateOf(false) }
     var cancelled by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    var showDetails by rememberSaveable { mutableStateOf(false) }
 
     fun refresh() {
         scope.launch {
@@ -64,13 +69,32 @@ fun LocalPdfScreen(
 
     ScreenColumn {
         ScreenTitle(Strings.reportPdf)
+        vault.ui.journey.JourneyShortcuts(onRooms = onRoomsShortcut, onReview = onReviewShortcut)
         val current = report
         val pdfHash = current?.pdfSha256
         if (current != null && pdfHash != null) {
-            Text(Strings.pdfReady)
-            Text("${Strings.sealManifestLabel}: ${current.manifestSha256.take(16)}…")
-            Text("${Strings.pdfHash}: ${pdfHash.take(16)}…")
-            Text("${Strings.pdfReceipt}: ${current.receiptSignature?.take(16)}…")
+            // User-facing status only; audit hashes live behind details.
+            Text(Strings.pdfReady, style = MaterialTheme.typography.titleMedium)
+            TextButton(onClick = { showDetails = !showDetails }) {
+                Text(Strings.technicalDetails)
+            }
+            if (showDetails) {
+                Text(
+                    "${Strings.sealManifestLabel}: ${current.manifestSha256}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    "${Strings.pdfHash}: $pdfHash",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    "${Strings.pdfReceipt}: ${current.receiptSignature.orEmpty()}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
         progress?.let { (done, total) ->
             LinearProgressIndicator(
@@ -148,6 +172,5 @@ fun LocalPdfScreen(
             },
             enabled = !busy && current?.pdfSha256 != null,
         )
-        VaultButton(text = Strings.back, onClick = onBack)
     }
 }

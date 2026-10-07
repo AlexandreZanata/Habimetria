@@ -32,7 +32,8 @@ fun LocalSealScreen(
     onPdf: () -> Unit,
     onOccurrence: () -> Unit,
     onExitReady: (exitId: String) -> Unit,
-    onBack: () -> Unit,
+    onRoomsShortcut: () -> Unit,
+    onReviewShortcut: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val signer = remember(session.filesDir) { platformSigner(session.filesDir) }
@@ -57,6 +58,7 @@ fun LocalSealScreen(
 
     ScreenColumn {
         ScreenTitle(Strings.sealTitle)
+        vault.ui.journey.JourneyShortcuts(onRooms = onRoomsShortcut, onReview = onReviewShortcut)
         BodyText(Strings.sealWarning)
         val current = eligibility
         if (current != null) {
@@ -135,7 +137,6 @@ fun LocalSealScreen(
                 enabled = !busy,
             )
         }
-        VaultButton(text = Strings.back, onClick = onBack)
     }
 }
 

@@ -19,6 +19,9 @@ data class LocalProperty(
     val neighborhood: String = "",
     // Friendly name for the property picker ("Casa da praia").
     val nickname: String = "",
+    // Local visibility for U07 removal: false = active, true = archived.
+    // Organizational only, never part of frozen Manifest payloads.
+    val archived: Boolean = false,
     val createdAtDevice: String,
 )
 
@@ -332,4 +335,15 @@ data class LocalFinding(
     val evidenceId: String,
     val preset: String,
     val note: String?,
+)
+
+// User-customizable finding problems (v15). Built-ins seed lazily with
+// stable enum-name codes; customs carry "custom:<id>" codes. Findings
+// keep storing codes, so sealed bytes stay stable while labels evolve.
+@Entity(tableName = "finding_problems")
+data class LocalFindingProblem(
+    @PrimaryKey val code: String,
+    val label: String,
+    val active: Boolean = true,
+    val builtin: Boolean = false,
 )

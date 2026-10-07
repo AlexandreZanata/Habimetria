@@ -17,8 +17,11 @@ import vault.local.LocalSession
 import vault.local.NavigationProgress
 import vault.local.SyncMode
 import vault.local.openLocalSession
+import vault.nav.RestoreFacts
 import vault.nav.Route
 import vault.nav.VaultNavigator
+import vault.nav.trailFor
+import vault.nav.validatedTrail
 import vault.pdf.AndroidPlanRenderer
 import vault.pdf.AndroidPlatformPdf
 import vault.ui.AndroidPhotoCapture
@@ -60,9 +63,6 @@ class MainActivity : ComponentActivity() {
         if (missing.isNotEmpty()) permissions.launch(missing)
         val filesDir = appFilesDir()
         val session = openLocalSession(filesDir, SyncMode.LOCAL_ONLY)
-        lifecycleScope.launch {
-            session.startup()
-        }
         val container = createContainer(
             baseUrl = baseUrl,
             filesDir = filesDir,
@@ -76,6 +76,10 @@ class MainActivity : ComponentActivity() {
         val navigator = resumeNavigator(session)
         wireSystemBack(navigator)
         setContent { App(container, navigator) }
+        lifecycleScope.launch {
+            session.startup()
+            navigator.restoreStack(validatedTrail(session))
+        }
     }
 
     // System back mirrors the in-app Voltar (same floors): it never
@@ -87,6 +91,14 @@ class MainActivity : ComponentActivity() {
                 override fun handleOnBackPressed() {
                     val exit = when (val r = navigator.route.value) {
                         Route.Home -> true
+                        Route.Properties, Route.Inspections, Route.Settings -> {
+                            navigator.selectDestination(Route.Home)
+                            false
+                        }
+                        is Route.PropertyDetail -> {
+                            navigator.goBackOr(Route.Properties)
+                            false
+                        }
                         is Route.Rooms -> {
                             navigator.goBackOr(Route.Home)
                             false
@@ -109,18 +121,28 @@ class MainActivity : ComponentActivity() {
 
     // Resume where the user stopped with a full trail, never a bare
     // single route: system and in-app back always walk
-    // Room → Rooms → Home instead of dying or ping-ponging.
+    // Room → Rooms → Home instead of dying or ping-ponging. The first
+    // frame restores optimistically; startup re-resolves against the
+    // repository so removed targets and newly sealed inspections correct
+    // to list roots or read-only review without false trust.
     private fun resumeNavigator(session: LocalSession): VaultNavigator {
         val navigator = VaultNavigator()
         val progress: NavigationProgress = session.navigation.load()
-        val inspectionId = progress.inspectionId
-        if (inspectionId.isNullOrBlank()) return navigator
-        navigator.navigate(Route.Rooms(inspectionId))
-        val roomId = progress.roomId
-        val label = progress.roomLabel
-        if (!roomId.isNullOrBlank() && !label.isNullOrBlank()) {
-            navigator.navigate(Route.Room(inspectionId, roomId, label))
-        }
+        navigator.restoreStack(
+            trailFor(
+                progress,
+                RestoreFacts(
+                    inspectionExists = true,
+                    inspectionSealed = false,
+                    roomExists = true,
+                    propertyExists = true,
+                ),
+            ),
+        )
         return navigator
     }
+
+    // Startup revalidation lives in shared vault.nav.validatedTrail so
+    // JVM tests cover the stale-route fallbacks (deleted vs archived,
+    // missing vs sealed); the activity only restores the returned trail.
 }

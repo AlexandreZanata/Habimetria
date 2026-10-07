@@ -202,6 +202,67 @@ class LocalVaultTest {
     }
 
     @Test
+    fun propertyOverviewsAggregateWithoutPerCardQueries() = runTest {
+        val (db, repo) = freshVault()
+        val beach = repo.createPropertyStructured("Rua A", "1", null, "Centro", "Casa da praia")
+        val north = repo.createPropertyStructured("Rua B", "2", null, "Norte")
+        val draft = repo.createInspection(repo.createTenancy(beach.id).id)
+        repo.addRoom(draft.id, "Sala")
+        repo.addRoom(draft.id, "Cozinha")
+        val sealedTenancy = repo.createTenancy(north.id).id
+        val sealed = repo.createInspection(sealedTenancy)
+        repo.addRoom(sealed.id, "Quarto")
+        db.inspectionDao().update(db.inspectionDao().get(sealed.id)!!.copy(status = STATUS_SEALED))
+
+        val overviews = repo.propertyOverviews(limit = 100)
+        assertEquals(2, overviews.size)
+        val beachRow = overviews.first { it.property.id == beach.id }
+        assertEquals(1, beachRow.draftCount)
+        assertEquals(0, beachRow.sealedCount)
+        assertEquals(2, beachRow.totalRooms)
+        assertEquals(draft.id, beachRow.latestDraftId)
+        val northRow = overviews.first { it.property.id == north.id }
+        assertEquals(0, northRow.draftCount)
+        assertEquals(1, northRow.sealedCount)
+        assertEquals(1, northRow.totalRooms)
+
+        assertEquals(beach.id, repo.getProperty(beach.id)?.id)
+        assertEquals(null, repo.getProperty("prop_missing"))
+        val history = repo.inspectionsForProperty(north.id)
+        assertEquals(listOf(sealed.id), history.map { it.id })
+        assertTrue(repo.propertyOverviews(limit = 1, offset = 10).isEmpty())
+        db.close()
+    }
+
+    @Test
+    fun createTenancyRequiresActiveProperty() = runTest {
+        val (db, repo) = freshVault()
+        val removal = PropertyRemovalRepository(db)
+        val prop = repo.createPropertyStructured("Rua A", "1", null, "Centro")
+        removal.archive(prop.id)
+        assertFailsWith<LocalValidationException> { repo.createTenancy(prop.id) }
+        assertFailsWith<LocalValidationException> { repo.createTenancy("prop_missing") }
+        removal.restore(prop.id)
+        val ten = repo.createTenancy(prop.id)
+        assertEquals(prop.id, ten.propertyId)
+        db.close()
+    }
+
+    @Test
+    fun updatePropertyDetailsRewritesDisplayLine() = runTest {
+        val (db, repo) = freshVault()
+        val prop = repo.createPropertyStructured("Rua A", "1", null, "Centro", "Apelido")
+        val updated = repo.updatePropertyDetails(prop.id, "Novo apelido", "Rua B", "22", "sala 3", "Norte")
+        assertEquals("Novo apelido", updated.nickname)
+        assertEquals("Rua B, 22, sala 3 — Norte", updated.address)
+        assertFailsWith<LocalValidationException> {
+            repo.updatePropertyDetails(prop.id, "", "Ru", "22", null, "Norte")
+        }
+        assertFailsWith<LocalValidationException> { repo.updatePropertyDetails("prop_missing", "", "Rua B", "22", null, "Norte") }
+        db.close()
+    }
+
+    @Test
     fun propertiesCarryNicknamesForThePicker() = runTest {
         val (db, repo) = freshVault()
         val beach = repo.createPropertyStructured("Rua A", "1", null, "Centro", "Casa da praia")
@@ -214,9 +275,11 @@ class LocalVaultTest {
         assertEquals(beach.id, repo.propertyFor(inspection)?.id)
         assertEquals(null, repo.propertyFor("ins_missing"))
 
-        val renamed = repo.setNickname(other.id, "  Apê alugado  ")
+        val renamed = repo.updatePropertyDetails(other.id, "  Apê alugado  ", "Rua B", "2", null, "Norte")
         assertEquals("Apê alugado", renamed.nickname)
-        assertFailsWith<LocalValidationException> { repo.setNickname("prop_missing", "X") }
+        assertFailsWith<LocalValidationException> {
+            repo.updatePropertyDetails("prop_missing", "X", "Rua B", "2", null, "Norte")
+        }
         db.close()
     }
 }

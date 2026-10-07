@@ -5,13 +5,17 @@ import kotlinx.serialization.json.Json
 import okio.FileSystem
 import okio.Path.Companion.toPath
 
-// Work-in-progress navigation (last inspection/room) persists separately
-// from domain states, survives process death and restores the journey.
+// Work-in-progress navigation (destination root, property, inspection,
+// room) persists separately from domain states, survives process death
+// and restores the journey. `destination` holds a Destinations code
+// ("" means legacy/home); new fields default so legacy files still load.
 @Serializable
 data class NavigationProgress(
     val inspectionId: String? = null,
     val roomId: String? = null,
     val roomLabel: String? = null,
+    val destination: String = "",
+    val propertyId: String? = null,
 )
 
 class NavigationStore(

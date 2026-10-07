@@ -90,6 +90,8 @@ class MigrationTest {
         assertEquals("", legacy.neighborhood)
         // v13: nickname defaults to empty on legacy rows.
         assertEquals("", legacy.nickname)
+        // v14: visibility migrates as active on legacy rows.
+        assertEquals(false, legacy.archived)
 
         // New columns accept writes after migration.
         val repo = LocalVaultRepository(db)

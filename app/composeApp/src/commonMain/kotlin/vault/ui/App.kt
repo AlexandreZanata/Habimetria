@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import vault.nav.Route
 import vault.nav.VaultNavigator
+import vault.ui.settings.SettingsStrings
 
 // App owns the navigator; screens receive callbacks and stay stateless
 // about navigation. One shell per route: insets applied once at the edge.
@@ -14,10 +15,71 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
     val route by navigator.route.collectAsState()
     VaultTheme {
         when (val r = route) {
-            Route.Home -> VaultShell("", false, {}) {
-                HomeScreen(container, onReady = { navigator.startInspection(it) })
+            Route.Home -> ChromeShell(r, container, navigator, Strings.home, false, {}) {
+                HomeScreen(
+                    container,
+                    onReady = { navigator.startInspection(it) },
+                    onNewInspection = { navigator.navigate(Route.NewInspection) },
+                    onOpenDetail = { navigator.navigate(Route.PropertyDetail(it)) },
+                )
             }
-            is Route.Rooms -> VaultShell(Strings.rooms, true, { navigator.goBackOr(Route.Home) }) {
+            Route.NewInspection -> ChromeShell(r, container, navigator, Strings.newInspection, true, {
+                navigator.goBackOr(Route.Home)
+            }) {
+                vault.ui.property.NewInspectionScreen(
+                    container,
+                    onReady = { navigator.startInspection(it) },
+                )
+            }
+            // Imóveis (U04), Vistorias and Relatórios (U05) are
+            // dedicated destinations with offline-first lists.
+            Route.Properties -> ChromeShell(r, container, navigator, Strings.properties, false, {}) {
+                vault.ui.property.PropertyListScreen(
+                    container = container,
+                    onOpenDetail = { navigator.navigate(Route.PropertyDetail(it)) },
+                    onReady = { navigator.startInspection(it) },
+                )
+            }
+            is Route.PropertyDetail -> ChromeShell(r, container, navigator, Strings.properties, true, {
+                navigator.goBackOr(Route.Properties)
+            }) {
+                vault.ui.property.PropertyDetailScreen(
+                    container = container,
+                    propertyId = r.propertyId,
+                    onResume = { navigator.startInspection(it) },
+                    onReview = { navigator.openSealedReview(it) },
+                    onNewInspection = { navigator.startInspection(it) },
+                )
+            }
+            Route.Inspections -> ChromeShell(r, container, navigator, Strings.inspections, false, {}) {
+                vault.ui.inspection.InspectionListScreen(
+                    container = container,
+                    onResume = { navigator.startInspection(it) },
+                    onReview = { navigator.openSealedReview(it) },
+                )
+            }
+            Route.Settings -> ChromeShell(r, container, navigator, Strings.settings, false, {}) {
+                vault.ui.settings.SettingsScreen(
+                    onOpenReports = { navigator.navigate(Route.Reports) },
+                    onOpenProblems = { navigator.navigate(Route.FindingProblems) },
+                )
+            }
+            Route.FindingProblems -> ChromeShell(r, container, navigator, SettingsStrings.problemsTitle, true, {
+                navigator.goBackOr(Route.Settings)
+            }) {
+                vault.ui.settings.FindingProblemsScreen(container)
+            }
+            Route.Reports -> ChromeShell(r, container, navigator, Strings.reports, true, {
+                navigator.goBackOr(Route.Settings)
+            }) {
+                vault.ui.report.ReportListScreen(
+                    container = container,
+                    onOpenPdf = { navigator.navigate(Route.LocalPdf(it)) },
+                    onVerify = { navigator.navigate(Route.LocalVerify(it)) },
+                    onGenerate = { navigator.navigate(Route.LocalPdf(it)) },
+                )
+            }
+            is Route.Rooms -> ChromeShell(r, container, navigator, Strings.rooms, true, { navigator.goBackOr(Route.Home) }) {
                 val local = container.local
                 if (local != null) {
                     LocalRoomsScreen(
@@ -36,7 +98,6 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                             navigator.navigate(Route.Room(r.inspectionId, roomId, label))
                         },
                         onSealed = { navigator.openSealedReview(r.inspectionId) },
-                        onBack = { navigator.goBackOr(Route.Home) },
                     )
                 } else {
                     RoomsScreen(
@@ -50,7 +111,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     )
                 }
             }
-            is Route.Room -> VaultShell(r.label, true, { navigator.goBackOr(Route.Rooms(r.inspectionId)) }) {
+            is Route.Room -> ChromeShell(r, container, navigator, r.label, true, { navigator.goBackOr(Route.Rooms(r.inspectionId)) }) {
                 val local = container.local
                 if (local != null) {
                     LocalRoomScreen(
@@ -67,7 +128,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                         },
                         onSealed = { navigator.openSealedReview(r.inspectionId) },
                         onReview = { navigator.navigate(Route.Review(r.inspectionId)) },
-                        onBack = { navigator.goBackOr(Route.Rooms(r.inspectionId)) },
+                        onRoomsShortcut = { navigator.navigate(Route.Rooms(r.inspectionId)) },
                     )
                 } else {
                     RoomScreen(
@@ -83,7 +144,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     )
                 }
             }
-            is Route.Review -> VaultShell(Strings.review, true, { navigator.goBack() }) {
+            is Route.Review -> ChromeShell(r, container, navigator, Strings.review, true, { navigator.goBack() }) {
                 val local = container.local
                 if (local != null) {
                     LocalReviewScreen(
@@ -93,7 +154,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                         onSeal = { navigator.navigate(Route.Seal(r.inspectionId)) },
                         onCompare = { navigator.navigate(Route.LocalCompare(r.inspectionId)) },
                         onInspector = { navigator.navigate(Route.LocalInspector(r.inspectionId)) },
-                        onBack = { navigator.goBack() },
+                        onRoomsShortcut = { navigator.navigate(Route.Rooms(r.inspectionId)) },
                     )
                 } else {
                     ReviewScreen(
@@ -104,7 +165,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     )
                 }
             }
-            is Route.Seal -> VaultShell(Strings.sealTitle, true, { navigator.goBack() }) {
+            is Route.Seal -> ChromeShell(r, container, navigator, Strings.sealTitle, true, { navigator.goBack() }) {
                 val local = container.local
                 if (local != null) {
                     LocalSealScreen(
@@ -113,7 +174,8 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                         onPdf = { navigator.navigate(Route.LocalPdf(r.inspectionId)) },
                         onOccurrence = { navigator.navigate(Route.LocalOccurrence(r.inspectionId)) },
                         onExitReady = { navigator.startInspection(it) },
-                        onBack = { navigator.goBack() },
+                        onRoomsShortcut = { navigator.navigate(Route.Rooms(r.inspectionId)) },
+                        onReviewShortcut = { navigator.navigate(Route.Review(r.inspectionId)) },
                     )
                 } else {
                     SealScreen(
@@ -126,7 +188,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     )
                 }
             }
-            is Route.Pdf -> VaultShell(Strings.reportPdf, true, { navigator.goBack() }) {
+            is Route.Pdf -> ChromeShell(r, container, navigator, Strings.reportPdf, true, { navigator.goBack() }) {
                 PdfScreen(
                     container = container,
                     inspectionId = r.inspectionId,
@@ -135,7 +197,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     onBack = { navigator.goBack() },
                 )
             }
-            is Route.LocalOccurrence -> VaultShell(Strings.occurrenceTitle, true, { navigator.goBack() }) {
+            is Route.LocalOccurrence -> ChromeShell(r, container, navigator, Strings.occurrenceTitle, true, { navigator.goBack() }) {
                 val local = container.local
                 if (local != null) {
                     LocalOccurrenceScreen(
@@ -151,7 +213,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     }
                 }
             }
-            is Route.LocalCompare -> VaultShell(Strings.compareTitle, true, { navigator.goBack() }) {
+            is Route.LocalCompare -> ChromeShell(r, container, navigator, Strings.compareTitle, true, { navigator.goBack() }) {
                 val local = container.local
                 if (local != null) {
                     LocalCompareScreen(
@@ -167,7 +229,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     }
                 }
             }
-            is Route.LocalDiff -> VaultShell(Strings.diffTitle, true, { navigator.goBack() }) {
+            is Route.LocalDiff -> ChromeShell(r, container, navigator, Strings.diffTitle, true, { navigator.goBack() }) {
                 val local = container.local
                 if (local != null) {
                     LocalDiffScreen(
@@ -182,7 +244,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     }
                 }
             }
-            is Route.LocalInspector -> VaultShell(Strings.inspectorTitle, true, { navigator.goBack() }) {
+            is Route.LocalInspector -> ChromeShell(r, container, navigator, Strings.inspectorTitle, true, { navigator.goBack() }) {
                 val local = container.local
                 if (local != null) {
                     LocalInspectorScreen(
@@ -197,7 +259,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     }
                 }
             }
-            is Route.LocalVerify -> VaultShell(Strings.verifyTitle, true, { navigator.goBack() }) {
+            is Route.LocalVerify -> ChromeShell(r, container, navigator, Strings.verifyTitle, true, { navigator.goBack() }) {
                 val local = container.local
                 if (local != null) {
                     LocalVerifyScreen(
@@ -212,7 +274,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     }
                 }
             }
-            is Route.LocalPdf -> VaultShell(Strings.reportPdf, true, { navigator.goBack() }) {
+            is Route.LocalPdf -> ChromeShell(r, container, navigator, Strings.reportPdf, true, { navigator.goBack() }) {
                 val local = container.local
                 val renderer = container.planRenderer
                 if (local != null && renderer != null) {
@@ -222,7 +284,8 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                         inspectionId = r.inspectionId,
                         onSharePdf = { path -> container.platformPdf.share(path, "application/pdf") },
                         onVerify = { navigator.navigate(Route.LocalVerify(r.inspectionId)) },
-                        onBack = { navigator.goBack() },
+                        onRoomsShortcut = { navigator.navigate(Route.Rooms(r.inspectionId)) },
+                        onReviewShortcut = { navigator.navigate(Route.Review(r.inspectionId)) },
                     )
                 } else {
                     ScreenColumn {

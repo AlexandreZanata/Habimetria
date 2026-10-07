@@ -3,8 +3,20 @@
 Code: `vault.ui.Theme` (roles, type, shapes), `vault.ui.Strings`
 (pt-BR copy), `vault.ui.VaultComponents` (shared building blocks).
 
+Implemented (U01): [local navigation UX](../02-product/local_navigation_ux.md)
+white/green light palette is live in `Theme.kt`; remaining header/bar
+work stays in [U02–U12](../06-roadmap/local_usability_plan.md).
+
 ## Tokens
 
+- Light: white `#FFFFFF` backgrounds/surfaces/header/dialogs
+  (`background`, `surface`, `surfaceBright`, `surfaceContainerLow/Lowest/High`);
+  seal-green `primary` `#1B7A4D` with white `onPrimary`; pale-green
+  `primaryContainer` `#DDF2E5`; neutral `#F3F4F6` supporting surfaces
+  (`surfaceVariant`, `surfaceDim`, `surfaceContainer/Highest`); primary text
+  `#1A1A1A`, secondary text `#4B5563`. No beige light roles remain.
+- Dark: unchanged baseline with independent `Dark*` constants, so light
+  edits cannot recolor dark mode.
 - Seal-green brand cue on `primary`; full light/dark roles, no
   hardcoded colors in screens. Dark follows the system setting.
 - System font only (zero font deps, offline-safe).

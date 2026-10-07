@@ -133,7 +133,11 @@ fun LocalOccurrenceScreen(
                     )
                 }
             }
+            // Same in-flow rule as rooms: footers pinned after a weighted
+            // list ride above the keyboard instead of staying put.
+            item {
+                VaultButton(text = Strings.back, onClick = onBack)
+            }
         }
-        VaultButton(text = Strings.back, onClick = onBack)
     }
 }

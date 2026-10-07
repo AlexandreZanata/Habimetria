@@ -22,6 +22,9 @@ interface PropertyDao {
 
     @Query("SELECT * FROM properties ORDER BY createdAtDevice DESC")
     suspend fun listAll(): List<LocalProperty>
+
+    @Query("SELECT * FROM properties ORDER BY createdAtDevice DESC LIMIT :limit OFFSET :offset")
+    suspend fun listPaged(limit: Int, offset: Int): List<LocalProperty>
 }
 
 @Dao
@@ -31,6 +34,12 @@ interface TenancyDao {
 
     @Query("SELECT * FROM tenancies WHERE id = :id")
     suspend fun get(id: String): LocalTenancy?
+
+    @Query("SELECT * FROM tenancies WHERE propertyId = :propertyId ORDER BY createdAtDevice DESC")
+    suspend fun listForProperty(propertyId: String): List<LocalTenancy>
+
+    @Query("SELECT * FROM tenancies WHERE propertyId IN (:propertyIds)")
+    suspend fun listForProperties(propertyIds: List<String>): List<LocalTenancy>
 }
 
 @Dao
@@ -52,7 +61,23 @@ interface InspectionDao {
 
     @Query("SELECT * FROM inspections ORDER BY createdAtDevice DESC")
     suspend fun listAll(): List<LocalInspection>
+
+    @Query(
+        "SELECT inspections.* FROM inspections " +
+            "JOIN tenancies ON tenancies.id = inspections.tenancyId " +
+            "WHERE tenancies.propertyId = :propertyId " +
+            "ORDER BY inspections.createdAtDevice DESC LIMIT :limit",
+    )
+    suspend fun listForProperty(propertyId: String, limit: Int): List<LocalInspection>
+
+    @Query("SELECT * FROM inspections WHERE tenancyId IN (:tenancyIds) ORDER BY createdAtDevice DESC")
+    suspend fun listForTenancies(tenancyIds: List<String>): List<LocalInspection>
 }
+
+data class RoomCount(
+    val inspectionId: String,
+    val count: Int,
+)
 
 @Dao
 interface RoomDao {
@@ -70,6 +95,12 @@ interface RoomDao {
 
     @Query("DELETE FROM rooms WHERE id = :id")
     suspend fun delete(id: String)
+
+    @Query(
+        "SELECT inspectionId AS inspectionId, COUNT(*) AS count FROM rooms " +
+            "WHERE inspectionId IN (:inspectionIds) GROUP BY inspectionId",
+    )
+    suspend fun countsForInspections(inspectionIds: List<String>): List<RoomCount>
 }
 
 @Dao
@@ -226,6 +257,9 @@ interface ReportDao {
 
     @Query("SELECT * FROM reports WHERE id = :id")
     suspend fun get(id: String): LocalReport?
+
+    @Query("DELETE FROM reports WHERE id = :id")
+    suspend fun deleteById(id: String): Int
 }
 
 @Dao
@@ -242,4 +276,25 @@ interface FindingDao {
 
     @Query("DELETE FROM findings WHERE evidenceId = :evidenceId")
     suspend fun deleteForEvidence(evidenceId: String)
+}
+
+@Dao
+interface FindingProblemDao {
+    @Query("SELECT * FROM finding_problems ORDER BY builtin DESC, label ASC")
+    suspend fun listAll(): List<LocalFindingProblem>
+
+    @Query("SELECT * FROM finding_problems WHERE active = 1 ORDER BY builtin DESC, label ASC")
+    suspend fun listActive(): List<LocalFindingProblem>
+
+    @Query("SELECT * FROM finding_problems WHERE code = :code")
+    suspend fun get(code: String): LocalFindingProblem?
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(row: LocalFindingProblem)
+
+    @Query("UPDATE finding_problems SET active = :active WHERE code = :code")
+    suspend fun setActive(code: String, active: Boolean): Int
+
+    @Query("DELETE FROM finding_problems WHERE code = :code AND builtin = 0")
+    suspend fun deleteCustom(code: String): Int
 }

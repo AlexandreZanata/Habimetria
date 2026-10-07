@@ -31,6 +31,17 @@ fun formatAddress(street: String, number: String, complement: String, neighborho
     return "$head — $neighborhood"
 }
 
+// Aggregated row for the Imóveis list. Counts come from grouped queries;
+// latestDraftId drives Continuar without extra lookups.
+data class PropertyOverview(
+    val property: LocalProperty,
+    val draftCount: Int,
+    val sealedCount: Int,
+    val totalRooms: Int,
+    val latestDraftId: String?,
+    val latestStatus: String?,
+)
+
 // LocalVaultRepository is the offline application core: every capture,
 // room and finding flows through here. No network, no VaultApi.
 class LocalVaultRepository(private val db: VaultDatabase) {
@@ -76,18 +87,92 @@ class LocalVaultRepository(private val db: VaultDatabase) {
 
     // Friendly name for the home picker. Organizational only: allowed
     // even when inspections under it are sealed.
-    suspend fun setNickname(propertyId: String, nickname: String): LocalProperty {
+    // Full data edit from the detail screen: same rules as creation.
+    // Rebuilds the display line so every consumer keeps working unchanged.
+    suspend fun updatePropertyDetails(
+        propertyId: String,
+        nickname: String,
+        street: String,
+        number: String,
+        complement: String?,
+        neighborhood: String,
+    ): LocalProperty {
         val property = db.propertyDao().get(propertyId)
             ?: throw LocalValidationException("property not found")
-        val updated = property.copy(nickname = nickname.trim().take(MAX_NICKNAME))
+        val cleanStreet = street.trim()
+        val cleanNumber = number.trim()
+        val cleanComplement = complement?.trim().orEmpty()
+        val cleanNeighborhood = neighborhood.trim()
+        if (cleanStreet.length < 3) throw LocalValidationException("street too short")
+        if (cleanNumber.isEmpty()) throw LocalValidationException("number required")
+        if (cleanNeighborhood.length < 2) throw LocalValidationException("neighborhood too short")
+        val updated = property.copy(
+            nickname = nickname.trim().take(MAX_NICKNAME),
+            address = formatAddress(cleanStreet, cleanNumber, cleanComplement, cleanNeighborhood),
+            street = cleanStreet,
+            number = cleanNumber,
+            complement = cleanComplement.ifEmpty { null },
+            neighborhood = cleanNeighborhood,
+        )
         db.propertyDao().update(updated)
         return updated
     }
 
     suspend fun listProperties(): List<LocalProperty> = db.propertyDao().listAll()
 
+    suspend fun getProperty(id: String): LocalProperty? = db.propertyDao().get(id)
+
+    // Aggregated overview for the Imóveis list: one bounded page of
+    // properties plus grouped inspection/room counts in 4 queries total.
+    // UI lists must use this instead of per-card propertyFor/roomsFor
+    // loops, which grow N+1 traffic on 100-property fixtures.
+    suspend fun propertyOverviews(limit: Int = 100, offset: Int = 0): List<PropertyOverview> {
+        val boundedLimit = limit.coerceIn(1, 200)
+        val safeOffset = offset.coerceAtLeast(0)
+        val properties = db.propertyDao().listPaged(boundedLimit, safeOffset)
+        if (properties.isEmpty()) return emptyList()
+        val tenancies = db.tenancyDao().listForProperties(properties.map { it.id })
+        val tenancyToProperty = tenancies.associate { it.id to it.propertyId }
+        val inspections = if (tenancies.isEmpty()) {
+            emptyList()
+        } else {
+            db.inspectionDao().listForTenancies(tenancies.map { it.id })
+        }
+        val counts = if (inspections.isEmpty()) {
+            emptyList()
+        } else {
+            db.roomDao().countsForInspections(inspections.map { it.id })
+        }.associate { it.inspectionId to it.count }
+        val byProperty = mutableMapOf<String, MutableList<LocalInspection>>()
+        for (inspection in inspections) {
+            val propertyId = tenancyToProperty[inspection.tenancyId] ?: continue
+            byProperty.getOrPut(propertyId) { mutableListOf() }.add(inspection)
+        }
+        return properties.map { property ->
+            val related = byProperty[property.id].orEmpty().sortedByDescending { it.createdAtDevice }
+            val drafts = related.filter { it.status == STATUS_DRAFT }
+            PropertyOverview(
+                property = property,
+                draftCount = drafts.size,
+                sealedCount = related.size - drafts.size,
+                totalRooms = related.sumOf { counts[it.id] ?: 0 },
+                latestDraftId = drafts.firstOrNull()?.id,
+                latestStatus = related.firstOrNull()?.status,
+            )
+        }
+    }
+
+    // Bounded history for the property detail: DRAFT resumes capture,
+    // SEALED opens read-only review. No per-row follow-up queries.
+    suspend fun inspectionsForProperty(propertyId: String, limit: Int = 50): List<LocalInspection> =
+        db.inspectionDao().listForProperty(propertyId, limit.coerceIn(1, 200))
+
+    // New Inspections require an active Property (U09): restore an
+    // archived Property first. Resuming existing drafts never passes here.
     suspend fun createTenancy(propertyId: String, type: String = "entry"): LocalTenancy {
-        requireProperty(propertyId)
+        val property = db.propertyDao().get(propertyId)
+            ?: throw LocalValidationException("property not found")
+        if (property.archived) throw LocalValidationException("property archived")
         val row = LocalTenancy(newLocalId("ten"), propertyId, type, deviceNowIso())
         db.tenancyDao().insert(row)
         return row
@@ -256,6 +341,27 @@ class LocalVaultRepository(private val db: VaultDatabase) {
         evidenceId: String,
         preset: FindingPreset,
         note: String? = null,
+    ): LocalFinding = insertFinding(roomId, evidenceId, preset.name, note)
+
+    // Code-based finding for customized problems: stores the stable code
+    // (enum name or custom id). Unknown or inactive codes are rejected.
+    suspend fun addFindingWithCode(
+        roomId: String,
+        evidenceId: String,
+        code: String,
+        note: String? = null,
+    ): LocalFinding {
+        val option = FindingProblemRepository(db).resolveCode(code)
+            ?: throw LocalValidationException("unknown problem")
+        if (!option.active) throw LocalValidationException("problem not active")
+        return insertFinding(roomId, evidenceId, option.code, note)
+    }
+
+    private suspend fun insertFinding(
+        roomId: String,
+        evidenceId: String,
+        presetCode: String,
+        note: String?,
     ): LocalFinding {
         val room = requireRoom(roomId)
         requireDraft(room.inspectionId)
@@ -266,7 +372,7 @@ class LocalVaultRepository(private val db: VaultDatabase) {
         }
         val row = LocalFinding(
             id = newLocalId("find"), roomId = roomId, evidenceId = evidenceId,
-            preset = preset.name, note = note?.takeIf { it.isNotBlank() },
+            preset = presetCode, note = note?.takeIf { it.isNotBlank() },
         )
         db.findingDao().insert(row)
         return row
@@ -321,10 +427,6 @@ class LocalVaultRepository(private val db: VaultDatabase) {
 
     suspend fun findingsForEvidence(evidenceId: String): List<LocalFinding> =
         db.findingDao().listForEvidence(evidenceId)
-
-    private suspend fun requireProperty(id: String) {
-        if (db.propertyDao().get(id) == null) throw LocalValidationException("property not found")
-    }
 
     private suspend fun requireTenancy(id: String) {
         if (db.tenancyDao().get(id) == null) throw LocalValidationException("tenancy not found")

@@ -9,12 +9,19 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
 // Shared building blocks. Screens compose these instead of raw
@@ -34,9 +41,15 @@ fun ScreenColumn(
     )
 }
 
+// Single heading chokepoint: every screen title announces as a
+// heading so screen-reader and switch users land on it first.
 @Composable
 fun ScreenTitle(text: String) {
-    Text(text, style = MaterialTheme.typography.headlineSmall)
+    Text(
+        text,
+        style = MaterialTheme.typography.headlineSmall,
+        modifier = Modifier.semantics { heading() },
+    )
 }
 
 @Composable
@@ -44,6 +57,8 @@ fun BodyText(text: String) {
     Text(text, style = MaterialTheme.typography.bodyLarge)
 }
 
+// Errors announce politely when they appear: every failure surfaces
+// through this chokepoint, so no screen-reader user misses one.
 @Composable
 fun ErrorText(message: String?) {
     if (!message.isNullOrBlank()) {
@@ -51,6 +66,7 @@ fun ErrorText(message: String?) {
             Strings.error(message),
             color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
         )
     }
 }
@@ -71,9 +87,17 @@ fun VaultButton(
     }
 }
 
+// Loading announces instead of staying silent: the indeterminate bar
+// carries a description so assistive tech reports progress state.
 @Composable
 fun ProgressStatus(show: Boolean, modifier: Modifier = Modifier) {
-    if (show) LinearProgressIndicator(modifier = modifier.fillMaxWidth())
+    if (show) {
+        LinearProgressIndicator(
+            modifier = modifier.fillMaxWidth().semantics {
+                contentDescription = Strings.loading
+            },
+        )
+    }
 }
 
 @Composable
@@ -83,11 +107,19 @@ fun VaultTextField(
     label: String,
     modifier: Modifier = Modifier,
     singleLine: Boolean = true,
+    placeholder: String? = null,
+    leadingIcon: ImageVector? = null,
 ) {
     TextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
+        placeholder = if (placeholder != null) { { Text(placeholder) } } else null,
+        leadingIcon = if (leadingIcon != null) {
+            { Icon(leadingIcon, contentDescription = null) }
+        } else {
+            null
+        },
         singleLine = singleLine,
         modifier = modifier.fillMaxWidth(),
     )

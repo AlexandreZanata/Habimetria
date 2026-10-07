@@ -52,11 +52,15 @@ class LocalSession(
     private val fs: FileSystem = FileSystem.SYSTEM,
 ) {
     val repository = LocalVaultRepository(db)
+    val overviews = LocalOverviewRepository(db)
     val coverage = VaultCoverage(db)
     val originals = OriginalStore(fs, filesDir)
     val derivatives = DerivativeStore(fs, filesDir, platformScaler())
     val navigation = NavigationStore(fs, filesDir)
     val trust = TrustStore(db)
+    val findingProblems = FindingProblemRepository(db)
+    val inspectionRemoval = InspectionRemovalRepository(db, originals, derivatives, filesDir)
+    val propertyRemoval = PropertyRemovalRepository(db)
     val occurrences = LocalOccurrenceRepository(db)
     val compare = CompareRepository(db)
     val inspector = AiInspectorRepository(db)

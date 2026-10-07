@@ -207,3 +207,24 @@ val MIGRATION_12_13 = object : Migration(12, 13) {
         connection.execSQL("ALTER TABLE properties ADD COLUMN nickname TEXT NOT NULL DEFAULT ''")
     }
 }
+
+// v13 → v14: property visibility for U07 removal. Pure ADD COLUMN;
+// legacy rows migrate as active (archived = 0). Signed Manifest bytes
+// never include this organizational field.
+val MIGRATION_13_14 = object : Migration(13, 14) {
+    override fun migrate(connection: SQLiteConnection) {
+        connection.execSQL("ALTER TABLE properties ADD COLUMN archived INTEGER NOT NULL DEFAULT 0")
+    }
+}
+
+// v14 → v15: finding_problems for problem customization. New table
+// only; built-ins seed lazily on first read, so no data migration.
+val MIGRATION_14_15 = object : Migration(14, 15) {
+    override fun migrate(connection: SQLiteConnection) {
+        connection.execSQL(
+            "CREATE TABLE IF NOT EXISTS finding_problems (" +
+                "code TEXT NOT NULL PRIMARY KEY, label TEXT NOT NULL, " +
+                "active INTEGER NOT NULL, builtin INTEGER NOT NULL)",
+        )
+    }
+}
