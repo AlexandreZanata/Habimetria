@@ -29,6 +29,7 @@ import vault.local.REPORT_READY
 import vault.local.ReportOverview
 import vault.ui.AppContainer
 import vault.ui.ErrorText
+import vault.ui.InspectionRowSkeleton
 import vault.ui.ProgressStatus
 import vault.ui.Strings
 import vault.ui.VaultTextField
@@ -107,8 +108,10 @@ fun ReportListScreen(
             reports == null || pending == null -> {
                 item {
                     ProgressStatus(true)
-                    Text(Strings.loadingProperties)
+                    InspectionRowSkeleton()
                 }
+                item { InspectionRowSkeleton() }
+                item { InspectionRowSkeleton() }
             }
             ready.isEmpty() && awaiting.isEmpty() -> {
                 item {

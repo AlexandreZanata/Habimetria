@@ -35,6 +35,7 @@ import vault.ui.AppContainer
 import vault.ui.ErrorText
 import vault.ui.ProgressStatus
 import vault.ui.ScreenTitle
+import vault.ui.SkeletonLine
 import vault.ui.VaultTextField
 import vault.ui.userErrorMessage
 
@@ -93,6 +94,9 @@ fun RoomPresetsScreen(container: AppContainer) {
         item { ErrorText(error) }
         if (presets == null) {
             item { ProgressStatus(true) }
+            item { SkeletonLine(0.5f, 20.dp) }
+            item { SkeletonLine(0.4f, 20.dp) }
+            item { SkeletonLine(0.6f, 20.dp) }
         } else {
             if (presets!!.isEmpty()) {
                 item {
