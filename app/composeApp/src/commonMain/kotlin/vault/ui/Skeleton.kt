@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -144,4 +145,68 @@ fun HomeBannerSkeleton(brush: Brush = skeletonBrush()) {
             )
         }
     }
+}
+
+// Stands in for a room list row: icon box, title and progress line.
+@Composable
+fun RoomRowSkeleton(brush: Brush = skeletonBrush()) {
+    OutlinedCard {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier.size(48.dp).clip(RoundedCornerShape(14.dp))
+                    .background(brush)
+                    .clearAndSetSemantics {},
+            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                SkeletonLine(0.5f, 20.dp, brush = brush)
+                SkeletonLine(0.7f, brush = brush)
+            }
+        }
+    }
+}
+
+// Stands in for the capture screen while coverage loads: coverage card
+// with category rows plus the photo grid and the shutter action.
+@Composable
+fun RoomCaptureSkeleton(brush: Brush = skeletonBrush()) {
+    OutlinedCard(shape = RoundedCornerShape(16.dp)) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                SkeletonLine(0.5f, 20.dp, brush = brush)
+                SkeletonLine(0.15f, 20.dp, brush = brush)
+            }
+            SkeletonLine(1f, 8.dp, brush = brush)
+            SkeletonLine(0.7f, brush = brush)
+            SkeletonLine(0.7f, brush = brush)
+            SkeletonLine(0.7f, brush = brush)
+        }
+    }
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        SkeletonThumbnail(96.dp, brush)
+        SkeletonThumbnail(96.dp, brush)
+        SkeletonThumbnail(96.dp, brush)
+    }
+    Box(
+        modifier = Modifier.fillMaxWidth().height(56.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(brush)
+            .clearAndSetSemantics {},
+    )
 }

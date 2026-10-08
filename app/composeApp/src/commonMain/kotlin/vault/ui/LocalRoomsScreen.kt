@@ -42,7 +42,7 @@ fun LocalRoomsScreen(
     onSealed: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    var rooms by remember { mutableStateOf<List<LocalRoom>>(emptyList()) }
+    var rooms by remember { mutableStateOf<List<LocalRoom>?>(null) }
     var percents by remember { mutableStateOf(mapOf<String, Int>()) }
     var counts by remember { mutableStateOf(mapOf<String, Int>()) }
     var newLabel by rememberSaveable(inspectionId) { mutableStateOf("") }
@@ -110,24 +110,30 @@ fun LocalRoomsScreen(
                     },
                 )
             }
-            if (rooms.isEmpty()) {
+            val list = rooms.orEmpty()
+            if (rooms == null) {
+                item { ProgressStatus(true) }
+                item { RoomRowSkeleton() }
+                item { RoomRowSkeleton() }
+                item { RoomRowSkeleton() }
+            } else if (list.isEmpty()) {
                 item { RoomEmptyState() }
             } else {
-                item { Text(JourneyStrings.roomCount(rooms.size), style = MaterialTheme.typography.titleSmall) }
+                item { Text(JourneyStrings.roomCount(list.size), style = MaterialTheme.typography.titleSmall) }
             }
-            items(rooms, key = { it.id }) { room ->
+            items(list, key = { it.id }) { room ->
                 RoomListRow(
                     room = room,
                     percent = percents[room.id] ?: 0,
                     evidenceCount = counts[room.id] ?: 0,
-                    canMoveUp = rooms.firstOrNull()?.id != room.id,
-                    canMoveDown = rooms.lastOrNull()?.id != room.id,
+                    canMoveUp = list.firstOrNull()?.id != room.id,
+                    canMoveDown = list.lastOrNull()?.id != room.id,
                     onOpen = { onOpenRoom(room.id, room.label) },
                     onRename = { renaming = room; renameText = room.label },
                     onMove = { delta ->
                         scope.launch {
                             try {
-                                val idx = rooms.indexOfFirst { it.id == room.id }
+                                val idx = list.indexOfFirst { it.id == room.id }
                                 session.repository.moveRoom(room.id, idx + delta)
                                 refresh()
                             } catch (e: Exception) {
@@ -145,10 +151,10 @@ fun LocalRoomsScreen(
                     text = Strings.startInspection,
                     icon = Icons.Filled.CameraAlt,
                     onClick = {
-                        val first = rooms.firstOrNull() ?: return@JourneyPrimaryAction
+                        val first = list.firstOrNull() ?: return@JourneyPrimaryAction
                         onStartCapture(first.id, first.label)
                     },
-                    enabled = rooms.isNotEmpty(),
+                    enabled = list.isNotEmpty(),
                 )
             }
         }

@@ -60,6 +60,7 @@ fun LocalRoomScreen(
     var error by remember { mutableStateOf<String?>(null) }
     var viewing by remember { mutableStateOf<LocalEvidence?>(null) }
     var sealedRedirected by remember { mutableStateOf(false) }
+    var loaded by remember { mutableStateOf(false) }
     val selected = ShotCategory.parse(selectedName) ?: ShotCategory.OVERVIEW
 
     fun refresh() {
@@ -81,6 +82,8 @@ fun LocalRoomScreen(
                 error = null
             } catch (e: Exception) {
                 error = userErrorMessage(e)
+            } finally {
+                loaded = true
             }
         }
     }
@@ -177,11 +180,16 @@ fun LocalRoomScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             JourneyShortcuts(onRooms = onRoomsShortcut, onReview = onReview)
-            RoomCaptureControls(
-                session, evidences, nextRoom, coverage, na, selected,
-                { selectedName = it.name }, busy, error, lastClaim, ::toggleNa, ::capture,
-                ::removeEvidence, { viewing = it }, onOpenRoom, onReview,
-            )
+            if (!loaded) {
+                ProgressStatus(true)
+                RoomCaptureSkeleton()
+            } else {
+                RoomCaptureControls(
+                    session, evidences, nextRoom, coverage, na, selected,
+                    { selectedName = it.name }, busy, error, lastClaim, ::toggleNa, ::capture,
+                    ::removeEvidence, { viewing = it }, onOpenRoom, onReview,
+                )
+            }
         }
     }
 
