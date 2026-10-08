@@ -24,6 +24,7 @@ import vault.local.PropertyOverview
 import vault.ui.AppContainer
 import vault.ui.ErrorText
 import vault.ui.ProgressStatus
+import vault.ui.PropertyCardSkeleton
 import vault.ui.Strings
 import vault.ui.userErrorMessage
 
@@ -140,8 +141,10 @@ fun PropertyListScreen(
             cards == null -> {
                 item {
                     ProgressStatus(true)
-                    Text(Strings.loadingProperties)
+                    PropertyCardSkeleton()
                 }
+                item { PropertyCardSkeleton() }
+                item { PropertyCardSkeleton() }
             }
             filtered.isEmpty() -> {
                 item { PropertyListEmptyState(query = query, visibility = visibility) }

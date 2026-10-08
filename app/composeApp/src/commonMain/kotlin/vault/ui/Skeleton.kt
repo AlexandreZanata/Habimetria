@@ -108,6 +108,23 @@ fun PropertyCardSkeleton(brush: Brush = skeletonBrush()) {
     }
 }
 
+// Stands in for an inspection row while lists load: title plus status.
+@Composable
+fun InspectionRowSkeleton(brush: Brush = skeletonBrush()) {
+    OutlinedCard(shape = RoundedCornerShape(16.dp)) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            SkeletonLine(0.5f, 20.dp, brush = brush)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                SkeletonLine(0.25f, brush = brush)
+                SkeletonPill(90.dp, brush = brush)
+            }
+        }
+    }
+}
+
 // Stands in for the home banner: title, copy lines and the action block.
 @Composable
 fun HomeBannerSkeleton(brush: Brush = skeletonBrush()) {
