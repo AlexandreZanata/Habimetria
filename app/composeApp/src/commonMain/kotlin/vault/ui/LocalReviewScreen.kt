@@ -29,8 +29,11 @@ import vault.ui.report.PdfJourneySegments
 import vault.ui.report.PdfOptionCard
 import vault.ui.report.PdfSectionDivider
 import vault.ui.report.PdfSectionHeader
+import vault.ui.review.ReviewOptionSkeleton
 import vault.ui.review.ReviewRoomCard
+import vault.ui.review.ReviewRoomSkeleton
 import vault.ui.review.ReviewStatusCard
+import vault.ui.review.ReviewStatusSkeleton
 
 // Index of the rooms section header in the screen list: status card is 0.
 private const val ROOMS_HEADER_INDEX = 1
@@ -60,6 +63,7 @@ fun LocalReviewScreen(
     var kind by remember { mutableStateOf("entry") }
     var reportDetails by remember { mutableStateOf(false) }
     var sealed by remember { mutableStateOf(false) }
+    var loaded by remember { mutableStateOf(false) }
 
     fun refresh() {
         scope.launch {
@@ -75,6 +79,8 @@ fun LocalReviewScreen(
                 error = null
             } catch (e: Exception) {
                 error = userErrorMessage(e)
+            } finally {
+                loaded = true
             }
         }
     }
@@ -101,6 +107,18 @@ fun LocalReviewScreen(
             state = listState,
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            if (!loaded) {
+                item(key = "loading") { ProgressStatus(true) }
+                item(key = "status-skeleton") { ReviewStatusSkeleton() }
+                item(key = "rooms-header-skeleton") {
+                    PdfSectionHeader(Strings.rooms, Strings.reviewRoomsBody)
+                }
+                item(key = "room-skeleton-1") { ReviewRoomSkeleton() }
+                item(key = "room-skeleton-2") { ReviewRoomSkeleton() }
+                item(key = "options-skeleton") { ReviewOptionSkeleton() }
+                item(key = "options-skeleton-2") { ReviewOptionSkeleton() }
+                return@LazyColumn
+            }
             item(key = "status") {
                 ReviewStatusCard(
                     sealed = sealed,

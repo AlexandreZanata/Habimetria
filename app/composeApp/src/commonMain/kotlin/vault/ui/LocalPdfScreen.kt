@@ -35,6 +35,7 @@ fun LocalPdfScreen(
     var declarations by remember { mutableStateOf<List<DeclarationCheck>>(emptyList()) }
     var revision by remember { mutableStateOf(0) }
     var showDetails by remember { mutableStateOf(false) }
+    var loaded by remember { mutableStateOf(false) }
 
     suspend fun load() {
         manifest = generator.manifestFor(inspectionId)
@@ -47,7 +48,7 @@ fun LocalPdfScreen(
         if (manifest == null) error = Strings.pdfSealFirst
     }
     LaunchedEffect(inspectionId, revision) {
-        try { busy = true; load() } catch (e: Exception) { error = userErrorMessage(e) } finally { busy = false }
+        try { busy = true; load() } catch (e: Exception) { error = userErrorMessage(e) } finally { busy = false; loaded = true }
     }
     fun generate(newVersion: Boolean) {
         busy = true; cancelled.value = false; error = null; verification = null
@@ -94,6 +95,14 @@ fun LocalPdfScreen(
         )
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             val current = report
+            if (!loaded) {
+                vault.ui.ProgressStatus(true)
+                vault.ui.report.PdfStatusSkeleton()
+                vault.ui.report.PdfOptionSkeleton()
+                vault.ui.report.PdfOptionSkeleton()
+                vault.ui.report.PdfOptionSkeleton()
+            }
+            if (loaded) {
             val ready = current?.status == REPORT_READY && verification?.allOk() == true
             if (ready) {
                 vault.ui.report.PdfStatusCard(
@@ -173,6 +182,7 @@ fun LocalPdfScreen(
             if (showDetails && current != null) {
                 Text("Relatório: ${current.id}\nManifesto: ${current.manifestSha256}\nPDF: ${current.pdfSha256.orEmpty()}", style = MaterialTheme.typography.bodySmall)
                 verification?.let { Text("PDF: ${it.pdfIntact} · manifesto: ${it.manifestOk} · recibo: ${it.receiptOk} · originais: ${it.originalsIntact} · declarações: ${it.declarationsIntact}", style = MaterialTheme.typography.bodySmall) }
+            }
             }
         }
     }

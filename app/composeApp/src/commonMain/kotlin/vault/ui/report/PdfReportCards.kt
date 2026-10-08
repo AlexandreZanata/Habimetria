@@ -224,3 +224,49 @@ object PdfOptionIcons {
     val newVersion: ImageVector = Icons.Filled.Refresh
     val offline: ImageVector = Icons.Filled.Shield
 }
+
+// Loading placeholders in the same shapes: status card with the share
+// action and icon option rows. Decorative; announcement stays with
+// ProgressStatus on the screen.
+@Composable
+fun PdfStatusSkeleton() {
+    OutlinedCard(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                vault.ui.SkeletonCircle(56.dp)
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    vault.ui.SkeletonLine(0.6f, 22.dp)
+                    vault.ui.SkeletonLine(0.95f)
+                }
+            }
+            vault.ui.SkeletonLine(1f, 48.dp)
+        }
+    }
+}
+
+@Composable
+fun PdfOptionSkeleton() {
+    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            vault.ui.SkeletonCircle(48.dp)
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                vault.ui.SkeletonLine(0.6f, 20.dp)
+                vault.ui.SkeletonLine(0.95f)
+            }
+        }
+    }
+}

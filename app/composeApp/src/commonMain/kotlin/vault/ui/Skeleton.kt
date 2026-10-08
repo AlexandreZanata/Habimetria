@@ -83,6 +83,15 @@ fun SkeletonPill(width: Dp, brush: Brush = skeletonBrush()) {
     )
 }
 
+@Composable
+fun SkeletonCircle(size: Dp, brush: Brush = skeletonBrush()) {
+    Box(
+        modifier = Modifier.size(size).clip(CircleShape)
+            .background(brush)
+            .clearAndSetSemantics {},
+    )
+}
+
 // Stands in for PropertyCardView while rows load: thumbnail, title,
 // address lines and chips in the same positions.
 @Composable
