@@ -107,6 +107,11 @@ fun HomeScreen(
                 onOpenAllProperties = onOpenAllProperties,
                 onRemove = { removing = it },
             )
+        } else {
+            ProgressStatus(true)
+            HomeBannerSkeleton()
+            PropertyCardSkeleton()
+            PropertyCardSkeleton()
         }
         ErrorText(error)
         val done = feedback

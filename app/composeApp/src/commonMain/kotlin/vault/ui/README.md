@@ -15,6 +15,10 @@ The existing offline review → seal → PDF → share journey is unchanged.
 Contract: [report authorship](../../../../../../../docs/05-mobile/report_authorship_contract.md).
 
 # Home and properties
+
+- [Skeleton.kt](Skeleton.kt): shimmer loading placeholders shaped like the
+  real content (banner, property cards). Decorative; announcements stay
+  with `ProgressStatus`.
 - [property/HomeHeroBanner.kt](property/HomeHeroBanner.kt): compact mint banner with short native copy, Brazilian house art and Nova vistoria.
 - [property/PropertyCards.kt](property/PropertyCards.kt): property card rows driven by overviews.
 - [property/PropertyListCard.kt](property/PropertyListCard.kt): integrated open/restore actions for property management.

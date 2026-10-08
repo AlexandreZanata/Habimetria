@@ -18,6 +18,7 @@ import androidx.compose.ui.semantics.semantics
 import vault.local.PropertyOverview
 import vault.ui.ErrorText
 import vault.ui.ProgressStatus
+import vault.ui.PropertyCardSkeleton
 import vault.ui.Strings
 
 // Shared loading/error/empty/content states for property rows.
@@ -42,7 +43,8 @@ fun HomePropertyStates(
         }
         rows == null -> {
             ProgressStatus(true)
-            Text(Strings.loadingProperties)
+            PropertyCardSkeleton()
+            PropertyCardSkeleton()
         }
         rows.isEmpty() -> Text(Strings.propertiesEmpty)
         else -> {
