@@ -88,12 +88,15 @@ fun LocalOccurrenceScreen(
             enabled = !busy && title.trim().isNotEmpty(),
         )
         val list = occurrences.orEmpty()
-        if (occurrences == null) {
+        val showLoading = rememberLoadingVisible(occurrences == null)
+        if (showLoading) {
             ProgressStatus(true)
             SkeletonLine(0.5f, 20.dp)
             SkeletonLine(0.3f)
             SkeletonLine(0.5f, 20.dp)
             SkeletonLine(0.3f)
+        } else if (occurrences == null) {
+            // Grace period: data is on its way, paint nothing yet.
         } else if (list.isEmpty()) {
             BodyText(Strings.occurrenceEmpty)
         }

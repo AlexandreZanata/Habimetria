@@ -180,9 +180,12 @@ fun LocalRoomScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             JourneyShortcuts(onRooms = onRoomsShortcut, onReview = onReview)
-            if (!loaded) {
+            val showLoading = rememberLoadingVisible(!loaded)
+            if (showLoading) {
                 ProgressStatus(true)
                 RoomCaptureSkeleton()
+            } else if (!loaded) {
+                // Grace period: data is on its way, paint nothing yet.
             } else {
                 RoomCaptureControls(
                     session, evidences, nextRoom, coverage, na, selected,

@@ -57,6 +57,8 @@ fun LocalCompareScreen(
 
     LaunchedEffect(exitInspectionId) { refresh() }
 
+    val showLoading = rememberLoadingVisible(pairs == null)
+
     ScreenColumn {
         ScreenTitle(Strings.compareTitle)
         ErrorText(error)
@@ -65,7 +67,7 @@ fun LocalCompareScreen(
             TextButton(onClick = { sideBySide = false }) { Text(Strings.compareSlider) }
         }
         LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            if (pairs == null) {
+            if (showLoading) {
                 item(key = "loading") { ProgressStatus(true) }
                 item(key = "skeleton-label") { SkeletonLine(0.4f, 20.dp) }
                 item(key = "skeleton-panels") {

@@ -36,6 +36,7 @@ import vault.ui.ProgressStatus
 import vault.ui.SkeletonLine
 import vault.ui.SkeletonThumbnail
 import vault.ui.Strings
+import vault.ui.rememberLoadingVisible
 import vault.ui.userErrorMessage
 
 // Property detail: address/nickname plus bounded inspection history.
@@ -72,6 +73,8 @@ fun PropertyDetailScreen(
 
     LaunchedEffect(local, propertyId) { load() }
 
+    val showLoading = rememberLoadingVisible(property == null || inspections == null)
+
     if (chooseProfile) InspectionProfileDialog(container, propertyId, onNewInspection) { chooseProfile = false }
 
     val visible = (inspections.orEmpty()).filter {
@@ -92,7 +95,7 @@ fun PropertyDetailScreen(
                 ErrorText(loadError)
                 OutlinedButton(onClick = { scope.launch { load() } }) { Text(Strings.retry) }
             }
-            property == null || inspections == null -> {
+            showLoading -> {
                 ProgressStatus(true)
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -109,6 +112,9 @@ fun PropertyDetailScreen(
                 }
                 InspectionRowSkeleton()
                 InspectionRowSkeleton()
+            }
+            property == null || inspections == null -> {
+                // Grace period: data is on its way, paint nothing yet.
             }
             else -> {
                 val current = property!!

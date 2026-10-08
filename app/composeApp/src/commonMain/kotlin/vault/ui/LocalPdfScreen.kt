@@ -95,7 +95,8 @@ fun LocalPdfScreen(
         )
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             val current = report
-            if (!loaded) {
+            val showLoading = rememberLoadingVisible(!loaded)
+            if (showLoading) {
                 vault.ui.ProgressStatus(true)
                 vault.ui.report.PdfStatusSkeleton()
                 vault.ui.report.PdfOptionSkeleton()

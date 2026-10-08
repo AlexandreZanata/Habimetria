@@ -56,6 +56,8 @@ fun LocalInspectorScreen(
 
     LaunchedEffect(inspectionId) { refresh() }
 
+    val showLoading = rememberLoadingVisible(!loaded)
+
     ScreenColumn {
         ScreenTitle(Strings.inspectorTitle)
         BodyText(Strings.inspectorHint)
@@ -78,12 +80,14 @@ fun LocalInspectorScreen(
             enabled = !busy,
         )
         LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            if (!loaded) {
+            if (showLoading) {
                 item(key = "loading") { ProgressStatus(true) }
                 item(key = "skeleton-1") { SkeletonLine(0.5f, 20.dp) }
                 item(key = "skeleton-2") { SkeletonLine(0.8f) }
                 item(key = "skeleton-3") { SkeletonLine(0.6f) }
                 item(key = "skeleton-4") { SkeletonLine(0.8f) }
+            } else if (!loaded) {
+                // Grace period: data is on its way, paint nothing yet.
             } else {
             if (gaps.isNotEmpty()) {
                 item(key = "gaps-header") {

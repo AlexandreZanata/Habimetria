@@ -78,6 +78,8 @@ fun LocalRoomsScreen(
 
     LaunchedEffect(inspectionId) { refresh() }
 
+    val showLoading = rememberLoadingVisible(rooms == null)
+
     ScreenColumn {
         LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             item {
@@ -111,11 +113,13 @@ fun LocalRoomsScreen(
                 )
             }
             val list = rooms.orEmpty()
-            if (rooms == null) {
+            if (showLoading) {
                 item { ProgressStatus(true) }
                 item { RoomRowSkeleton() }
                 item { RoomRowSkeleton() }
                 item { RoomRowSkeleton() }
+            } else if (rooms == null) {
+                // Grace period: data is on its way, paint nothing yet.
             } else if (list.isEmpty()) {
                 item { RoomEmptyState() }
             } else {

@@ -32,6 +32,7 @@ import vault.ui.ErrorText
 import vault.ui.InspectionRowSkeleton
 import vault.ui.ProgressStatus
 import vault.ui.Strings
+import vault.ui.rememberLoadingVisible
 import vault.ui.VaultTextField
 import vault.ui.property.PropertyStrings
 import vault.ui.property.RemovalFeedback
@@ -73,6 +74,8 @@ fun ReportListScreen(
 
     LaunchedEffect(local) { load() }
 
+    val showLoading = rememberLoadingVisible(reports == null || pending == null)
+
     fun matches(label: String): Boolean {
         val q = query.trim().lowercase()
         return q.isEmpty() || label.lowercase().contains(q)
@@ -105,13 +108,16 @@ fun ReportListScreen(
                     OutlinedButton(onClick = { scope.launch { load() } }) { Text(Strings.retry) }
                 }
             }
-            reports == null || pending == null -> {
+            showLoading -> {
                 item {
                     ProgressStatus(true)
                     InspectionRowSkeleton()
                 }
                 item { InspectionRowSkeleton() }
                 item { InspectionRowSkeleton() }
+            }
+            reports == null || pending == null -> {
+                // Grace period: data is on its way, paint nothing yet.
             }
             ready.isEmpty() && awaiting.isEmpty() -> {
                 item {

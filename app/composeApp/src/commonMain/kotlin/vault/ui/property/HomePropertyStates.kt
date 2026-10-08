@@ -20,6 +20,7 @@ import vault.ui.ErrorText
 import vault.ui.ProgressStatus
 import vault.ui.PropertyCardSkeleton
 import vault.ui.Strings
+import vault.ui.rememberLoadingVisible
 
 // Shared loading/error/empty/content states for property rows.
 // Home and Imóveis reuse the same distinct states with retry. The header
@@ -36,15 +37,19 @@ fun HomePropertyStates(
     onOpenAllProperties: () -> Unit,
     onRemove: ((PropertyOverview) -> Unit)? = null,
 ) {
+    val showLoading = rememberLoadingVisible(rows == null)
     when {
         loadError != null -> {
             ErrorText(loadError)
             OutlinedButton(onClick = onRetry) { Text(Strings.retry) }
         }
-        rows == null -> {
+        showLoading -> {
             ProgressStatus(true)
             PropertyCardSkeleton()
             PropertyCardSkeleton()
+        }
+        rows == null -> {
+            // Grace period: data is on its way, paint nothing yet.
         }
         rows.isEmpty() -> Text(Strings.propertiesEmpty)
         else -> {

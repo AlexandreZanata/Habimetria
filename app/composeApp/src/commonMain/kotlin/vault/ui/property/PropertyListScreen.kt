@@ -26,6 +26,7 @@ import vault.ui.ErrorText
 import vault.ui.ProgressStatus
 import vault.ui.PropertyCardSkeleton
 import vault.ui.Strings
+import vault.ui.rememberLoadingVisible
 import vault.ui.userErrorMessage
 
 // Imóveis owns management/history; Home stays resume-focused.
@@ -66,6 +67,8 @@ fun PropertyListScreen(
     }
 
     LaunchedEffect(local) { load() }
+
+    val showLoading = rememberLoadingVisible(cards == null)
 
     val filtered = (cards.orEmpty()).filter { overview ->
         val matchesVisibility = if (visibility == VISIBILITY_ARCHIVED) {
@@ -138,13 +141,16 @@ fun PropertyListScreen(
                     OutlinedButton(onClick = { scope.launch { load() } }) { Text(Strings.retry) }
                 }
             }
-            cards == null -> {
+            showLoading -> {
                 item {
                     ProgressStatus(true)
                     PropertyCardSkeleton()
                 }
                 item { PropertyCardSkeleton() }
                 item { PropertyCardSkeleton() }
+            }
+            cards == null -> {
+                // Grace period: data is on its way, paint nothing yet.
             }
             filtered.isEmpty() -> {
                 item { PropertyListEmptyState(query = query, visibility = visibility) }

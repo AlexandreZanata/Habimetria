@@ -91,6 +91,7 @@ fun LocalReviewScreen(
     // back here. So on a sealed inspection the Cômodos segment scrolls to
     // the rooms section on this page instead of bouncing off Rooms.
     val listState = rememberLazyListState()
+    val showLoading = rememberLoadingVisible(!loaded)
     fun openRooms() {
         if (sealed) {
             scope.launch { listState.animateScrollToItem(ROOMS_HEADER_INDEX) }
@@ -107,7 +108,7 @@ fun LocalReviewScreen(
             state = listState,
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            if (!loaded) {
+            if (showLoading) {
                 item(key = "loading") { ProgressStatus(true) }
                 item(key = "status-skeleton") { ReviewStatusSkeleton() }
                 item(key = "rooms-header-skeleton") {
@@ -117,6 +118,9 @@ fun LocalReviewScreen(
                 item(key = "room-skeleton-2") { ReviewRoomSkeleton() }
                 item(key = "options-skeleton") { ReviewOptionSkeleton() }
                 item(key = "options-skeleton-2") { ReviewOptionSkeleton() }
+                return@LazyColumn
+            } else if (!loaded) {
+                // Grace period: data is on its way, paint nothing yet.
                 return@LazyColumn
             }
             item(key = "status") {

@@ -66,7 +66,8 @@ fun LocalSealScreen(
         vault.ui.journey.JourneyShortcuts(onRooms = onRoomsShortcut, onReview = onReviewShortcut)
         BodyText(Strings.sealWarning)
         val current = eligibility
-        if (current == null) {
+        val showLoading = rememberLoadingVisible(current == null)
+        if (showLoading) {
             ProgressStatus(true)
             SkeletonLine(0.8f)
             SkeletonLine(0.6f, 20.dp)

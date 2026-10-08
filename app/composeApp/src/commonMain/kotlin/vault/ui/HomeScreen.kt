@@ -94,6 +94,7 @@ fun HomeScreen(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
+        val showLoading = rememberLoadingVisible(local == null)
         if (local != null) {
             HomeHeroBanner(enabled = !busy, onNewInspection = onNewInspection)
             HomePropertyStates(
@@ -107,7 +108,7 @@ fun HomeScreen(
                 onOpenAllProperties = onOpenAllProperties,
                 onRemove = { removing = it },
             )
-        } else {
+        } else if (showLoading) {
             ProgressStatus(true)
             HomeBannerSkeleton()
             PropertyCardSkeleton()
