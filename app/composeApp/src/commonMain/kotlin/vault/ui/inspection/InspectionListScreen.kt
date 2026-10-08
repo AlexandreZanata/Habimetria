@@ -29,6 +29,7 @@ import vault.local.STATUS_DRAFT
 import vault.local.STATUS_SEALED
 import vault.ui.AppContainer
 import vault.ui.ErrorText
+import vault.ui.InspectionRowSkeleton
 import vault.ui.ProgressStatus
 import vault.ui.Strings
 import vault.ui.VaultTextField
@@ -149,8 +150,10 @@ fun InspectionListScreen(
             rows == null -> {
                 item {
                     ProgressStatus(true)
-                    Text(Strings.loadingProperties)
+                    InspectionRowSkeleton()
                 }
+                item { InspectionRowSkeleton() }
+                item { InspectionRowSkeleton() }
             }
             visible.isEmpty() -> {
                 item {
