@@ -1,9 +1,13 @@
 package vault.ui
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.dp
 import vault.local.*
 
 @Composable
@@ -11,10 +15,27 @@ internal fun ReportPersonalFields(d: ReportDetails, enabled: Boolean, onChange: 
     val technical = d.profile == "technical"
     val identified = d.identification != null || d.authorName.isNotBlank()
     Text("Identificação", style = MaterialTheme.typography.titleMedium)
-    if (!technical) Row {
-        Switch(identified, { checked -> onChange(if (checked) d.copy(identification = PersonalIdentification()) else
-            d.copy(identification = null, authorName = "", authorRole = "", authorTitle = "")) }, enabled = enabled)
-        Text("Quero incluir minha identificação", Modifier.weight(1f))
+    if (!technical) {
+        Row(
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).toggleable(
+                value = identified,
+                enabled = enabled,
+                role = Role.Switch,
+                onValueChange = { checked ->
+                    val updated = if (checked) {
+                        d.copy(identification = PersonalIdentification())
+                    } else {
+                        d.copy(identification = null, authorName = "", authorRole = "", authorTitle = "")
+                    }
+                    onChange(updated)
+                },
+            ),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Switch(checked = identified, onCheckedChange = null, enabled = enabled)
+            Text("Quero incluir minha identificação", Modifier.weight(1f))
+        }
     }
     if (technical || identified) {
         OutlinedTextField(d.authorName, { onChange(d.copy(authorName = it)) }, enabled = enabled,

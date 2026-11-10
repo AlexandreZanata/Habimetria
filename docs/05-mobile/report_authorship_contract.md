@@ -11,7 +11,9 @@ No claim of automatic judicial acceptance.
 ## Optional personal identification
 
 Rental capture/finalization does not require name, CPF, email or phone.
-Review offers an explicit optional identification section. CPF format/check
+The Report details dialog keeps a labeled close button in its header while
+the form scrolls. The rental identification switch and its label share one
+aligned touch target when editing is available. CPF format/check
 digits are validated if provided, never described as government verification.
 Users choose whether the supplied CPF appears fully or masked in the PDF;
 the complete voluntarily supplied declaration is in the private signed

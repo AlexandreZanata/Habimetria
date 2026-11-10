@@ -3,9 +3,14 @@ package vault.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -33,54 +38,72 @@ fun ReportDetailsSheet(session: LocalSession, inspectionId: String, readOnly: Bo
     }
     val showLoading = rememberLoadingVisible(loading)
     VaultFormDialog(onDismissRequest = { if (!busy) onClose() }) {
-        Column(Modifier.padding(20.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text("Dados do relatório", style = MaterialTheme.typography.titleLarge)
-            ErrorText(error)
-            if (showLoading) {
-                LoadingSkeleton(spacing = 10.dp) {
-                    SkeletonLine(0.55f, 16.dp)
-                    SkeletonLine(0.91f, 14.dp)
-                    SkeletonLine(0.44f, 16.dp)
-                    repeat(3) { SkeletonAction(height = 56.dp) }
-                    SkeletonInlineActions(80, 114)
-                    repeat(3) { SkeletonAction(height = 56.dp) }
+        Column(Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    Strings.reviewReportData,
+                    modifier = Modifier.weight(1f).semantics { heading() },
+                    style = MaterialTheme.typography.titleLarge,
+                )
+                IconButton(onClick = onClose, enabled = !busy, modifier = Modifier.size(48.dp)) {
+                    Icon(Icons.Filled.Close, contentDescription = Strings.close)
                 }
             }
-            details?.let { d ->
-                Text(if (d.profile == "technical") "Vistoria profissional" else "Vistoria de locação")
-                Text("Estes dados serão congelados no lacre. A captura continua sendo foto + problema + nota opcional.", style = MaterialTheme.typography.bodySmall)
-                ReportDetailFields(d, enabled = !readOnly && !busy, onChange = { details = it })
-                d.responsibilityDocument?.let { Text("Documento anexado: ${it.name}", style = MaterialTheme.typography.bodySmall) }
-                if (d.profile == "technical" && !readOnly && picker != null) TextButton(enabled = !busy, onClick = {
-                    busy = true
-                    scope.launch {
-                        try {
-                            repository.save(inspectionId, d)
-                            val selected = picker.pick("application/pdf", 10L * 1024 * 1024)
-                            if (selected != null) {
-                                try { details = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
-                                    ResponsibilityDocuments(session.filesDir).attach(session.db, inspectionId, selected.path, selected.name)
-                                } } finally { okio.FileSystem.SYSTEM.delete(selected.path.toPath(), mustExist = false) }
-                            }
-                        } catch (e: Exception) { error = userErrorMessage(e) }
-                        finally { busy = false }
+            Column(
+                modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                ErrorText(error)
+                if (showLoading) {
+                    LoadingSkeleton(spacing = 10.dp) {
+                        SkeletonLine(0.55f, 16.dp)
+                        SkeletonLine(0.91f, 14.dp)
+                        SkeletonLine(0.44f, 16.dp)
+                        repeat(3) { SkeletonAction(height = 56.dp) }
+                        SkeletonInlineActions(80, 114)
+                        repeat(3) { SkeletonAction(height = 56.dp) }
                     }
-                }) { Text("Anexar PDF da ART/RRT (obrigatório)") }
-                Row {
-                    Checkbox(checked = d.authorAcknowledged, onCheckedChange = { details = d.copy(authorAcknowledged = it) }, enabled = !readOnly && !busy)
-                    Text("Confirmo minha autoria e a revisão dos dados. No uso profissional, confirmo minhas atribuições e a responsabilidade indicada.", modifier = Modifier.weight(1f))
                 }
-                Text("O aplicativo registra declarações e integridade dos arquivos. Não consulta registro profissional nem certifica identidade ou aceitação jurídica.", style = MaterialTheme.typography.bodySmall)
-                if (!readOnly) VaultButton(text = "Salvar dados", enabled = !busy, onClick = {
-                    busy = true
-                    scope.launch {
-                        try { repository.save(inspectionId, d); onClose() }
-                        catch (e: Exception) { error = userErrorMessage(e) }
-                        finally { busy = false }
+                details?.let { d ->
+                    Text(if (d.profile == "technical") "Vistoria profissional" else "Vistoria de locação")
+                    Text("Estes dados serão congelados no lacre. A captura continua sendo foto + problema + nota opcional.", style = MaterialTheme.typography.bodySmall)
+                    ReportDetailFields(d, enabled = !readOnly && !busy, onChange = { details = it })
+                    d.responsibilityDocument?.let { Text("Documento anexado: ${it.name}", style = MaterialTheme.typography.bodySmall) }
+                    if (d.profile == "technical" && !readOnly && picker != null) TextButton(enabled = !busy, onClick = {
+                        busy = true
+                        scope.launch {
+                            try {
+                                repository.save(inspectionId, d)
+                                val selected = picker.pick("application/pdf", 10L * 1024 * 1024)
+                                if (selected != null) {
+                                    try { details = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
+                                        ResponsibilityDocuments(session.filesDir).attach(session.db, inspectionId, selected.path, selected.name)
+                                    } } finally { okio.FileSystem.SYSTEM.delete(selected.path.toPath(), mustExist = false) }
+                                }
+                            } catch (e: Exception) { error = userErrorMessage(e) }
+                            finally { busy = false }
+                        }
+                    }) { Text("Anexar PDF da ART/RRT (obrigatório)") }
+                    Row {
+                        Checkbox(checked = d.authorAcknowledged, onCheckedChange = { details = d.copy(authorAcknowledged = it) }, enabled = !readOnly && !busy)
+                        Text("Confirmo minha autoria e a revisão dos dados. No uso profissional, confirmo minhas atribuições e a responsabilidade indicada.", modifier = Modifier.weight(1f))
                     }
-                })
+                    Text("O aplicativo registra declarações e integridade dos arquivos. Não consulta registro profissional nem certifica identidade ou aceitação jurídica.", style = MaterialTheme.typography.bodySmall)
+                    if (!readOnly) VaultButton(text = "Salvar dados", enabled = !busy, onClick = {
+                        busy = true
+                        scope.launch {
+                            try { repository.save(inspectionId, d); onClose() }
+                            catch (e: Exception) { error = userErrorMessage(e) }
+                            finally { busy = false }
+                        }
+                    })
+                }
+                TextButton(onClick = onClose, enabled = !busy) { Text(Strings.back) }
             }
-            TextButton(onClick = onClose, enabled = !busy) { Text(Strings.back) }
         }
     }
 }
