@@ -21,6 +21,8 @@ Preserve the [capture flow](capture-flow.md) and
 - `Imóveis`: local Property list, address/nickname, create/rename actions,
   and a Property detail showing its Inspections. Removal follows the
   [Property removal contract](../03-architecture/local_property_removal.md).
+  The Property options menu gives `Nova vistoria`, `Dados` and
+  `Remover` distinct icons and separates removal with a divider.
   Cards use ivory surfaces, soft corners and a fine outline. Search is
   a neutral rounded field with a visible label, search icon, clear action
   and search-keyboard submit. Ativos/Arquivados use a full-width segmented
@@ -42,7 +44,10 @@ Preserve the [capture flow](capture-flow.md) and
   identifies the Property and Inspection status before offering the
   destructive action.
 - `Relatórios`, reached from `Ajustes`: locally finalized Reports, grouped
-  by Property, with open/share/verify actions. SEALED Inspections awaiting a PDF expose
+  by Property. Each ready card separates the Report version from its date
+  and pairs a Pinho `Abrir PDF` action with an outlined `Verificar`
+  action and a labeled delete icon. Sharing is available from the PDF
+  screen. SEALED Inspections awaiting a PDF expose
   `Gerar PDF`, without claiming a Report already exists.
 
 Each destination works without signup, API, internet or payment. Empty

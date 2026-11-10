@@ -48,6 +48,13 @@
   inspection assistant use white icons on Pinho. Review controls use
   the Material interaction layer for hover, focus and press. The photo
   rotation choices wrap when space is limited.
+- The inspection assistant separates missing capture categories by Room
+  from review reminders grouped by photo. Each photo group shows the
+  sequence number, Room and capture category and opens the photo viewer.
+  A reminder asks the user to inspect a photo. A Finding is created only
+  when the user explicitly records a stain or crack. Ignoring a coverage
+  reminder leaves the underlying missing category visible. SEALED
+  Inspections display the assistant in read-only mode.
 - The rules above still hold, except "Camera view is the home screen"
   and "Camera pre-warmed on Home", which described the old embedded
   CameraX preview.

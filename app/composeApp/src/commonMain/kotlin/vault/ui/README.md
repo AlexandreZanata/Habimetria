@@ -42,6 +42,8 @@ Contract: [report authorship](../../../../../../../docs/05-mobile/report_authors
 
 - [review/ReviewCards.kt](review/ReviewCards.kt): status card with seal action and room cards in the Relatório PDF style.
   Sealed inspections have no Rooms destination, so the Cômodos segment scrolls to the rooms section in place.
+- [inspector/InspectorCards.kt](inspector/InspectorCards.kt): missing categories by Room and review reminders grouped by photo.
+- [inspector/InspectorStrings.kt](inspector/InspectorStrings.kt): assistant instructions and explicit actions for each reminder.
 - [review/ReviewInteractionScope.kt](review/ReviewInteractionScope.kt): shared hover, focus and press feedback for Review controls.
 - [report/PdfJourneySegments.kt](report/PdfJourneySegments.kt): contextual navigation shared by Review and Report screens.
 
