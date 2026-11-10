@@ -15,22 +15,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import vault.ui.property.PropertyFeaturedCoverHeight
 
 @Composable
 internal fun PropertyDetailSkeleton() {
-    SkeletonLine(0.58f, 20.dp)
-    SkeletonLine(0.78f, 14.dp)
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        SkeletonLine(0.35f, 16.dp)
-        SkeletonThumbnail(104.dp)
-        SkeletonInlineActions(100, 106)
-        SkeletonLine(0.46f, 16.dp)
-        SkeletonInlineActions(116)
+    SkeletonCard(padding = 12.dp) {
+        SkeletonBlock(Modifier.fillMaxWidth().height(PropertyFeaturedCoverHeight), MaterialTheme.shapes.medium)
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            SkeletonLine(0.58f, 24.dp)
+            SkeletonLine(0.78f, 14.dp)
+        }
+        SkeletonInlineActions(112)
     }
-    SkeletonLine(0.5f, 16.dp)
-    SkeletonInlineActions(74, 112, 74)
-    SkeletonLine(0.42f, 16.dp)
-    SkeletonInlineActions(88)
+    SkeletonAction(height = 56.dp)
+    SkeletonCard {
+        Row(Modifier.heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                SkeletonLine(0.75f, 16.dp)
+                SkeletonLine(0.58f, 12.dp)
+            }
+            SkeletonPill(78.dp, 20.dp)
+        }
+    }
+    SkeletonLine(0.52f, 20.dp)
+    RecordPanelSkeleton()
 }
 
 @Composable

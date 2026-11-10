@@ -38,6 +38,11 @@ Preserve the [capture flow](capture-flow.md) and
   also retain restoration inside the same card. Loading, retry, search-empty
   and archived-empty states stay distinct; management errors are visible
   even when the creation form is closed. No API or persistence changes.
+  Property detail groups a wide cover, address and cover actions in one card.
+  The primary action starts a new Inspection, and an archived Property
+  offers restoration first. Property data can expand for inline editing.
+  History cards show the Inspection type, device creation date and status.
+  Filters appear when the Property has Inspection history.
 - `Vistorias`: local Inspections grouped by Property, with clearly labeled
   `Em andamento` and sealed filters. Visible row actions resume DRAFT or
   open the review of a SEALED Inspection;

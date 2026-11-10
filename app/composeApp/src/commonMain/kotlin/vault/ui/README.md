@@ -43,6 +43,7 @@ Contract: [report authorship](../../../../../../../docs/05-mobile/report_authors
 - [property/PropertyCardMenu.kt](property/PropertyCardMenu.kt): overlaid property options with a full-sized touch target.
 - [property/PropertyCardVisuals.kt](property/PropertyCardVisuals.kt): cover thumbnail and room count chip.
 - [property/PropertyCoverPicker.kt](property/PropertyCoverPicker.kt): durable cover photo pick/capture/remove.
+- [property/PropertyDetailHeader.kt](property/PropertyDetailHeader.kt): wide cover, Property identity and cover actions.
 
 # Review
 

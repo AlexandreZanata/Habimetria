@@ -2,17 +2,25 @@ package vault.ui.property
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import vault.local.db.LocalProperty
@@ -42,65 +50,66 @@ fun PropertyDataSection(
     var saved by rememberSaveable(property.id) { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(property.id) {
-        nickname = property.nickname
-        street = property.street
-        number = property.number
-        complement = property.complement.orEmpty()
-        neighborhood = property.neighborhood
-        saved = false
-    }
-
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        PropertyCoverSection(
-            container = container,
-            propertyId = property.id,
-            photoPath = property.photoPath,
-            onSaved = onSaved,
-        )
-        Text(PropertyStrings.dataTitle, style = MaterialTheme.typography.titleMedium)
-        if (!open) {
-            OutlinedButton(onClick = { open = true }) { Text(PropertyStrings.editData) }
-            return@Column
-        }
-        PropertyAddressForm(
-            nickname, { nickname = it; saved = false },
-            street, { street = it; saved = false },
-            number, { number = it; saved = false },
-            complement, { complement = it; saved = false },
-            neighborhood, { neighborhood = it; saved = false },
-            showNickname = true,
-        )
-        ErrorText(error)
-        if (saved) {
-            Text(
-                PropertyStrings.dataSaved,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.bodyMedium,
+    OutlinedCard(modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        PropertyStrings.dataTitle,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.semantics { heading() },
+                    )
+                    Text(
+                        PropertyStrings.dataHint,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                TextButton(
+                    modifier = Modifier.weight(0.65f, fill = false),
+                    onClick = { open = !open },
+                    enabled = !busy,
+                ) { Text(if (open) PropertyStrings.closeDataEdit else PropertyStrings.editData) }
+            }
+            if (saved) RemovalFeedback(PropertyStrings.dataSaved)
+            if (!open) return@Column
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            PropertyAddressForm(
+                nickname, { nickname = it; saved = false },
+                street, { street = it; saved = false },
+                number, { number = it; saved = false },
+                complement, { complement = it; saved = false },
+                neighborhood, { neighborhood = it; saved = false },
+                showNickname = true,
+            )
+            ErrorText(error)
+            VaultButton(
+                text = if (busy) Strings.saving else Strings.save,
+                onClick = {
+                    busy = true
+                    error = null
+                    scope.launch {
+                        try {
+                            container.local?.repository?.updatePropertyDetails(
+                                property.id, nickname, street, number,
+                                complement.ifBlank { null }, neighborhood,
+                            )
+                            saved = true
+                            open = false
+                            onSaved()
+                        } catch (e: Exception) {
+                            error = userErrorMessage(e)
+                        } finally {
+                            busy = false
+                        }
+                    }
+                },
+                enabled = !busy && isPropertyFormValid(street, number, neighborhood),
             )
         }
-        VaultButton(
-            text = if (busy) Strings.saving else Strings.save,
-            onClick = {
-                busy = true
-                error = null
-                scope.launch {
-                    try {
-                        container.local?.repository?.updatePropertyDetails(
-                            property.id, nickname, street, number,
-                            complement.ifBlank { null }, neighborhood,
-                        )
-                        saved = true
-                        open = false
-                        onSaved()
-                    } catch (e: Exception) {
-                        error = userErrorMessage(e)
-                    } finally {
-                        busy = false
-                    }
-                }
-            },
-            enabled = !busy && isPropertyFormValid(street, number, neighborhood),
-        )
     }
 }

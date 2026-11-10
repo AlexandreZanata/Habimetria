@@ -56,6 +56,8 @@ Drives completeness and perceived protection.
 ## Local PDF profiles
 
 - Property detail lets the user start a rental or technical Inspection.
+  The type dialog presents each profile with its description and requires
+  an explicit selection followed by confirmation to start.
   Technical Inspection owns Property directly and has no dummy Tenancy.
 - Review includes optional report details for rental use. Technical use
   requires author/council, scope, methods, limitations, analysis,
