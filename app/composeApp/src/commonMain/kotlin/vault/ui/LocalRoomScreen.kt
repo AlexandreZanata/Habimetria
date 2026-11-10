@@ -31,6 +31,7 @@ import vault.rooms.RoomCoverage
 import vault.ui.journey.JourneyShortcuts
 import vault.ui.journey.PhotoViewer
 import vault.ui.journey.RoomCaptureControls
+import vault.ui.journey.RoomCaptureSkeleton
 
 // LocalRoomScreen: guided capture with per-photo categories, offline.
 // Every photo binds a shot category at capture time; coverage counts
@@ -182,8 +183,7 @@ fun LocalRoomScreen(
             JourneyShortcuts(onRooms = onRoomsShortcut, onReview = onReview)
             val showLoading = rememberLoadingVisible(!loaded)
             if (showLoading) {
-                ProgressStatus(true)
-                RoomCaptureSkeleton()
+                LoadingSkeleton { RoomCaptureSkeleton() }
             } else if (!loaded) {
                 // Grace period: data is on its way, paint nothing yet.
             } else {

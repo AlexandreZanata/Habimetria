@@ -29,6 +29,7 @@ import vault.ui.journey.RoomEmptyState
 import vault.ui.journey.RoomListRow
 import vault.ui.journey.RoomRenameDialog
 import vault.ui.journey.RoomSetupForm
+import vault.ui.journey.RoomRowSkeleton
 
 @Composable
 fun LocalRoomsScreen(
@@ -92,7 +93,7 @@ fun LocalRoomsScreen(
 
     LaunchedEffect(inspectionId) { refresh() }
 
-    val showLoading = rememberLoadingVisible(rooms == null)
+    val showLoading = rememberLoadingVisible(rooms == null && error == null)
 
     ScreenColumn {
         LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -116,10 +117,7 @@ fun LocalRoomsScreen(
             }
             val list = rooms.orEmpty()
             if (showLoading) {
-                item { ProgressStatus(true) }
-                item { RoomRowSkeleton() }
-                item { RoomRowSkeleton() }
-                item { RoomRowSkeleton() }
+                item(key = "loading") { LoadingSkeleton { repeat(3) { RoomRowSkeleton() } } }
             } else if (rooms != null && list.isEmpty()) {
                 item { RoomEmptyState() }
             } else if (list.isNotEmpty()) {

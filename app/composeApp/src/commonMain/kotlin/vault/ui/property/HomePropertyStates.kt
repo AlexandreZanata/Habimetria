@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
@@ -22,7 +23,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import vault.local.PropertyOverview
 import vault.ui.ErrorText
-import vault.ui.ProgressStatus
+import vault.ui.LoadingSkeleton
 import vault.ui.RecordPanel
 import vault.ui.PropertyCardSkeleton
 import vault.ui.Strings
@@ -42,7 +43,7 @@ internal fun LazyListScope.homePropertyItems(
 ) {
     item(key = "properties-header") {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp).heightIn(min = 48.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -78,8 +79,9 @@ internal fun LazyListScope.homePropertyItems(
             }
         }
         showLoading -> {
-            item(key = "properties-progress") { ProgressStatus(true) }
-            item(key = "properties-skeleton") { PropertyCardSkeleton() }
+            item(key = "properties-skeleton") {
+                LoadingSkeleton { PropertyCardSkeleton(featured = true) }
+            }
         }
         rows == null -> Unit
         rows.isEmpty() -> item(key = "properties-empty") {

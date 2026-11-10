@@ -33,7 +33,6 @@ import vault.ui.review.ReviewOptionSkeleton
 import vault.ui.review.ReviewRoomCard
 import vault.ui.review.ReviewRoomSkeleton
 import vault.ui.review.ReviewStatusCard
-import vault.ui.review.ReviewStatusSkeleton
 
 // Index of the rooms section header in the screen list: status card is 0.
 private const val ROOMS_HEADER_INDEX = 1
@@ -109,15 +108,15 @@ fun LocalReviewScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             if (showLoading) {
-                item(key = "loading") { ProgressStatus(true) }
-                item(key = "status-skeleton") { ReviewStatusSkeleton() }
-                item(key = "rooms-header-skeleton") {
-                    PdfSectionHeader(Strings.rooms, Strings.reviewRoomsBody)
+                item(key = "loading") {
+                    LoadingSkeleton {
+                        RecordPanelSkeleton(featured = true)
+                        SkeletonLine(0.33f, 20.dp)
+                        SkeletonLine(0.58f, 14.dp)
+                        ReviewRoomSkeleton()
+                        ReviewOptionSkeleton()
+                    }
                 }
-                item(key = "room-skeleton-1") { ReviewRoomSkeleton() }
-                item(key = "room-skeleton-2") { ReviewRoomSkeleton() }
-                item(key = "options-skeleton") { ReviewOptionSkeleton() }
-                item(key = "options-skeleton-2") { ReviewOptionSkeleton() }
                 return@LazyColumn
             } else if (!loaded) {
                 // Grace period: data is on its way, paint nothing yet.

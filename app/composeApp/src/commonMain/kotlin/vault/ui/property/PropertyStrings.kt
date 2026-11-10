@@ -24,6 +24,7 @@ object PropertyStrings {
     const val clearSearch = "Limpar busca"
     const val openProperty = "Abrir imóvel"
     const val noPropertyMatch = "Nenhum imóvel encontrado para esta busca."
+    const val propertyNotFound = "Imóvel não encontrado neste dispositivo."
     const val closeCreateForm = "Fechar cadastro"
     const val deleteTitle = "Excluir imóvel?"
     const val deleteBody =

@@ -32,7 +32,7 @@ import vault.local.STATUS_SEALED
 import vault.ui.AppContainer
 import vault.ui.ErrorText
 import vault.ui.InspectionRowSkeleton
-import vault.ui.ProgressStatus
+import vault.ui.LoadingSkeleton
 import vault.ui.RecordPanel
 import vault.ui.Strings
 import vault.ui.rememberLoadingVisible
@@ -139,12 +139,9 @@ fun InspectionListScreen(
                 }
             }
             rows == null && showLoading -> {
-                item {
-                    ProgressStatus(true)
-                    InspectionRowSkeleton()
+                item(key = "loading") {
+                    LoadingSkeleton { repeat(3) { InspectionRowSkeleton() } }
                 }
-                item { InspectionRowSkeleton() }
-                item { InspectionRowSkeleton() }
             }
             rows == null -> Unit
             visible.isEmpty() -> {

@@ -2,7 +2,6 @@ package vault.ui.property
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -20,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -30,10 +28,8 @@ import vault.local.db.LocalInspection
 import vault.local.db.LocalProperty
 import vault.ui.AppContainer
 import vault.ui.ErrorText
-import vault.ui.InspectionRowSkeleton
-import vault.ui.ProgressStatus
-import vault.ui.SkeletonLine
-import vault.ui.SkeletonThumbnail
+import vault.ui.LoadingSkeleton
+import vault.ui.PropertyDetailSkeleton
 import vault.ui.Strings
 import vault.ui.inspection.InspectionStatusFilters
 import vault.ui.rememberLoadingVisible
@@ -64,6 +60,10 @@ fun PropertyDetailScreen(
         val repo = local?.repository ?: return
         try {
             property = repo.getProperty(propertyId)
+            if (property == null) {
+                loadError = PropertyStrings.propertyNotFound
+                return
+            }
             inspections = repo.inspectionsForProperty(propertyId, limit = 50)
             loadError = null
         } catch (e: Exception) {
@@ -73,7 +73,7 @@ fun PropertyDetailScreen(
 
     LaunchedEffect(local, propertyId) { load() }
 
-    val showLoading = rememberLoadingVisible(property == null || inspections == null)
+    val showLoading = rememberLoadingVisible((property == null || inspections == null) && loadError == null)
 
     if (chooseProfile) InspectionProfileDialog(container, propertyId, onNewInspection) { chooseProfile = false }
 
@@ -95,24 +95,7 @@ fun PropertyDetailScreen(
                 ErrorText(loadError)
                 OutlinedButton(onClick = { scope.launch { load() } }) { Text(Strings.retry) }
             }
-            showLoading -> {
-                ProgressStatus(true)
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    SkeletonThumbnail(88.dp)
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        SkeletonLine(0.6f, 22.dp)
-                        SkeletonLine(0.85f)
-                    }
-                }
-                InspectionRowSkeleton()
-                InspectionRowSkeleton()
-            }
+            showLoading -> LoadingSkeleton { PropertyDetailSkeleton() }
             property == null || inspections == null -> {
                 // Grace period: data is on its way, paint nothing yet.
             }

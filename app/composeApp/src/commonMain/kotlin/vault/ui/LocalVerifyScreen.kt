@@ -70,11 +70,13 @@ fun LocalVerifyScreen(session: LocalSession, inspectionId: String, picker: Local
             }, enabled = !busy)
             Text("Use o ZIP original exportado pelo app. ZIP recomprimido por outros programas não é suportado.", style = MaterialTheme.typography.bodySmall)
             documentName?.let { Text(it, style = MaterialTheme.typography.titleMedium) }
-            if (busy && verdict == null) {
-                ProgressStatus(true)
-                SkeletonLine(0.6f, 20.dp)
-                SkeletonLine(0.9f)
-                SkeletonLine(0.7f)
+            if (rememberLoadingVisible(busy && verdict == null)) {
+                LoadingSkeleton(spacing = 10.dp) {
+                    SkeletonLine(0.57f, 16.dp)
+                    SkeletonLine(0.82f, 14.dp)
+                    repeat(3) { SkeletonLine(0.48f, 14.dp) }
+                    SkeletonLine(0.9f, 14.dp)
+                }
             }
             verdict?.let { VerdictBlock(it) }
             verdict?.declarations?.distinctBy { it.keyId }?.filter { it.keyId != importedKey }?.forEach { declaration ->

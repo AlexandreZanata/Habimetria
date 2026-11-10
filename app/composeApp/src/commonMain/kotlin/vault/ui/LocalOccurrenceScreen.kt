@@ -88,19 +88,15 @@ fun LocalOccurrenceScreen(
             enabled = !busy && title.trim().isNotEmpty(),
         )
         val list = occurrences.orEmpty()
-        val showLoading = rememberLoadingVisible(occurrences == null)
-        if (showLoading) {
-            ProgressStatus(true)
-            SkeletonLine(0.5f, 20.dp)
-            SkeletonLine(0.3f)
-            SkeletonLine(0.5f, 20.dp)
-            SkeletonLine(0.3f)
-        } else if (occurrences == null) {
-            // Grace period: data is on its way, paint nothing yet.
-        } else if (list.isEmpty()) {
-            BodyText(Strings.occurrenceEmpty)
-        }
+        val showLoading = rememberLoadingVisible(occurrences == null && error == null)
         LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (showLoading) {
+                item(key = "loading") {
+                    LoadingSkeleton(spacing = 8.dp) { repeat(2) { OccurrenceRowSkeleton() } }
+                }
+            } else if (occurrences != null && list.isEmpty()) {
+                item(key = "empty") { BodyText(Strings.occurrenceEmpty) }
+            }
             items(list, key = { it.id }) { occurrence ->
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(occurrence.title, style = MaterialTheme.typography.titleMedium)

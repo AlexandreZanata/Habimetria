@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import vault.local.*
 import vault.local.db.LocalManifest
 import vault.local.db.LocalReport
+import vault.ui.review.ReviewOptionSkeleton
 
 @Composable
 fun LocalPdfScreen(
@@ -97,11 +98,10 @@ fun LocalPdfScreen(
             val current = report
             val showLoading = rememberLoadingVisible(!loaded)
             if (showLoading) {
-                vault.ui.ProgressStatus(true)
-                vault.ui.report.PdfStatusSkeleton()
-                vault.ui.report.PdfOptionSkeleton()
-                vault.ui.report.PdfOptionSkeleton()
-                vault.ui.report.PdfOptionSkeleton()
+                LoadingSkeleton {
+                    RecordPanelSkeleton(featured = true)
+                    repeat(3) { ReviewOptionSkeleton() }
+                }
             }
             if (loaded) {
             val ready = current?.status == REPORT_READY && verification?.allOk() == true

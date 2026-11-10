@@ -73,6 +73,18 @@ Both schemes use Pinho, Marfim and Sálvia for the inverse feature panels.
 - [Architectural elevation](home_artwork.md): decorative drawing for Home
   and Property cover fallbacks.
 
+## Loading states
+
+- Keep the shell and available content in place. Skeletons appear only
+  in sections awaiting data, after a 150 ms threshold, and clear when
+  the read completes, fails, or returns an empty result.
+- Match the loaded layout's card shapes, spacing, and media and control
+  dimensions. Use theme surface roles for the shimmer, including inverse
+  surfaces, and share one animation phase across each loading group.
+- Expose one accessible loading indicator per group. Placeholders are
+  decorative and have no actions. Keep progress indicators for operations
+  the user started, such as saving, exporting, and uploading.
+
 ## Adaptive shell
 
 - In light mode the masthead and compact bottom bar use the same Pinho

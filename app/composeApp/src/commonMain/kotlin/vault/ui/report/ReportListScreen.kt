@@ -32,9 +32,10 @@ import vault.local.REPORT_READY
 import vault.local.ReportOverview
 import vault.ui.AppContainer
 import vault.ui.ErrorText
-import vault.ui.InspectionRowSkeleton
-import vault.ui.ProgressStatus
+import vault.ui.ReportRowSkeleton
+import vault.ui.LoadingSkeleton
 import vault.ui.RecordPanel
+import vault.ui.SkeletonLine
 import vault.ui.Strings
 import vault.ui.rememberLoadingVisible
 import vault.ui.VaultTextField
@@ -78,7 +79,7 @@ fun ReportListScreen(
 
     LaunchedEffect(local) { load() }
 
-    val showLoading = rememberLoadingVisible(reports == null || pending == null)
+    val showLoading = rememberLoadingVisible((reports == null || pending == null) && loadError == null)
 
     fun matches(label: String): Boolean {
         val q = query.trim().lowercase()
@@ -117,12 +118,13 @@ fun ReportListScreen(
                 }
             }
             showLoading -> {
-                item {
-                    ProgressStatus(true)
-                    InspectionRowSkeleton()
+                item(key = "loading") {
+                    LoadingSkeleton {
+                        SkeletonLine(0.48f, 20.dp)
+                        SkeletonLine(0.39f, 18.dp)
+                        repeat(3) { ReportRowSkeleton() }
+                    }
                 }
-                item { InspectionRowSkeleton() }
-                item { InspectionRowSkeleton() }
             }
             reports == null || pending == null -> {
                 // Grace period: data is on its way, paint nothing yet.

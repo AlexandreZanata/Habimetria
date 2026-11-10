@@ -88,20 +88,20 @@ fun HomeScreen(
         }
     }
 
-    val showLoading = rememberLoadingVisible(local == null || cards == null)
+    val showLoading = rememberLoadingVisible(cards == null && loadError == null)
     LazyColumn(
         modifier = Modifier.fillMaxSize().imePadding(),
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
+        item(key = "hero") {
+            HomeHeroBanner(
+                enabled = local != null && !busy,
+                showLocalMode = container.syncMode == SyncMode.LOCAL_ONLY,
+                onNewInspection = onNewInspection,
+            )
+        }
         if (local != null) {
-            item(key = "hero") {
-                HomeHeroBanner(
-                    enabled = !busy,
-                    showLocalMode = container.syncMode == SyncMode.LOCAL_ONLY,
-                    onNewInspection = onNewInspection,
-                )
-            }
             error?.let { message -> item(key = "action-error") { ErrorText(message) } }
             feedback?.let { message -> item(key = "feedback") { RemovalFeedback(message) } }
             homePropertyItems(
@@ -117,9 +117,7 @@ fun HomeScreen(
                 onRemove = { removing = it },
             )
         } else if (showLoading) {
-            item { ProgressStatus(true) }
-            item { HomeBannerSkeleton() }
-            item { PropertyCardSkeleton() }
+            item { LoadingSkeleton { PropertyCardSkeleton(featured = true) } }
         }
     }
 

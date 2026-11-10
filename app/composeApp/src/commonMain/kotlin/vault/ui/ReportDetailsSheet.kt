@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import vault.local.*
 import okio.Path.Companion.toPath
@@ -15,18 +16,36 @@ import okio.Path.Companion.toPath
 fun ReportDetailsSheet(session: LocalSession, inspectionId: String, readOnly: Boolean, picker: LocalFilePicker?, onClose: () -> Unit) {
     val scope = rememberCoroutineScope()
     val repository = remember(session) { ReportDetailsRepository(session.db) }
-    var details by remember { mutableStateOf<ReportDetails?>(null) }
-    var error by remember { mutableStateOf<String?>(null) }
+    var details by remember(repository, inspectionId, readOnly) { mutableStateOf<ReportDetails?>(null) }
+    var error by remember(repository, inspectionId, readOnly) { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
-    LaunchedEffect(inspectionId) {
+    var loading by remember(repository, inspectionId, readOnly) { mutableStateOf(true) }
+    LaunchedEffect(repository, inspectionId, readOnly) {
         try {
             details = if (readOnly) repository.frozen(inspectionId) else repository.get(inspectionId)
-        } catch (e: Exception) { error = userErrorMessage(e) }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            error = userErrorMessage(e)
+        } finally {
+            loading = false
+        }
     }
+    val showLoading = rememberLoadingVisible(loading)
     VaultFormDialog(onDismissRequest = { if (!busy) onClose() }) {
         Column(Modifier.padding(20.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text("Dados do relatório", style = MaterialTheme.typography.titleLarge)
             ErrorText(error)
+            if (showLoading) {
+                LoadingSkeleton(spacing = 10.dp) {
+                    SkeletonLine(0.55f, 16.dp)
+                    SkeletonLine(0.91f, 14.dp)
+                    SkeletonLine(0.44f, 16.dp)
+                    repeat(3) { SkeletonAction(height = 56.dp) }
+                    SkeletonInlineActions(80, 114)
+                    repeat(3) { SkeletonAction(height = 56.dp) }
+                }
+            }
             details?.let { d ->
                 Text(if (d.profile == "technical") "Vistoria profissional" else "Vistoria de locação")
                 Text("Estes dados serão congelados no lacre. A captura continua sendo foto + problema + nota opcional.", style = MaterialTheme.typography.bodySmall)

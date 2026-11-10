@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 import vault.local.PropertyOverview
 import vault.ui.AppContainer
 import vault.ui.ErrorText
-import vault.ui.ProgressStatus
+import vault.ui.LoadingSkeleton
 import vault.ui.PropertyCardSkeleton
 import vault.ui.RecordPanel
 import vault.ui.Strings
@@ -148,12 +148,9 @@ fun PropertyListScreen(
                 }
             }
             showLoading -> {
-                item {
-                    ProgressStatus(true)
-                    PropertyCardSkeleton()
+                item(key = "loading") {
+                    LoadingSkeleton { repeat(3) { PropertyCardSkeleton() } }
                 }
-                item { PropertyCardSkeleton() }
-                item { PropertyCardSkeleton() }
             }
             cards == null -> {
                 // Grace period: data is on its way, paint nothing yet.

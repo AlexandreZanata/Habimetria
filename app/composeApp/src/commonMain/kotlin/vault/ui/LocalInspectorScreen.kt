@@ -110,7 +110,14 @@ fun LocalInspectorScreen(session: LocalSession, inspectionId: String) {
                     onAction = { perform(checking = true) { session.inspector.runInspection(inspectionId) } },
                 )
             }
-            if (showLoading) item(key = "loading") { ProgressStatus(true) }
+            if (showLoading) {
+                item(key = "loading") {
+                    LoadingSkeleton {
+                        SkeletonLine(0.46f, 20.dp)
+                        repeat(2) { InspectorPhotoSkeleton() }
+                    }
+                }
+            }
             if (error != null && current == null) {
                 item(key = "retry") {
                     OutlinedButton(onClick = { perform() }, enabled = !busy) { Text(Strings.retry) }

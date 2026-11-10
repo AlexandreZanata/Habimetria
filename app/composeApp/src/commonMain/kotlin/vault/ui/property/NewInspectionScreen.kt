@@ -23,7 +23,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import vault.ui.AddressFormSkeleton
 import vault.ui.AppContainer
+import vault.ui.LoadingSkeleton
+import vault.ui.rememberLoadingVisible
 import vault.ui.BrandWhite
 import vault.ui.ErrorText
 import vault.ui.ScreenTitle
@@ -50,6 +53,7 @@ fun NewInspectionScreen(
     var error by rememberSaveable { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     val local = container.local
+    var prefillLoading by remember(local) { mutableStateOf(local != null) }
 
     LaunchedEffect(local) {
         try {
@@ -60,9 +64,12 @@ fun NewInspectionScreen(
                 if (neighborhood.isBlank() && it.neighborhood.isNotBlank()) neighborhood = it.neighborhood
             }
         } catch (_: Exception) {
+        } finally {
+            prefillLoading = false
         }
     }
 
+    val showLoading = rememberLoadingVisible(prefillLoading)
     Column(
         modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 16.dp).imePadding()
             .verticalScroll(rememberScrollState()),
@@ -84,11 +91,15 @@ fun NewInspectionScreen(
                     label = { Text(PropertyStrings.technicalMode) },
                 )
             }
-            PropertyAddressForm(
-                nickname, { nickname = it }, street, { street = it },
-                number, { number = it }, complement, { complement = it },
-                neighborhood, { neighborhood = it }, showNickname = true,
-            )
+            if (showLoading) {
+                LoadingSkeleton { AddressFormSkeleton() }
+            } else if (!prefillLoading) {
+                PropertyAddressForm(
+                    nickname, { nickname = it }, street, { street = it },
+                    number, { number = it }, complement, { complement = it },
+                    neighborhood, { neighborhood = it }, showNickname = true,
+                )
+            }
         }
         ErrorText(error)
         if (local != null) {
@@ -109,7 +120,7 @@ fun NewInspectionScreen(
                         }
                     }
                 },
-                enabled = !busy && isPropertyFormValid(street, number, neighborhood),
+                enabled = !busy && !prefillLoading && isPropertyFormValid(street, number, neighborhood),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.inverseSurface,
                     contentColor = BrandWhite,

@@ -66,13 +66,13 @@ fun LocalSealScreen(
         vault.ui.journey.JourneyShortcuts(onRooms = onRoomsShortcut, onReview = onReviewShortcut)
         BodyText(Strings.sealWarning)
         val current = eligibility
-        val showLoading = rememberLoadingVisible(current == null)
+        val showLoading = rememberLoadingVisible(current == null && error == null)
         if (showLoading) {
-            ProgressStatus(true)
-            SkeletonLine(0.8f)
-            SkeletonLine(0.6f, 20.dp)
-            SkeletonLine(0.9f)
-            SkeletonLine(1f, 52.dp)
+            LoadingSkeleton {
+                SkeletonLine(0.82f, 16.dp)
+                SkeletonLine(0.73f, 14.dp)
+                SkeletonLine(0.89f, 14.dp)
+            }
         }
         if (current != null) {
             Text("${Strings.rooms}: ${current.rooms} · ${Strings.evidence}: ${current.evidences} · ${Strings.findingsList}: ${current.findings}")

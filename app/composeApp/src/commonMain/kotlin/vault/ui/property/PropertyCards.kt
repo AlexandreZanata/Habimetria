@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -28,6 +29,8 @@ import vault.local.PropertyOverview
 import vault.ui.StatusBadge
 import vault.ui.Strings
 import vault.ui.VaultButton
+
+internal val PropertyFeaturedCoverHeight = 144.dp
 
 // Home uses a wide cover; management keeps the denser side-by-side row.
 @Composable
@@ -64,10 +67,13 @@ fun PropertyCardView(
                 )
             }
             if (featured) {
-                PropertyCover(property.photoPath, Modifier.fillMaxWidth().height(144.dp))
+                PropertyCover(property.photoPath, Modifier.fillMaxWidth().height(PropertyFeaturedCoverHeight))
                 metadata()
             } else {
-                PropertyCardRow(property.photoPath, metadata)
+                PropertyCardRow(
+                    cover = { PropertyCover(property.photoPath, Modifier.fillMaxSize()) },
+                    content = metadata,
+                )
             }
             overview.latestDraftId?.let { draftId ->
                 VaultButton(
