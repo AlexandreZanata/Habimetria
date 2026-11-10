@@ -27,6 +27,8 @@ section), `PropertyForm` (address form, creation block),
 (photo-led Home cards and compact management rows),
 `HomePropertyStates` (shared loading/error/empty), `PropertyActions`
 (creation helpers), `PropertyStrings` (feature copy).
+`HomeBannerPreference` (`shared/.../vault/local/HomeBannerPreference.kt`)
+stores the device-local hero visibility shared by Home and Settings.
 Journey destinations read bulk overviews from `LocalOverviewRepository`
 (`shared/.../vault/local/LocalOverviews.kt`, queries in `ListingDaos`):
 `vault/ui/inspection/` (`InspectionListScreen` with Em andamento/Selada

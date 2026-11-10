@@ -34,6 +34,7 @@ Contract: [report authorship](../../../../../../../docs/05-mobile/report_authors
 # Home and properties
 
 - [property/HomeHeroBanner.kt](property/HomeHeroBanner.kt): compact mint banner with short native copy, Brazilian house art and Nova vistoria.
+- [property/HomeBannerState.kt](property/HomeBannerState.kt): shared Home and Settings state for the durable banner preference.
 - [property/PropertyCards.kt](property/PropertyCards.kt): property card rows driven by overviews.
 - [property/PropertyListCard.kt](property/PropertyListCard.kt): integrated open/restore actions for property management.
 - [property/PropertyListEmptyState.kt](property/PropertyListEmptyState.kt): distinct search, archive and first-use empty messages.

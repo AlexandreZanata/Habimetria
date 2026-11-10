@@ -20,6 +20,7 @@ import vault.local.NavigationProgress
 import vault.local.PropertyOverview
 import vault.local.SyncMode
 import vault.ui.property.HomeHeroBanner
+import vault.ui.property.HomeNewInspectionAction
 import vault.ui.property.homePropertyItems
 import vault.ui.property.PropertyRemovalHost
 import vault.ui.property.RemovalFeedback
@@ -34,6 +35,9 @@ import vault.ui.property.startOnProperty
 @Composable
 fun HomeScreen(
     container: AppContainer,
+    showBanner: Boolean?,
+    bannerError: String?,
+    onHideBanner: (() -> Unit)?,
     onReady: (inspectionId: String) -> Unit,
     onNewInspection: () -> Unit,
     onOpenDetail: (propertyId: String) -> Unit,
@@ -94,13 +98,21 @@ fun HomeScreen(
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        item(key = "hero") {
-            HomeHeroBanner(
-                enabled = local != null && !busy,
-                showLocalMode = container.syncMode == SyncMode.LOCAL_ONLY,
-                onNewInspection = onNewInspection,
-            )
+        if (showBanner != null) {
+            item(key = "new-inspection") {
+                if (showBanner) {
+                    HomeHeroBanner(
+                        enabled = local != null && !busy,
+                        showLocalMode = container.syncMode == SyncMode.LOCAL_ONLY,
+                        onNewInspection = onNewInspection,
+                        onDismiss = onHideBanner,
+                    )
+                } else {
+                    HomeNewInspectionAction(enabled = local != null && !busy, onClick = onNewInspection)
+                }
+            }
         }
+        bannerError?.let { message -> item(key = "banner-error") { ErrorText(message) } }
         if (local != null) {
             error?.let { message -> item(key = "action-error") { ErrorText(message) } }
             feedback?.let { message -> item(key = "feedback") { RemovalFeedback(message) } }

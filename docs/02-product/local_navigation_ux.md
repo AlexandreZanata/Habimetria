@@ -11,6 +11,9 @@ Preserve the [capture flow](capture-flow.md) and
 - `Início`: the shared masthead shows `habimetria` above an
   ivory-and-pine layout. A pine hero pairs the local-mode label and brand signature with a
   decorative architectural elevation and the `Nova vistoria` action.
+  A labeled close button hides the hero and saves the preference on this
+  device across launches. A standalone `Nova vistoria` action takes its place.
+  `Ajustes` can show or hide the hero again through `Banner da tela inicial`.
   `Meus imóveis` follows with a labeled empty state or photo-led cards,
   room counts, status labels and `Continuar` for an open draft. `Ver todos`
   opens `Imóveis`. The Home list composes visible cards on demand.
