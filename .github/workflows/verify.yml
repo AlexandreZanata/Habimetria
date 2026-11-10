@@ -6,6 +6,8 @@ on:
 
 jobs:
   backend:
+    # The protected branch requires the pull request check names.
+    name: ${{ github.event_name == 'pull_request' && 'backend' || 'backend-push' }}
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -34,6 +36,7 @@ jobs:
         working-directory: backend
 
   mobile-linux:
+    name: ${{ github.event_name == 'pull_request' && 'mobile-linux' || 'mobile-linux-push' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
