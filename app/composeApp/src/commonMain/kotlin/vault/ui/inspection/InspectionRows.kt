@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.CheckCircle
@@ -20,7 +18,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.HorizontalDivider
@@ -37,6 +34,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import vault.local.InspectionOverview
 import vault.local.STATUS_SEALED
+import vault.ui.StatusBadge
 import vault.ui.Strings
 import vault.ui.property.PropertyStrings
 
@@ -115,7 +113,7 @@ fun InspectionRow(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                StatusBadge(sealed = sealed)
+                InspectionStatusBadge(sealed = sealed)
             }
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             TextButton(
@@ -133,39 +131,10 @@ fun InspectionRow(
     }
 }
 
-// Status pill: green check for sealed, neutral clock for draft. Icon
-// plus text, so state never depends on color alone.
 @Composable
-private fun StatusBadge(sealed: Boolean) {
-    val container = if (sealed) {
-        MaterialTheme.colorScheme.primaryContainer
-    } else {
-        MaterialTheme.colorScheme.surfaceVariant
-    }
-    val content = if (sealed) {
-        MaterialTheme.colorScheme.onPrimaryContainer
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
-    Surface(
-        shape = RoundedCornerShape(50),
-        color = container,
-        contentColor = content,
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                if (sealed) Icons.Filled.CheckCircle else Icons.Filled.Schedule,
-                contentDescription = null,
-                modifier = Modifier.size(16.dp),
-            )
-            Text(
-                if (sealed) PropertyStrings.sealedLabel else PropertyStrings.draftLabel,
-                style = MaterialTheme.typography.labelLarge,
-            )
-        }
-    }
+internal fun InspectionStatusBadge(sealed: Boolean) {
+    StatusBadge(
+        label = if (sealed) PropertyStrings.sealedLabel else PropertyStrings.draftLabel,
+        icon = if (sealed) Icons.Filled.CheckCircle else Icons.Filled.Schedule,
+    )
 }

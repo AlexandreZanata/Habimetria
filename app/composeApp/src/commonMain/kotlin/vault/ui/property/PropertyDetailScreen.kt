@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -36,6 +35,7 @@ import vault.ui.ProgressStatus
 import vault.ui.SkeletonLine
 import vault.ui.SkeletonThumbnail
 import vault.ui.Strings
+import vault.ui.inspection.InspectionStatusFilters
 import vault.ui.rememberLoadingVisible
 import vault.ui.userErrorMessage
 
@@ -157,23 +157,7 @@ fun PropertyDetailScreen(
                     }
                 }
                 Text(PropertyStrings.history, style = MaterialTheme.typography.titleMedium)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(
-                        selected = filter == "ALL",
-                        onClick = { filter = "ALL" },
-                        label = { Text(PropertyStrings.filterAll) },
-                    )
-                    FilterChip(
-                        selected = filter == "DRAFT",
-                        onClick = { filter = "DRAFT" },
-                        label = { Text(PropertyStrings.filterDraft) },
-                    )
-                    FilterChip(
-                        selected = filter == "SEALED",
-                        onClick = { filter = "SEALED" },
-                        label = { Text(PropertyStrings.filterSealed) },
-                    )
-                }
+                InspectionStatusFilters(selected = filter, onSelect = { filter = it })
                 if (visible.isEmpty()) {
                     Text(
                         if (inspections!!.isEmpty()) PropertyStrings.noInspections

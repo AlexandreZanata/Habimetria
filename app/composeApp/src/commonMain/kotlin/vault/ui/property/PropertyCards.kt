@@ -10,7 +10,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import vault.local.PropertyOverview
+import vault.ui.StatusBadge
 import vault.ui.Strings
 import vault.ui.VaultButton
 
@@ -131,12 +135,11 @@ private fun PropertyCardMetadata(
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             RoomsChip(overview.totalRooms)
-            val status = when {
-                overview.property.archived -> PropertyStrings.archivedBadge
-                overview.latestDraftId != null -> PropertyStrings.filterDraft
-                else -> Strings.activeLabel
+            when {
+                overview.property.archived -> StatusBadge(PropertyStrings.archivedBadge, Icons.Filled.Archive)
+                overview.latestDraftId != null -> StatusBadge(PropertyStrings.draftLabel, Icons.Filled.Schedule)
+                else -> StatusBadge(Strings.activeLabel, Icons.Filled.CheckCircle)
             }
-            StatusChip(status)
         }
     }
 }

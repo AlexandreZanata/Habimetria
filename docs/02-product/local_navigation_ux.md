@@ -50,6 +50,8 @@ No new domain entity is introduced by a destination or filter.
 
 - One shared masthead on every app screen. Home carries the brand lockup.
   Other screens show a title and Property or Room context when applicable.
+  In light mode the masthead uses a pine background with white text and
+  icons.
 - Global screens have no redundant Back button. Detail screens have one
   labeled Back control; device Back/swipe follows the same hierarchy.
 - Compact windows use a bottom bar with four icons and always-visible
@@ -91,6 +93,8 @@ task action per screen; navigation controls are secondary, consistent chrome.
 - The [design system](../05-mobile/design-system.md) defines ivory
   backgrounds, pine action and title roles, graphite text and sage
   selection. Light and dark roles follow the system setting.
+- In light mode Property and Inspection badges use white labels and
+  icons on pine. Selected status filters reverse the pair.
 - Forms use labeled outlined fields. Room capture highlights the category
   picker and shutter. Draft review and ready Reports use an emphasized
   action panel for sealing and sharing respectively.

@@ -1,5 +1,6 @@
 package vault.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -108,7 +109,11 @@ private fun VaultMasthead(
     onBack: () -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
-    Column(Modifier.background(colors.background)) {
+    val dark = LocalHabimetriaDarkTheme.current
+    val background = if (dark) colors.background else colors.inverseSurface
+    val foreground = if (dark) colors.primary else BrandWhite
+    val subtitleColor = if (dark) colors.onSurfaceVariant else BrandWhite
+    Column(Modifier.background(background)) {
         Row(
             modifier = Modifier.fillMaxWidth()
                 .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
@@ -117,13 +122,17 @@ private fun VaultMasthead(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (showWordmark) {
-                HabimetriaWordmark(Modifier.weight(1f))
+                HabimetriaWordmark(Modifier.weight(1f), tint = foreground)
                 if (localMode) {
-                    Surface(color = colors.surfaceVariant, shape = CircleShape) {
+                    Surface(
+                        color = if (dark) colors.surfaceVariant else background,
+                        contentColor = subtitleColor,
+                        shape = CircleShape,
+                        border = if (dark) null else BorderStroke(1.dp, BrandWhite),
+                    ) {
                         Text(
                             Strings.localModeLabel,
                             style = MaterialTheme.typography.labelSmall,
-                            color = colors.onSurfaceVariant,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                         )
                     }
@@ -131,20 +140,20 @@ private fun VaultMasthead(
             } else {
                 if (canGoBack) {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, Strings.back, tint = colors.primary)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, Strings.back, tint = foreground)
                     }
                 } else {
                     Surface(
                         color = colors.inverseSurface,
                         shape = MaterialTheme.shapes.small,
                     ) {
-                        HabimetriaMark(size = 36.dp, tint = colors.inverseOnSurface)
+                        HabimetriaMark(size = 36.dp, tint = if (dark) colors.inverseOnSurface else BrandWhite)
                     }
                 }
                 Column(Modifier.weight(1f).padding(vertical = 8.dp)) {
                     Text(
                         title,
-                        color = colors.primary,
+                        color = foreground,
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.semantics { heading() },
                     )
@@ -154,7 +163,7 @@ private fun VaultMasthead(
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.bodySmall,
-                            color = colors.onSurfaceVariant,
+                            color = subtitleColor,
                         )
                     }
                 }

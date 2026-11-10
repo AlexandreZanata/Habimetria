@@ -95,8 +95,9 @@ App:
   panel uses a Marfim button so its action remains distinct.
 - Background: Marfim. Cards use ivory tints and fine outlines. Sálvia
   supports selection and secondary details.
-- In light mode, bottom navigation pairs a Pinho bar with white labels
-  and icons. The selected destination uses Pinho ink on a white indicator.
+- In light mode, the masthead, bottom navigation and status badges use
+  Pinho with white labels and icons. Selected destinations and status
+  filters use Pinho ink on white.
 
 Report cover:
 

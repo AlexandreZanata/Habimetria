@@ -1,6 +1,8 @@
 # Brand and report authorship UI
 
 - [brand/HabimetriaBrand.kt](brand/HabimetriaBrand.kt): geometric H mark and lowercase wordmark from the brand vectors.
+- [StatusBadge.kt](StatusBadge.kt): shared status badges for Properties and Inspections.
+- [inspection/InspectionStatusFilters.kt](inspection/InspectionStatusFilters.kt): status filters for the Inspection list and Property history.
 
 # Report authorship UI
 
@@ -30,7 +32,7 @@ Contract: [report authorship](../../../../../../../docs/05-mobile/report_authors
 - [property/PropertySearchField.kt](property/PropertySearchField.kt): rounded labeled search with clear and keyboard actions.
 - [property/PropertyCardRow.kt](property/PropertyCardRow.kt): text-first measurement with the cover constrained to the metadata height.
 - [property/PropertyCardMenu.kt](property/PropertyCardMenu.kt): overlaid property options with a full-sized touch target.
-- [property/PropertyCardVisuals.kt](property/PropertyCardVisuals.kt): cover thumbnail and rooms/status chips.
+- [property/PropertyCardVisuals.kt](property/PropertyCardVisuals.kt): cover thumbnail and room count chip.
 - [property/PropertyCoverPicker.kt](property/PropertyCoverPicker.kt): durable cover photo pick/capture/remove.
 
 # Review

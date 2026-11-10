@@ -2,7 +2,6 @@ package vault.ui.inspection
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,7 +11,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Assignment
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -39,7 +37,6 @@ import vault.ui.RecordPanel
 import vault.ui.Strings
 import vault.ui.rememberLoadingVisible
 import vault.ui.VaultTextField
-import vault.ui.property.PropertyStrings
 import vault.ui.property.RemovalFeedback
 import vault.ui.userErrorMessage
 
@@ -120,23 +117,7 @@ fun InspectionListScreen(
     ) {
         item { RecordPanel(Icons.AutoMirrored.Outlined.Assignment, InspectionStrings.listTitle, InspectionStrings.listBody) }
         item {
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(
-                    selected = filter == "ALL",
-                    onClick = { filter = "ALL" },
-                    label = { Text(PropertyStrings.filterAll) },
-                )
-                FilterChip(
-                    selected = filter == "DRAFT",
-                    onClick = { filter = "DRAFT" },
-                    label = { Text(PropertyStrings.filterDraft) },
-                )
-                FilterChip(
-                    selected = filter == "SEALED",
-                    onClick = { filter = "SEALED" },
-                    label = { Text(PropertyStrings.filterSealed) },
-                )
-            }
+            InspectionStatusFilters(selected = filter, onSelect = { filter = it })
         }
         item {
             VaultTextField(

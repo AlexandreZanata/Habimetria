@@ -28,7 +28,7 @@ import vault.composeapp.generated.resources.manrope_semibold
 // roles; no hardcoded colors. Dark roles are independent, so light edits
 // never recolor dark mode. Manrope ships as static 400/500/600/700.
 private val LightPrimary = Color(0xFF123D35)
-internal val LightNavigationWhite = Color.White
+internal val BrandWhite = Color.White
 private val LightOnPrimary = Color(0xFFF4F3EE)
 private val LightPrimaryContainer = Color(0xFFA7B8A7)
 private val LightOnPrimaryContainer = Color(0xFF123D35)

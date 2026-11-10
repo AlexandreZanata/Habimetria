@@ -66,9 +66,9 @@ fun DestinationsBar(selected: Route, onSelect: (Route) -> Unit) {
     val colors = MaterialTheme.colorScheme
     val dark = LocalHabimetriaDarkTheme.current
     val barColor = if (dark) colors.surface else colors.inverseSurface
-    val activeBackground = if (dark) colors.primaryContainer else LightNavigationWhite
+    val activeBackground = if (dark) colors.primaryContainer else BrandWhite
     val activeInk = if (dark) colors.onPrimaryContainer else colors.inverseSurface
-    val inactiveInk = if (dark) colors.onSurfaceVariant else LightNavigationWhite
+    val inactiveInk = if (dark) colors.onSurfaceVariant else BrandWhite
     Row(
         modifier = Modifier.fillMaxWidth().background(barColor)
             .windowInsetsPadding(NavigationBarDefaults.windowInsets)

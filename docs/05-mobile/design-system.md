@@ -61,6 +61,9 @@ Both schemes use Pinho, Marfim and Sálvia for the inverse feature panels.
 - `ProgressStatus`, outlined `VaultTextField`.
 - `RecordPanel`: icon and copy for contextual states, with an inverse
   treatment when it carries a primary seal or share action.
+- `StatusBadge`: a rounded icon and label for Property and Inspection
+  states. Light mode uses white ink on Pinho. Selectable status filters
+  reverse this pair for the current selection.
 - `HabimetriaMark`: geometric H from the brand asset, tinted by the
   current content color.
 - `HabimetriaWordmark`: mark plus lowercase `habimetria` for the masthead
@@ -70,9 +73,9 @@ Both schemes use Pinho, Marfim and Sálvia for the inverse feature panels.
 
 ## Adaptive shell
 
-- In light mode the compact bottom bar uses the same Pinho
-  `inverseSurface` as the Home hero, with white (`#FFFFFF`) labels
-  and icons. The selected tile reverses the pair.
+- In light mode the masthead and compact bottom bar use the same Pinho
+  `inverseSurface` as the Home hero, with white (`#FFFFFF`) text
+  and icons. The selected bottom-bar tile reverses the pair.
 - Breakpoints live in shared `vault.nav` (`windowClassFor`,
   `maxContentWidthDp`, `roomsColumns`, `useSideBySide`) so Android,
   iOS, tablets, foldables and multi-window behave identically.
