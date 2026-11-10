@@ -72,9 +72,8 @@ func GetReportByCode(ctx context.Context, pool *pgxpool.Pool, code string) (Repo
 	return rep, nil
 }
 
-// AttachPDF stores the final app-rendered PDF hash. Re-upload overwrites:
-// the manifest (trust anchor) never changes, the PDF is a rendering.
-// Requires a SEALED inspection.
+// AttachPDF commits the first rendering to a SEALED inspection. A retry
+// of the same bytes resolves to the stored rendering.
 func AttachPDF(ctx context.Context, pool *pgxpool.Pool, reportID, sha, key string) (Report, error) {
 	var inspectionID, status string
 	err := pool.QueryRow(ctx,
@@ -91,11 +90,19 @@ func AttachPDF(ctx context.Context, pool *pgxpool.Pool, reportID, sha, key strin
 	if status != "SEALED" {
 		return Report{}, fmt.Errorf("inspection %s: %w", inspectionID, ErrSealed)
 	}
-	if _, err := pool.Exec(ctx,
-		`UPDATE reports SET report_sha256=$2, pdf_key=$3 WHERE id=$1`,
+	tag, err := pool.Exec(ctx,
+		`UPDATE reports SET report_sha256=$2, pdf_key=$3 WHERE id=$1 AND pdf_key IS NULL`,
 		reportID, sha, key,
-	); err != nil {
+	)
+	if err != nil {
 		return Report{}, fmt.Errorf("attach pdf: %w", err)
 	}
-	return GetReport(ctx, pool, reportID)
+	report, err := GetReport(ctx, pool, reportID)
+	if err != nil {
+		return Report{}, err
+	}
+	if tag.RowsAffected() == 0 && (report.ReportSHA256 == nil || *report.ReportSHA256 != sha) {
+		return Report{}, fmt.Errorf("report already has a different PDF: %w", ErrChanged)
+	}
+	return report, nil
 }

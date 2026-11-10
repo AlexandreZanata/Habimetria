@@ -18,6 +18,7 @@ type Config struct {
 	LocalDir       string
 
 	VerifyBaseURL string // public origin embedded in QR codes
+	PanelOrigin   string // optional origin for the authenticated web panel
 
 	// Paywall (S6-basic). MVP default is off: photos + evidence + PDF
 	// stay frictionless. Auth, users and billing ship only if the
@@ -48,6 +49,7 @@ func FromEnv() Config {
 		LocalDir:       envOr("LOCAL_STORAGE_DIR", "/tmp/vault-storage"),
 
 		VerifyBaseURL: envOr("VERIFY_BASE_URL", "http://localhost:8080"),
+		PanelOrigin:   envOr("PANEL_ORIGIN", ""),
 
 		PaymentsMode:     envOr("PAYMENTS_MODE", "off"),
 		PaymentsProvider: envOr("PAYMENTS_PROVIDER", "stripe"),

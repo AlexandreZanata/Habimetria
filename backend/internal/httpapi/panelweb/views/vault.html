@@ -1,0 +1,34 @@
+{{define "properties"}}
+<section class="panel"><div class="panel-body">
+  <h2>Novo imóvel</h2>
+  <form class="form-grid" method="post" action="/painel/imoveis">
+    <label>Endereço<input name="endereco" required minlength="3" maxlength="400" autocomplete="street-address" value="{{.Values.Get "endereco"}}"></label>
+    <button class="btn primary">Cadastrar imóvel</button>
+  </form>
+</div></section>
+<section class="panel">
+  <header class="panel-header"><h2>Imóveis cadastrados</h2></header>
+  {{if .Properties}}<div class="table-scroll" role="region" aria-label="Meus imóveis" tabindex="0">
+  <table><thead><tr><th scope="col">Endereço</th><th scope="col">Cadastro</th><th scope="col">Ação</th></tr></thead><tbody>
+    {{range .Properties}}<tr><td><strong>{{.Address}}</strong></td><td>{{date .CreatedAt}}</td><td>
+    <form method="post" action="/painel/imoveis">
+      <input type="hidden" name="id" value="{{.ID}}">
+      <button class="btn small" name="acao" value="vistoria">Nova vistoria de entrada</button>
+    </form>
+    </td></tr>{{end}}
+  </tbody></table></div>
+  {{else}}<p class="empty">Cadastre seu primeiro imóvel para iniciar uma vistoria.</p>{{end}}
+</section>
+{{end}}
+
+{{define "inspections"}}
+<section class="panel">
+  <header class="panel-header"><div><h2>Histórico de vistorias</h2><p>Comece uma vistoria de entrada a partir de um imóvel.</p></div><a href="/painel/imoveis" class="btn primary">Meus imóveis</a></header>
+  {{if .Inspections}}<div class="table-scroll" role="region" aria-label="Minhas vistorias" tabindex="0">
+  <table><thead><tr><th scope="col">Imóvel</th><th scope="col">Tipo</th><th scope="col">Estado</th><th scope="col">Cadastro</th></tr></thead><tbody>
+    {{range .Inspections}}<tr><td><strong>{{.Address}}</strong></td><td>{{if eq .Kind "exit"}}Saída{{else}}Entrada{{end}}</td>
+    <td>{{if eq .Status "SEALED"}}<span class="status sealed">Selada</span>{{else}}<span class="status neutral">Rascunho</span>{{end}}</td><td>{{date .CreatedAt}}</td></tr>{{end}}
+  </tbody></table></div>
+  {{else}}<p class="empty">Ainda não há vistorias vinculadas à sua conta.</p>{{end}}
+</section>
+{{end}}

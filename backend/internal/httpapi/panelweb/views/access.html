@@ -1,0 +1,35 @@
+{{define "login"}}
+{{template "head" .}}
+<body class="access-page">
+<main class="access-card panel">
+  {{template "brand"}}
+  <p class="eyebrow">Vistorias e documentação de imóveis</p>
+  <h1>Cada detalhe, documentado.</h1>
+  <p>Acesse seus registros e as ferramentas disponíveis para sua conta.</p>
+  {{if .Error}}<p class="notice error" role="alert">{{.Error}}</p>{{end}}
+  <form class="form-grid" method="post" action="/painel/entrar">
+    <label>E-mail<input name="email" type="email" maxlength="254" autocomplete="username" value="{{.Values.Get "email"}}" required></label>
+    <label>Senha<input name="senha" type="password" maxlength="1024" autocomplete="current-password" required></label>
+    <button class="btn primary">Entrar</button>
+  </form>
+  <details id="ativacao" {{if .Activation}}open{{end}}>
+    <summary>Ativar minha conta</summary>
+    <p>Use o código recebido e escolha uma senha para os próximos acessos.</p>
+    <form class="form-grid" method="post" action="/painel/ativar">
+      <label>Código de ativação<input id="codigo" name="codigo" type="password" maxlength="64" autocomplete="off" value="{{.AccessCode}}" required></label>
+      <label>Nova senha<input name="senha" type="password" minlength="15" maxlength="1024" autocomplete="new-password" required></label>
+      <button class="btn primary">Ativar e entrar</button>
+    </form>
+  </details>
+</main>
+{{template "credit"}}
+<script src="/painel/assets/access.js" defer></script>
+</body></html>
+{{end}}
+{{define "failure"}}
+{{template "head" .}}
+<body class="access-page"><main class="access-card panel">
+{{template "brand"}}<h1>Não foi possível abrir esta página</h1>
+<p role="alert">{{.Error}}</p><a class="btn primary" href="/painel/">Voltar ao início</a>
+</main>{{template "credit"}}</body></html>
+{{end}}

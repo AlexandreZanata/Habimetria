@@ -31,6 +31,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 
 - `04-backend/go-layout.md` — Go project layout
 - `04-backend/database.md` — tables, states, invariants
+- `04-backend/web_panel.md` — web setup, authorization and report access
 
 ## 05 Mobile
 

@@ -1,0 +1,68 @@
+{{define "accounts"}}
+{{$page := .}}
+{{if .Link}}
+<section class="panel notice" aria-live="polite">
+  <h2>Link de ativação gerado</h2>
+  <p>Compartilhe este link com o destinatário por um canal privado. Ele expira em 30 minutos e pode ser usado uma vez.</p>
+  <label for="link">Link de ativação</label><input id="link" readonly value="{{.Link}}">
+</section>
+{{end}}
+<section class="panel list-panel">
+  <header class="panel-header">
+    <div><h2>{{.Title}}</h2><p>Filtre por nome ou e-mail.</p></div>
+    <div class="heading-actions">
+      <form class="inline-form" method="get" action="/painel/{{.Section}}">
+        <label class="sr-only" for="busca">Nome ou e-mail</label><input id="busca" name="busca" type="search" maxlength="200" placeholder="Nome ou e-mail" value="{{.Query}}">
+        <button class="btn">Buscar</button>
+      </form>
+      <a class="btn" href="{{.CSV}}">CSV desta página</a>
+    </div>
+  </header>
+  {{if .Accounts}}<div class="table-scroll" role="region" aria-label="Contas cadastradas" tabindex="0">
+  <table><thead><tr><th scope="col">Nome</th><th scope="col">E-mail</th><th scope="col">Perfil</th><th scope="col">Estado</th><th scope="col">Ações</th></tr></thead><tbody>
+  {{range .Accounts}}<tr>
+    <td><strong>{{if .Name}}{{.Name}}{{else}}Nome pendente{{end}}</strong></td>
+    <td>{{.Email}}</td>
+    <td>{{role .Role}}{{if .Primary}} <small>· Principal</small>{{end}}</td>
+    <td>{{if not .Active}}<span class="status suspended">Suspenso</span>{{else if not .Managed}}<span class="status neutral">Conta legada</span>{{else if not .Enrolled}}<span class="status pending">Aguardando ativação</span>{{else}}<span class="status">Ativo</span>{{end}}</td>
+    <td>{{if and (not .Primary) (ne .ID $page.Actor.ID) ($page.Actor.Can "accounts.write") (or (eq .Role "user") (eq $page.Actor.Role "owner"))}}
+      <details class="row-actions"><summary>Gerenciar</summary>
+        <form method="post" action="/painel/{{$page.Section}}" class="form-grid compact">
+          <input type="hidden" name="id" value="{{.ID}}">
+          {{if eq $page.Section "equipe"}}
+          <label>Papel<select name="papel">
+            <option value="owner" {{if eq .Role "owner"}}selected{{end}}>Proprietário</option>
+            <option value="admin" {{if eq .Role "admin"}}selected{{end}}>Administrador</option>
+            <option value="support" {{if eq .Role "support"}}selected{{end}}>Atendimento</option>
+            <option value="user">Usuário</option>
+          </select></label>
+          {{end}}
+          <label>Estado<select name="estado">
+            <option value="ativo" {{if .Active}}selected{{end}}>Ativo</option>
+            <option value="suspenso" {{if not .Active}}selected{{end}}>Suspenso</option>
+          </select></label>
+          <button class="btn small primary" name="acao" value="atualizar">Salvar acesso</button>
+          {{if and .Active .Managed (not .Enrolled)}}<button class="btn small" name="acao" value="acesso">Gerar novo link de ativação</button>{{end}}
+        </form>
+      </details>
+    {{else}}<small>—</small>{{end}}</td>
+  </tr>{{end}}
+  </tbody></table></div>
+  {{else}}<p class="empty">Nenhuma conta encontrada.</p>{{end}}
+</section>
+{{if and (.Actor.Can "accounts.write") (or (eq .Section "usuarios") (eq .Actor.Role "owner"))}}
+<section class="panel"><div class="panel-body">
+  <h2>{{if eq .Section "equipe"}}Adicionar à equipe{{else}}Cadastrar usuário{{end}}</h2>
+  <p>Gere um link de ativação para compartilhar com a pessoa cadastrada.</p>
+  <form class="form-grid" method="post" action="/painel/{{.Section}}">
+    <label>Nome completo<input name="nome" autocomplete="name" required minlength="2" maxlength="100" value="{{.Values.Get "nome"}}"></label>
+    <label>E-mail<input type="email" name="email" autocomplete="email" required maxlength="254" value="{{.Values.Get "email"}}"></label>
+    {{if eq .Section "equipe"}}<label>Papel<select name="papel">
+      <option value="support" {{if eq (.Values.Get "papel") "support"}}selected{{end}}>Atendimento</option>
+      <option value="admin" {{if eq (.Values.Get "papel") "admin"}}selected{{end}}>Administrador</option>
+      <option value="owner" {{if eq (.Values.Get "papel") "owner"}}selected{{end}}>Proprietário</option>
+    </select></label>{{end}}
+    <button class="btn primary" name="acao" value="convidar">Cadastrar e gerar link</button>
+  </form>
+</div></section>{{end}}
+{{end}}

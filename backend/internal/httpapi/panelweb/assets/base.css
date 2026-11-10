@@ -1,0 +1,72 @@
+/* Habimetria identity and application shell adapted from the reference. */
+@font-face { font-family: Manrope; src: url('fonts/manrope_regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+@font-face { font-family: Manrope; src: url('fonts/manrope_medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+@font-face { font-family: Manrope; src: url('fonts/manrope_semibold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
+@font-face { font-family: Manrope; src: url('fonts/manrope_bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+
+:root {
+  --pine: #123d35;
+  --pine-hover: #214f44;
+  --ivory: #f4f3ee;
+  --ink: #28332f;
+  --sage: #a7b8a7;
+  --muted: #58635b;
+  --line: #dce2d7;
+  --pale: #eaf0e7;
+  --white: #fff;
+  --radius: 10px;
+}
+* { box-sizing: border-box; }
+html { background: var(--ivory); }
+body { margin: 0; color: var(--ink); font: 14px/1.55 Manrope, system-ui, sans-serif; }
+button, input, select { font: inherit; }
+button, summary { cursor: pointer; }
+a { color: var(--pine); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible, [tabindex="0"]:focus-visible {
+  outline: 3px solid #43806d;
+  outline-offset: 3px;
+}
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { color: var(--pine); font-weight: 700; line-height: 1.2; }
+h1 { font-size: clamp(27px, 4.5vw, 39px); letter-spacing: -.04em; }
+h2 { font-size: 17px; }
+small { color: var(--muted); font-size: .88em; }
+.brand { display: inline-flex; align-items: center; gap: 10px; color: var(--pine); font-size: 23px; font-weight: 700; letter-spacing: -.06em; text-decoration: none; }
+.brand-mark { width: 26px; height: 24px; flex: none; }
+.app-shell { display: grid; grid-template-columns: 240px minmax(0, 1fr); min-height: 100dvh; }
+.sidebar { position: sticky; top: 0; height: 100dvh; overflow: auto; background: var(--white); border-right: 1px solid var(--line); padding: 26px 18px; }
+.sidebar .brand { margin: 0 10px 22px; }
+.nav-section { margin: 20px 10px 5px; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+.nav-item { display: block; padding: 10px; border-radius: 8px; color: var(--ink); text-decoration: none; min-height: 44px; }
+.nav-item:hover { background: var(--pale); }
+.nav-item[aria-current="page"] { color: var(--pine); background: var(--pale); font-weight: 700; box-shadow: inset 3px 0 var(--pine); }
+.main-area { min-width: 0; display: flex; flex-direction: column; }
+.topbar { min-height: 70px; padding: 12px 32px; display: flex; gap: 16px; align-items: center; justify-content: space-between; background: var(--white); border-bottom: 1px solid var(--line); }
+.top-label { color: var(--muted); }
+.account { margin-left: auto; display: flex; align-items: center; gap: 14px; min-width: 0; }
+.account span { min-width: 0; }
+.account strong { display: block; overflow-wrap: anywhere; }
+.account small { display: block; }
+.mobile-menu { display: none; }
+.main-content { width: 100%; max-width: 1320px; margin: 0 auto; padding: 32px; flex: 1; display: grid; gap: 20px; align-content: start; }
+.page-heading { display: grid; gap: 8px; }
+.page-heading > p:last-child { color: var(--muted); }
+.eyebrow { color: var(--pine); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.credit { color: var(--muted); padding: 18px 32px; font-size: 12px; border-top: 1px solid var(--line); text-align: center; }
+.access-page { min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; gap: 28px; }
+.access-card { width: min(100% - 32px, 540px); margin: auto; padding: clamp(20px, 6vw, 38px); display: grid; gap: 16px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.skip-link { position: fixed; top: 12px; left: 12px; transform: translateY(-200%); z-index: 20; padding: 8px 14px; background: var(--white); }
+.skip-link:focus { transform: none; }
+
+@media (max-width: 780px) {
+  .app-shell { display: block; }
+  .sidebar, .top-label { display: none; }
+  .topbar { position: relative; padding: 10px 16px; }
+  .mobile-menu { display: block; }
+  .mobile-menu > summary { min-height: 44px; display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--pine); }
+  .mobile-menu > summary::before { content: '☰'; }
+  .mobile-menu nav { position: absolute; z-index: 10; top: calc(100% - 1px); left: 0; right: 0; max-height: 75dvh; overflow: auto; background: var(--white); padding: 10px 16px 16px; border-bottom: 1px solid var(--line); box-shadow: 0 12px 22px #123d3515; }
+  .main-content { padding: 22px 16px; gap: 16px; }
+  .credit { padding: 16px; }
+}

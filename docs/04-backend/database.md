@@ -3,7 +3,9 @@
 Migrations: `backend/migrations/0001_init.sql` (MVP core) →
 `0002_geo.sql` (device geolocation claims) →
 `0003_seal.sql` (manifest vault + nullable report artifacts) →
-`0004_comparisons.sql` (V1.3 entry-vs-exit tags). One version per file.
+`0004_comparisons.sql` (V1.3 entry-vs-exit tags) →
+`0005_panel.sql` (web identity, sessions, permissions and availability).
+One version per file. See [web panel](web_panel.md).
 
 ## Core tables
 

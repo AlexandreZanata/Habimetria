@@ -1,0 +1,41 @@
+{{define "settings"}}
+<div class="settings-grid">
+{{range .Roles}}
+<section class="panel"><div class="panel-body">
+  <h2>{{role .Role}}</h2>
+  <form class="form-grid" method="post" action="/painel/configuracoes">
+    <input type="hidden" name="papel" value="{{.Role}}">
+    <fieldset><legend>Permissões</legend>
+    <label class="check"><input type="checkbox" name="permissao" value="accounts.read" {{if has .Permissions "accounts.read"}}checked{{end}}>Consultar contas</label>
+    {{if eq .Role "admin"}}<label class="check"><input type="checkbox" name="permissao" value="accounts.write" {{if has .Permissions "accounts.write"}}checked{{end}}>Gerenciar contas de usuários</label>{{end}}
+    <label class="check"><input type="checkbox" name="permissao" value="reports.read" {{if has .Permissions "reports.read"}}checked{{end}}>Consultar relatórios disponibilizados</label>
+    <label class="check"><input type="checkbox" name="permissao" value="audit.read" {{if has .Permissions "audit.read"}}checked{{end}}>Consultar atividade administrativa</label>
+    </fieldset>
+    <button class="btn primary">Salvar permissões</button>
+  </form>
+</div></section>
+{{end}}
+</div>
+{{end}}
+
+{{define "activity"}}
+<section class="panel">
+  <header class="panel-header"><div><h2>Histórico administrativo</h2><p>Horários do servidor em UTC.</p></div></header>
+  {{if .Events}}<div class="table-scroll" role="region" aria-label="Atividade administrativa" tabindex="0">
+  <table><thead><tr><th scope="col">Evento</th><th scope="col">Ator</th><th scope="col">Horário</th></tr></thead><tbody>
+  {{range .Events}}<tr><td>{{event .Event}}</td><td>{{if .Actor}}{{.Actor}}{{else}}Conta cadastrada{{end}}</td><td>{{date .At}}</td></tr>{{end}}
+  </tbody></table></div>
+  {{else}}<p class="empty">Nenhuma atividade registrada.</p>{{end}}
+</section>
+{{end}}
+
+{{define "profile"}}
+<section class="panel"><div class="panel-body">
+  <h2>Dados da conta</h2>
+  <p><strong>{{.Actor.Email}}</strong> · {{role .Actor.Role}}</p>
+  <form class="form-grid" method="post" action="/painel/perfil">
+    <label>Nome completo<input name="nome" required minlength="2" maxlength="100" autocomplete="name" value="{{if .Error}}{{.Values.Get "nome"}}{{else}}{{.Actor.Name}}{{end}}"></label>
+    <button class="btn primary">Salvar nome</button>
+  </form>
+</div></section>
+{{end}}

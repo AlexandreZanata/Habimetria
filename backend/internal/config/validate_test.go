@@ -1,6 +1,9 @@
 package config
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 // Dev defaults stay bootable; live mode requires a real HMAC key.
 func TestValidate(t *testing.T) {
@@ -19,5 +22,16 @@ func TestValidate(t *testing.T) {
 	liveOK := Config{PaymentsMode: "live", HMACKey: "live-test-hmac-key-not-a-secret"}
 	if err := liveOK.Validate(); err != nil {
 		t.Fatalf("live config with real key should validate: %v", err)
+	}
+}
+
+func TestHTTPSPanelRequiresProductionHMAC(t *testing.T) {
+	cfg := Config{PanelOrigin: "https://panel.example.test", HMACKey: devHMAC}
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("HTTPS panel accepted the development signing key")
+	}
+	cfg.HMACKey = strings.Repeat("x", 32)
+	if err := cfg.Validate(); err != nil {
+		t.Fatalf("HTTPS panel rejected a configured signing key: %v", err)
 	}
 }

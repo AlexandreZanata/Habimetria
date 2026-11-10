@@ -23,67 +23,78 @@ type Deps struct {
 	Occurrence *service.OccurrenceService
 	Compare    *service.CompareService
 	HMACKey    string
+	Panel      http.Handler
+	Guard      func(string, http.HandlerFunc) http.HandlerFunc
 }
 
 // NewRouter wires MVP routes.
 func NewRouter(d Deps) *http.ServeMux {
 	mux := http.NewServeMux()
+	protected := func(pattern, scope string, handler http.HandlerFunc) {
+		if d.Guard != nil {
+			handler = d.Guard(scope, handler)
+		}
+		mux.HandleFunc(pattern, handler)
+	}
+	if d.Panel != nil {
+		mux.Handle("/painel/", d.Panel)
+	}
 	hh := NewHealthHandler(d.Health)
 	mux.HandleFunc("GET /healthz", hh.Live)
 	mux.HandleFunc("GET /readyz", hh.Ready)
 
 	ph := NewPropertyHandler(d.Property)
-	mux.HandleFunc("POST /api/v1/properties", ph.Create)
+	protected("POST /api/v1/properties", "properties", ph.Create)
 
 	th := NewTenancyHandler(d.Tenancy)
-	mux.HandleFunc("POST /api/v1/properties/{id}/tenancies", th.Create)
+	protected("POST /api/v1/properties/{id}/tenancies", "properties", th.Create)
 
 	ih := NewInspectionHandler(d.Inspection)
-	mux.HandleFunc("POST /api/v1/tenancies/{id}/inspections", ih.Create)
+	protected("POST /api/v1/tenancies/{id}/inspections", "tenancies", ih.Create)
 
 	rh := NewRoomHandler(d.Room)
-	mux.HandleFunc("POST /api/v1/inspections/{id}/rooms", rh.Create)
-	mux.HandleFunc("GET /api/v1/inspections/{id}/rooms", rh.List)
-	mux.HandleFunc("POST /api/v1/inspections/{id}/rooms:ensure-template", rh.EnsureTemplate)
+	protected("POST /api/v1/inspections/{id}/rooms", "inspections", rh.Create)
+	protected("GET /api/v1/inspections/{id}/rooms", "inspections", rh.List)
+	protected("POST /api/v1/inspections/{id}/rooms:ensure-template", "inspections", rh.EnsureTemplate)
 
 	eh := NewEvidenceHandler(d.Evidence)
-	mux.HandleFunc("POST /api/v1/inspections/{id}/evidences", eh.Upload)
-	mux.HandleFunc("GET /api/v1/inspections/{id}/evidences", eh.List)
-	mux.HandleFunc("GET /api/v1/inspections/{id}/evidences/download-url", eh.DownloadURL)
+	protected("POST /api/v1/inspections/{id}/evidences", "inspections", eh.Upload)
+	protected("GET /api/v1/inspections/{id}/evidences", "inspections", eh.List)
+	protected("GET /api/v1/inspections/{id}/evidences/download-url", "inspections", eh.DownloadURL)
 
 	fh := NewFindingHandler(d.Finding)
-	mux.HandleFunc("POST /api/v1/rooms/{id}/findings", fh.Create)
-	mux.HandleFunc("GET /api/v1/rooms/{id}/findings", fh.List)
+	protected("POST /api/v1/rooms/{id}/findings", "rooms", fh.Create)
+	protected("GET /api/v1/rooms/{id}/findings", "rooms", fh.List)
 
 	ch := NewCoverageHandler(d.Coverage)
-	mux.HandleFunc("GET /api/v1/inspections/{id}/coverage", ch.Get)
+	protected("GET /api/v1/inspections/{id}/coverage", "inspections", ch.Get)
 
 	sh := NewSealHandler(d.Seal)
-	mux.HandleFunc("POST /api/v1/inspections/{id}/seal", sh.Seal)
+	protected("POST /api/v1/inspections/{id}/seal", "inspections", sh.Seal)
 
 	rp := NewReportHandler(d.Report)
-	mux.HandleFunc("GET /api/v1/reports/{id}", rp.Detail)
-	mux.HandleFunc("POST /api/v1/reports/{id}/pdf", rp.Attach)
-	mux.HandleFunc("GET /api/v1/reports/{id}/download-url", rp.DownloadURL)
+	protected("GET /api/v1/reports/{id}", "reports", rp.Detail)
+	protected("POST /api/v1/reports/{id}/pdf", "reports", rp.Attach)
+	protected("GET /api/v1/reports/{id}/download-url", "reports", rp.DownloadURL)
 
 	vh := NewVerifyHandler(d.Report, d.HMACKey)
 	mux.HandleFunc("GET /v/{code}", vh.Verify)
 
 	shr := NewShareHandler(d.Share)
-	mux.HandleFunc("POST /api/v1/reports/{id}/shares", shr.Create)
-	mux.HandleFunc("GET /api/v1/reports/{id}/shares", shr.Timeline)
+	protected("POST /api/v1/reports/{id}/shares", "reports", shr.Create)
+	protected("GET /api/v1/reports/{id}/shares", "reports", shr.Timeline)
 	mux.HandleFunc("GET /s/{token}", shr.Open)
 	mux.HandleFunc("GET /s/{token}/pdf", shr.DownloadPDF)
 
 	oc := NewOccurrenceHandler(d.Occurrence)
-	mux.HandleFunc("POST /api/v1/properties/{id}/occurrences", oc.Create)
-	mux.HandleFunc("GET /api/v1/properties/{id}/occurrences", oc.List)
-	mux.HandleFunc("POST /api/v1/occurrences/{id}/evidences", oc.Attach)
-	mux.HandleFunc("GET /api/v1/occurrences/{id}/evidences", oc.ListEvidences)
+	protected("POST /api/v1/properties/{id}/occurrences", "properties", oc.Create)
+	protected("GET /api/v1/properties/{id}/occurrences", "properties", oc.List)
+	protected("POST /api/v1/occurrences/{id}/evidences", "occurrences", oc.Attach)
+	protected("GET /api/v1/occurrences/{id}/evidences", "occurrences", oc.ListEvidences)
 
 	cmp := NewCompareHandler(d.Compare)
-	mux.HandleFunc("POST /api/v1/tenancies/{id}/comparisons", cmp.Upsert)
-	mux.HandleFunc("GET /api/v1/tenancies/{id}/comparisons", cmp.List)
+	protected("POST /api/v1/tenancies/{id}/comparisons", "tenancies", cmp.Upsert)
+	protected("GET /api/v1/tenancies/{id}/comparisons", "tenancies", cmp.List)
 
 	mux.HandleFunc("GET /api/v1/ping", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"ping": "pong"})

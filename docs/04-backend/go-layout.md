@@ -20,3 +20,6 @@ backend/
 ```
 
 Rules: handlers never touch `database/sql`. Stores never import `net/http`. Services own transactions and seal invariant.
+
+The optional [web panel](web_panel.md) follows the same handler, service and
+PostgreSQL boundaries. The Go binary embeds its templates and static assets.

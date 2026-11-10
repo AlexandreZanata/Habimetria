@@ -11,6 +11,7 @@ Tenant-first product: prove months later **"it was already like this when I move
 
 - **Mobile:** Kotlin Multiplatform (Android + iOS), Compose Multiplatform, photo-first, guided capture, offline queue.
 - **Backend:** Go + PostgreSQL 18.6-alpine + S3-compatible object storage.
+- **Web:** authenticated admin panel and account area served by the Go API.
 - **Trust core:** SHA-256 per file + server timestamp + evidence manifest + sealed report hash + public verification page + QR in PDF.
 - **Docs:** 100% English, small normalized files, AI-agent buildable and maintainable.
 - **Brand:** Pinho, Marfim, Grafite and Sálvia with Manrope; see [brand identity](docs/05-mobile/brand-identity.md).
@@ -32,6 +33,12 @@ docker compose -f infra/docker-compose.yml up --build
 # API: http://localhost:8080/healthz
 # Verify page API: http://localhost:8080/v/ABC123
 ```
+
+## Web panel
+
+The optional web panel manages platform accounts and gives users access to
+server-owned Properties, Inspections and Reports. See the
+[web panel setup and access policy](docs/04-backend/web_panel.md).
 
 ## Branch protection
 

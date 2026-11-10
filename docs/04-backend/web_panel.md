@@ -1,0 +1,114 @@
+# Habimetria web panel
+
+The Go server embeds the Portuguese admin and user interface at `/painel/`.
+It adapts the supplied Brand, building illustration, sidebar, cards, tables,
+and forms as server-rendered templates. The stylesheet and Manrope assets
+belong to this area. Browser state contains neither the account database nor
+the authorization policy. No demonstration records or PDFs ship in the panel.
+
+## Run locally
+
+Use PostgreSQL 18.6 and the existing Go API configuration. The panel is
+opt-in. Keep the origin exact, including its port, with no trailing slash.
+
+```sh
+PANEL_ORIGIN=http://localhost:8080 docker compose -f infra/docker-compose.yml up --build -d
+docker compose -f infra/docker-compose.yml exec api \
+  /panel-owner owner@example.test "Platform Owner"
+```
+
+The command prints a secret activation link. Open it in a private browser
+session and set a password of at least 15 characters. For a host-run API,
+set the same `PANEL_ORIGIN` and `DATABASE_URL` when running
+`go run ./cmd/api` and `go run ./cmd/panel-owner <email> <name>` from
+`backend/`. HTTP is accepted for local loopback origins. Use an HTTPS
+origin, a random HMAC key of at least 32 bytes, and TLS termination on
+the public origin when hosting the panel.
+
+## Identity, permissions and audit
+
+- The operator bootstraps one primary owner. Re-running the command for
+  that same email issues a new activation link and allows the primary owner
+  to set a new password. Completing that reset invalidates earlier sessions.
+- Staff with account-write permission can create ordinary accounts and
+  issue or reissue links while activation is pending. Owners also manage
+  team accounts and the role matrix. The panel generates links for manual
+  delivery. It has no outbound mail or self-service password recovery.
+- A link expires after 30 minutes and is consumed atomically. Activated
+  accounts authenticate with their own password. Staff cannot obtain a login
+  link or reset an activated ordinary account through the panel. Legacy
+  accounts are ineligible for staff activation links.
+- Password credentials use versioned, salted PBKDF2-HMAC-SHA256 with
+  600,000 iterations. The server limits authentication attempts by source
+  address and normalized email. Reverse proxies share their connection
+  address in this limiter. Only accept traffic through a trusted frontend
+  when configuring deployment-specific rate limits.
+- Sessions expire after 12 hours. The database stores token digests and
+  checks active accounts and current capabilities on each request. Cookies
+  are HTTP-only, same-site, and secure on HTTPS. Mutations require the
+  configured Origin. Role and active-state changes revoke affected sessions.
+- Support can receive consultation permissions. Account writes are unavailable
+  to support. Owners can manage roles and staff. The primary owner cannot
+  be demoted or suspended. Account and role updates serialize in PostgreSQL,
+  and a database constraint protects the active primary owner.
+- Users, search, paginated CSV, overview counts and activity use server
+  scope. Activity records real account and permission events with server
+  instants. It omits private property, inspection and report activity.
+
+## Properties, inspections and documents
+
+- The user area lists Properties, Inspections and Reports owned through
+  `properties.owner_user_id`. An owned Property can start an entry Inspection
+  in DRAFT through an atomic Tenancy and Inspection creation.
+- With the panel enabled, private legacy API resource routes require a
+  session for the owning account. Unclaimed legacy rows are excluded and
+  the panel is the entry point for creating an owned Property. With the
+  panel disabled, existing unclaimed mobile API flows remain available.
+  Ownership checks still prevent anonymous access to claimed resources.
+- The mobile-only collection stays on its device. The panel does not claim
+  unowned records or automatically synchronize local inspections or PDFs.
+  Capture, seal, PDF rendering and upload continue through their existing
+  authorized domain flows. The web UI creates drafts and reads real records.
+- A Report is available to staff only when the titleholder granted access
+  to that exact Report and staff has the current report-read permission.
+  The titleholder can revoke staff access. The next request checks the grant
+  again. Bytes delivered previously cannot be recalled.
+- Preview opens the authorized PDF in the browser's viewer. Download uses
+  the same immutable object with an attachment disposition. There are no
+  separate public thumbnails. Browser PDF support determines inline
+  presentation. Public verification and explicit public Share links retain
+  their existing contracts and are separate from staff availability.
+- Server seal remains terminal. The first uploaded PDF is fixed for its
+  server Report ID. Identical retries are idempotent. Changed bytes are
+  rejected and the existing PDF stays available. The panel does not generate
+  or certify a PDF, author identity, receipt or agreement.
+
+## Files and checks
+
+- `backend/migrations/0005_panel.sql` extends identity and adds activation
+  links, sessions, limits, permissions, report availability and audit.
+  To roll back exposure, unset `PANEL_ORIGIN` and retain the migration and
+  ownership guard so owned data stays private.
+- `backend/internal/store/postgres/panel_{identity,login,accounts,policy,properties,reports,legacy}.go`
+  contains credential, policy, resource and audit queries.
+- `backend/internal/service/panel/{service,password,accounts,vault}.go`
+  validates authentication, account and document use cases.
+- `backend/internal/httpapi/panelweb/{web,auth,pages,forms,documents,legacy}.go`
+  registers, authenticates, renders and protects the routes. Templates in
+  `views/{layout,access,overview,accounts,settings,vault,reports}.html`
+  render each section. Assets include `base.css`, `components.css`,
+  `access.js`, the monogram `favicon.svg`, and the four Manrope TTF weights
+  and `OFL.txt` in `assets/fonts/`.
+- `backend/cmd/panel-owner/main.go` is the operator bootstrap and primary
+  recovery command. The API image includes both binaries.
+- `backend/internal/httpapi/panelweb/integration_test.go` checks activation,
+  login, revocation, server-side permissions, duplicate email, and primary
+  owner protection. `documents_integration_test.go` checks ownership,
+  isolation, availability, PDF byte consistency and terminal seal.
+
+Run `make verify` and `make secrets`. Run `make test-integration` with
+`TEST_DATABASE_URL` pointing at a disposable PostgreSQL 18.6 instance.
+The panel suite creates independent databases and needs a test role with
+permission to create databases. No test uses production data.
+
+Password parameters follow the [OWASP password storage guidance](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html).

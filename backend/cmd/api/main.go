@@ -12,7 +12,9 @@ import (
 
 	"vault/internal/config"
 	"vault/internal/httpapi"
+	"vault/internal/httpapi/panelweb"
 	"vault/internal/service"
+	"vault/internal/service/panel"
 	"vault/internal/storage"
 	"vault/internal/storage/localstore"
 	"vault/internal/storage/s3store"
@@ -48,6 +50,20 @@ func main() {
 		log.Fatalf("open storage: %v", err)
 	}
 
+	webService := panel.New(postgres.NewPanelStore(pool))
+	var webHandler http.Handler
+	if cfg.PanelOrigin != "" {
+		reader, ok := store.(storage.Reader)
+		if !ok {
+			log.Fatal("object storage does not support authenticated reads")
+		}
+		web, err := panelweb.New(webService, reader, cfg.PanelOrigin)
+		if err != nil {
+			log.Fatalf("configure panel: %v", err)
+		}
+		webHandler = web.Routes()
+	}
+
 	mux := httpapi.NewRouter(httpapi.Deps{
 		Health:     service.NewHealth(pool),
 		Property:   service.NewProperty(pool),
@@ -63,6 +79,8 @@ func main() {
 		Occurrence: service.NewOccurrence(pool),
 		Compare:    service.NewCompare(pool),
 		HMACKey:    cfg.HMACKey,
+		Panel:      webHandler,
+		Guard:      panelweb.ProtectLegacy(webService, cfg.PanelOrigin),
 	})
 
 	srv := &http.Server{Addr: ":" + cfg.Port, Handler: httpapi.SecurityHeaders(mux)}

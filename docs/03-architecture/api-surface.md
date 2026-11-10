@@ -1,6 +1,9 @@
 # API Surface — MVP REST
 
-Base: `/api/v1`. Auth: magic-link JWT (Bearer). Public: `/v/{code}`.
+The base is `/api/v1`. The [web panel](../04-backend/web_panel.md) uses
+same-origin sessions. Owned private API resources require the titleholder's
+session. Legacy unclaimed resources are served only when the panel is
+disabled. `/v/{code}` and explicit Share links retain public access.
 
 ## Ops (S1, implemented)
 

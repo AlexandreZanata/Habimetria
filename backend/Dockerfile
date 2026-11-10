@@ -5,10 +5,12 @@ COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 go build -o /api ./cmd/api
+RUN CGO_ENABLED=0 go build -o /panel-owner ./cmd/panel-owner
 
 FROM alpine:3.20
 RUN adduser -D app
 USER app
 COPY --from=build /api /api
+COPY --from=build /panel-owner /panel-owner
 EXPOSE 8080
 ENTRYPOINT ["/api"]
