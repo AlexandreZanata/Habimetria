@@ -93,8 +93,9 @@ unreviewed scope is never advertised as compliant.
 
 ## Editorial presentation
 
-Use A4, 30 mm left/top and 20 mm right/bottom, body 12 pt, smaller source/
-caption/footer text, consistent single-spacing and numbered textual sections.
+Use the A4 grid and local Manrope fonts specified in the
+[PDF rendering contract](local_pdf_contract.md), with 12 pt body text,
+smaller source/caption/footer text and numbered sections.
 Professional presentation adds title/identification, author-written summary/
 keywords, contents, scope/method, evidence, analysis/conclusions, references
 and separately identified technical/integrity appendices. Cover uses a

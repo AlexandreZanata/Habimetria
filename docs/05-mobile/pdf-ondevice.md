@@ -37,15 +37,16 @@ The PDF uses hash-checked originals, bypassing unverified preview caches.
 Bounded codecs prevent full-resolution camera pixels from entering PDF drawing.
 
 A4 portrait pages contain each portrait/landscape image without crop or stretch.
-Standard image height is at most 300 pt; detail presentation allows 520 pt.
+Standard image height is at most 340 pt; detail presentation allows 520 pt.
 Changing height changes width to preserve the oriented aspect ratio. Images
-are derivatives up to 1600 px; layout identity is local-pdf/v4. Presentation
+are derivatives up to 1600 px; layout identity is local-pdf/v5. Presentation
 is selected before seal; new rendering requires a new Report ID/version.
 
-Native font metrics feed shared pagination before drawing. Cover, physical
-Room index, reviewed professional sections, photo references/categories,
-coverage gaps/non-applicable categories, all Findings/notes, methodology and
-full hash appendix use complete text. Long paragraphs split across pages;
+Native Manrope font metrics feed the shared A4 plan before drawing. The
+cover, identification, Room index, individual photo pages and integrity
+appendix follow the Habimetria visual model. The index reflects physical
+pagination. Reviewed professional fields, Evidence categories, coverage gaps,
+all Findings and notes, and digests remain complete. Long paragraphs split across pages;
 no silent truncation, guessed photo aspect or emergency unnumbered pages.
 A logical outline carries physical page references; current Android/iOS
 writers do not embed native bookmarks. Native adapters render exact positions and final page/total values.
@@ -130,12 +131,11 @@ changes against signed references; it cannot guarantee universal legal acceptanc
 ## Authorship and corporate editorial extension
 
 [Authorship contract](report_authorship_contract.md) defines optional rental
-identification, professional applicability declarations, A4 editorial margins
-(30 mm top/left, 20 mm bottom/right), 12 pt body, summary/keywords, numbered
-sections and a contents list with physical page references. Personal CPF is
-masked unless the user selects full display; the ZIP retains supplied data.
-Analysis/conclusions follow photographic evidence. Navy accents and black
-body text provide a restrained corporate presentation using local fonts.
+identification, professional applicability declarations, 12 pt body,
+summary/keywords, and numbered sections. Personal CPF is masked unless the
+user selects full display. The ZIP retains supplied data. Analysis and
+conclusions follow photographic evidence. The report uses the pine, warm
+paper and sage palette of the Habimetria visual model.
 This editorial baseline does not certify full ABNT technical conformity.
 
 New receipt v2 requires an installation-signed declaration index. Explicit

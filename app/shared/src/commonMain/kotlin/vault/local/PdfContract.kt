@@ -1,20 +1,14 @@
 package vault.local
 
-import vault.local.db.LocalEvidence
-
-// Shared PDF layout contract (L6). The model and photo pagination live
-// here, identically for Android and iOS; platform code only draws the
-// emitted items with the shared style tokens. Text flows platform-side;
-// photo slots carry exact aspect-preserving rects so every sealed
-// Evidence is represented without clipping or omission.
+// A4 positions in points, measured from the top left of the page.
 const val PDF_PAGE_WIDTH_PT = 595.0
 const val PDF_PAGE_HEIGHT_PT = 842.0
 const val PDF_MARGIN_LEFT_PT = 85.039
-const val PDF_MARGIN_RIGHT_PT = 56.693
+const val PDF_MARGIN_RIGHT_PT = 57.039
 const val PDF_MARGIN_TOP_PT = 85.039
 const val PDF_MARGIN_BOTTOM_PT = 56.693
-const val PDF_MAX_PHOTO_HEIGHT_PT = 300.0
-const val PDF_TITLE_SIZE = 20.0
+const val PDF_MAX_PHOTO_HEIGHT_PT = 340.0
+const val PDF_TITLE_SIZE = 28.0
 const val PDF_HEADING_SIZE = 16.0
 const val PDF_BODY_SIZE = 12.0
 const val PDF_SMALL_SIZE = 9.0
@@ -32,6 +26,7 @@ data class PdfPhotoEntry(
     // Short on-photo stamp (capture time, reported place, device GPS),
     // drawn over the photo rect by renderers. Snapshot presentation only.
     val stampLines: List<String> = emptyList(),
+    val category: String? = null,
 )
 
 data class PdfFindingEntry(
@@ -39,6 +34,8 @@ data class PdfFindingEntry(
     val roomLabel: String,
     val preset: String,
     val note: String?,
+    val evidenceId: String? = null,
+    val number: Int = 0,
 )
 
 data class PdfRoomSection(
@@ -62,7 +59,7 @@ data class PdfModel(
     val methodology: List<String>,
     val appendixHashes: List<Pair<String, String>>,
     val details: ReportDetails = ReportDetails(),
-    val photoDisplays: Map<String, PhotoDisplay> = emptyMap(),
+    val inspectionKind: String = "entry",
 )
 
 // Fixed model assembly from the sealed snapshot: rooms in sort order,
@@ -78,22 +75,37 @@ fun buildPdfModel(
 ): PdfModel {
     val rooms = input.rooms.sortedWith(compareBy({ it.sort }, { it.id }))
     val evidences = input.evidences.sortedWith(compareBy({ it.sequence }, { it.id }))
+    val byId = evidences.associateBy { it.id }
+    val byRoom = evidences.groupBy { it.roomId }
+    val findingsByRoom = input.findings.groupBy { it.roomId }
+    var findingNumber = 0
     val sections = rooms.map { room ->
-        val photos = evidences.filter { it.roomId == room.id }.map { e ->
+        val roomEvidence = byRoom[room.id].orEmpty()
+        val photos = roomEvidence.map { e ->
             PdfPhotoEntry(
                 evidenceId = e.id,
                 roomLabel = room.label,
                 sequence = e.sequence,
                 caption = "${room.label} — nº ${e.sequence}",
-                claimLine = e.reportClaimLines(),
+                claimLine = buildString {
+                    append(e.reportClaimLines())
+                    input.photoDisplays[e.id]?.let {
+                        append("\nImagem codificada ${it.encodedWidth}×${it.encodedHeight} px · exibida ")
+                        append("${it.displayWidth}×${it.displayHeight} px · orientação EXIF ${it.orientation}")
+                    }
+                },
                 displayRotation = e.displayRotation,
                 stampLines = photoStampLines(e, address),
+                category = e.shotCategory,
             )
         }
-        val findings = input.findings.filter { it.roomId == room.id }.map { f ->
-            PdfFindingEntry("nº ${evidences.firstOrNull { it.id == f.evidenceId }?.sequence ?: 0}", room.label, input.findingLabels[f.preset] ?: f.preset, f.note)
-        }
-        val captured = evidences.filter { it.roomId == room.id }.mapNotNull { it.shotCategory }.toSet()
+        val findings = findingsByRoom[room.id].orEmpty()
+            .sortedWith(compareBy({ byId.getValue(it.evidenceId).sequence }, { it.id }))
+            .map { f ->
+                PdfFindingEntry(evidenceReference(byId.getValue(f.evidenceId).sequence), room.label,
+                    input.findingLabels[f.preset] ?: f.preset, f.note, f.evidenceId, ++findingNumber)
+            }
+        val captured = roomEvidence.mapNotNull { it.shotCategory }.toSet()
         PdfRoomSection(room.label, coverageOf(room.id), photos, findings,
             applicableCategories(room.naCategories).filter { it.name !in captured }.map { reportShotLabel(it.name) },
             parseNaCategories(room.naCategories).map { reportShotLabel(it.name) })
@@ -114,14 +126,23 @@ fun buildPdfModel(
         methodology = methodologyLines(),
         appendixHashes = appendix,
         details = input.details,
-        photoDisplays = input.photoDisplays,
+        inspectionKind = input.inspection.kind,
     )
 }
 
 private fun methodologyLines(): List<String> = listOf(
-    "Originais preservados sem recompressão; a origem declarada aparece em cada foto.",
-    "Cobertura calculada por categorias distintas de foto, nunca por contagem.",
-    "Hora e GPS são declarações do dispositivo, sem certificação independente.",
-    "Coordenadas EXIF são declaração separada e divergências ficam visíveis.",
-    "Lacre terminal: alterações posteriores usam ocorrência/aditamento.",
+    "Originais preservados. Cobertura por categorias distintas. Correções usam ocorrência/aditamento.",
+    "Hora e GPS são declarações do dispositivo. Coordenadas EXIF são apresentadas separadamente.",
 )
+
+internal fun Int.pdfNumber(): String = toString().padStart(2, '0')
+internal fun evidenceReference(sequence: Int): String = "E${sequence.pdfNumber()}"
+
+internal val PdfModel.inspectionLabel: String get() = when {
+    details.profile == "technical" -> "Vistoria técnica"
+    inspectionKind == "exit" -> "Vistoria de saída"
+    else -> "Vistoria de entrada"
+}
+
+internal val PdfModel.municipality: String get() =
+    listOf(details.propertyMunicipality, details.propertyState).filter { it.isNotBlank() }.joinToString(" / ")

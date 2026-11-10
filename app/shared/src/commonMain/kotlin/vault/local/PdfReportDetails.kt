@@ -1,53 +1,102 @@
 package vault.local
 
-internal fun ReportDetails.drawReportDetails(layout: PdfLayoutBuilder) {
-    layout.section("1 Identificação, objeto e procedimentos")
-    val values = listOf(
-        "Responsável declarado" to authorName,
-        "Título / papel declarado" to listOf(authorTitle, authorRole).filter { it.isNotBlank() }.joinToString(" · "),
-        "Município / UF do imóvel" to listOf(propertyMunicipality, propertyState).filter { it.isNotBlank() }.joinToString(" / "),
-        "Data da vistoria declarada" to context.inspectionDate,
-        "Referência do contrato" to context.contractReference,
-        "Organização" to context.organization,
-        "Participantes / contratante" to participants,
-        "Finalidade" to purpose,
-        "Objeto e escopo" to scope,
-        "Métodos e procedimentos" to methods,
-        "Documentos examinados" to context.documentsReviewed,
-        "Limitações e exclusões" to limitations,
-    )
-    if (profile == "technical") {
-        layout.text("Registro declarado: $council/$councilState · $registration")
-        layout.text("Responsabilidade declarada: $responsibilityType · $responsibilityReference")
-        layout.text(if (professionalReview.attributionsAcknowledged && professionalReview.registeredResponsibilityAcknowledged && professionalReview.standardsApplicabilityAcknowledged)
-            "Atribuições, registro da responsabilidade e referências foram reconhecidos pelo autor. O aplicativo não consultou conselho ou certificou conformidade ABNT." else
-            "Sem confirmações específicas de atribuições, registro e aplicabilidade neste manifesto histórico. O aplicativo não consultou conselho ou certificou conformidade ABNT.", TextKind.SMALL)
-        if (professionalReview.consultationSource.isNotBlank()) layout.text("Consulta declarada pelo autor: ${professionalReview.consultationSource} · ${professionalReview.consultationDate}", TextKind.SMALL)
+internal fun PdfModel.drawReportDetails(layout: PdfLayoutBuilder) = with(layout) {
+    heading("01 / IDENTIFICAÇÃO", "Imóvel, autoria e escopo",
+        "Contexto do registro e limites da documentação apresentada.")
+    spaceTo(205.0)
+    rule(tone = PdfTone.PINE)
+    gap(17.0)
+    field("ENDEREÇO DO IMÓVEL", address)
+    fields("MUNICÍPIO / UF" to municipality, "REFERÊNCIA DO CONTRATO" to details.context.contractReference)
+    field("IDENTIFICAÇÃO DA VISTORIA", inspectionId)
+
+    gap(10.0)
+    ensure(75.0)
+    rule()
+    gap(15.0)
+    text("Autoria declarada", TextKind.HEADING)
+    val author = listOf(details.authorName, details.authorTitle, details.authorRole)
+        .filter { it.isNotBlank() }.joinToString("\n")
+    fields("RESPONSÁVEL DECLARADO" to author, "PARTICIPANTES / CONTRATANTE" to details.participants)
+    field("ORGANIZAÇÃO", details.context.organization)
+    details.identification?.let {
+        if (it.cpf.isNotBlank()) field("CPF DECLARADO", it.displayedCpf())
+        fields("E-MAIL DECLARADO" to it.email, "TELEFONE DECLARADO" to it.phone)
     }
-    identification?.let {
-        if (it.cpf.isNotBlank()) layout.text("CPF declarado: ${it.displayedCpf()}")
-        if (it.email.isNotBlank()) layout.text("Contato declarado: ${it.email}")
-        if (it.phone.isNotBlank()) layout.text("Telefone declarado: ${it.phone}")
+    text(if (details.authorAcknowledged) "Autor confirmou a autoria e revisou os dados antes do lacre local."
+        else "Sem confirmação de autoria pessoal registrada.", TextKind.SMALL)
+    if (details.profile == "technical") details.drawProfessionalIdentity(this)
+
+    gap(14.0)
+    ensure(65.0)
+    text("Finalidade e método", TextKind.HEADING)
+    text("Registro visual organizado por ambientes, com observações vinculadas às imagens.")
+    field("FINALIDADE DECLARADA", details.purpose)
+    field("OBJETO E ESCOPO", details.scope)
+    field("MÉTODOS E PROCEDIMENTOS", details.methods)
+    field("DOCUMENTOS EXAMINADOS", details.context.documentsReviewed)
+    gap(10.0)
+    panel("LIMITES DO REGISTRO", details.limitations.ifBlank {
+        "O relatório documenta condições aparentes. A cobertura indica as categorias fotografadas."
+    }, PdfTone.PAPER, accent = false)
+    methodology.forEach { text(it, TextKind.SMALL, 2.0) }
+    field("RESUMO", details.context.summary)
+    field("PALAVRAS-CHAVE", details.context.keywords)
+    flush()
+}
+
+private fun ReportDetails.drawProfessionalIdentity(layout: PdfLayoutBuilder) = with(layout) {
+    fields("REGISTRO DECLARADO" to "$council/$councilState · $registration",
+        "RESPONSABILIDADE DECLARADA" to "$responsibilityType · $responsibilityReference")
+    val reviewed = professionalReview.attributionsAcknowledged && professionalReview.registeredResponsibilityAcknowledged &&
+        professionalReview.standardsApplicabilityAcknowledged
+    text(if (reviewed)
+        "Atribuições, registro da responsabilidade e referências foram reconhecidos pelo autor. O aplicativo não consultou conselho ou certificou conformidade ABNT."
+        else "Sem confirmações específicas de atribuições, registro e aplicabilidade neste manifesto histórico. O aplicativo não consultou conselho ou certificou conformidade ABNT.",
+        TextKind.SMALL)
+    if (professionalReview.consultationSource.isNotBlank()) {
+        field("CONSULTA DECLARADA", "${professionalReview.consultationSource} · ${professionalReview.consultationDate}")
     }
     responsibilityDocument?.let {
-        layout.text("Documento de responsabilidade anexado: ${it.name}")
-        layout.text("SHA-256: ${it.sha256}", TextKind.SMALL)
-        layout.text("O original acompanha o ZIP. Assinatura externa, registro e quitação não foram verificados pelo aplicativo.", TextKind.SMALL)
+        field("DOCUMENTO DE RESPONSABILIDADE ANEXADO", it.name)
+        text("SHA-256: ${it.sha256}", TextKind.SMALL)
+        text("O original acompanha o ZIP. Assinatura externa, registro e quitação não foram verificados pelo aplicativo.", TextKind.SMALL)
     }
-    values.filter { it.second.isNotBlank() }.forEach { (title, content) ->
-        layout.text(title, TextKind.HEADING); layout.text(content)
-    }
-    layout.text(if (authorAcknowledged) "Autor confirmou a autoria e revisou os dados antes do lacre local." else
-        "Sem confirmação de autoria pessoal registrada.", TextKind.SMALL)
-    layout.text("Assinatura local identifica a instalação. Identidade civil e concordância das partes não são certificadas.", TextKind.SMALL)
-    layout.flush()
 }
 
 internal fun ReportDetails.drawReportConclusions(layout: PdfLayoutBuilder) {
-    listOf("3 Análise" to analysis, "4 Conclusões" to conclusions, "5 Recomendações" to recommendations,
-        "6 Referências" to context.references, "Normas e referências declaradas" to standards)
-        .filter { it.second.isNotBlank() }.forEach { (title, content) ->
-            layout.section(title); layout.text(content)
-        }
+    val sections = listOf("ANÁLISE" to analysis, "CONCLUSÕES" to conclusions, "RECOMENDAÇÕES" to recommendations,
+        "REFERÊNCIAS" to context.references, "NORMAS E REFERÊNCIAS DECLARADAS" to standards)
+        .filter { it.second.isNotBlank() }
+    if (sections.isEmpty()) return
+    layout.heading("03 / DECLARAÇÕES", "Análise e conclusões")
+    sections.forEach { (title, content) -> layout.field(title, content) }
     layout.flush()
+}
+
+private fun PdfLayoutBuilder.field(label: String, value: String) {
+    if (value.isBlank()) return
+    ensure(40.0)
+    text(label, TextKind.LABEL, 5.0)
+    text(value, gapAfter = 15.0)
+}
+
+private fun PdfLayoutBuilder.fields(left: Pair<String, String>, right: Pair<String, String>) {
+    val first = PdfColumn(pdfBody.x, 217.0)
+    val second = PdfColumn(322.0, pdfRight - 322)
+    val leftLines = lines(left.second, TextKind.BODY, first)
+    val rightLines = lines(right.second, TextKind.BODY, second)
+    val lineCount = maxOf(leftLines.size, rightLines.size)
+    if (left.second.isBlank() || right.second.isBlank() || lineCount > 4) {
+        field(left.first, left.second)
+        field(right.first, right.second)
+        return
+    }
+    val block = 19.0 + height(TextKind.BODY) * lineCount + 15
+    ensure(block)
+    put(left.first, TextKind.LABEL, y, first, PdfTone.MUTED)
+    put(right.first, TextKind.LABEL, y, second, PdfTone.MUTED)
+    cell(left.second, TextKind.BODY, y + 19, first)
+    cell(right.second, TextKind.BODY, y + 19, second)
+    gap(block)
 }

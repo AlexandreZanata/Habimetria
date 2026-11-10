@@ -34,7 +34,11 @@ Tests: [ReportProfilesTest.kt](../../../../commonTest/kotlin/vault/local/ReportP
 
 - [PersonalIdentification.kt](PersonalIdentification.kt): optional CPF/contact and presentation masking.
 - [ReportContext.kt](ReportContext.kt): frozen context, calendar and professional applicability declarations.
-- [PdfCover.kt](PdfCover.kt): corporate cover and summary.
+- [PdfCover.kt](PdfCover.kt): cover composition and architectural illustration.
+- [PdfPageChrome.kt](PdfPageChrome.kt): shared logo, masthead and final page numbering.
+- [PdfSummary.kt](PdfSummary.kt): physical Room index, observations and category coverage.
+- [PdfRoomPages.kt](PdfRoomPages.kt): photo pages and linked Finding panels.
+- [PdfIntegrity.kt](PdfIntegrity.kt): QR identity, digests and receipt instructions.
 - [PersonalCertificate.kt](PersonalCertificate.kt): certificate identity/proof and platform signing capability.
 - [CertificateValidation.kt](CertificateValidation.kt): separate chain/validity/revocation/time/trust verdicts.
 - [RevocationPolicy.kt](RevocationPolicy.kt): offline UNKNOWN revocation, no fabricated GOOD/REVOKED.
