@@ -4,10 +4,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -28,6 +30,7 @@ import vault.nav.Route
 import vault.nav.WindowClass
 import vault.nav.maxContentWidthDp
 import vault.nav.windowClassFor
+import vault.ui.brand.HabimetriaMark
 
 // VaultShell is the single inset boundary: one Scaffold consumes system,
 // gesture and keyboard insets once, hosting the shared header, the
@@ -55,15 +58,19 @@ fun VaultShell(
                 Column {
                     TopAppBar(
                         title = {
-                            Column {
-                                Text(title, maxLines = 1)
-                                if (subtitle.isNotBlank()) {
-                                    Text(
-                                        subtitle,
-                                        maxLines = 1,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                HabimetriaMark(size = 28.dp)
+                                Spacer(Modifier.width(10.dp))
+                                Column {
+                                    Text(title, maxLines = 1)
+                                    if (subtitle.isNotBlank()) {
+                                        Text(
+                                            subtitle,
+                                            maxLines = 1,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
                                 }
                             }
                         },

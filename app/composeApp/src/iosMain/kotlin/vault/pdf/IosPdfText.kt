@@ -16,7 +16,7 @@ internal class IosPdfText : PdfTextMetrics {
     private fun attributed(text: String, kind: TextKind): NSAttributedString = NSAttributedString.create(
         string = text, attributes = mapOf<Any?, Any?>(
             NSFontAttributeName to font(kind), NSForegroundColorAttributeName to when (kind) {
-                TextKind.TITLE, TextKind.HEADING -> UIColor.colorWithRed(30.0 / 255, 58.0 / 255, 95.0 / 255, 1.0)
+                TextKind.TITLE, TextKind.HEADING -> UIColor.colorWithRed(18.0 / 255, 61.0 / 255, 53.0 / 255, 1.0)
                 TextKind.SMALL -> UIColor.darkGrayColor
                 TextKind.BODY -> UIColor.blackColor
             },
@@ -69,7 +69,7 @@ internal class IosPdfText : PdfTextMetrics {
         } finally { CFRelease(attr) }
     }
     fun chrome(page: RenderPage, total: Int) {
-        attributed("VISTORIA | REGISTRO FOTOGRÁFICO", TextKind.SMALL).drawAtPoint(CGPointMake(PDF_MARGIN_LEFT_PT, 36.0))
+        attributed("HABIMETRIA | REGISTRO FOTOGRÁFICO", TextKind.SMALL).drawAtPoint(CGPointMake(PDF_MARGIN_LEFT_PT, 36.0))
         attributed(page.header, TextKind.SMALL).drawAtPoint(CGPointMake(PDF_MARGIN_LEFT_PT, 797.0))
         attributed("${page.number} / $total", TextKind.SMALL).drawAtPoint(CGPointMake(495.0, 797.0))
         attributed("Hora e localização informadas pelo dispositivo", TextKind.SMALL).drawAtPoint(CGPointMake(PDF_MARGIN_LEFT_PT, 814.0))

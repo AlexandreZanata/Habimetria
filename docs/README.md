@@ -4,7 +4,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 
 ## 01 Vision
 
-- `01-vision/product-thesis.md` — Evidence Vault thesis, Capture → Seal → Share → Compare
+- `01-vision/product-thesis.md` — Habimetria thesis, Capture → Seal → Share → Compare
 
 ## 02 Product
 
@@ -43,7 +43,9 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `05-mobile/local_pdf_contract.md` — photo orientation, complete layout, per-photo claims and immutable Report integrity
 - `05-mobile/report_authorship_contract.md` — optional identity, signed Share declarations, certificate-holder signatures and editorial presentation
 - `05-mobile/local-store.md` — L1 SQLite schema, files, migration rules
-- `05-mobile/design-system.md` — L2 Material 3 tokens, components, pt-BR
+- `05-mobile/brand-identity.md` — Habimetria symbol, wordmark, palette, typography, voice and applications
+- [05-mobile/assets/README.md](05-mobile/assets/README.md) — source brand vectors
+- `05-mobile/design-system.md` — L2 Material 3 tokens, Manrope, components, pt-BR
 - [05-mobile/home_artwork.md](05-mobile/home_artwork.md) — generated Brazilian house art and Home presentation
 
 ## 06 Roadmap

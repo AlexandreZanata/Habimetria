@@ -12,8 +12,8 @@ internal class AndroidPdfFonts : PdfTextMetrics {
             typeface = Typeface.create(Typeface.SANS_SERIF,
                 if (kind == TextKind.TITLE || kind == TextKind.HEADING) Typeface.BOLD else Typeface.NORMAL)
             color = when (kind) {
-                TextKind.TITLE, TextKind.HEADING -> Color.rgb(30, 58, 95)
-                TextKind.SMALL -> Color.rgb(71, 85, 105)
+                TextKind.TITLE, TextKind.HEADING -> Color.rgb(18, 61, 53)
+                TextKind.SMALL -> Color.rgb(40, 51, 47)
                 TextKind.BODY -> Color.BLACK
             }
         }

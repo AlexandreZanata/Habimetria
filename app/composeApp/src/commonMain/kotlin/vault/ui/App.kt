@@ -13,7 +13,7 @@ import vault.ui.settings.SettingsStrings
 @Composable
 fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNavigator() }) {
     val route by navigator.route.collectAsState()
-    VaultTheme {
+    HabimetriaTheme {
         when (val r = route) {
             Route.Home -> ChromeShell(r, container, navigator, Strings.home, false, {}) {
                 HomeScreen(

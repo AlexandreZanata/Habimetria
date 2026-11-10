@@ -1,7 +1,9 @@
-# Rental Evidence Vault — MVP
+# Habimetria — MVP
 
 > Not an inspection form. A digital safe for rental evidence.
 > Capture → Seal → Share → Compare.
+>
+> **Cada detalhe, documentado.** — Vistorias e documentação de imóveis.
 
 Tenant-first product: prove months later **"it was already like this when I moved in."**
 
@@ -11,6 +13,7 @@ Tenant-first product: prove months later **"it was already like this when I move
 - **Backend:** Go + PostgreSQL 18.6-alpine + S3-compatible object storage.
 - **Trust core:** SHA-256 per file + server timestamp + evidence manifest + sealed report hash + public verification page + QR in PDF.
 - **Docs:** 100% English, small normalized files, AI-agent buildable and maintainable.
+- **Brand:** Pinho, Marfim, Grafite and Sálvia with Manrope; see [brand identity](docs/05-mobile/brand-identity.md).
 
 ## Repo layout
 

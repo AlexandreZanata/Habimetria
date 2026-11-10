@@ -1,3 +1,7 @@
+# Brand and report authorship UI
+
+- [brand/HabimetriaBrand.kt](brand/HabimetriaBrand.kt): geometric H mark and lowercase wordmark from the brand vectors.
+
 # Report authorship UI
 
 The existing offline review → seal → PDF → share journey is unchanged.

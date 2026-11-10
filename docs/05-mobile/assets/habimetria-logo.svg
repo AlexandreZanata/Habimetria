@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 140" role="img" aria-label="habimetria">
+  <g transform="translate(16 26) scale(0.7333)">
+    <rect x="16" y="18" width="20" height="84" fill="#123D35"/>
+    <rect x="84" y="18" width="20" height="84" fill="#123D35"/>
+    <rect x="16" y="50" width="88" height="20" fill="#123D35"/>
+    <rect x="50" y="70" width="20" height="18" fill="#123D35"/>
+  </g>
+  <text x="132" y="96" fill="#123D35" font-family="Manrope, sans-serif" font-size="68" font-weight="600" letter-spacing="-2">habimetria</text>
+</svg>
