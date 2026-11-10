@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import vault.ui.AppContainer
+import vault.ui.BrandWhite
 import vault.ui.ErrorText
 import vault.ui.ScreenTitle
 import vault.ui.Strings
@@ -107,6 +110,10 @@ fun NewInspectionScreen(
                     }
                 },
                 enabled = !busy && isPropertyFormValid(street, number, neighborhood),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.inverseSurface,
+                    contentColor = BrandWhite,
+                ),
             )
         }
     }

@@ -1,6 +1,7 @@
 # Brand and report authorship UI
 
 - [brand/HabimetriaBrand.kt](brand/HabimetriaBrand.kt): geometric H mark from the brand vectors.
+- [ThemeColors.kt](ThemeColors.kt): complete Material color roles for the light and dark brand palettes.
 - [StatusBadge.kt](StatusBadge.kt): shared status badges for Properties and Inspections.
 - [inspection/InspectionStatusFilters.kt](inspection/InspectionStatusFilters.kt): status filters for the Inspection list and Property history.
 

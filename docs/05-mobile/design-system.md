@@ -1,7 +1,7 @@
 # Design System — Material 3 Tokens and Components (L2)
 
 Normative identity: [brand-identity.md](brand-identity.md). Code:
-`vault.ui.Theme` (brand roles, Manrope, shapes), `vault.ui.Strings`
+`vault.ui.ThemeColors` (brand roles), `vault.ui.Theme` (Manrope and shapes), `vault.ui.Strings`
 (pt-BR copy), `vault.ui.VaultComponents` (shared building blocks),
 `vault.ui.brand.HabimetriaBrand` (monogram).
 
@@ -9,13 +9,16 @@ Normative identity: [brand-identity.md](brand-identity.md). Code:
 
 Base palette is fixed by the brand document: Pinho `#123D35`, Marfim
 `#F4F3EE`, Grafite `#28332F`, Sálvia `#A7B8A7`. UI roles below derive
-from it; no screen hardcodes a color.
+from it. Both schemes define every Material role, including fixed colors,
+from the brand palette, neutral scrims and semantic error colors.
 
 Light roles:
 
 - `primary` Pinho; `onPrimary` Marfim; primary action and headers.
 - `primaryContainer` Sálvia; `onPrimaryContainer` Pinho.
 - `secondary` Sálvia; `onSecondary` Grafite.
+- In both modes, `secondaryContainer` is Pinho with white
+  `onSecondaryContainer` for selected chips using Material defaults.
 - `background`, `surface`, `surfaceContainerLow/Lowest/High` Marfim and
   ivory tints, including warm white `#FBFAF6` for raised reading surfaces;
   `onBackground`, `onSurface` Grafite.
@@ -57,7 +60,8 @@ Both schemes use Pinho, Marfim and Sálvia for the inverse feature panels.
 
 - `ScreenColumn`: the single content wrapper (spacing + padding once).
 - `ScreenTitle`, `BodyText`, `ErrorText` (error role, never bare red).
-- `VaultButton`: full-width, 52 dp minimum height.
+- `VaultButton`: full-width, 52 dp minimum height. In `Nova vistoria`,
+  the enabled `Iniciar vistoria` button uses Pinho and white in both modes.
 - `ProgressStatus`, outlined `VaultTextField`.
 - `RecordPanel`: icon and copy for contextual states, with an inverse
   treatment when it carries a primary seal or share action.
