@@ -11,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -69,11 +68,6 @@ internal fun RoomCaptureCard(
                         leadingIcon = if (selected == category) {
                             { Icon(Icons.Filled.Check, contentDescription = null) }
                         } else null,
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                            selectedLabelColor = colors.onPrimaryContainer,
-                            selectedLeadingIconColor = colors.onPrimaryContainer,
-                        ),
                         modifier = Modifier.heightIn(min = 48.dp),
                     )
                 }

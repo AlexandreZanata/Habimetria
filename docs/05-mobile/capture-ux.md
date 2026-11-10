@@ -24,10 +24,12 @@
   saveable. Optional presets stay secondary. The empty state explains
   the first step, and `Iniciar vistoria` appears once a Room exists.
   Each Room card opens capture and shows its label, coverage bar and photo
-  count. Its labeled options menu retains rename, reorder and delete.
+  count, with a white house icon on Pinho. Its labeled options menu retains
+  rename, reorder and delete.
 - Capture shortcuts scroll with the content and show no false active
   destination. The first outlined section contains wrapping category
-  selectors (green plus a check for selection) and the prominent shutter.
+  selectors and the prominent shutter. The selected category shows a white
+  label and check on Pinho.
   Category selection, N/A edits and onward navigation are disabled while
   capture is busy. System camera and durable-save semantics are unchanged.
 - Coverage has its own card: repository percentage, distinct captured /
