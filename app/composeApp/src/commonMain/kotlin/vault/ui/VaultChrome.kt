@@ -46,9 +46,7 @@ import vault.nav.destination
 // Compact windows get a bottom bar with four always-labeled destinations;
 // medium/expanded windows get a side rail with the same four. Selection
 // follows destination(), so detail screens keep their parent highlighted.
-// Selected state uses the theme indicator pill, label and semantics as
-// well as green; every destination carries a minimalist Material icon
-// (Apache 2.0) next to its label.
+// Selection uses shape and semantics as well as color.
 
 private data class DestinationItem(
     val root: Route,
@@ -66,8 +64,13 @@ private val destinations = listOf(
 @Composable
 fun DestinationsBar(selected: Route, onSelect: (Route) -> Unit) {
     val colors = MaterialTheme.colorScheme
+    val dark = LocalHabimetriaDarkTheme.current
+    val barColor = if (dark) colors.surface else colors.inverseSurface
+    val activeBackground = if (dark) colors.primaryContainer else LightNavigationWhite
+    val activeInk = if (dark) colors.onPrimaryContainer else colors.inverseSurface
+    val inactiveInk = if (dark) colors.onSurfaceVariant else LightNavigationWhite
     Row(
-        modifier = Modifier.fillMaxWidth().background(colors.surface)
+        modifier = Modifier.fillMaxWidth().background(barColor)
             .windowInsetsPadding(NavigationBarDefaults.windowInsets)
             .padding(horizontal = 12.dp, vertical = 6.dp).selectableGroup(),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -75,8 +78,8 @@ fun DestinationsBar(selected: Route, onSelect: (Route) -> Unit) {
         destinations.forEach { item ->
             val active = selected == item.root
             val shape = MaterialTheme.shapes.medium
-            val background = if (active) colors.primaryContainer else colors.surface
-            val ink = if (active) colors.onPrimaryContainer else colors.onSurfaceVariant
+            val background = if (active) activeBackground else barColor
+            val ink = if (active) activeInk else inactiveInk
             Column(
                 modifier = Modifier.weight(1f).heightIn(min = 52.dp).clip(shape)
                     .background(background).selectable(active, role = Role.Tab, onClick = { onSelect(item.root) })

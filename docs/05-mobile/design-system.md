@@ -70,6 +70,9 @@ Both schemes use Pinho, Marfim and Sálvia for the inverse feature panels.
 
 ## Adaptive shell
 
+- In light mode the compact bottom bar uses the same Pinho
+  `inverseSurface` as the Home hero, with white (`#FFFFFF`) labels
+  and icons. The selected tile reverses the pair.
 - Breakpoints live in shared `vault.nav` (`windowClassFor`,
   `maxContentWidthDp`, `roomsColumns`, `useSideBySide`) so Android,
   iOS, tablets, foldables and multi-window behave identically.

@@ -53,8 +53,9 @@ No new domain entity is introduced by a destination or filter.
 - Global screens have no redundant Back button. Detail screens have one
   labeled Back control; device Back/swipe follows the same hierarchy.
 - Compact windows use a bottom bar with four icons and always-visible
-  labels: `Início`, `Imóveis`, `Vistorias`, `Ajustes`. Selected state uses
-  semantics, shape and text along with sage selection.
+  labels: `Início`, `Imóveis`, `Vistorias`, `Ajustes`. Light mode uses a
+  pine bar with white icons and labels. The selected destination uses a
+  white tile with pine ink and retains selected semantics.
 - Medium/expanded windows use a navigation rail with the same destinations,
   based on existing `vault.nav` window classes. No additional breakpoint.
 - Re-selecting a global destination returns to its root; switching tabs
