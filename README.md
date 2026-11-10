@@ -33,6 +33,13 @@ docker compose -f infra/docker-compose.yml up --build
 # Verify page API: http://localhost:8080/v/ABC123
 ```
 
+## Branch protection
+
+Changes reach `main` through a pull request from `dev`. The head branch
+must be up to date with `main` and pass the GitHub Actions checks
+`backend` and `mobile-linux`. The ruleset blocks force pushes and deletion
+of `main`. See [Require CI for main](https://github.com/AlexandreZanata/Habimetria/rules/26970165).
+
 ## MVP 0.1 scope (freeze)
 
 1. Property + rooms

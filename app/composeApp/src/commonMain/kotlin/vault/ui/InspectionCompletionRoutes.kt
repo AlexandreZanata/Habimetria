@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import vault.nav.Route
 import vault.nav.VaultNavigator
+import vault.ui.review.ReviewInteractionScope
 import vault.ui.settings.SettingsStrings
 
 @Composable
@@ -14,15 +15,17 @@ internal fun InspectionCompletionRoutes(r: Route, container: AppContainer, navig
             is Route.Review -> ChromeShell(r, container, navigator, Strings.review, true, { navigator.goBack() }) {
                 val local = container.local
                 if (local != null) {
-                    LocalReviewScreen(
-                        container = container,
-                        session = local,
-                        inspectionId = r.inspectionId,
-                        onSeal = { navigator.navigate(Route.Seal(r.inspectionId)) },
-                        onCompare = { navigator.navigate(Route.LocalCompare(r.inspectionId)) },
-                        onInspector = { navigator.navigate(Route.LocalInspector(r.inspectionId)) },
-                        onRoomsShortcut = { navigator.navigate(Route.Rooms(r.inspectionId)) },
-                    )
+                    ReviewInteractionScope {
+                        LocalReviewScreen(
+                            container = container,
+                            session = local,
+                            inspectionId = r.inspectionId,
+                            onSeal = { navigator.navigate(Route.Seal(r.inspectionId)) },
+                            onCompare = { navigator.navigate(Route.LocalCompare(r.inspectionId)) },
+                            onInspector = { navigator.navigate(Route.LocalInspector(r.inspectionId)) },
+                            onRoomsShortcut = { navigator.navigate(Route.Rooms(r.inspectionId)) },
+                        )
+                    }
                 } else {
                     ReviewScreen(
                         container = container,

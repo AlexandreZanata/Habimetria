@@ -150,7 +150,7 @@ internal fun RecordPanel(
     val featured = action != null
     val container = if (featured) colors.inverseSurface else colors.surface
     val ink = if (featured) colors.inverseOnSurface else colors.onSurface
-    val iconBackground = if (featured) colors.inversePrimary else colors.surfaceVariant
+    val iconBackground = if (featured) BrandWhite else colors.surfaceVariant
     val iconInk = if (featured) colors.inverseSurface else colors.primary
     Surface(
         modifier = Modifier.fillMaxWidth(),

@@ -90,7 +90,9 @@ fun ReviewEvidenceRow(
             if (findingCount > 0) Text("$findingCount ${Strings.findingsList.lowercase()}")
         }
         if (onIssue != null) {
-            Button(onClick = onIssue) { Text(Strings.reportIssue) }
+            Button(onClick = onIssue, shape = MaterialTheme.shapes.medium) {
+                Text(Strings.reportIssue)
+            }
         }
     }
 }

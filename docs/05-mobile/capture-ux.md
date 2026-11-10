@@ -43,6 +43,11 @@
   actions. All content scrolls; controls retain 48 dp minimum targets and
   text can wrap as font scale increases. Device visual and accessibility
   acceptance remain manual checks.
+- Review uses a Pinho selection with white content in its navigation
+  segments. The seal prompt uses a Pinho icon on white. Report data and
+  inspection assistant use white icons on Pinho. Review controls use
+  the Material interaction layer for hover, focus and press. The photo
+  rotation choices wrap when space is limited.
 - The rules above still hold, except "Camera view is the home screen"
   and "Camera pre-warmed on Home", which described the old embedded
   CameraX preview.
