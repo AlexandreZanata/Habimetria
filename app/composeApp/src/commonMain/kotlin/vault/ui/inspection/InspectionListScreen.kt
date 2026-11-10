@@ -2,15 +2,19 @@ package vault.ui.inspection
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Assignment
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,6 +35,7 @@ import vault.ui.AppContainer
 import vault.ui.ErrorText
 import vault.ui.InspectionRowSkeleton
 import vault.ui.ProgressStatus
+import vault.ui.RecordPanel
 import vault.ui.Strings
 import vault.ui.rememberLoadingVisible
 import vault.ui.VaultTextField
@@ -113,8 +118,9 @@ fun InspectionListScreen(
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        item { RecordPanel(Icons.AutoMirrored.Outlined.Assignment, InspectionStrings.listTitle, InspectionStrings.listBody) }
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(
                     selected = filter == "ALL",
                     onClick = { filter = "ALL" },
@@ -137,6 +143,7 @@ fun InspectionListScreen(
                 value = query,
                 onValueChange = { query = it },
                 label = InspectionStrings.search,
+                leadingIcon = Icons.Outlined.Search,
             )
         }
         val done = feedback
@@ -158,12 +165,10 @@ fun InspectionListScreen(
                 item { InspectionRowSkeleton() }
                 item { InspectionRowSkeleton() }
             }
-            rows == null -> {
-                // Grace period: data is on its way, paint nothing yet.
-            }
+            rows == null -> Unit
             visible.isEmpty() -> {
                 item {
-                    Text(if (query.isBlank()) InspectionStrings.emptyAll else InspectionStrings.emptyFilter)
+                    Text(if (query.isBlank() && filter == "ALL") InspectionStrings.emptyAll else InspectionStrings.emptyFilter, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
                 }
             }
             else -> {

@@ -4,6 +4,11 @@ package vault.ui.property
 // vault.ui.Strings; detail/history/filter copy lives here so the shared
 // file stays small and the feature owns its wording.
 object PropertyStrings {
+    const val inspectionAddressTitle = "Endereço do imóvel"
+    const val rentalMode = "Locação"
+    const val technicalMode = "Profissional"
+    const val listTitle = "Meus imóveis"
+    const val listBody = "Consulte os endereços cadastrados e suas vistorias."
     const val detail = "Detalhe do imóvel"
     const val history = "Vistorias do imóvel"
     const val filterAll = "Todas"

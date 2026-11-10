@@ -19,7 +19,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import vault.ui.Strings
 
-// Independent menu overlay keeps its 48 dp target without enlarging the title row.
+// The menu remains a separate 48 dp target from the Property title.
 @Composable
 internal fun PropertyCardMenu(
     title: String,
@@ -27,10 +27,9 @@ internal fun PropertyCardMenu(
     onNewInspection: () -> Unit,
     onOpenDetail: () -> Unit,
     onRemove: (() -> Unit)?,
-    modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    Box(modifier) {
+    Box {
         IconButton(
             onClick = { expanded = true },
             enabled = !busy,

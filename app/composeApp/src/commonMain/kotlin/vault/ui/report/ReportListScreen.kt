@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -31,6 +34,7 @@ import vault.ui.AppContainer
 import vault.ui.ErrorText
 import vault.ui.InspectionRowSkeleton
 import vault.ui.ProgressStatus
+import vault.ui.RecordPanel
 import vault.ui.Strings
 import vault.ui.rememberLoadingVisible
 import vault.ui.VaultTextField
@@ -91,10 +95,14 @@ fun ReportListScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
+            RecordPanel(Icons.Outlined.Description, ReportStrings.listTitle, ReportStrings.listBody)
+        }
+        item {
             VaultTextField(
                 value = query,
                 onValueChange = { query = it },
                 label = ReportStrings.search,
+                leadingIcon = Icons.Outlined.Search,
             )
         }
         val done = feedback
@@ -121,7 +129,7 @@ fun ReportListScreen(
             }
             ready.isEmpty() && awaiting.isEmpty() -> {
                 item {
-                    Text(if (query.isBlank()) ReportStrings.emptyAll else ReportStrings.emptySearch)
+                    Text(if (query.isBlank()) ReportStrings.emptyAll else ReportStrings.emptySearch, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
                 }
             }
             else -> {

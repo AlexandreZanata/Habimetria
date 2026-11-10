@@ -1,134 +1,90 @@
 package vault.ui.property
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import org.jetbrains.compose.resources.painterResource
-import vault.composeapp.generated.resources.Res
-import vault.composeapp.generated.resources.home_brazil_house
+import androidx.compose.ui.unit.sp
 import vault.ui.Strings
-import vault.ui.brand.HabimetriaWordmark
+import vault.ui.brand.FacadeDrawing
 
-// Short native copy and decorative Brazilian house art never overlap.
-// The content grows with font scale; Nova vistoria is the only action.
 @Composable
 fun HomeHeroBanner(enabled: Boolean, onNewInspection: () -> Unit) {
-    OutlinedCard(
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+    val colors = MaterialTheme.colorScheme
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        color = colors.inverseSurface,
+        contentColor = colors.inverseOnSurface,
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            HabimetriaWordmark(markSize = 20.dp)
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(
-                    modifier = Modifier.weight(0.55f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Text(
-                        Strings.homeHeroTitle,
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.semantics { heading() },
-                    )
-                    Text(
-                        Strings.homeHeroSubtitle,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    )
-                    HeroCheck(Strings.homeHeroValue)
-                }
-                Image(
-                    painter = painterResource(Res.drawable.home_brazil_house),
-                    contentDescription = null,
-                    modifier = Modifier.weight(0.45f).aspectRatio(1.5f),
-                    contentScale = ContentScale.Fit,
-                )
-            }
-            Surface(
-                onClick = onNewInspection,
-                enabled = enabled,
-                color = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(16.dp),
+        Box(Modifier.clipToBounds()) {
+            FacadeDrawing(
+                modifier = Modifier.align(Alignment.CenterEnd).width(186.dp).height(164.dp),
+                ink = colors.inversePrimary.copy(alpha = 0.24f),
+            )
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(22.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                Text(
+                    Strings.appDescription.uppercase(),
+                    color = colors.inversePrimary,
+                    style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 1.3.sp),
+                )
+                Text(
+                    Strings.tagline,
+                    style = MaterialTheme.typography.displaySmall,
+                    modifier = Modifier.semantics { heading() },
+                )
+                Text(
+                    Strings.homeHeroSubtitle,
+                    color = colors.inverseOnSurface,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Button(
+                    onClick = onNewInspection,
+                    enabled = enabled,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                    shape = MaterialTheme.shapes.medium,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colors.inverseOnSurface,
+                        contentColor = colors.inverseSurface,
+                    ),
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
                 ) {
-                    Box(
-                        modifier = Modifier.size(40.dp).clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.onPrimary),
-                        contentAlignment = Alignment.Center,
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(
-                            Icons.Filled.Add,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
+                        Icon(Icons.Filled.Add, contentDescription = null)
+                        Text(Strings.newInspection, modifier = Modifier.weight(1f))
+                        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
                     }
-                    Text(
-                        Strings.newInspection,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.weight(1f),
-                    )
-                    Icon(
-                        Icons.Filled.ChevronRight,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                    )
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun HeroCheck(text: String) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.Top,
-    ) {
-        Icon(
-            Icons.Filled.CheckCircle,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-            modifier = Modifier.padding(top = 2.dp).size(16.dp),
-        )
-        Text(
-            text,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-        )
     }
 }

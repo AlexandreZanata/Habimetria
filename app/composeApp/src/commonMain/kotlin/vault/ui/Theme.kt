@@ -33,13 +33,13 @@ private val LightSecondary = Color(0xFFA7B8A7)
 private val LightOnSecondary = Color(0xFF28332F)
 private val LightBackground = Color(0xFFF4F3EE)
 private val LightOnBackground = Color(0xFF28332F)
-private val LightSurface = Color(0xFFF4F3EE)
+private val LightSurface = Color(0xFFFBFAF6)
 private val LightOnSurface = Color(0xFF28332F)
 private val LightSurfaceVariant = Color(0xFFE6EAE3)
 private val LightOnSurfaceVariant = Color(0xFF28332F)
 private val LightSurfaceDim = Color(0xFFE6EAE3)
 private val LightSurfaceBright = Color(0xFFF4F3EE)
-private val LightSurfaceLowest = Color(0xFFF4F3EE)
+private val LightSurfaceLowest = Color(0xFFFBFAF6)
 private val LightSurfaceLow = Color(0xFFF7F6F1)
 private val LightSurfaceContainer = Color(0xFFEDEEE7)
 private val LightSurfaceHigh = Color(0xFFF4F3EE)
@@ -57,7 +57,7 @@ private val DarkSecondary = Color(0xFFA7B8A7)
 private val DarkOnSecondary = Color(0xFF28332F)
 private val DarkBackground = Color(0xFF0E1512)
 private val DarkOnBackground = Color(0xFFF4F3EE)
-private val DarkSurface = Color(0xFF0E1512)
+private val DarkSurface = Color(0xFF15201C)
 private val DarkOnSurface = Color(0xFFF4F3EE)
 private val DarkSurfaceVariant = Color(0xFF1E2C27)
 private val DarkOnSurfaceVariant = Color(0xFFC2CEC5)
@@ -86,6 +86,9 @@ private val LightColors = lightColorScheme(
     onSurface = LightOnSurface,
     surfaceVariant = LightSurfaceVariant,
     onSurfaceVariant = LightOnSurfaceVariant,
+    inverseSurface = LightPrimary,
+    inverseOnSurface = LightOnPrimary,
+    inversePrimary = LightPrimaryContainer,
     surfaceDim = LightSurfaceDim,
     surfaceBright = LightSurfaceBright,
     surfaceContainerLowest = LightSurfaceLowest,
@@ -112,6 +115,9 @@ private val DarkColors = darkColorScheme(
     onSurface = DarkOnSurface,
     surfaceVariant = DarkSurfaceVariant,
     onSurfaceVariant = DarkOnSurfaceVariant,
+    inverseSurface = LightPrimary,
+    inverseOnSurface = LightOnPrimary,
+    inversePrimary = LightPrimaryContainer,
     surfaceDim = DarkSurfaceDim,
     surfaceBright = DarkSurfaceBright,
     surfaceContainerLowest = DarkSurfaceLowest,
@@ -134,8 +140,20 @@ private fun habimetriaTypography(): Typography {
         Font(Res.font.manrope_bold, FontWeight.Bold),
     )
     return Typography(
+        displaySmall = TextStyle(
+            fontFamily = manrope, fontSize = 38.sp, lineHeight = 42.sp,
+            fontWeight = FontWeight.SemiBold, letterSpacing = (-1.5).sp,
+        ),
+        labelSmall = TextStyle(
+            fontFamily = manrope, fontSize = 11.sp, lineHeight = 16.sp,
+            fontWeight = FontWeight.Bold, letterSpacing = 0.2.sp,
+        ),
+        labelMedium = TextStyle(
+            fontFamily = manrope, fontSize = 12.sp, lineHeight = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+        ),
         headlineSmall = TextStyle(fontFamily = manrope, fontSize = 24.sp, fontWeight = FontWeight.SemiBold, lineHeight = 32.sp),
-        headlineMedium = TextStyle(fontFamily = manrope, fontSize = 32.sp, fontWeight = FontWeight.SemiBold, lineHeight = 40.sp),
+        headlineMedium = TextStyle(fontFamily = manrope, fontSize = 32.sp, fontWeight = FontWeight.SemiBold, lineHeight = 38.sp, letterSpacing = (-1).sp),
         titleLarge = TextStyle(fontFamily = manrope, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, lineHeight = 28.sp),
         titleMedium = TextStyle(fontFamily = manrope, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, lineHeight = 24.sp),
         titleSmall = TextStyle(fontFamily = manrope, fontSize = 14.sp, fontWeight = FontWeight.Medium, lineHeight = 20.sp),
@@ -148,9 +166,9 @@ private fun habimetriaTypography(): Typography {
 
 private val HabimetriaShapes = Shapes(
     extraSmall = RoundedCornerShape(4.dp),
-    small = RoundedCornerShape(8.dp),
-    medium = RoundedCornerShape(12.dp),
-    large = RoundedCornerShape(16.dp),
+    small = RoundedCornerShape(10.dp),
+    medium = RoundedCornerShape(14.dp),
+    large = RoundedCornerShape(20.dp),
     extraLarge = RoundedCornerShape(28.dp),
 )
 

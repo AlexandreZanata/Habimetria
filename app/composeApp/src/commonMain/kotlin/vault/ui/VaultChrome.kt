@@ -1,15 +1,24 @@
 package vault.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Assignment
-import androidx.compose.material.icons.filled.Apartment
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.automirrored.outlined.Assignment
+import androidx.compose.material.icons.outlined.Apartment
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
@@ -20,7 +29,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import vault.local.SyncMode
 import vault.nav.Destinations
 import vault.nav.Route
 import vault.nav.VaultNavigator
@@ -41,30 +57,36 @@ private data class DestinationItem(
 )
 
 private val destinations = listOf(
-    DestinationItem(Route.Home, Strings.home, Icons.Filled.Home),
-    DestinationItem(Route.Properties, Strings.properties, Icons.Filled.Apartment),
-    DestinationItem(Route.Inspections, Strings.inspections, Icons.AutoMirrored.Filled.Assignment),
-    DestinationItem(Route.Settings, Strings.settings, Icons.Filled.Settings),
+    DestinationItem(Route.Home, Strings.home, Icons.Outlined.Home),
+    DestinationItem(Route.Properties, Strings.properties, Icons.Outlined.Apartment),
+    DestinationItem(Route.Inspections, Strings.inspections, Icons.AutoMirrored.Outlined.Assignment),
+    DestinationItem(Route.Settings, Strings.settingsTab, Icons.Outlined.Settings),
 )
 
 @Composable
 fun DestinationsBar(selected: Route, onSelect: (Route) -> Unit) {
-    NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainer) {
+    val colors = MaterialTheme.colorScheme
+    Row(
+        modifier = Modifier.fillMaxWidth().background(colors.surface)
+            .windowInsetsPadding(NavigationBarDefaults.windowInsets)
+            .padding(horizontal = 12.dp, vertical = 6.dp).selectableGroup(),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
         destinations.forEach { item ->
-            NavigationBarItem(
-                selected = selected == item.root,
-                onClick = { onSelect(item.root) },
-                icon = { Icon(item.icon, contentDescription = null) },
-                label = { Text(item.label) },
-                alwaysShowLabel = true,
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.primary,
-                    selectedTextColor = MaterialTheme.colorScheme.primary,
-                    indicatorColor = MaterialTheme.colorScheme.primaryContainer,
-                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                ),
-            )
+            val active = selected == item.root
+            val shape = MaterialTheme.shapes.medium
+            val background = if (active) colors.primaryContainer else colors.surface
+            val ink = if (active) colors.onPrimaryContainer else colors.onSurfaceVariant
+            Column(
+                modifier = Modifier.weight(1f).heightIn(min = 52.dp).clip(shape)
+                    .background(background).selectable(active, role = Role.Tab, onClick = { onSelect(item.root) })
+                    .padding(horizontal = 2.dp, vertical = 5.dp),
+                verticalArrangement = Arrangement.spacedBy(3.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Icon(item.icon, contentDescription = null, tint = ink, modifier = Modifier.size(21.dp))
+                Text(item.label, color = ink, textAlign = TextAlign.Center, style = MaterialTheme.typography.labelSmall)
+            }
         }
     }
 }
@@ -80,7 +102,7 @@ fun DestinationsRail(selected: Route, onSelect: (Route) -> Unit) {
                 label = { Text(item.label) },
                 alwaysShowLabel = true,
                 colors = NavigationRailItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     selectedTextColor = MaterialTheme.colorScheme.primary,
                     indicatorColor = MaterialTheme.colorScheme.primaryContainer,
                     unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -145,6 +167,8 @@ fun ChromeShell(
         onBack = onBack,
         destination = route.destination(),
         subtitle = subtitle,
+        showWordmark = route == Route.Home,
+        localMode = container.syncMode == SyncMode.LOCAL_ONLY,
         onSelect = { dest ->
             val local = container.local
             if (local != null) {

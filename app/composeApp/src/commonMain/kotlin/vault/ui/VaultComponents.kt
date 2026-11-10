@@ -1,20 +1,26 @@
 package vault.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -47,7 +53,8 @@ fun ScreenColumn(
 fun ScreenTitle(text: String) {
     Text(
         text,
-        style = MaterialTheme.typography.headlineSmall,
+        color = MaterialTheme.colorScheme.primary,
+        style = MaterialTheme.typography.headlineMedium,
         modifier = Modifier.semantics { heading() },
     )
 }
@@ -81,7 +88,8 @@ fun VaultButton(
     Button(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier.fillMaxWidth().heightIn(min = 48.dp),
+        modifier = modifier.fillMaxWidth().heightIn(min = 52.dp),
+        shape = MaterialTheme.shapes.medium,
     ) {
         Text(text)
     }
@@ -110,7 +118,7 @@ fun VaultTextField(
     placeholder: String? = null,
     leadingIcon: ImageVector? = null,
 ) {
-    TextField(
+    OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
@@ -121,6 +129,63 @@ fun VaultTextField(
             null
         },
         singleLine = singleLine,
+        shape = MaterialTheme.shapes.medium,
         modifier = modifier.fillMaxWidth(),
     )
+}
+
+@Composable
+internal fun RecordPanel(
+    icon: ImageVector,
+    title: String,
+    body: String,
+    action: String? = null,
+    actionEnabled: Boolean = true,
+    onAction: () -> Unit = {},
+) {
+    val colors = MaterialTheme.colorScheme
+    val featured = action != null
+    val container = if (featured) colors.inverseSurface else colors.surface
+    val ink = if (featured) colors.inverseOnSurface else colors.onSurface
+    val iconBackground = if (featured) colors.inversePrimary else colors.surfaceVariant
+    val iconInk = if (featured) colors.inverseSurface else colors.primary
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        color = container,
+        contentColor = ink,
+        border = BorderStroke(1.dp, if (featured) container else colors.outlineVariant),
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalAlignment = Alignment.Top,
+            ) {
+                Surface(shape = MaterialTheme.shapes.small, color = iconBackground) {
+                    Icon(
+                        icon, contentDescription = null, tint = iconInk,
+                        modifier = Modifier.size(42.dp).padding(11.dp),
+                    )
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.weight(1f)) {
+                    Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
+                    Text(body, style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+            if (action != null) {
+                Button(
+                    onClick = onAction,
+                    enabled = actionEnabled,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                    shape = MaterialTheme.shapes.medium,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colors.inverseOnSurface,
+                        contentColor = colors.inverseSurface,
+                        disabledContainerColor = colors.inverseOnSurface.copy(alpha = 0.18f),
+                        disabledContentColor = colors.inverseOnSurface.copy(alpha = 0.55f),
+                    ),
+                ) { Text(action) }
+            }
+        }
+    }
 }

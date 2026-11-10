@@ -7,25 +7,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.FactCheck
 import androidx.compose.material.icons.filled.Archive
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Draw
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.outlined.GridView
-import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -39,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import vault.ui.RecordPanel
 import vault.ui.Strings
 
 // Report PDF option cards matching the reference layout: a ready-status
@@ -46,59 +42,14 @@ import vault.ui.Strings
 // actions. Theme-aware surfaces only; no action or disclaimer is dropped.
 @Composable
 fun PdfStatusCard(versionNumber: Int, shareEnabled: Boolean, onShare: () -> Unit) {
-    OutlinedCard(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(
-                    modifier = Modifier.size(56.dp).clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        Icons.Filled.Check,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(32.dp),
-                    )
-                }
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(Strings.pdfReadyTitle, style = MaterialTheme.typography.titleLarge)
-                    Text(
-                        Strings.pdfReadyBody,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    )
-                }
-                Box(
-                    modifier = Modifier.clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.14f))
-                        .padding(horizontal = 10.dp, vertical = 6.dp),
-                ) {
-                    Text(
-                        "${Strings.pdfVersionBadge} $versionNumber",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                        maxLines = 1,
-                    )
-                }
-            }
-            Button(onClick = onShare, enabled = shareEnabled, modifier = Modifier.fillMaxWidth()) {
-                Icon(Icons.Filled.Share, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text(Strings.sharePdf)
-            }
-        }
-    }
+    RecordPanel(
+        icon = Icons.Filled.Description,
+        title = "${Strings.pdfReadyTitle} · ${Strings.pdfVersionBadge} $versionNumber",
+        body = Strings.pdfReadyBody,
+        action = Strings.sharePdf,
+        actionEnabled = shareEnabled,
+        onAction = onShare,
+    )
 }
 
 @Composable

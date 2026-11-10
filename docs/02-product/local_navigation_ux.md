@@ -1,42 +1,27 @@
-# Local Navigation UX — Planned Product Contract
+# Local Navigation UX — Product Contract
 
-Status: planned; this document does not claim that the UI is implemented.
+The visual contract applies to the redesigned 0.2.0 mobile app. The manual
+acceptance gates below remain user-owned.
 Execution: [task backlog](../06-roadmap/local_usability_plan.md).
 Preserve the [capture flow](capture-flow.md) and
 [domain terminology](../03-architecture/domain-model.md).
 
 ## Global destinations
 
-- `Início`: compact mint hero with decorative Brazilian single-storey
-  house art and native copy: `Vistoria fácil`, `Fotos, revisão e PDF.`,
-  and `Rápida e econômica`. One `Nova vistoria` action is followed directly by
-  `Meus imóveis` cards. No stat cards. Each card shows the cover photo
-  (or placeholder art), nickname/address with pin, rooms + status chips
-  and `Continuar` for an open draft; the `X imóveis >` header opens `Imóveis`.
-  Creation still follows the existing address, Tenancy and manually named
-  Room flow.
-  Copy and art occupy separate columns; text grows without truncation at
-  larger font scales. The value line communicates positioning, without
-  a fixed price or guaranteed completion time. The same decorative house
-  serves as fallback cover art only when no saved Property photo is present.
-  The hero uses the artwork's 3:2 aspect ratio without a tall empty image
-  box, with 12 dp vertical padding and spacing before its action.
-  Property covers are 104 dp wide and span the metadata row. Measure the
-  metadata first, then constrain the cover to that exact height; image
-  intrinsic dimensions never determine card height. Saved photos use
-  proportional center cropping; fallback art uses proportional fit so
-  the whole house remains visible. Neither image path stretches pixels.
-  The title
-  aligns with the cover top and is capped at one line; the address reserves
-  two lines with ellipsis. The overlaid options menu keeps its 48 dp target
-  without adding height above the address. Compact chips wrap only when
-  needed for window width or font scale. Text length does not expand normal
-  cards; larger accessibility fonts can grow the row and its cover together.
-  Full values remain available through Property details and text semantics.
+- `Início`: the Habimetria lockup and a local-mode label sit above an
+  ivory-and-pine layout. A pine hero pairs the brand signature with a
+  decorative architectural elevation and the `Nova vistoria` action.
+  `Meus imóveis` follows with a labeled empty state or photo-led cards,
+  room counts, status labels and `Continuar` for an open draft. `Ver todos`
+  opens `Imóveis`. The Home list composes visible cards on demand.
+  Creation follows the existing address, profile and Room setup. A saved
+  Property cover takes precedence over the drawn fallback and uses
+  proportional center cropping. Property management keeps its denser
+  side-by-side cover and metadata layout.
 - `Imóveis`: local Property list, address/nickname, create/rename actions,
   and a Property detail showing its Inspections. Removal follows the
   [Property removal contract](../03-architecture/local_property_removal.md).
-  Match the PDF pages' outlined, rounded cards without shadows. Search is
+  Cards use ivory surfaces, soft corners and a fine outline. Search is
   a neutral rounded field with a visible label, search icon, clear action
   and search-keyboard submit. Ativos/Arquivados use a full-width segmented
   control with theme-green selection, a check icon and selected semantics.
@@ -49,11 +34,12 @@ Preserve the [capture flow](capture-flow.md) and
   and archived-empty states stay distinct; management errors are visible
   even when the creation form is closed. No API or persistence changes.
 - `Vistorias`: local Inspections grouped by Property, with clearly labeled
-  `Em andamento` and `Selada` filters. DRAFT resumes capture/review;
+  `Em andamento` and sealed filters. Visible row actions resume DRAFT or
+  open the review of a SEALED Inspection;
   SEALED opens read-only review. Archived Properties remain discoverable
   through an explicit filter and label.
-- `Relatórios`: locally finalized Reports, grouped by Property, with
-  open/share/verify actions. SEALED Inspections awaiting a PDF expose
+- `Relatórios`, reached from `Ajustes`: locally finalized Reports, grouped
+  by Property, with open/share/verify actions. SEALED Inspections awaiting a PDF expose
   `Gerar PDF`, without claiming a Report already exists.
 
 Each destination works without signup, API, internet or payment. Empty
@@ -62,13 +48,13 @@ No new domain entity is introduced by a destination or filter.
 
 ## Header and navigation bar
 
-- One shared header on every app screen, including Home: short page title,
-  and Property nickname/address plus Room context when applicable.
+- One shared masthead on every app screen. Home carries the brand lockup.
+  Other screens show a title and Property or Room context when applicable.
 - Global screens have no redundant Back button. Detail screens have one
   labeled Back control; device Back/swipe follows the same hierarchy.
 - Compact windows use a bottom bar with four icons and always-visible
-  labels: `Início`, `Imóveis`, `Vistorias`, `Relatórios`. Selected state is
-  conveyed by semantics, shape and text as well as green.
+  labels: `Início`, `Imóveis`, `Vistorias`, `Ajustes`. Selected state uses
+  semantics, shape and text along with sage selection.
 - Medium/expanded windows use a navigation rail with the same destinations,
   based on existing `vault.nav` window classes. No additional breakpoint.
 - Re-selecting a global destination returns to its root; switching tabs
@@ -101,15 +87,12 @@ task action per screen; navigation controls are secondary, consistent chrome.
 
 ## Light theme and accessibility
 
-- Light background, surface and header: pure white `#FFFFFF`.
-- Primary actions/selected destination: existing green `#1B7A4D`, with
-  white on-primary text. Selected containers: pale green `#DDF2E5`.
-- Neutral secondary surfaces: `#F3F4F6`; primary text `#1A1A1A`, secondary
-  text `#4B5563`. Replace beige/yellow light surface roles, including all
-  Material container roles used by bars, cards, dialogs and sheets.
-- Screens consume theme roles; define light tokens independently from
-  dark roles so replacing shared beige constants cannot recolor dark mode.
-  Retain system light/dark selection and semantic error colors.
+- The [design system](../05-mobile/design-system.md) defines ivory
+  backgrounds, pine action and title roles, graphite text and sage
+  selection. Light and dark roles follow the system setting.
+- Forms use labeled outlined fields. Room capture highlights the category
+  picker and shutter. Draft review and ready Reports use an emphasized
+  action panel for sealing and sharing respectively.
 - Use 48 dp minimum touch targets, readable text at 200% scale, explicit
   field labels, visible keyboard focus and logical screen-reader order.
 - Specify normal text contrast of at least 4.5:1 and required non-text

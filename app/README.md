@@ -11,7 +11,7 @@ app/
   iosApp/      # Swift host (project assembly in M2, macOS runner)
 ```
 
-Bundled decorative artwork and its generation prompt are documented in
+The shared architectural illustration is documented in
 [Home artwork](../docs/05-mobile/home_artwork.md).
 
 UI chrome lives in `composeApp/.../vault/ui/`:
@@ -23,7 +23,8 @@ property management lives in `vault/ui/property/`: `NewInspectionScreen`
 overviews, detail entry), `PropertyDetailScreen` (bounded inspection
 history with DRAFT/SEALED filter), `PropertyDataForm` (editable data
 section), `PropertyForm` (address form, creation block),
-`HomeHeroBanner` (short copy + Brazilian house), `PropertyCards` (property rows),
+`HomeHeroBanner` (brand signature + architectural elevation), `PropertyCards`
+(photo-led Home cards and compact management rows),
 `HomePropertyStates` (shared loading/error/empty), `PropertyActions`
 (creation helpers), `PropertyStrings` (feature copy).
 Journey destinations read bulk overviews from `LocalOverviewRepository`
@@ -36,7 +37,7 @@ plus explicit pending "Gerar PDF" entries; DRAFT never offers
 generation, pending never claims an existing report; `ReportRows`
 with red delete plus `ReportDeleteHost` confirmation).
 `vault/ui/settings/` (`SettingsScreen`: device-local sections; reports
-live here as a detail route under Configurações; `FindingProblemsScreen`
+live here as a detail route under Ajustes; `FindingProblemsScreen`
 toggles built-ins and manages customs, `SettingsStrings` owns the copy).
 Finding display labels live in `shared/.../vault/findings/FindingLabels.kt`
 (`label()` per `AppLocale`); stored codes never change.

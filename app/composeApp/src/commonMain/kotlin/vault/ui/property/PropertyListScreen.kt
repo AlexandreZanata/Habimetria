@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Apartment
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +27,7 @@ import vault.ui.AppContainer
 import vault.ui.ErrorText
 import vault.ui.ProgressStatus
 import vault.ui.PropertyCardSkeleton
+import vault.ui.RecordPanel
 import vault.ui.Strings
 import vault.ui.rememberLoadingVisible
 import vault.ui.userErrorMessage
@@ -90,6 +93,9 @@ fun PropertyListScreen(
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        item {
+            RecordPanel(Icons.Outlined.Apartment, PropertyStrings.listTitle, PropertyStrings.listBody)
+        }
         item {
             PropertySearchField(query = query, onQueryChange = { query = it })
         }

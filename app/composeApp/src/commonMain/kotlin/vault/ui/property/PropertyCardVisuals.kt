@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
@@ -24,10 +23,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import org.jetbrains.compose.resources.painterResource
-import vault.composeapp.generated.resources.Res
-import vault.composeapp.generated.resources.home_brazil_house
 import vault.ui.Strings
+import vault.ui.brand.FacadeDrawing
 import vault.ui.decodeThumbnail
 
 // Cover thumbnail: saved photo when present, placeholder art otherwise.
@@ -40,7 +37,7 @@ internal fun PropertyCover(photoPath: String?, modifier: Modifier) {
             runCatching { decodeThumbnail(it) }.getOrNull()
         }
     }
-    val cover = modifier.clip(RoundedCornerShape(12.dp))
+    val cover = modifier.clip(MaterialTheme.shapes.medium)
         .clearAndSetSemantics {}
     if (bitmap != null) {
         Image(
@@ -50,11 +47,9 @@ internal fun PropertyCover(photoPath: String?, modifier: Modifier) {
             contentScale = ContentScale.Crop,
         )
     } else {
-        Image(
-            painter = painterResource(Res.drawable.home_brazil_house),
-            contentDescription = null,
-            modifier = cover.background(MaterialTheme.colorScheme.primaryContainer),
-            contentScale = ContentScale.Fit,
+        FacadeDrawing(
+            modifier = cover.background(MaterialTheme.colorScheme.surfaceVariant),
+            ink = MaterialTheme.colorScheme.primary.copy(alpha = 0.64f),
         )
     }
 }
@@ -88,7 +83,7 @@ internal fun RoomsChip(count: Int) {
 }
 
 @Composable
-internal fun StatusChip(archived: Boolean) {
+internal fun StatusChip(label: String) {
     Surface(
         color = MaterialTheme.colorScheme.primaryContainer,
         shape = CircleShape,
@@ -100,13 +95,13 @@ internal fun StatusChip(archived: Boolean) {
         ) {
             Box(
                 modifier = Modifier.size(8.dp).clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary)
+                    .background(MaterialTheme.colorScheme.onPrimaryContainer)
                     .clearAndSetSemantics {},
             )
             Text(
-                if (archived) PropertyStrings.archivedBadge else Strings.activeLabel,
+                label,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )

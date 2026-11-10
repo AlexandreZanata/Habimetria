@@ -2,11 +2,14 @@ package vault.ui.property
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -62,13 +65,21 @@ fun NewInspectionScreen(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        ScreenTitle(Strings.newInspection)
+        ScreenTitle(PropertyStrings.inspectionAddressTitle)
         if (local != null) {
-            androidx.compose.foundation.layout.Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf(false, true).forEach { mode ->
-                    androidx.compose.material3.FilterChip(selected = technical == mode, onClick = { technical = mode }, enabled = !busy,
-                        label = { androidx.compose.material3.Text(if (mode) "Profissional" else "Locação") })
-                }
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(
+                    selected = !technical,
+                    onClick = { technical = false },
+                    enabled = !busy,
+                    label = { Text(PropertyStrings.rentalMode) },
+                )
+                FilterChip(
+                    selected = technical,
+                    onClick = { technical = true },
+                    enabled = !busy,
+                    label = { Text(PropertyStrings.technicalMode) },
+                )
             }
             PropertyAddressForm(
                 nickname, { nickname = it }, street, { street = it },
@@ -79,7 +90,7 @@ fun NewInspectionScreen(
         ErrorText(error)
         if (local != null) {
             VaultButton(
-                text = if (busy) Strings.starting else Strings.start,
+                text = if (busy) Strings.starting else Strings.startInspection,
                 onClick = {
                     busy = true
                     error = null

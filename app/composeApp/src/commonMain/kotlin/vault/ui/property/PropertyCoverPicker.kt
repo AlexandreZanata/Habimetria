@@ -1,12 +1,9 @@
 package vault.ui.property
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -17,18 +14,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.FileSystem
 import okio.Path.Companion.toPath
-import org.jetbrains.compose.resources.painterResource
-import vault.composeapp.generated.resources.Res
-import vault.composeapp.generated.resources.home_brazil_house
 import vault.ui.AppContainer
 import vault.ui.CaptureResult
 import vault.ui.ErrorText
@@ -51,34 +42,11 @@ fun PropertyCoverSection(
     val session = container.local
     val picker = container.filePicker
 
-    val thumb = remember(photoPath) {
-        photoPath?.takeIf { it.isNotBlank() }?.let {
-            runCatching { vault.ui.decodeThumbnail(it) }.getOrNull()
-        }
-    }
-
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(PropertyStrings.coverTitle, style = MaterialTheme.typography.titleMedium)
-        if (thumb != null) {
-            Image(
-                bitmap = thumb,
-                contentDescription = null,
-                modifier = Modifier.size(84.dp).clip(RoundedCornerShape(12.dp))
-                    .clearAndSetSemantics {},
-                contentScale = ContentScale.Crop,
-            )
-        } else {
-            Image(
-                painter = painterResource(Res.drawable.home_brazil_house),
-                contentDescription = null,
-                modifier = Modifier.size(84.dp).clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer)
-                    .clearAndSetSemantics {},
-                contentScale = ContentScale.Fit,
-            )
-        }
+        PropertyCover(photoPath, Modifier.size(104.dp))
         ErrorText(error)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (picker != null && session != null) {
                 OutlinedButton(
                     onClick = {

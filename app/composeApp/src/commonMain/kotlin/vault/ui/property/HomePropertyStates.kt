@@ -1,33 +1,36 @@
 package vault.ui.property
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.outlined.Apartment
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import vault.local.PropertyOverview
 import vault.ui.ErrorText
 import vault.ui.ProgressStatus
+import vault.ui.RecordPanel
 import vault.ui.PropertyCardSkeleton
 import vault.ui.Strings
-import vault.ui.rememberLoadingVisible
 
-// Shared loading/error/empty/content states for property rows.
-// Home and Imóveis reuse the same distinct states with retry. The header
-// links to the full list; there are no stat cards on Home.
-@Composable
-fun HomePropertyStates(
+// Home cover photos load as their rows enter the viewport.
+internal fun LazyListScope.homePropertyItems(
     rows: List<PropertyOverview>?,
+    showLoading: Boolean,
     loadError: String?,
     busy: Boolean,
     onRetry: () -> Unit,
@@ -37,56 +40,61 @@ fun HomePropertyStates(
     onOpenAllProperties: () -> Unit,
     onRemove: ((PropertyOverview) -> Unit)? = null,
 ) {
-    val showLoading = rememberLoadingVisible(rows == null)
-    when {
-        loadError != null -> {
-            ErrorText(loadError)
-            OutlinedButton(onClick = onRetry) { Text(Strings.retry) }
-        }
-        showLoading -> {
-            ProgressStatus(true)
-            PropertyCardSkeleton()
-            PropertyCardSkeleton()
-        }
-        rows == null -> {
-            // Grace period: data is on its way, paint nothing yet.
-        }
-        rows.isEmpty() -> Text(Strings.propertiesEmpty)
-        else -> {
-            val countText =
-                "${rows.size} ${if (rows.size == 1) Strings.propertySingular else Strings.propertyPlural}"
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(Strings.myProperties, style = MaterialTheme.typography.titleLarge)
-                TextButton(
-                    onClick = onOpenAllProperties,
-                    modifier = Modifier.semantics { contentDescription = "$countText: ${Strings.properties}" },
-                ) {
+    item(key = "properties-header") {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    Strings.myProperties,
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.semantics { heading() },
+                )
+                if (rows != null && rows.isNotEmpty()) {
+                    val noun = if (rows.size == 1) Strings.propertySingular else Strings.propertyPlural
                     Text(
-                        countText,
-                        style = MaterialTheme.typography.bodyMedium,
+                        "${rows.size} $noun",
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Icon(
-                        Icons.Filled.ChevronRight,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
-            rows.forEach { overview ->
-                PropertyCardView(
-                    overview = overview,
-                    busy = busy,
-                    onResume = onResume,
-                    onNewInspection = { onNewInspection(overview.property.id) },
-                    onOpenDetail = { onOpenDetail(overview) },
-                    onRemove = onRemove?.let { remove -> { remove(overview) } },
-                )
+            if (!rows.isNullOrEmpty()) {
+                TextButton(onClick = onOpenAllProperties) {
+                    Text(Strings.viewAll)
+                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+                }
             }
+        }
+    }
+    when {
+        loadError != null -> item(key = "properties-error") {
+            Column {
+                ErrorText(loadError)
+                OutlinedButton(onClick = onRetry) { Text(Strings.retry) }
+            }
+        }
+        showLoading -> {
+            item(key = "properties-progress") { ProgressStatus(true) }
+            item(key = "properties-skeleton") { PropertyCardSkeleton() }
+        }
+        rows == null -> Unit
+        rows.isEmpty() -> item(key = "properties-empty") {
+            RecordPanel(Icons.Outlined.Apartment, Strings.homeEmptyTitle, Strings.homeEmptyBody)
+        }
+        else -> items(rows, key = { "property:${it.property.id}" }) { overview ->
+            PropertyCardView(
+                overview = overview,
+                busy = busy,
+                onResume = onResume,
+                onNewInspection = { onNewInspection(overview.property.id) },
+                onOpenDetail = { onOpenDetail(overview) },
+                onRemove = onRemove?.let { remove -> { remove(overview) } },
+                featured = true,
+            )
         }
     }
 }

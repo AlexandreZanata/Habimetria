@@ -3,12 +3,14 @@ package vault.ui.inspection
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Schedule
@@ -20,6 +22,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,13 +53,18 @@ fun InspectionRow(
 ) {
     var menu by remember { mutableStateOf(false) }
     val sealed = overview.inspection.status == STATUS_SEALED
-    val kind = if (overview.inspection.kind == "exit") InspectionStrings.kindExit else InspectionStrings.kindEntry
+    val kind = when (overview.inspection.kind) {
+        "exit" -> InspectionStrings.kindExit
+        "technical" -> InspectionStrings.kindTechnical
+        else -> InspectionStrings.kindEntry
+    }
     val title = PropertyStrings.archivedSuffix(
         overview.propertyLabel.ifBlank { InspectionStrings.unknownProperty },
         overview.propertyArchived,
     )
     OutlinedCard(
-        shape = RoundedCornerShape(16.dp),
+        shape = MaterialTheme.shapes.large,
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -66,6 +75,7 @@ fun InspectionRow(
             ) {
                 Text(
                     title,
+                    color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f),
                 )
@@ -87,24 +97,6 @@ fun InspectionRow(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    if (sealed) Strings.review else Strings.continueAction,
-                                    modifier = Modifier.semantics {
-                                        contentDescription = if (sealed) {
-                                            "${Strings.review}: $title"
-                                        } else {
-                                            "${Strings.continueAction}: $title"
-                                        }
-                                    },
-                                )
-                            },
-                            onClick = {
-                                menu = false
-                                if (sealed) onReview() else onResume()
-                            },
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Text(
                                     PropertyStrings.removeShort,
                                     color = MaterialTheme.colorScheme.error,
                                     modifier = Modifier.semantics {
@@ -117,16 +109,25 @@ fun InspectionRow(
                     }
                 }
             }
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
                     kind,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 StatusBadge(sealed = sealed)
+            }
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            TextButton(
+                onClick = if (sealed) onReview else onResume,
+                enabled = !busy,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    if (sealed) Strings.reviewShort else Strings.continueAction,
+                    modifier = Modifier.weight(1f),
+                )
+                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
             }
         }
     }
@@ -139,12 +140,12 @@ private fun StatusBadge(sealed: Boolean) {
     val container = if (sealed) {
         MaterialTheme.colorScheme.primaryContainer
     } else {
-        MaterialTheme.colorScheme.secondaryContainer
+        MaterialTheme.colorScheme.surfaceVariant
     }
     val content = if (sealed) {
         MaterialTheme.colorScheme.onPrimaryContainer
     } else {
-        MaterialTheme.colorScheme.onSecondaryContainer
+        MaterialTheme.colorScheme.onSurfaceVariant
     }
     Surface(
         shape = RoundedCornerShape(50),

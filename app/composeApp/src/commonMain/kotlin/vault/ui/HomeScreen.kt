@@ -1,12 +1,10 @@
 package vault.ui
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,7 +19,7 @@ import kotlinx.coroutines.launch
 import vault.local.NavigationProgress
 import vault.local.PropertyOverview
 import vault.ui.property.HomeHeroBanner
-import vault.ui.property.HomePropertyStates
+import vault.ui.property.homePropertyItems
 import vault.ui.property.PropertyRemovalHost
 import vault.ui.property.RemovalFeedback
 import vault.ui.property.startOnProperty
@@ -89,16 +87,19 @@ fun HomeScreen(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 16.dp).imePadding()
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+    val showLoading = rememberLoadingVisible(local == null || cards == null)
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().imePadding(),
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        val showLoading = rememberLoadingVisible(local == null)
         if (local != null) {
-            HomeHeroBanner(enabled = !busy, onNewInspection = onNewInspection)
-            HomePropertyStates(
+            item(key = "hero") { HomeHeroBanner(enabled = !busy, onNewInspection = onNewInspection) }
+            error?.let { message -> item(key = "action-error") { ErrorText(message) } }
+            feedback?.let { message -> item(key = "feedback") { RemovalFeedback(message) } }
+            homePropertyItems(
                 rows = cards,
+                showLoading = showLoading,
                 loadError = loadError,
                 busy = busy,
                 onRetry = { scope.launch { load() } },
@@ -109,14 +110,10 @@ fun HomeScreen(
                 onRemove = { removing = it },
             )
         } else if (showLoading) {
-            ProgressStatus(true)
-            HomeBannerSkeleton()
-            PropertyCardSkeleton()
-            PropertyCardSkeleton()
+            item { ProgressStatus(true) }
+            item { HomeBannerSkeleton() }
+            item { PropertyCardSkeleton() }
         }
-        ErrorText(error)
-        val done = feedback
-        if (done != null) RemovalFeedback(done)
     }
 
     removing?.let { target ->

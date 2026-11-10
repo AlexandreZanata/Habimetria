@@ -4,6 +4,8 @@ package vault.ui.report
 // in vault.ui.Strings; the feature owns its section wording. Pending
 // entries never claim a report already exists.
 object ReportStrings {
+    const val listTitle = "Arquivo de relatórios"
+    const val listBody = "Abra os PDFs gerados neste dispositivo e confira os lacres."
     const val search = "Buscar relatório"
     const val finalized = "Relatórios prontos"
     const val pending = "Seladas aguardando PDF"
