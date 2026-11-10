@@ -52,6 +52,9 @@ Preserve the [capture flow](capture-flow.md) and
   action and a labeled delete icon. Sharing is available from the PDF
   screen. SEALED Inspections awaiting a PDF expose
   `Gerar PDF`, without claiming a Report already exists.
+  The PDF screen leads with the ready Report and its share action. Group
+  package, declarations and external signing in one outlined section,
+  with verification and version creation in a separate section.
 
 Each destination works without signup, API, internet or payment. Empty
 lists explain the next real action; loading and errors are distinct states.

@@ -3,8 +3,9 @@ package vault.ui.review
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -35,15 +36,37 @@ internal fun ReviewRoomSkeleton() {
 
 @Composable
 internal fun ReviewOptionSkeleton() {
-    SkeletonCard(shape = MaterialTheme.shapes.medium) {
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            SkeletonBlock(Modifier.size(48.dp), CircleShape)
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                SkeletonLine(0.55f, 16.dp)
-                SkeletonLine(0.85f, 14.dp)
-                SkeletonLine(0.63f, 14.dp)
+    SkeletonCard(shape = MaterialTheme.shapes.medium, padding = 0.dp) {
+        OptionRowSkeleton()
+    }
+}
+
+@Composable
+internal fun PdfOptionsSkeleton() {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SkeletonLine(0.48f, 16.dp)
+        SkeletonCard(padding = 0.dp, spacing = 0.dp) {
+            repeat(3) { index ->
+                if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                OptionRowSkeleton()
             }
-            SkeletonBlock(Modifier.size(14.dp))
         }
+    }
+}
+
+@Composable
+private fun OptionRowSkeleton() {
+    Row(
+        modifier = Modifier.padding(14.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        SkeletonBlock(Modifier.size(42.dp), MaterialTheme.shapes.small)
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            SkeletonLine(0.55f, 16.dp)
+            SkeletonLine(0.85f, 12.dp)
+            SkeletonLine(0.63f, 12.dp)
+        }
+        SkeletonBlock(Modifier.size(20.dp))
     }
 }

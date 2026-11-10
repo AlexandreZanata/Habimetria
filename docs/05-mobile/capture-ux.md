@@ -48,6 +48,12 @@
   inspection assistant use white icons on Pinho. Review controls use
   the Material interaction layer for hover, focus and press. The photo
   rotation choices wrap when space is limited.
+- The local seal screen separates the seal explanation, Room, photo and
+  Finding totals, and signing details. The seal is the primary action,
+  and creating an Occurrence is secondary. Explain that the seal time
+  comes from the device clock and lacks independent certification.
+  After sealing, the Report action appears with the confirmation and the
+  signing details come from the stored manifest.
 - The inspection assistant separates missing capture categories by Room
   from review reminders grouped by photo. Each photo group shows the
   sequence number, Room and capture category and opens the photo viewer.

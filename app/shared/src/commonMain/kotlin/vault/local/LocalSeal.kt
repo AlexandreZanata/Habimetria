@@ -53,10 +53,13 @@ class LocalSealer(
 ) {
     private val coverage = VaultCoverage(db)
 
+    suspend fun manifestFor(inspectionId: String): LocalManifest? =
+        db.manifestDao().getByInspection(inspectionId)
+
     suspend fun assess(inspectionId: String): SealEligibility {
         val inspection = db.inspectionDao().get(inspectionId)
             ?: throw LocalValidationException("inspection not found")
-        val existing = db.manifestDao().getByInspection(inspectionId)
+        val existing = manifestFor(inspectionId)
         val rooms = db.roomDao().listForInspection(inspectionId)
         val evidences = db.evidenceDao().listForInspection(inspectionId)
         val findings = rooms.flatMap { db.findingDao().listForRoom(it.id) }

@@ -51,13 +51,15 @@ Contract: [report authorship](../../../../../../../docs/05-mobile/report_authors
 - [inspector/InspectorCards.kt](inspector/InspectorCards.kt): missing categories by Room and review reminders grouped by photo.
 - [inspector/InspectorStrings.kt](inspector/InspectorStrings.kt): assistant instructions and explicit actions for each reminder.
 - [review/ReviewInteractionScope.kt](review/ReviewInteractionScope.kt): shared hover, focus and press feedback for Review controls.
-- [report/PdfJourneySegments.kt](report/PdfJourneySegments.kt): contextual navigation shared by Review and Report screens.
+- [report/PdfJourneySegments.kt](report/PdfJourneySegments.kt): contextual navigation with the Review segment selected.
+- [report/PdfReportCards.kt](report/PdfReportCards.kt): ready Report panel and grouped action rows shared with Review.
 
 # Room setup and capture
 
 - [journey/RoomSetup.kt](journey/RoomSetup.kt): scrollable setup intro, rounded input with keyboard add, presets and empty state.
 - [journey/RoomListRow.kt](journey/RoomListRow.kt): outlined Room cards with progress, photo count and management menu.
 - [journey/JourneyShortcuts.kt](journey/JourneyShortcuts.kt): secondary Rooms/Review shortcuts without a false active state during capture.
+- [journey/SealPanels.kt](journey/SealPanels.kt): pre-seal totals and coverage, signing details and local-time wording.
 - [journey/JourneyAction.kt](journey/JourneyAction.kt): prominent icon task action with an adaptive height.
 - [journey/JourneyStrings.kt](journey/JourneyStrings.kt): feature-owned pt-BR copy and accessible action labels.
 - [journey/RoomCaptureCard.kt](journey/RoomCaptureCard.kt): wrapping green category selectors and system-camera shutter.
