@@ -2,6 +2,7 @@ package vault.local
 
 internal fun reportCover(model: PdfModel, renderer: PdfTextMetrics): List<RenderPage> {
     val cover = PdfLayoutBuilder(renderer, model.reportId)
+    cover.text("habimetria", TextKind.HEADING)
     cover.text(if (model.details.profile == "technical") "RELATÓRIO TÉCNICO DE VISTORIA" else "RELATÓRIO DE VISTORIA", TextKind.TITLE, 14.0)
     cover.text("Registro fotográfico do imóvel", TextKind.HEADING)
     if (model.details.context.organization.isNotBlank()) cover.text(model.details.context.organization)

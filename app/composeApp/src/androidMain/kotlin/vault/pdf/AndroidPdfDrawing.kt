@@ -13,8 +13,8 @@ import vault.local.*
 
 internal fun drawPdfChrome(canvas: Canvas, page: RenderPage, total: Int, fonts: AndroidPdfFonts) {
     val small = fonts.paint(TextKind.SMALL)
-    canvas.drawText("VISTORIA | REGISTRO FOTOGRÁFICO", PDF_MARGIN_LEFT_PT.toFloat(), 45f, small)
-    canvas.drawLine(PDF_MARGIN_LEFT_PT.toFloat(), 55f, (PDF_PAGE_WIDTH_PT - PDF_MARGIN_RIGHT_PT).toFloat(), 55f, Paint().apply { color = Color.rgb(30, 58, 95); strokeWidth = 1.5f })
+    canvas.drawText("HABIMETRIA | REGISTRO FOTOGRÁFICO", PDF_MARGIN_LEFT_PT.toFloat(), 45f, small)
+    canvas.drawLine(PDF_MARGIN_LEFT_PT.toFloat(), 55f, (PDF_PAGE_WIDTH_PT - PDF_MARGIN_RIGHT_PT).toFloat(), 55f, Paint().apply { color = Color.rgb(18, 61, 53); strokeWidth = 1.5f })
     canvas.drawText(page.header, PDF_MARGIN_LEFT_PT.toFloat(), 807f, small)
     canvas.drawText("${page.number} / $total", 495f, 807f, small)
     canvas.drawText("Hora e localização informadas pelo dispositivo", PDF_MARGIN_LEFT_PT.toFloat(), 824f, small)

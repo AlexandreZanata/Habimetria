@@ -34,6 +34,7 @@ import org.jetbrains.compose.resources.painterResource
 import vault.composeapp.generated.resources.Res
 import vault.composeapp.generated.resources.home_brazil_house
 import vault.ui.Strings
+import vault.ui.brand.HabimetriaWordmark
 
 // Short native copy and decorative Brazilian house art never overlap.
 // The content grows with font scale; Nova vistoria is the only action.
@@ -47,6 +48,7 @@ fun HomeHeroBanner(enabled: Boolean, onNewInspection: () -> Unit) {
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            HabimetriaWordmark(markSize = 20.dp)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(
                     modifier = Modifier.weight(0.55f),

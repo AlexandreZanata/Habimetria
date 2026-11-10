@@ -1,4 +1,4 @@
-# KMP App — Rental Evidence Vault (M1 scaffold)
+# KMP App — Habimetria (M1 scaffold)
 
 Compose Multiplatform + shared logic. Photo-first, offline queue (M2).
 
