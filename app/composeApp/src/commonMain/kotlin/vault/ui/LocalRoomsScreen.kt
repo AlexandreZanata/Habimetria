@@ -28,11 +28,8 @@ import vault.ui.journey.RoomDeleteDialog
 import vault.ui.journey.RoomEmptyState
 import vault.ui.journey.RoomListRow
 import vault.ui.journey.RoomRenameDialog
-import vault.ui.journey.RoomSetupHeader
+import vault.ui.journey.RoomSetupForm
 
-// LocalRoomsScreen: manually named rooms, offline. Add, rename, reorder
-// and delete in DRAFT; labels freeze when sealed. Unicode preserved.
-// Rooms with evidence cannot be deleted until the evidence is removed.
 @Composable
 fun LocalRoomsScreen(
     session: LocalSession,
@@ -53,6 +50,7 @@ fun LocalRoomsScreen(
     var kind by remember { mutableStateOf("entry") }
     var sealedRedirected by remember { mutableStateOf(false) }
     var presetCount by remember { mutableStateOf(0) }
+    var addingRooms by remember { mutableStateOf(false) }
 
     fun refresh() {
         scope.launch {
@@ -76,6 +74,22 @@ fun LocalRoomsScreen(
         }
     }
 
+    fun addRooms(write: suspend () -> Unit) {
+        if (addingRooms || rooms == null) return
+        addingRooms = true
+        error = null
+        scope.launch {
+            try {
+                write()
+                refresh()
+            } catch (e: Exception) {
+                error = userErrorMessage(e)
+            } finally {
+                addingRooms = false
+            }
+        }
+    }
+
     LaunchedEffect(inspectionId) { refresh() }
 
     val showLoading = rememberLoadingVisible(rooms == null)
@@ -83,33 +97,21 @@ fun LocalRoomsScreen(
     ScreenColumn {
         LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             item {
-                RoomSetupHeader(
+                RoomSetupForm(
                     isExit = kind == "exit",
                     error = error,
                     value = newLabel,
                     onValue = { newLabel = it },
+                    canAdd = rooms != null && !addingRooms,
                     onAdd = {
-                        scope.launch {
-                            try {
-                                session.repository.addRoom(inspectionId, newLabel)
-                                newLabel = ""
-                                refresh()
-                            } catch (e: Exception) {
-                                error = userErrorMessage(e)
-                            }
+                        val label = newLabel
+                        addRooms {
+                            session.repository.addRoom(inspectionId, label)
+                            if (newLabel == label) newLabel = ""
                         }
                     },
                     presetCount = presetCount,
-                    onAddPresets = {
-                        scope.launch {
-                            try {
-                                session.repository.addRoomsFromPresets(inspectionId)
-                                refresh()
-                            } catch (e: Exception) {
-                                error = userErrorMessage(e)
-                            }
-                        }
-                    },
+                    onAddPresets = { addRooms { session.repository.addRoomsFromPresets(inspectionId) } },
                 )
             }
             val list = rooms.orEmpty()
@@ -118,11 +120,9 @@ fun LocalRoomsScreen(
                 item { RoomRowSkeleton() }
                 item { RoomRowSkeleton() }
                 item { RoomRowSkeleton() }
-            } else if (rooms == null) {
-                // Grace period: data is on its way, paint nothing yet.
-            } else if (list.isEmpty()) {
+            } else if (rooms != null && list.isEmpty()) {
                 item { RoomEmptyState() }
-            } else {
+            } else if (list.isNotEmpty()) {
                 item { Text(JourneyStrings.roomCount(list.size), style = MaterialTheme.typography.titleSmall) }
             }
             items(list, key = { it.id }) { room ->
@@ -148,18 +148,15 @@ fun LocalRoomsScreen(
                     onDelete = { deleting = room },
                 )
             }
-            // In-flow submit: pinned footers ride above the keyboard, so
-            // the action scrolls with the list and stays put instead.
-            item {
-                JourneyPrimaryAction(
-                    text = Strings.startInspection,
-                    icon = Icons.Filled.CameraAlt,
-                    onClick = {
-                        val first = list.firstOrNull() ?: return@JourneyPrimaryAction
-                        onStartCapture(first.id, first.label)
-                    },
-                    enabled = list.isNotEmpty(),
-                )
+            list.firstOrNull()?.let { first ->
+                item {
+                    JourneyPrimaryAction(
+                        text = Strings.startInspection,
+                        icon = Icons.Filled.CameraAlt,
+                        onClick = { onStartCapture(first.id, first.label) },
+                        enabled = !addingRooms,
+                    )
+                }
             }
         }
     }
@@ -204,4 +201,3 @@ fun LocalRoomsScreen(
         )
     }
 }
-

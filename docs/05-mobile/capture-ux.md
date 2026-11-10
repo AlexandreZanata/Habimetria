@@ -17,9 +17,12 @@
 - Room setup and capture share the PDF/Property pages' outlined cards,
   neutral surfaces and green actions. The shared header supplies the Room
   or page title; the body does not repeat it.
-- Room setup scrolls as one list, including the labeled rounded input,
-  optional presets, empty state and in-flow start action. Keyboard Done
-  invokes the same explicit add action. Draft name input is saveable.
+- Room setup uses `Cômodos` as its header title and keeps the form and
+  list in one scroll. The form asks for one Room name at a time, shows
+  examples below the field and provides a labeled `Adicionar cômodo`
+  button. Keyboard Done invokes the same action. Draft name input is
+  saveable. Optional presets stay secondary. The empty state explains
+  the first step, and `Iniciar vistoria` appears once a Room exists.
   Each Room card opens capture and shows its label, coverage bar and photo
   count. Its labeled options menu retains rename, reorder and delete.
 - Capture shortcuts scroll with the content and show no false active

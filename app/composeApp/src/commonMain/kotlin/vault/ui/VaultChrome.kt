@@ -128,7 +128,6 @@ fun rememberChromeSubtitle(route: Route, container: AppContainer): String {
             val repo = local?.repository
             val property = when (route) {
                 is Route.PropertyDetail -> repo?.listProperties()?.firstOrNull { it.id == route.propertyId }
-                is Route.Rooms -> repo?.propertyFor(route.inspectionId)
                 is Route.Room -> repo?.propertyFor(route.inspectionId)
                 is Route.Review -> repo?.propertyFor(route.inspectionId)
                 is Route.Seal -> repo?.propertyFor(route.inspectionId)

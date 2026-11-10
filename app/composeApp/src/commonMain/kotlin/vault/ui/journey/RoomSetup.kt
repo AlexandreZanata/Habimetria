@@ -2,94 +2,92 @@ package vault.ui.journey
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import vault.ui.ErrorText
 import vault.ui.RecordPanel
 import vault.ui.Strings
 
-// The field and keyboard share the same explicit add operation.
 @Composable
-fun RoomNameInput(value: String, onValue: (String) -> Unit, enabled: Boolean, onAdd: () -> Unit) {
-    val keyboard = LocalSoftwareKeyboardController.current
-    fun submit() {
-        if (enabled) {
-            onAdd()
-            keyboard?.hide()
-        }
-    }
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Bottom) {
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValue,
-            label = { Text(Strings.roomNameLabel) },
-            placeholder = { Text(Strings.roomNamePlaceholder) },
-            leadingIcon = { Icon(Icons.Outlined.Home, contentDescription = null) },
-            singleLine = true,
-            shape = MaterialTheme.shapes.medium,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-            ),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { submit() }),
-            modifier = Modifier.weight(1f),
-        )
-        Button(
-            onClick = { submit() },
-            enabled = enabled,
-            shape = MaterialTheme.shapes.medium,
-            modifier = Modifier.size(56.dp),
-            contentPadding = PaddingValues(0.dp),
-        ) { Icon(Icons.Filled.Add, contentDescription = Strings.add) }
-    }
+internal fun RoomEmptyState() {
+    RecordPanel(Icons.Outlined.Home, JourneyStrings.roomsEmptyTitle, JourneyStrings.roomsEmptyHint)
 }
 
 @Composable
-fun RoomEmptyState() {
-    RecordPanel(Icons.Outlined.Home, Strings.roomsEmptyTitle, Strings.roomsEmptyHint)
-}
-
-// Intro and optional presets belong to the same scrollable setup section.
-@Composable
-fun RoomSetupHeader(
+internal fun RoomSetupForm(
     isExit: Boolean,
     error: String?,
     value: String,
     onValue: (String) -> Unit,
+    canAdd: Boolean,
     onAdd: () -> Unit,
     presetCount: Int,
     onAddPresets: () -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        if (isExit) {
-            Text(Strings.exitKind, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+    val keyboard = LocalSoftwareKeyboardController.current
+    val canSubmit = canAdd && value.isNotBlank()
+    fun submit() {
+        if (canSubmit) {
+            onAdd()
+            keyboard?.hide()
         }
-        Text(Strings.roomsSubtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        ErrorText(error)
-        RoomNameInput(value, onValue, value.isNotBlank(), onAdd)
-        if (presetCount > 0) {
-            TextButton(onClick = onAddPresets) { Text("${Strings.addPresetRooms} ($presetCount)") }
+    }
+
+    OutlinedCard(modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            if (isExit) {
+                Text(Strings.exitKind, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            }
+            Text(
+                JourneyStrings.roomSetupTitle,
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.semantics { heading() },
+            )
+            Text(JourneyStrings.roomSetupHint, style = MaterialTheme.typography.bodyMedium)
+            OutlinedTextField(
+                value = value,
+                onValueChange = onValue,
+                label = { Text(Strings.roomNameLabel) },
+                supportingText = { Text(JourneyStrings.roomNameExample) },
+                singleLine = true,
+                shape = MaterialTheme.shapes.medium,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { submit() }),
+                modifier = Modifier.fillMaxWidth(),
+            )
+            ErrorText(error)
+            JourneyPrimaryAction(
+                text = JourneyStrings.addRoom,
+                icon = Icons.Filled.Add,
+                onClick = ::submit,
+                enabled = canSubmit,
+            )
+            if (presetCount > 0) {
+                TextButton(onClick = onAddPresets, enabled = canAdd) {
+                    Text("${Strings.addPresetRooms} ($presetCount)")
+                }
+            }
         }
     }
 }
