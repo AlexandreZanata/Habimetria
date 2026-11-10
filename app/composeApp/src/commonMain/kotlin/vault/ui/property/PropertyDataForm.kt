@@ -1,6 +1,7 @@
 package vault.ui.property
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -69,11 +70,11 @@ fun PropertyDataSection(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                TextButton(
-                    modifier = Modifier.weight(0.65f, fill = false),
-                    onClick = { open = !open },
-                    enabled = !busy,
-                ) { Text(if (open) PropertyStrings.closeDataEdit else PropertyStrings.editData) }
+                Box(Modifier.weight(0.65f), contentAlignment = Alignment.CenterEnd) {
+                    TextButton(onClick = { open = !open }, enabled = !busy) {
+                        Text(if (open) PropertyStrings.closeDataEdit else PropertyStrings.editData)
+                    }
+                }
             }
             if (saved) RemovalFeedback(PropertyStrings.dataSaved)
             if (!open) return@Column

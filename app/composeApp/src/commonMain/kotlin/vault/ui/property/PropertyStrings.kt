@@ -20,7 +20,7 @@ object PropertyStrings {
     const val filterSealed = "Seladas"
     const val draftLabel = "Em andamento"
     const val sealedLabel = "Selada"
-    const val noInspections = "Nenhuma vistoria neste imóvel ainda."
+    const val noInspections = "Nenhuma vistoria ainda"
     const val noMatch = "Nenhuma vistoria neste filtro."
     const val historyFilterHint = "Selecione outro filtro para ver as vistorias deste imóvel."
     const val emptyHistoryHint = "Toque em Nova vistoria para começar."
