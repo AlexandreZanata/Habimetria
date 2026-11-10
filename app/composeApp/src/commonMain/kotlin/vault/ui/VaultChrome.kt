@@ -24,11 +24,6 @@ import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,7 +31,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import vault.local.SyncMode
 import vault.nav.Destinations
 import vault.nav.Route
 import vault.nav.VaultNavigator
@@ -116,40 +110,8 @@ fun DestinationsRail(selected: Route, onSelect: (Route) -> Unit) {
     }
 }
 
-// Header subtitle: property nickname (or address) behind the current
-// property/inspection route. Empty when unknown or remote-only; screens
-// never show a fabricated property name.
-@Composable
-fun rememberChromeSubtitle(route: Route, container: AppContainer): String {
-    var subtitle by remember(route) { mutableStateOf("") }
-    val local = container.local
-    LaunchedEffect(route, local) {
-        subtitle = try {
-            val repo = local?.repository
-            val property = when (route) {
-                is Route.PropertyDetail -> repo?.listProperties()?.firstOrNull { it.id == route.propertyId }
-                is Route.Room -> repo?.propertyFor(route.inspectionId)
-                is Route.Review -> repo?.propertyFor(route.inspectionId)
-                is Route.Seal -> repo?.propertyFor(route.inspectionId)
-                is Route.Pdf -> repo?.propertyFor(route.inspectionId)
-                is Route.LocalPdf -> repo?.propertyFor(route.inspectionId)
-                is Route.LocalVerify -> repo?.propertyFor(route.inspectionId)
-                is Route.LocalOccurrence -> repo?.propertyFor(route.inspectionId)
-                is Route.LocalCompare -> repo?.propertyFor(route.exitInspectionId)
-                is Route.LocalInspector -> repo?.propertyFor(route.inspectionId)
-                is Route.LocalDiff -> repo?.propertyFor(route.exitInspectionId)
-                else -> null
-            }
-            property?.nickname?.takeIf { it.isNotBlank() } ?: property?.address.orEmpty()
-        } catch (_: Exception) {
-            ""
-        }
-    }
-    return subtitle
-}
-
 // ChromeShell is the single App wiring point: it derives the destination,
-// subtitle and tab persistence from the route and delegates chrome to
+// tab persistence from the route and delegates chrome to
 // VaultShell. Tab switches persist the destination code without touching
 // stored inspection/room IDs, so resume keeps its place.
 @Composable
@@ -162,14 +124,11 @@ fun ChromeShell(
     onBack: () -> Unit,
     content: @Composable () -> Unit,
 ) {
-    val subtitle = rememberChromeSubtitle(route, container)
     VaultShell(
         title = title,
         canGoBack = canGoBack,
         onBack = onBack,
         destination = route.destination(),
-        subtitle = subtitle,
-        showLocalMode = route == Route.Home && container.syncMode == SyncMode.LOCAL_ONLY,
         onSelect = { dest ->
             val local = container.local
             if (local != null) {

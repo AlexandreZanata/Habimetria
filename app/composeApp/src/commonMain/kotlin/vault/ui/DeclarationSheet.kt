@@ -34,7 +34,7 @@ internal fun DeclarationSheet(session: LocalSession, reportId: String, picker: L
         picked = null; password = ""; identity = null
     }
     DisposableEffect(Unit) { onDispose { clearCredential() } }
-    ModalBottomSheet(onDismissRequest = { if (!busy) onClose() }) {
+    VaultModalBottomSheet(onDismissRequest = { if (!busy) onClose() }) {
         Column(Modifier.fillMaxWidth().heightIn(max = 650.dp).verticalScroll(rememberScrollState()).padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text("Registrar declaração sobre este relatório", style = MaterialTheme.typography.titleLarge)

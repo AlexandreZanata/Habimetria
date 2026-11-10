@@ -1,5 +1,6 @@
 package vault.ui.inspection
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,16 +8,19 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -91,17 +95,29 @@ fun InspectionRow(
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                    DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                    val colors = MaterialTheme.colorScheme
+                    DropdownMenu(
+                        expanded = menu,
+                        onDismissRequest = { menu = false },
+                        modifier = Modifier.widthIn(min = 160.dp),
+                        shape = MaterialTheme.shapes.medium,
+                        containerColor = colors.surface,
+                        border = BorderStroke(1.dp, colors.outlineVariant),
+                    ) {
                         DropdownMenuItem(
                             text = {
                                 Text(
                                     PropertyStrings.removeShort,
-                                    color = MaterialTheme.colorScheme.error,
                                     modifier = Modifier.semantics {
                                         contentDescription = "${PropertyStrings.removeShort}: $title"
                                     },
                                 )
                             },
+                            leadingIcon = { Icon(Icons.Outlined.DeleteOutline, contentDescription = null) },
+                            colors = MenuDefaults.itemColors(
+                                textColor = colors.error,
+                                leadingIconColor = colors.error,
+                            ),
                             onClick = { menu = false; onDelete() },
                         )
                     }

@@ -1,11 +1,5 @@
 package vault.ui.inspection
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -14,7 +8,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import vault.local.InspectionOverview
 import vault.local.LocalSession
@@ -22,7 +15,6 @@ import vault.local.STATUS_SEALED
 import vault.local.db.InspectionDeleteOutcome
 import vault.local.db.InspectionRemovalPlan
 import vault.ui.AppContainer
-import vault.ui.ErrorText
 import vault.ui.Strings
 import vault.ui.userErrorMessage
 
@@ -41,7 +33,7 @@ fun InspectionDeleteHost(
     val inspectionId = overview.inspection.id
     val sealed = overview.inspection.status == STATUS_SEALED
     var blocked by rememberSaveable(inspectionId) { mutableStateOf(false) }
-    var busy by rememberSaveable(inspectionId) { mutableStateOf(false) }
+    var busy by remember(inspectionId) { mutableStateOf(false) }
     var commitError by rememberSaveable(inspectionId) { mutableStateOf<String?>(null) }
     var missing by rememberSaveable(inspectionId) { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -60,11 +52,12 @@ fun InspectionDeleteHost(
     }
 
     fun confirm() {
+        if (busy || blocked || missing || session == null) return
+        busy = true
+        commitError = null
         scope.launch {
-            busy = true
-            commitError = null
             try {
-                val removal = session?.inspectionRemoval ?: return@launch
+                val removal = session.inspectionRemoval
                 when (removal.delete(inspectionId)) {
                     InspectionDeleteOutcome.Deleted -> {
                         revalidateAfterInspectionDelete(session, inspectionId)
@@ -81,37 +74,20 @@ fun InspectionDeleteHost(
         }
     }
 
-    val label = overview.propertyLabel.ifBlank { InspectionStrings.unknownProperty }
-    AlertDialog(
-        onDismissRequest = { if (!busy) onDismiss() },
-        title = { Text(InspectionStrings.deleteTitle) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(label, style = MaterialTheme.typography.titleMedium)
-                Text(
-                    when {
-                        missing -> Strings.recordMissing
-                        blocked -> InspectionStrings.blockedBody
-                        sealed -> InspectionStrings.deleteSealedBody
-                        else -> InspectionStrings.deleteDraftBody
-                    },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                ErrorText(commitError)
-            }
+    InspectionDeleteDialog(
+        propertyLabel = overview.propertyLabel.ifBlank { InspectionStrings.unknownProperty },
+        sealed = sealed,
+        message = when {
+            missing -> Strings.recordMissing
+            blocked -> InspectionStrings.blockedBody
+            sealed -> InspectionStrings.deleteSealedBody
+            else -> InspectionStrings.deleteDraftBody
         },
-        confirmButton = {
-            TextButton(onClick = ::confirm, enabled = !busy && !missing && !blocked) {
-                Text(
-                    Strings.delete,
-                    color = MaterialTheme.colorScheme.error,
-                )
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss, enabled = !busy) { Text(Strings.cancel) }
-        },
+        error = commitError,
+        busy = busy,
+        confirmEnabled = session != null && !busy && !missing && !blocked,
+        onConfirm = ::confirm,
+        onDismiss = onDismiss,
     )
 }
 

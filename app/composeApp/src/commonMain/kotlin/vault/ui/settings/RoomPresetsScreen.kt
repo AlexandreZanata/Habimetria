@@ -9,7 +9,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,6 +38,7 @@ import vault.ui.SkeletonLine
 import vault.ui.rememberLoadingVisible
 import vault.ui.VaultTextField
 import vault.ui.userErrorMessage
+import vault.ui.VaultAlertDialog
 
 // Cômodos padrão: preset room names managed once and copied into any
 // DRAFT inspection on demand. Whole-list edits here never touch rooms
@@ -169,7 +169,7 @@ fun RoomPresetsScreen(container: AppContainer) {
     }
 
     renaming?.let { target ->
-        AlertDialog(
+        VaultAlertDialog(
             onDismissRequest = { renaming = null },
             title = { Text(SettingsStrings.renameRoomPresetTitle) },
             text = {

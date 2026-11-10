@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
@@ -31,7 +32,7 @@ import vault.ui.Strings
 import vault.ui.brand.FacadeDrawing
 
 @Composable
-fun HomeHeroBanner(enabled: Boolean, onNewInspection: () -> Unit) {
+fun HomeHeroBanner(enabled: Boolean, showLocalMode: Boolean, onNewInspection: () -> Unit) {
     val colors = MaterialTheme.colorScheme
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -48,6 +49,19 @@ fun HomeHeroBanner(enabled: Boolean, onNewInspection: () -> Unit) {
                 modifier = Modifier.fillMaxWidth().padding(22.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                if (showLocalMode) {
+                    Surface(
+                        color = colors.inverseOnSurface,
+                        contentColor = colors.inverseSurface,
+                        shape = CircleShape,
+                    ) {
+                        Text(
+                            Strings.localModeLabel,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                        )
+                    }
+                }
                 Text(
                     Strings.appDescription.uppercase(),
                     color = colors.inversePrimary,

@@ -2,7 +2,6 @@ package vault.ui.property
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -10,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import vault.ui.ErrorText
 import vault.ui.Strings
+import vault.ui.VaultAlertDialog
 
 // Confirmation dialog for U08 removal. Presentational only: the host
 // chooses Excluir vs Arquivar wording from a fresh eligibility snapshot
@@ -26,7 +26,7 @@ fun PropertyRemovalDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    AlertDialog(
+    VaultAlertDialog(
         onDismissRequest = { if (!busy) onDismiss() },
         title = { Text(headline) },
         text = {

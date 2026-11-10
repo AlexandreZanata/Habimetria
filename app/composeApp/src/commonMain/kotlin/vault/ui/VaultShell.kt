@@ -1,6 +1,5 @@
 package vault.ui
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,13 +11,12 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.HorizontalDivider
@@ -26,7 +24,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -60,8 +57,6 @@ fun VaultShell(
     onBack: () -> Unit,
     destination: Route,
     onSelect: (Route) -> Unit,
-    subtitle: String,
-    showLocalMode: Boolean,
     content: @Composable () -> Unit,
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
@@ -69,7 +64,7 @@ fun VaultShell(
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
             topBar = {
-                VaultMasthead(title, subtitle, showLocalMode, canGoBack, onBack)
+                VaultMasthead(title, canGoBack, onBack)
             },
             bottomBar = {
                 if (windowClass == WindowClass.COMPACT) {
@@ -104,8 +99,6 @@ fun VaultShell(
 @Composable
 private fun VaultMasthead(
     title: String,
-    subtitle: String,
-    showLocalMode: Boolean,
     canGoBack: Boolean,
     onBack: () -> Unit,
 ) {
@@ -113,14 +106,13 @@ private fun VaultMasthead(
     val dark = LocalHabimetriaDarkTheme.current
     val background = if (dark) colors.background else colors.inverseSurface
     val foreground = if (dark) colors.primary else BrandWhite
-    val subtitleColor = if (dark) colors.onSurfaceVariant else BrandWhite
     Column(
         Modifier.fillMaxWidth().background(background)
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth()
-                .heightIn(min = 64.dp).padding(horizontal = MastheadPadding, vertical = 8.dp),
+                .height(64.dp).padding(horizontal = MastheadPadding),
             horizontalArrangement = Arrangement.spacedBy(MastheadSpacing),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -137,34 +129,7 @@ private fun VaultMasthead(
                 IconButton(onClick = onBack) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, Strings.back, tint = foreground)
                 }
-            } else if (showLocalMode) {
-                Surface(
-                    color = if (dark) colors.surfaceVariant else background,
-                    contentColor = subtitleColor,
-                    shape = CircleShape,
-                    border = if (dark) null else BorderStroke(1.dp, BrandWhite),
-                ) {
-                    Text(
-                        Strings.localModeLabel,
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                    )
-                }
             }
-        }
-        if (subtitle.isNotBlank()) {
-            Text(
-                subtitle,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodySmall,
-                color = subtitleColor,
-                modifier = Modifier.padding(
-                    start = MastheadPadding + MastheadMarkSize + MastheadSpacing,
-                    end = MastheadPadding,
-                    bottom = 8.dp,
-                ),
-            )
         }
         HorizontalDivider(color = colors.outlineVariant)
     }

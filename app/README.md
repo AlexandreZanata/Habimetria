@@ -16,7 +16,7 @@ The shared architectural illustration is documented in
 
 UI chrome lives in `composeApp/.../vault/ui/`:
 `VaultShell` (single inset boundary + header),
-`VaultChrome` (destination bar/rail, header subtitle, shell wiring).
+`VaultChrome` (destination bar/rail and shell wiring).
 `HomeScreen` prioritizes new/resume via the hero to `Route.NewInspection`;
 property management lives in `vault/ui/property/`: `NewInspectionScreen`
 (dedicated address form), `PropertyListScreen` (search, aggregated

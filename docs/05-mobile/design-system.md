@@ -82,8 +82,11 @@ Both schemes use Pinho, Marfim and Sálvia for the inverse feature panels.
   `maxContentWidthDp`, `roomsColumns`, `useSideBySide`) so Android,
   iOS, tablets, foldables and multi-window behave identically.
 - `VaultShell` caps content width on medium/expanded windows and places
-  the monogram and `titleLarge` title in the same row across all routes.
-  Context sits below the title row and Back sits at its trailing edge.
+  the monogram and one-line `titleLarge` title in a fixed 64 dp row
+  across all routes. Back sits at the trailing edge.
+- Forms, confirmation dialogs and bottom sheets share the same width
+  policy. The surface takes 94% of the available width up to a 600 dp
+  measurement cap. The photo viewer uses the full screen.
 - Phones stack preview above controls; wide windows place them side
   by side with an independently scrolling control column, so no
   action hides in landscape.

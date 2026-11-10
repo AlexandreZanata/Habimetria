@@ -7,7 +7,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.launch
 import vault.local.*
 import okio.Path.Companion.toPath
@@ -24,47 +23,45 @@ fun ReportDetailsSheet(session: LocalSession, inspectionId: String, readOnly: Bo
             details = if (readOnly) repository.frozen(inspectionId) else repository.get(inspectionId)
         } catch (e: Exception) { error = userErrorMessage(e) }
     }
-    Dialog(onDismissRequest = { if (!busy) onClose() }) {
-        Surface(shape = MaterialTheme.shapes.large) {
-            Column(Modifier.padding(20.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("Dados do relatório", style = MaterialTheme.typography.titleLarge)
-                ErrorText(error)
-                details?.let { d ->
-                    Text(if (d.profile == "technical") "Vistoria profissional" else "Vistoria de locação")
-                    Text("Estes dados serão congelados no lacre. A captura continua sendo foto + problema + nota opcional.", style = MaterialTheme.typography.bodySmall)
-                    ReportDetailFields(d, enabled = !readOnly && !busy, onChange = { details = it })
-                    d.responsibilityDocument?.let { Text("Documento anexado: ${it.name}", style = MaterialTheme.typography.bodySmall) }
-                    if (d.profile == "technical" && !readOnly && picker != null) TextButton(enabled = !busy, onClick = {
-                        busy = true
-                        scope.launch {
-                            try {
-                                repository.save(inspectionId, d)
-                                val selected = picker.pick("application/pdf", 10L * 1024 * 1024)
-                                if (selected != null) {
-                                    try { details = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
-                                        ResponsibilityDocuments(session.filesDir).attach(session.db, inspectionId, selected.path, selected.name)
-                                    } } finally { okio.FileSystem.SYSTEM.delete(selected.path.toPath(), mustExist = false) }
-                                }
-                            } catch (e: Exception) { error = userErrorMessage(e) }
-                            finally { busy = false }
-                        }
-                    }) { Text("Anexar PDF da ART/RRT (obrigatório)") }
-                    Row {
-                        Checkbox(checked = d.authorAcknowledged, onCheckedChange = { details = d.copy(authorAcknowledged = it) }, enabled = !readOnly && !busy)
-                        Text("Confirmo minha autoria e a revisão dos dados. No uso profissional, confirmo minhas atribuições e a responsabilidade indicada.", modifier = Modifier.weight(1f))
+    VaultFormDialog(onDismissRequest = { if (!busy) onClose() }) {
+        Column(Modifier.padding(20.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("Dados do relatório", style = MaterialTheme.typography.titleLarge)
+            ErrorText(error)
+            details?.let { d ->
+                Text(if (d.profile == "technical") "Vistoria profissional" else "Vistoria de locação")
+                Text("Estes dados serão congelados no lacre. A captura continua sendo foto + problema + nota opcional.", style = MaterialTheme.typography.bodySmall)
+                ReportDetailFields(d, enabled = !readOnly && !busy, onChange = { details = it })
+                d.responsibilityDocument?.let { Text("Documento anexado: ${it.name}", style = MaterialTheme.typography.bodySmall) }
+                if (d.profile == "technical" && !readOnly && picker != null) TextButton(enabled = !busy, onClick = {
+                    busy = true
+                    scope.launch {
+                        try {
+                            repository.save(inspectionId, d)
+                            val selected = picker.pick("application/pdf", 10L * 1024 * 1024)
+                            if (selected != null) {
+                                try { details = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
+                                    ResponsibilityDocuments(session.filesDir).attach(session.db, inspectionId, selected.path, selected.name)
+                                } } finally { okio.FileSystem.SYSTEM.delete(selected.path.toPath(), mustExist = false) }
+                            }
+                        } catch (e: Exception) { error = userErrorMessage(e) }
+                        finally { busy = false }
                     }
-                    Text("O aplicativo registra declarações e integridade dos arquivos. Não consulta registro profissional nem certifica identidade ou aceitação jurídica.", style = MaterialTheme.typography.bodySmall)
-                    if (!readOnly) VaultButton(text = "Salvar dados", enabled = !busy, onClick = {
-                        busy = true
-                        scope.launch {
-                            try { repository.save(inspectionId, d); onClose() }
-                            catch (e: Exception) { error = userErrorMessage(e) }
-                            finally { busy = false }
-                        }
-                    })
+                }) { Text("Anexar PDF da ART/RRT (obrigatório)") }
+                Row {
+                    Checkbox(checked = d.authorAcknowledged, onCheckedChange = { details = d.copy(authorAcknowledged = it) }, enabled = !readOnly && !busy)
+                    Text("Confirmo minha autoria e a revisão dos dados. No uso profissional, confirmo minhas atribuições e a responsabilidade indicada.", modifier = Modifier.weight(1f))
                 }
-                TextButton(onClick = onClose, enabled = !busy) { Text(Strings.back) }
+                Text("O aplicativo registra declarações e integridade dos arquivos. Não consulta registro profissional nem certifica identidade ou aceitação jurídica.", style = MaterialTheme.typography.bodySmall)
+                if (!readOnly) VaultButton(text = "Salvar dados", enabled = !busy, onClick = {
+                    busy = true
+                    scope.launch {
+                        try { repository.save(inspectionId, d); onClose() }
+                        catch (e: Exception) { error = userErrorMessage(e) }
+                        finally { busy = false }
+                    }
+                })
             }
+            TextButton(onClick = onClose, enabled = !busy) { Text(Strings.back) }
         }
     }
 }

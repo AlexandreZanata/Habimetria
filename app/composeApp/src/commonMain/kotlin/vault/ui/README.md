@@ -2,6 +2,8 @@
 
 - [brand/HabimetriaBrand.kt](brand/HabimetriaBrand.kt): geometric H mark from the brand vectors.
 - [ThemeColors.kt](ThemeColors.kt): complete Material color roles for the light and dark brand palettes.
+- [VaultModals.kt](VaultModals.kt): shared width for confirmation dialogs, forms and bottom sheets.
+- [inspection/InspectionDeleteDialog.kt](inspection/InspectionDeleteDialog.kt): removal confirmation with Property, Inspection status and destructive action.
 - [StatusBadge.kt](StatusBadge.kt): shared status badges for Properties and Inspections.
 - [inspection/InspectionStatusFilters.kt](inspection/InspectionStatusFilters.kt): status filters for the Inspection list and Property history.
 

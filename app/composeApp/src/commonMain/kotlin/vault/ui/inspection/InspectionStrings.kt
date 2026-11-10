@@ -14,6 +14,7 @@ object InspectionStrings {
     const val unknownProperty = "Imóvel removido"
     const val optionsDescription = "Opções da vistoria"
     const val deleteTitle = "Excluir vistoria?"
+    const val deleting = "Excluindo…"
     const val deleteDraftBody =
         "Cômodos, fotos, achados e anotações desta vistoria serão apagados " +
             "neste dispositivo. O imóvel e as outras vistorias não mudam."

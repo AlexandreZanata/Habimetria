@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import vault.local.NavigationProgress
 import vault.local.PropertyOverview
+import vault.local.SyncMode
 import vault.ui.property.HomeHeroBanner
 import vault.ui.property.homePropertyItems
 import vault.ui.property.PropertyRemovalHost
@@ -94,7 +95,13 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         if (local != null) {
-            item(key = "hero") { HomeHeroBanner(enabled = !busy, onNewInspection = onNewInspection) }
+            item(key = "hero") {
+                HomeHeroBanner(
+                    enabled = !busy,
+                    showLocalMode = container.syncMode == SyncMode.LOCAL_ONLY,
+                    onNewInspection = onNewInspection,
+                )
+            }
             error?.let { message -> item(key = "action-error") { ErrorText(message) } }
             feedback?.let { message -> item(key = "feedback") { RemovalFeedback(message) } }
             homePropertyItems(

@@ -5,6 +5,7 @@ import androidx.compose.runtime.*
 import kotlinx.coroutines.launch
 import vault.local.NavigationProgress
 import vault.ui.*
+import vault.ui.VaultAlertDialog
 
 @Composable
 fun InspectionProfileDialog(container: AppContainer, propertyId: String, onReady: (String) -> Unit, onClose: () -> Unit) {
@@ -26,7 +27,7 @@ fun InspectionProfileDialog(container: AppContainer, propertyId: String, onReady
             finally { busy = false }
         }
     }
-    AlertDialog(onDismissRequest = { if (!busy) onClose() }, title = { Text("Tipo de vistoria") },
+    VaultAlertDialog(onDismissRequest = { if (!busy) onClose() }, title = { Text("Tipo de vistoria") },
         text = { androidx.compose.foundation.layout.Column {
             Text("Locação: registro de entrada e saída. Profissional: vistoria do imóvel com responsável, escopo e ART/RRT declarados.")
             ErrorText(error)

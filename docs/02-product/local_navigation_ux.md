@@ -8,8 +8,8 @@ Preserve the [capture flow](capture-flow.md) and
 
 ## Global destinations
 
-- `Início`: the shared masthead shows `habimetria` and a local-mode label above an
-  ivory-and-pine layout. A pine hero pairs the brand signature with a
+- `Início`: the shared masthead shows `habimetria` above an
+  ivory-and-pine layout. A pine hero pairs the local-mode label and brand signature with a
   decorative architectural elevation and the `Nova vistoria` action.
   `Meus imóveis` follows with a labeled empty state or photo-led cards,
   room counts, status labels and `Continuar` for an open draft. `Ver todos`
@@ -38,6 +38,9 @@ Preserve the [capture flow](capture-flow.md) and
   open the review of a SEALED Inspection;
   SEALED opens read-only review. Archived Properties remain discoverable
   through an explicit filter and label.
+  The options menu pairs `Remover` with a trash icon. Its confirmation
+  identifies the Property and Inspection status before offering the
+  destructive action.
 - `Relatórios`, reached from `Ajustes`: locally finalized Reports, grouped
   by Property, with open/share/verify actions. SEALED Inspections awaiting a PDF expose
   `Gerar PDF`, without claiming a Report already exists.
@@ -48,10 +51,10 @@ No new domain entity is introduced by a destination or filter.
 
 ## Header and navigation bar
 
-- One shared masthead places the Habimetria mark and title in the same
-  positions on every screen, with the same type style. Property context
-  sits below the title row when present. In light mode the masthead uses
-  a pine background with white text and icons.
+- One shared masthead places the Habimetria mark and one-line title in
+  the same 64 dp row on every screen. Property context belongs in the
+  page content. In light mode the masthead uses a pine background with
+  white text and icons.
 - Global screens have no redundant Back button. Detail screens have one
   labeled Back control at the trailing edge of the title row. Device
   Back and swipe follow the same hierarchy.
