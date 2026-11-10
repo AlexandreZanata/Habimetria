@@ -40,7 +40,10 @@ import vault.nav.WindowClass
 import vault.nav.maxContentWidthDp
 import vault.nav.windowClassFor
 import vault.ui.brand.HabimetriaMark
-import vault.ui.brand.HabimetriaWordmark
+
+private val MastheadPadding = 20.dp
+private val MastheadMarkSize = 36.dp
+private val MastheadSpacing = 10.dp
 
 // VaultShell is the single inset boundary: one Scaffold consumes system,
 // gesture and keyboard insets once, hosting the shared header, the
@@ -58,8 +61,7 @@ fun VaultShell(
     destination: Route,
     onSelect: (Route) -> Unit,
     subtitle: String,
-    showWordmark: Boolean,
-    localMode: Boolean,
+    showLocalMode: Boolean,
     content: @Composable () -> Unit,
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
@@ -67,7 +69,7 @@ fun VaultShell(
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
             topBar = {
-                VaultMasthead(title, subtitle, showWordmark, localMode, canGoBack, onBack)
+                VaultMasthead(title, subtitle, showLocalMode, canGoBack, onBack)
             },
             bottomBar = {
                 if (windowClass == WindowClass.COMPACT) {
@@ -103,8 +105,7 @@ fun VaultShell(
 private fun VaultMasthead(
     title: String,
     subtitle: String,
-    showWordmark: Boolean,
-    localMode: Boolean,
+    showLocalMode: Boolean,
     canGoBack: Boolean,
     onBack: () -> Unit,
 ) {
@@ -113,61 +114,57 @@ private fun VaultMasthead(
     val background = if (dark) colors.background else colors.inverseSurface
     val foreground = if (dark) colors.primary else BrandWhite
     val subtitleColor = if (dark) colors.onSurfaceVariant else BrandWhite
-    Column(Modifier.background(background)) {
+    Column(
+        Modifier.fillMaxWidth().background(background)
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)),
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth()
-                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
-                .heightIn(min = 64.dp).padding(start = if (canGoBack) 8.dp else 20.dp, end = 20.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                .heightIn(min = 64.dp).padding(horizontal = MastheadPadding, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(MastheadSpacing),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (showWordmark) {
-                HabimetriaWordmark(Modifier.weight(1f), tint = foreground)
-                if (localMode) {
-                    Surface(
-                        color = if (dark) colors.surfaceVariant else background,
-                        contentColor = subtitleColor,
-                        shape = CircleShape,
-                        border = if (dark) null else BorderStroke(1.dp, BrandWhite),
-                    ) {
-                        Text(
-                            Strings.localModeLabel,
-                            style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                        )
-                    }
+            HabimetriaMark(size = MastheadMarkSize, tint = foreground)
+            Text(
+                title,
+                color = foreground,
+                style = MaterialTheme.typography.titleLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f).semantics { heading() },
+            )
+            if (canGoBack) {
+                IconButton(onClick = onBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, Strings.back, tint = foreground)
                 }
-            } else {
-                if (canGoBack) {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, Strings.back, tint = foreground)
-                    }
-                } else {
-                    Surface(
-                        color = colors.inverseSurface,
-                        shape = MaterialTheme.shapes.small,
-                    ) {
-                        HabimetriaMark(size = 36.dp, tint = if (dark) colors.inverseOnSurface else BrandWhite)
-                    }
-                }
-                Column(Modifier.weight(1f).padding(vertical = 8.dp)) {
+            } else if (showLocalMode) {
+                Surface(
+                    color = if (dark) colors.surfaceVariant else background,
+                    contentColor = subtitleColor,
+                    shape = CircleShape,
+                    border = if (dark) null else BorderStroke(1.dp, BrandWhite),
+                ) {
                     Text(
-                        title,
-                        color = foreground,
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.semantics { heading() },
+                        Strings.localModeLabel,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                     )
-                    if (subtitle.isNotBlank()) {
-                        Text(
-                            subtitle,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = subtitleColor,
-                        )
-                    }
                 }
             }
+        }
+        if (subtitle.isNotBlank()) {
+            Text(
+                subtitle,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodySmall,
+                color = subtitleColor,
+                modifier = Modifier.padding(
+                    start = MastheadPadding + MastheadMarkSize + MastheadSpacing,
+                    end = MastheadPadding,
+                    bottom = 8.dp,
+                ),
+            )
         }
         HorizontalDivider(color = colors.outlineVariant)
     }

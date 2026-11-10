@@ -26,13 +26,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import vault.ui.ScreenTitle
 import vault.ui.Strings
 
-// Settings destination: one "tools and references" card with divider-
-// separated rows (icon, title, subtitle, chevron). The header already
-// carries the screen title, so the body starts at the section heading.
-// Every entry navigates; there are no placeholder actions.
 @Composable
 fun SettingsScreen(
     onOpenReports: () -> Unit,
@@ -42,9 +37,7 @@ fun SettingsScreen(
     Column(
         modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 16.dp)
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        ScreenTitle(SettingsStrings.toolsTitle)
         Surface(
             modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.surface,

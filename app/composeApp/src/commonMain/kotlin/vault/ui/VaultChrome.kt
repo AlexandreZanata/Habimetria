@@ -170,8 +170,7 @@ fun ChromeShell(
         onBack = onBack,
         destination = route.destination(),
         subtitle = subtitle,
-        showWordmark = route == Route.Home,
-        localMode = container.syncMode == SyncMode.LOCAL_ONLY,
+        showLocalMode = route == Route.Home && container.syncMode == SyncMode.LOCAL_ONLY,
         onSelect = { dest ->
             val local = container.local
             if (local != null) {

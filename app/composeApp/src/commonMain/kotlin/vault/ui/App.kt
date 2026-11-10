@@ -15,7 +15,7 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
     val route by navigator.route.collectAsState()
     HabimetriaTheme {
         when (val r = route) {
-            Route.Home -> ChromeShell(r, container, navigator, Strings.home, false, {}) {
+            Route.Home -> ChromeShell(r, container, navigator, Strings.appName.lowercase(), false, {}) {
                 HomeScreen(
                     container,
                     onReady = { navigator.startInspection(it) },

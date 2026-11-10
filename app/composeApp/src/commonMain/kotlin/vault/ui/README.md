@@ -1,6 +1,6 @@
 # Brand and report authorship UI
 
-- [brand/HabimetriaBrand.kt](brand/HabimetriaBrand.kt): geometric H mark and lowercase wordmark from the brand vectors.
+- [brand/HabimetriaBrand.kt](brand/HabimetriaBrand.kt): geometric H mark from the brand vectors.
 - [StatusBadge.kt](StatusBadge.kt): shared status badges for Properties and Inspections.
 - [inspection/InspectionStatusFilters.kt](inspection/InspectionStatusFilters.kt): status filters for the Inspection list and Property history.
 

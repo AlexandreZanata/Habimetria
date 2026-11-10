@@ -8,7 +8,7 @@ Preserve the [capture flow](capture-flow.md) and
 
 ## Global destinations
 
-- `Início`: the Habimetria lockup and a local-mode label sit above an
+- `Início`: the shared masthead shows `habimetria` and a local-mode label above an
   ivory-and-pine layout. A pine hero pairs the brand signature with a
   decorative architectural elevation and the `Nova vistoria` action.
   `Meus imóveis` follows with a labeled empty state or photo-led cards,
@@ -48,12 +48,15 @@ No new domain entity is introduced by a destination or filter.
 
 ## Header and navigation bar
 
-- One shared masthead on every app screen. Home carries the brand lockup.
-  Other screens show a title and Property or Room context when applicable.
-  In light mode the masthead uses a pine background with white text and
-  icons.
+- One shared masthead places the Habimetria mark and title in the same
+  positions on every screen, with the same type style. Property context
+  sits below the title row when present. In light mode the masthead uses
+  a pine background with white text and icons.
 - Global screens have no redundant Back button. Detail screens have one
-  labeled Back control; device Back/swipe follows the same hierarchy.
+  labeled Back control at the trailing edge of the title row. Device
+  Back and swipe follow the same hierarchy.
+- `Configurações` uses the masthead as its title and opens directly with
+  the list of tools.
 - Compact windows use a bottom bar with four icons and always-visible
   labels: `Início`, `Imóveis`, `Vistorias`, `Ajustes`. Light mode uses a
   pine bar with white icons and labels. The selected destination uses a

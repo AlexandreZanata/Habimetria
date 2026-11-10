@@ -1,22 +1,14 @@
 package vault.ui.brand
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 // Outline traced from the monogram reference on a 120-unit square.
 @Composable
@@ -47,29 +39,5 @@ fun HabimetriaMark(
             close()
         }
         drawPath(outline, tint)
-    }
-}
-
-@Composable
-fun HabimetriaWordmark(
-    modifier: Modifier = Modifier,
-    tint: Color = MaterialTheme.colorScheme.primary,
-    markSize: Dp = 34.dp,
-) {
-    Row(
-        modifier = modifier.clearAndSetSemantics { contentDescription = "Habimetria" },
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        HabimetriaMark(size = markSize, tint = tint)
-        Text(
-            text = "habimetria",
-            color = tint,
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 24.sp,
-                letterSpacing = (-1).sp,
-            ),
-        )
     }
 }

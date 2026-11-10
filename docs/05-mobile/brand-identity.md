@@ -89,8 +89,8 @@ Report covers use title 20 pt, heading 16 pt, body 12 pt, small 9 pt.
 
 App:
 
-- The Home masthead carries the lockup. Other root mastheads carry the
-  monogram beside the title; detail mastheads prioritize back and context.
+- Every masthead pairs the monogram with the screen title in the same
+  position and type style. Home uses lowercase `habimetria` as its title.
 - Primary actions use Pinho and Marfim in strong contrast. A Pinho feature
   panel uses a Marfim button so its action remains distinct.
 - Background: Marfim. Cards use ivory tints and fine outlines. Sálvia

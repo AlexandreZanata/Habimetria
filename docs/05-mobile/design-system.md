@@ -3,7 +3,7 @@
 Normative identity: [brand-identity.md](brand-identity.md). Code:
 `vault.ui.Theme` (brand roles, Manrope, shapes), `vault.ui.Strings`
 (pt-BR copy), `vault.ui.VaultComponents` (shared building blocks),
-`vault.ui.brand.HabimetriaBrand` (mark and lockup).
+`vault.ui.brand.HabimetriaBrand` (monogram).
 
 ## Brand palette
 
@@ -66,8 +66,6 @@ Both schemes use Pinho, Marfim and Sálvia for the inverse feature panels.
   reverse this pair for the current selection.
 - `HabimetriaMark`: geometric H from the brand asset, tinted by the
   current content color.
-- `HabimetriaWordmark`: mark plus lowercase `habimetria` for the masthead
-  and other brand surfaces.
 - [Architectural elevation](home_artwork.md): decorative drawing for Home
   and Property cover fallbacks.
 
@@ -79,8 +77,9 @@ Both schemes use Pinho, Marfim and Sálvia for the inverse feature panels.
 - Breakpoints live in shared `vault.nav` (`windowClassFor`,
   `maxContentWidthDp`, `roomsColumns`, `useSideBySide`) so Android,
   iOS, tablets, foldables and multi-window behave identically.
-- `VaultShell` caps content width on medium/expanded windows and hosts
-  the Home lockup or the title and contextual controls.
+- `VaultShell` caps content width on medium/expanded windows and places
+  the monogram and `titleLarge` title in the same row across all routes.
+  Context sits below the title row and Back sits at its trailing edge.
 - Phones stack preview above controls; wide windows place them side
   by side with an independently scrolling control column, so no
   action hides in landscape.
