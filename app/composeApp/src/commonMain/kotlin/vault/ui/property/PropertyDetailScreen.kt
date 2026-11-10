@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -30,8 +31,12 @@ import vault.local.db.LocalInspection
 import vault.local.db.LocalProperty
 import vault.ui.AppContainer
 import vault.ui.ErrorText
+import vault.ui.InspectionRowSkeleton
 import vault.ui.ProgressStatus
+import vault.ui.SkeletonLine
+import vault.ui.SkeletonThumbnail
 import vault.ui.Strings
+import vault.ui.rememberLoadingVisible
 import vault.ui.userErrorMessage
 
 // Property detail: address/nickname plus bounded inspection history.
@@ -68,6 +73,8 @@ fun PropertyDetailScreen(
 
     LaunchedEffect(local, propertyId) { load() }
 
+    val showLoading = rememberLoadingVisible(property == null || inspections == null)
+
     if (chooseProfile) InspectionProfileDialog(container, propertyId, onNewInspection) { chooseProfile = false }
 
     val visible = (inspections.orEmpty()).filter {
@@ -88,9 +95,26 @@ fun PropertyDetailScreen(
                 ErrorText(loadError)
                 OutlinedButton(onClick = { scope.launch { load() } }) { Text(Strings.retry) }
             }
-            property == null || inspections == null -> {
+            showLoading -> {
                 ProgressStatus(true)
-                Text(Strings.loadingProperties)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    SkeletonThumbnail(88.dp)
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        SkeletonLine(0.6f, 22.dp)
+                        SkeletonLine(0.85f)
+                    }
+                }
+                InspectionRowSkeleton()
+                InspectionRowSkeleton()
+            }
+            property == null || inspections == null -> {
+                // Grace period: data is on its way, paint nothing yet.
             }
             else -> {
                 val current = property!!

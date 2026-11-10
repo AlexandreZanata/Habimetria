@@ -35,7 +35,7 @@ fun LocalOccurrenceScreen(
 ) {
     val scope = rememberCoroutineScope()
     var propertyId by remember { mutableStateOf<String?>(null) }
-    var occurrences by remember { mutableStateOf<List<LocalOccurrence>>(emptyList()) }
+    var occurrences by remember { mutableStateOf<List<LocalOccurrence>?>(null) }
     var counts by remember { mutableStateOf(mapOf<String, Int>()) }
     var title by remember { mutableStateOf("") }
     var body by remember { mutableStateOf("") }
@@ -87,9 +87,21 @@ fun LocalOccurrenceScreen(
             },
             enabled = !busy && title.trim().isNotEmpty(),
         )
-        if (occurrences.isEmpty()) BodyText(Strings.occurrenceEmpty)
+        val list = occurrences.orEmpty()
+        val showLoading = rememberLoadingVisible(occurrences == null)
+        if (showLoading) {
+            ProgressStatus(true)
+            SkeletonLine(0.5f, 20.dp)
+            SkeletonLine(0.3f)
+            SkeletonLine(0.5f, 20.dp)
+            SkeletonLine(0.3f)
+        } else if (occurrences == null) {
+            // Grace period: data is on its way, paint nothing yet.
+        } else if (list.isEmpty()) {
+            BodyText(Strings.occurrenceEmpty)
+        }
         LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(occurrences, key = { it.id }) { occurrence ->
+            items(list, key = { it.id }) { occurrence ->
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(occurrence.title, style = MaterialTheme.typography.titleMedium)
                     occurrence.body?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }

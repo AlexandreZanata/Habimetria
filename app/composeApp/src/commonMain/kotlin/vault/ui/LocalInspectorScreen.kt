@@ -38,6 +38,7 @@ fun LocalInspectorScreen(
     var pending by remember { mutableStateOf<List<AiSuggestion>>(emptyList()) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    var loaded by remember { mutableStateOf(false) }
 
     fun refresh() {
         scope.launch {
@@ -47,11 +48,15 @@ fun LocalInspectorScreen(
                 error = null
             } catch (e: Exception) {
                 error = userErrorMessage(e)
+            } finally {
+                loaded = true
             }
         }
     }
 
     LaunchedEffect(inspectionId) { refresh() }
+
+    val showLoading = rememberLoadingVisible(!loaded)
 
     ScreenColumn {
         ScreenTitle(Strings.inspectorTitle)
@@ -75,6 +80,15 @@ fun LocalInspectorScreen(
             enabled = !busy,
         )
         LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            if (showLoading) {
+                item(key = "loading") { ProgressStatus(true) }
+                item(key = "skeleton-1") { SkeletonLine(0.5f, 20.dp) }
+                item(key = "skeleton-2") { SkeletonLine(0.8f) }
+                item(key = "skeleton-3") { SkeletonLine(0.6f) }
+                item(key = "skeleton-4") { SkeletonLine(0.8f) }
+            } else if (!loaded) {
+                // Grace period: data is on its way, paint nothing yet.
+            } else {
             if (gaps.isNotEmpty()) {
                 item(key = "gaps-header") {
                     Text(Strings.inspectorGaps, style = MaterialTheme.typography.titleMedium)
@@ -119,6 +133,7 @@ fun LocalInspectorScreen(
                 item(key = "empty") {
                     Text(Strings.inspectorEmpty, style = MaterialTheme.typography.bodyMedium)
                 }
+            }
             }
         }
         VaultButton(text = Strings.back, onClick = onBack)

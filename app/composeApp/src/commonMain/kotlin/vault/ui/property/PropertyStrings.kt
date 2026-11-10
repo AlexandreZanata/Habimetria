@@ -15,6 +15,11 @@ object PropertyStrings {
     const val noMatch = "Nenhuma vistoria neste filtro."
     const val openDetail = "Abrir"
     const val search = "Buscar imóvel"
+    const val searchHint = "Nome ou endereço"
+    const val clearSearch = "Limpar busca"
+    const val openProperty = "Abrir imóvel"
+    const val noPropertyMatch = "Nenhum imóvel encontrado para esta busca."
+    const val closeCreateForm = "Fechar cadastro"
     const val deleteTitle = "Excluir imóvel?"
     const val deleteBody =
         "O cadastro vazio deste imóvel será apagado neste dispositivo. " +
@@ -45,6 +50,10 @@ object PropertyStrings {
     const val restoreAction = "Restaurar imóvel"
     const val restoredOk = "Imóvel restaurado."
     const val archivedHint = "Veja em Arquivados."
+    const val coverTitle = "Foto de capa"
+    const val coverPick = "Adicionar foto de capa"
+    const val coverChange = "Trocar foto"
+    const val coverRemove = "Remover foto"
     const val archivedDetailNote =
         "Imóvel arquivado. Vistorias, fotos e relatórios ficam guardados " +
             "neste dispositivo. Restaure para iniciar uma nova vistoria."

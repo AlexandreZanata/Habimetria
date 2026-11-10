@@ -21,6 +21,17 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     onReady = { navigator.startInspection(it) },
                     onNewInspection = { navigator.navigate(Route.NewInspection) },
                     onOpenDetail = { navigator.navigate(Route.PropertyDetail(it)) },
+                    onOpenAllProperties = {
+                        val local = container.local
+                        if (local != null) {
+                            local.navigation.save(
+                                local.navigation.load().copy(
+                                    destination = vault.nav.Destinations.codeFor(Route.Properties),
+                                ),
+                            )
+                        }
+                        navigator.selectDestination(Route.Properties)
+                    },
                 )
             }
             Route.NewInspection -> ChromeShell(r, container, navigator, Strings.newInspection, true, {
@@ -62,12 +73,18 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                 vault.ui.settings.SettingsScreen(
                     onOpenReports = { navigator.navigate(Route.Reports) },
                     onOpenProblems = { navigator.navigate(Route.FindingProblems) },
+                    onOpenRoomPresets = { navigator.navigate(Route.RoomPresets) },
                 )
             }
             Route.FindingProblems -> ChromeShell(r, container, navigator, SettingsStrings.problemsTitle, true, {
                 navigator.goBackOr(Route.Settings)
             }) {
                 vault.ui.settings.FindingProblemsScreen(container)
+            }
+            Route.RoomPresets -> ChromeShell(r, container, navigator, SettingsStrings.roomPresetsTitle, true, {
+                navigator.goBackOr(Route.Settings)
+            }) {
+                vault.ui.settings.RoomPresetsScreen(container)
             }
             Route.Reports -> ChromeShell(r, container, navigator, Strings.reports, true, {
                 navigator.goBackOr(Route.Settings)

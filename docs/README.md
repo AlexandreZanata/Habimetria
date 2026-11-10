@@ -44,6 +44,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `05-mobile/report_authorship_contract.md` — optional identity, signed Share declarations, certificate-holder signatures and editorial presentation
 - `05-mobile/local-store.md` — L1 SQLite schema, files, migration rules
 - `05-mobile/design-system.md` — L2 Material 3 tokens, components, pt-BR
+- [05-mobile/home_artwork.md](05-mobile/home_artwork.md) — generated Brazilian house art and Home presentation
 
 ## 06 Roadmap
 
@@ -60,6 +61,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `06-roadmap/report_authorship_execution.md` — code-only identity, declarations, certificate and editorial delivery; user-owned manual gates
 - `06-roadmap/local_pdf_execution.md` — implementation results, native synthetic proof and remaining release gates
 - `06-roadmap/local_pdf_acceptance.md` — planned orientation, completeness, offline integrity and professional-release proof
+- `06-roadmap/enterprise_assurance_plan.md` — enterprise test/scale/LGPD plan for municipal use (planning only)
 
 ## 07 AI Ops
 

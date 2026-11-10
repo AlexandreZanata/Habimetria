@@ -13,16 +13,16 @@ import (
 // Report is the sealed vault's public face: manifest anchor plus the
 // final app-rendered PDF artifact (attached in the S7 two-pass upload).
 type Report struct {
-	ID            string     `json:"report_id"`
-	InspectionID  string     `json:"inspection_id"`
-	VerifyCode    string     `json:"verify_code"`
-	ReportSHA256  *string    `json:"report_sha256"`
-	PDFReady      bool       `json:"pdf_ready"`
-	SealedAt      time.Time  `json:"sealed_at"`
-	EvidenceCount int        `json:"evidence_count"`
-	ManifestSHA   string     `json:"manifest_sha256"`
-	Signature     string     `json:"signature"`
-	PDFKey        string     `json:"-"`
+	ID            string    `json:"report_id"`
+	InspectionID  string    `json:"inspection_id"`
+	VerifyCode    string    `json:"verify_code"`
+	ReportSHA256  *string   `json:"report_sha256"`
+	PDFReady      bool      `json:"pdf_ready"`
+	SealedAt      time.Time `json:"sealed_at"`
+	EvidenceCount int       `json:"evidence_count"`
+	ManifestSHA   string    `json:"manifest_sha256"`
+	Signature     string    `json:"signature"`
+	PDFKey        string    `json:"-"`
 }
 
 const reportSelect = `SELECT r.id::text, r.inspection_id::text, r.verify_code,

@@ -3,6 +3,8 @@ package vault.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -19,11 +22,13 @@ import vault.local.LocalSession
 import vault.local.LocalValidationException
 import vault.local.STATUS_DRAFT
 import vault.local.db.LocalRoom
+import vault.ui.journey.JourneyPrimaryAction
+import vault.ui.journey.JourneyStrings
 import vault.ui.journey.RoomDeleteDialog
 import vault.ui.journey.RoomEmptyState
 import vault.ui.journey.RoomListRow
-import vault.ui.journey.RoomNameInput
 import vault.ui.journey.RoomRenameDialog
+import vault.ui.journey.RoomSetupHeader
 
 // LocalRoomsScreen: manually named rooms, offline. Add, rename, reorder
 // and delete in DRAFT; labels freeze when sealed. Unicode preserved.
@@ -37,16 +42,17 @@ fun LocalRoomsScreen(
     onSealed: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    var rooms by remember { mutableStateOf<List<LocalRoom>>(emptyList()) }
+    var rooms by remember { mutableStateOf<List<LocalRoom>?>(null) }
     var percents by remember { mutableStateOf(mapOf<String, Int>()) }
     var counts by remember { mutableStateOf(mapOf<String, Int>()) }
-    var newLabel by remember { mutableStateOf("") }
+    var newLabel by rememberSaveable(inspectionId) { mutableStateOf("") }
     var renaming by remember { mutableStateOf<LocalRoom?>(null) }
-    var renameText by remember { mutableStateOf("") }
+    var renameText by rememberSaveable(inspectionId) { mutableStateOf("") }
     var deleting by remember { mutableStateOf<LocalRoom?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     var kind by remember { mutableStateOf("entry") }
     var sealedRedirected by remember { mutableStateOf(false) }
+    var presetCount by remember { mutableStateOf(0) }
 
     fun refresh() {
         scope.launch {
@@ -62,6 +68,7 @@ fun LocalRoomsScreen(
                 rooms = list
                 percents = list.associate { it.id to session.coverage.roomCoverage(it.id).percent() }
                 counts = list.associate { it.id to session.repository.evidencesForRoom(it.id).size }
+                presetCount = session.roomPresets.list().size
                 error = null
             } catch (e: Exception) {
                 error = userErrorMessage(e)
@@ -71,45 +78,66 @@ fun LocalRoomsScreen(
 
     LaunchedEffect(inspectionId) { refresh() }
 
+    val showLoading = rememberLoadingVisible(rooms == null)
+
     ScreenColumn {
-        ScreenTitle(Strings.rooms + if (kind == "exit") " — ${Strings.exitKind}" else "")
-        Text(
-            Strings.roomsSubtitle,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        ErrorText(error)
-        RoomNameInput(
-            value = newLabel,
-            onValue = { newLabel = it },
-            enabled = newLabel.isNotBlank(),
-            onAdd = {
-                scope.launch {
-                    try {
-                        session.repository.addRoom(inspectionId, newLabel)
-                        newLabel = ""
-                        refresh()
-                    } catch (e: Exception) {
-                        error = userErrorMessage(e)
-                    }
-                }
-            },
-        )
-        if (rooms.isEmpty()) RoomEmptyState()
-        LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            items(rooms, key = { it.id }) { room ->
+        LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            item {
+                RoomSetupHeader(
+                    isExit = kind == "exit",
+                    error = error,
+                    value = newLabel,
+                    onValue = { newLabel = it },
+                    onAdd = {
+                        scope.launch {
+                            try {
+                                session.repository.addRoom(inspectionId, newLabel)
+                                newLabel = ""
+                                refresh()
+                            } catch (e: Exception) {
+                                error = userErrorMessage(e)
+                            }
+                        }
+                    },
+                    presetCount = presetCount,
+                    onAddPresets = {
+                        scope.launch {
+                            try {
+                                session.repository.addRoomsFromPresets(inspectionId)
+                                refresh()
+                            } catch (e: Exception) {
+                                error = userErrorMessage(e)
+                            }
+                        }
+                    },
+                )
+            }
+            val list = rooms.orEmpty()
+            if (showLoading) {
+                item { ProgressStatus(true) }
+                item { RoomRowSkeleton() }
+                item { RoomRowSkeleton() }
+                item { RoomRowSkeleton() }
+            } else if (rooms == null) {
+                // Grace period: data is on its way, paint nothing yet.
+            } else if (list.isEmpty()) {
+                item { RoomEmptyState() }
+            } else {
+                item { Text(JourneyStrings.roomCount(list.size), style = MaterialTheme.typography.titleSmall) }
+            }
+            items(list, key = { it.id }) { room ->
                 RoomListRow(
                     room = room,
                     percent = percents[room.id] ?: 0,
                     evidenceCount = counts[room.id] ?: 0,
-                    canMoveUp = rooms.firstOrNull()?.id != room.id,
-                    canMoveDown = rooms.lastOrNull()?.id != room.id,
+                    canMoveUp = list.firstOrNull()?.id != room.id,
+                    canMoveDown = list.lastOrNull()?.id != room.id,
                     onOpen = { onOpenRoom(room.id, room.label) },
                     onRename = { renaming = room; renameText = room.label },
                     onMove = { delta ->
                         scope.launch {
                             try {
-                                val idx = rooms.indexOfFirst { it.id == room.id }
+                                val idx = list.indexOfFirst { it.id == room.id }
                                 session.repository.moveRoom(room.id, idx + delta)
                                 refresh()
                             } catch (e: Exception) {
@@ -123,13 +151,14 @@ fun LocalRoomsScreen(
             // In-flow submit: pinned footers ride above the keyboard, so
             // the action scrolls with the list and stays put instead.
             item {
-                VaultButton(
+                JourneyPrimaryAction(
                     text = Strings.startInspection,
+                    icon = Icons.Filled.CameraAlt,
                     onClick = {
-                        val first = rooms.firstOrNull() ?: return@VaultButton
+                        val first = list.firstOrNull() ?: return@JourneyPrimaryAction
                         onStartCapture(first.id, first.label)
                     },
-                    enabled = rooms.isNotEmpty(),
+                    enabled = list.isNotEmpty(),
                 )
             }
         }

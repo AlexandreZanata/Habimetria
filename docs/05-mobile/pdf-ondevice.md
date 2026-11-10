@@ -66,6 +66,12 @@ Capture does not wait for GPS. GPS/time are device claims, not certified
 scene location or trusted shutter time. A negative simulation indication
 cannot certify authenticity. No coordinates are invented for missing data.
 
+Each photo also carries a short on-photo stamp (bottom-right, over the
+image): device capture time, the reported Property place, and WGS84
+coordinates with accuracy, or the explicit unavailability reason. The
+stamp is page-only presentation of frozen snapshot data; originals and
+derivatives never change. The place is user-supplied, never a GPS claim.
+
 ## Publication, history and verification
 
 ReportGenerator serializes generation/export/removal. It validates originals

@@ -65,7 +65,7 @@ func main() {
 		HMACKey:    cfg.HMACKey,
 	})
 
-	srv := &http.Server{Addr: ":" + cfg.Port, Handler: mux}
+	srv := &http.Server{Addr: ":" + cfg.Port, Handler: httpapi.SecurityHeaders(mux)}
 	go func() {
 		log.Printf("vault api listening on :%s", cfg.Port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {

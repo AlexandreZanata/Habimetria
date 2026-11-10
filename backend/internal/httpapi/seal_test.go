@@ -53,7 +53,8 @@ func TestSealEmptyMaps422(t *testing.T) {
 	}
 }
 
-func TestSealMissingMaps404(t *testing.T) {	h := NewSealHandler(stubSeal{err: postgres.ErrNotFound})
+func TestSealMissingMaps404(t *testing.T) {
+	h := NewSealHandler(stubSeal{err: postgres.ErrNotFound})
 	req := httptest.NewRequest("POST", "/api/v1/inspections/x:seal", strings.NewReader(`{}`))
 	req.SetPathValue("id", "x")
 	rec := httptest.NewRecorder()

@@ -52,6 +52,12 @@ fun PropertyDataSection(
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        PropertyCoverSection(
+            container = container,
+            propertyId = property.id,
+            photoPath = property.photoPath,
+            onSaved = onSaved,
+        )
         Text(PropertyStrings.dataTitle, style = MaterialTheme.typography.titleMedium)
         if (!open) {
             OutlinedButton(onClick = { open = true }) { Text(PropertyStrings.editData) }

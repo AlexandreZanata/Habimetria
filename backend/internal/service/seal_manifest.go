@@ -42,7 +42,7 @@ type manifestDoc struct {
 func BuildManifest(inspectionID string, sealedAt time.Time, evidences []postgres.SealEvidence) ([]byte, error) {
 	doc := manifestDoc{
 		Version: ManifestVersion, InspectionID: inspectionID,
-		SealedAt: sealedAt.UTC().Format(time.RFC3339),
+		SealedAt:      sealedAt.UTC().Format(time.RFC3339),
 		EvidenceCount: len(evidences), Evidences: []manifestLine{},
 	}
 	for _, e := range evidences {

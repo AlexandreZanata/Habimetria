@@ -26,7 +26,7 @@ class AndroidPlanRenderer : PlanRenderer {
                         if (isCancelled()) throw RenderCancelledException()
                         when (item) {
                             is PageItem.Text -> drawPdfText(page.canvas, item, fonts)
-                            is PageItem.Photo -> drawPdfPhoto(page.canvas, item, loadPhoto(item.entry.evidenceId))
+                            is PageItem.Photo -> drawPdfPhoto(page.canvas, item, loadPhoto(item.entry.evidenceId), fonts)
                             is PageItem.Qr -> drawPdfQr(page.canvas, item)
                             is PageItem.Finding, is PageItem.HashRow -> Unit // semantic audit markers
                         }

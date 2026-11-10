@@ -29,6 +29,9 @@ data class PdfPhotoEntry(
     // Frozen manual display correction (degrees clockwise). Originals stay
     // immutable; renderers draw the rotated derivative in the sized slot.
     val displayRotation: Int = 0,
+    // Short on-photo stamp (capture time, reported place, device GPS),
+    // drawn over the photo rect by renderers. Snapshot presentation only.
+    val stampLines: List<String> = emptyList(),
 )
 
 data class PdfFindingEntry(
@@ -84,6 +87,7 @@ fun buildPdfModel(
                 caption = "${room.label} — nº ${e.sequence}",
                 claimLine = e.reportClaimLines(),
                 displayRotation = e.displayRotation,
+                stampLines = photoStampLines(e, address),
             )
         }
         val findings = input.findings.filter { it.roomId == room.id }.map { f ->

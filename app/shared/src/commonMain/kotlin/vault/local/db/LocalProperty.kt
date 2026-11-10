@@ -17,6 +17,9 @@ data class LocalProperty(
     val neighborhood: String = "",
     // Friendly name for the property picker ("Casa da praia").
     val nickname: String = "",
+    // Optional cover photo for the property card (durable file path).
+    // Organizational only, never part of frozen Manifest payloads.
+    val photoPath: String? = null,
     // Local visibility for U07 removal: false = active, true = archived.
     // Organizational only, never part of frozen Manifest payloads.
     val archived: Boolean = false,

@@ -16,7 +16,7 @@ const MaxMultipartMemory = 32 << 20
 // Returns 201 with evidence id + server timestamp ack.
 func (h *EvidenceHandler) Upload(w http.ResponseWriter, r *http.Request) {
 	inspectionID := r.PathValue("id")
-	r.Body = http.MaxBytesReader(w, r.Body, service.MaxVideoBytes+ (1 << 20))
+	r.Body = http.MaxBytesReader(w, r.Body, service.MaxVideoBytes+(1<<20))
 	if err := r.ParseMultipartForm(MaxMultipartMemory); err != nil {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid multipart body"})
 		return

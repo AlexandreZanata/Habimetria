@@ -70,6 +70,12 @@ fun LocalVerifyScreen(session: LocalSession, inspectionId: String, picker: Local
             }, enabled = !busy)
             Text("Use o ZIP original exportado pelo app. ZIP recomprimido por outros programas não é suportado.", style = MaterialTheme.typography.bodySmall)
             documentName?.let { Text(it, style = MaterialTheme.typography.titleMedium) }
+            if (busy && verdict == null) {
+                ProgressStatus(true)
+                SkeletonLine(0.6f, 20.dp)
+                SkeletonLine(0.9f)
+                SkeletonLine(0.7f)
+            }
             verdict?.let { VerdictBlock(it) }
             verdict?.declarations?.distinctBy { it.keyId }?.filter { it.keyId != importedKey }?.forEach { declaration ->
                 Text("Compare por outro meio a impressão digital do declarante: ${declaration.keyId}", style = MaterialTheme.typography.bodySmall)

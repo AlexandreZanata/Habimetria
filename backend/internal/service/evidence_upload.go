@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"strings"
 
@@ -73,6 +74,12 @@ func (s *EvidenceService) Upload(ctx context.Context, in UploadInput) (UploadRes
 
 	id := uuid.NewString()
 	key := "originals/" + in.InspectionID + "/" + id
+	if _, err := tmp.Seek(0, io.SeekStart); err != nil {
+		return UploadResult{}, fmt.Errorf("rewind: %w", err)
+	}
+	if err := checkContent(typ, tmp); err != nil {
+		return UploadResult{}, err
+	}
 	if _, err := tmp.Seek(0, io.SeekStart); err != nil {
 		return UploadResult{}, fmt.Errorf("rewind: %w", err)
 	}
@@ -148,6 +155,26 @@ func checkGeo(lat, lng *float64) error {
 	}
 	return nil
 }
+
+// checkContent sniffs buffered bytes against the declared photo type.
+// Polyglot uploads (non-image bytes labeled image/*) are rejected before
+// storage. Video is not sniffed: the stdlib cannot identify MP4, so the
+// declared mime plus extension stand there (recorded limitation).
+func checkContent(typ string, tmp *os.File) error {
+	if typ != "photo" {
+		return nil
+	}
+	head := make([]byte, 512)
+	n, err := tmp.Read(head)
+	if err != nil && err != io.EOF {
+		return fmt.Errorf("sniff: %w", err)
+	}
+	if detected := http.DetectContentType(head[:n]); !strings.HasPrefix(detected, "image/") {
+		return fmt.Errorf("photo content %s is not an image: %w", detected, ErrInvalid)
+	}
+	return nil
+}
+
 // bufferAndHash streams content to a temp file while hashing.
 // Returns hex SHA-256, byte size, and the open temp file.
 func bufferAndHash(r io.Reader) (string, int64, *os.File, error) {

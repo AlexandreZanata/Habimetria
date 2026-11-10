@@ -1,0 +1,123 @@
+================================================================================
+INSTRUÇÕES PARA O AGENTE: IMPLEMENTAÇÃO DA NOVA HOME SCREEN E FOTOS DE IMÓVEIS
+================================================================================
+
+PROJETO: MVP Aplicativo PDF Prova de Vistoria
+BRANCH: dev (Conforme AGENTS.md §8)
+
+--------------------------------------------------------------------------------
+1. OBJETIVO GERAL
+--------------------------------------------------------------------------------
+Modificar a tela inicial (`HomeScreen.kt`) e os componentes relacionados no
+Compose Multiplatform para replicar com exatidão o visual da interface de referência
+fornecida pelo usuário, com as seguintes diretrizes:
+
+1. BANNER PRINCIPAL COM ARTE:
+   - Implementar o banner superior de boas-vindas utilizando a imagem gerada:
+     `Res.drawable.banner_vistoria` (já adicionada em `app/composeApp/src/commonMain/composeResources/drawable/banner_vistoria.jpg`).
+   - Título: "Vistoria de Imóveis"
+   - Subtítulo com destaque: "Mais **segurança** para você não pagar por danos que não causou."
+   - 3 Itens com ícone de verificação (check verde):
+     * "Registre o estado do imóvel"
+     * "Fotos e observações organizadas"
+     * "Relatórios profissionais"
+   - Botão de ação proeminente ("+ Nova vistoria >"):
+     * Fundo verde sólido (Primary: #1E7A4E ou MaterialTheme.colorScheme.primary)
+     * Círculo branco com ícone de mais (+) à esquerda
+     * Texto "Nova vistoria"
+     * Ícone chevron à direita (>)
+     * Ao clicar, navega para o fluxo de nova vistoria.
+
+2. REMOÇÃO DOS 3 CARDS DE CONTAGEM (IMPORTANTE):
+   - A imagem de referência original continha 3 cards menores de contadores
+     ("Total de imóveis", "Vistorias realizadas", "Relatórios prontos").
+   - O USUÁRIO SOLICITOU EXPLICITAMENTE A REMOÇÃO DESSES 3 CARDS.
+   - Portanto, NÃO renderizar esses 3 cards. O banner inicial deve ir direto
+     para a seção "Meus imóveis".
+
+3. SEÇÃO "MEUS IMÓVEIS":
+   - Cabeçalho:
+     * Lado esquerdo: "Meus imóveis" (tipografia titleLarge / semibold)
+     * Lado direito: link/botão "X imóveis >" (ou "1 imóvel >") que navega para `Route.Properties`.
+   - Cards de Imóvel (estilo "Casa teste" da referência):
+     * Card elevado com cantos arredondados (16.dp).
+     * Lado esquerdo: Foto miniatura do imóvel (quadrado ~80dp-90dp com cantos arredondados de 12.dp).
+       - Se o imóvel tiver foto cadastrada, carregar a imagem correspondente.
+       - Se não tiver foto, exibir a arte de placeholder gerada:
+         `Res.drawable.property_placeholder` (já adicionada em `composeResources/drawable/property_placeholder.jpg`).
+     * Lado direito:
+       - Linha superior: Nome do imóvel (nickname ou endereço) + botão de 3 pontinhos (MoreVert) com menu (Nova vistoria, Dados do imóvel, Excluir).
+       - Linha intermediária: Ícone de localização (Place/Pin cinza) + Endereço formatado (Rua, número, complemento / Bairro).
+       - Linha inferior de Chips/Badges:
+         * Chip 1: Ícone de casa (Home) + "X cômodos" (fundo cinza claro/surfaceContainer, texto neutro).
+         * Chip 2: Ponto indicador verde + "Ativo" (ou status da vistoria, fundo verde suave #E8F5E9, texto verde #1E7A4E).
+       - Se houver rascunho em aberto: manter botão "Continuar" discreto ou acessível.
+
+4. PERMITIR FOTO DE CAPA DO IMÓVEL:
+   - Adicionar suporte a foto no imóvel para organização e fácil identificação.
+   - Banco de dados local:
+     * Campo `photoPath: String? = null` em `LocalProperty`.
+     * Criar migração correspondente no Room (`Migration1718`: `ALTER TABLE properties ADD COLUMN photo_path TEXT DEFAULT NULL`)
+       e atualizar `VaultDatabase.kt`.
+     * Atualizar `LocalProperty.kt`, `PropertyOverview.kt`, `PropertyDao.kt`.
+   - Formulário de Imóvel (`PropertyDataForm.kt` / `PropertyForm.kt`):
+     * Permitir ao usuário anexar/tirar uma foto da fachada/capa do imóvel através de `LocalFilePicker` / `PhotoCapture`.
+     * Salvar o arquivo no diretório de dados duráveis e gravar o caminho em `photoPath`.
+
+--------------------------------------------------------------------------------
+2. ASSETS DISPONÍVEIS NO PROJETO
+--------------------------------------------------------------------------------
+Os seguintes arquivos já foram gerados e adicionados ao projeto em:
+`app/composeApp/src/commonMain/composeResources/drawable/`:
+
+1. `banner_vistoria.jpg`:
+   - Arte em alta definição com fachada arquitetônica moderna, árvores e sacada com vidro no canto direito, com fundo suave em degradê menta à esquerda para sobreposição de texto e botão.
+   - Referência no código: `Res.drawable.banner_vistoria`
+
+2. `property_placeholder.jpg`:
+   - Foto quadrada contemporânea de fachada residencial minimalista com jardim e luz natural diurna, correspondente à imagem de perfil de "Casa teste".
+   - Referência no código: `Res.drawable.property_placeholder`
+
+--------------------------------------------------------------------------------
+3. ARQUIVOS A EDITAR E DETALHES DE IMPLEMENTAÇÃO
+--------------------------------------------------------------------------------
+
+A) `app/composeApp/src/commonMain/kotlin/vault/ui/HomeScreen.kt`:
+   - Substituir a chamada simples de `HeroNewInspection` pelo novo componente de Banner:
+     `HomeHeroBanner(enabled = !busy, onNewInspection = onNewInspection)`
+   - Remover qualquer menção aos cards de estatísticas.
+   - Conectar o cabeçalho "Meus imóveis" com navegação para a listagem completa ao clicar em "X imóveis >".
+
+B) `app/composeApp/src/commonMain/kotlin/vault/ui/property/PropertyCards.kt`:
+   - Criar `HomeHeroBanner`:
+     * Container com fundo suave (`#EAF5EE` ou degradê mint).
+     * Imagem de fundo alinhada à direita (`Res.drawable.banner_vistoria`, ContentScale.Crop / Alignment.CenterEnd).
+     * Textos e bullet points com ícones verdes `Icons.Filled.CheckCircle`.
+     * Botão customizado com cantos arredondados, fundo verde escuro (`#19683D`), círculo branco com `+`, texto "Nova vistoria", e chevron `>`.
+   - Atualizar `PropertyCardView`:
+     * Adicionar miniatura com cantos arredondados de 12.dp à esquerda.
+     * Exibir a foto do imóvel (se houver caminho salvo) ou `Res.drawable.property_placeholder`.
+     * Incluir os chips visuais de Cômodos e Status ("Ativo").
+
+C) `app/composeApp/src/commonMain/kotlin/vault/ui/property/HomePropertyStates.kt`:
+   - No cabeçalho da seção, incluir o link de navegação para todos os imóveis:
+     `TextButton` ou `Row` clicável com "${rows.size} imóveis >" chamando `onOpenAllProperties`.
+
+D) Suporte a Foto no Imóvel:
+   - `app/shared/src/commonMain/kotlin/vault/local/db/LocalProperty.kt`:
+     Adicionar `val photoPath: String? = null`.
+   - `app/shared/src/commonMain/kotlin/vault/local/db/VaultDatabase.kt`:
+     Incrementar a versão do banco Room e adicionar `Migration1718` (ou versão sequencial).
+   - `app/composeApp/src/commonMain/kotlin/vault/ui/property/PropertyDataForm.kt`:
+     Adicionar seletor/botão de foto para selecionar capa do imóvel.
+
+--------------------------------------------------------------------------------
+4. DIRETRIZES DE ESTILO E AGENTS.md
+--------------------------------------------------------------------------------
+- Limite de ~200 linhas por arquivo. Se um arquivo começar a crescer, extrair componentes
+  para novos arquivos menores (ex: `HomeHeroBanner.kt`).
+- Sem arquivos "utils" ou "helpers".
+- Não quebrar o modo offline / local-first.
+- Executar `make verify` e `make verify-mobile` antes de finalizar.
+- Commits atômicos no formato `feat(ui): update home screen to match reference layout`.
+================================================================================

@@ -118,7 +118,9 @@ threshold is a legal location guarantee. Decimal precision is not accuracy.
 Print “Localização informada pelo dispositivo”, measured accuracy and freshness,
 or the specific reason it is unavailable. A professional can report a manual
 address correction as a separate claim before seal. GPS does not prove that
-the scene itself is at those coordinates. Never stamp GPS onto the original.
+the scene itself is at those coordinates. Never stamp GPS onto the original:
+the short on-photo stamp (capture time, reported place, coordinates or the
+unavailability reason) is drawn on the PDF page over the photo rect only.
 
 ## Sealing, generation and independent verification
 

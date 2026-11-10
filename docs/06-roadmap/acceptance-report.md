@@ -153,6 +153,81 @@ was run.
 - U12 device runs, five-user sessions, PDF08 manual validation and the
   beta device matrix stay explicitly unverified and user-owned.
 
+## Enterprise assurance execution (code gates, 2026-10-07, branch `dev`)
+
+Implements the code-automatable tracks of the
+[enterprise assurance plan](enterprise_assurance_plan.md). Host: Linux;
+Go via cached toolchain, JDK 21, real PostgreSQL 18.6 and S3Mock
+containers for integration suites (removed after the run).
+
+- E1 foundations: `internal/testutil` synthetic fixtures (adopted in seal
+  suite); backend formatted with `gofmt` (14 files, whitespace only);
+  `make fmt-check`, `make cover` (ratchet in `coverage_floor.txt`:
+  verify 60, config 85, httpapi 75, service 50) and `make secrets`
+  wired into the `backend` CI job. Kotlin lint deferred to a dedicated
+  slice (plugin + violation cleanup deserve their own diff).
+- E2 business rules: share-chain integration (orphan inspection/share
+  rejected, duplicate token rejected, access-log trio recorded).
+- E3 integration: localstore roundtrip + traversal-escape fix,
+  S3 roundtrip live against S3Mock (skip-safe), server-clock proof
+  (`received_at_server` inside the DB window with a backdated device
+  claim preserved), 10-way concurrent chain creation with distinct IDs.
+- E4 regression: stamp wrap keeps every character within photo width;
+  model-to-page golden pins stamp lines into paginated photos.
+- E5 scale budgets: `TestBuildManifest1000Budget` (<500 ms, measured
+  ~1.1 ms/op) and `ScaleBudgetTest` (1000-evidence manifest + 1000-photo
+  pagination, measured 0.36 s JVM). API p95 loader, 50-seal soak and
+  pgbench growth baselines stay nightly-gated (need live stack + traffic
+  profile).
+- E6 LGPD code gates: `internal/privacy` inventory enforced against
+  `information_schema` (caught unregistered `evidences.latitude` /
+  `longitude` on first run), retention class per table (periods stay
+  counsel-owned), public `/v/{code}` key allowlist. Erasure semantics vs
+  immutable seal, legal bases, RIPD, DPO and retention periods stay
+  counsel-owned; no compliance is claimed by tests.
+- E7 security: photo content sniffing (polyglot rejected pre-storage;
+  video sniffing out — stdlib cannot identify MP4, recorded), baseline
+  response headers on every route. Auth/IDOR gates activate when
+  magic-link auth ships (currently deferred); rate limiting is pending.
+- E8 operations: `make audit` evidence bundle (gitignored pack),
+  quarterly backup/restore runbook in `infra/backup-drill.md`, migration
+  replay covered by integration; rollback beyond forward replay goes
+  through backup restore per the runbook.
+
+Measured capacity anchors: manifest 1k ≈ 1 ms/op; JVM bulk 200
+overviews 4 ms, coverage over 75 inspections 21 ms, 3 MB write 18 ms
+(budget 500 ms); release APK 8.2–8.5 MB vs 15 MB budget; JVM suite
+201 tests green. Device timings, ANR rates, five-user sessions and PDF08
+stay manual and user-owned.
+
+## Physical-device proof (2026-10-07, agent-executed smoke)
+
+Device: Xiaomi 2311DRK48G, Android 16 (API 36), arm64, via ADB on the
+user-provided phone. Isolated `pdf-device-probe` folder with synthetic
+data only; user DB never opened. `am instrument
+vault.app.test/vault.pdf.PdfDeviceRunner` twice (second run after
+shortening the stamp time line), both RESULT_OK:
+
+- rental: 100 photos, 115 pages, ~10.0 MB, 10.5 s render; technical:
+  20 photos, 32 pages, ~2.1 MB, 3.2 s. Page size 595×842 pt verified
+  per page via PdfRenderer; generate→verify→export→import→verify
+  accepted on both.
+- EXIF 1–8 dimensions plus all four corners passed; 100/100 QR
+  identities decoded with native detection; peak PSS ≈ 573 MB.
+- Cold start `am start -W`: TotalTime 1513 ms vs the <1.5 s budget
+  (first launch after install; essentially at budget).
+- On-photo stamp renders white with shadow, bottom-right, legible over
+  synthetic photos; a mid-phrase wrap found on narrow rects was fixed by
+  shortening the time line, re-verified on-device. Stamp glyphs are not
+  text-extractable (shadow path flattens them); the caption block below
+  each photo extracts normally and carries the same claims.
+- Marginal misses vs budgets: 100-photo render 10.5 s vs <10 s; cold
+  start +13 ms. No failure, no ANR, no data loss.
+
+This is an agent-executed technical smoke, not user acceptance: real
+camera/GPS flows, five-user sessions, PDF08 visual approval and the
+iOS/beta matrix stay user-owned and unverified.
+
 ## Device-pass instructions (macOS + hardware)
 
 Execute the [beta readiness runbook](beta_readiness.md), which consolidates

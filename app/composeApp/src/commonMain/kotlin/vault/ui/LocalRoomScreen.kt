@@ -60,6 +60,7 @@ fun LocalRoomScreen(
     var error by remember { mutableStateOf<String?>(null) }
     var viewing by remember { mutableStateOf<LocalEvidence?>(null) }
     var sealedRedirected by remember { mutableStateOf(false) }
+    var loaded by remember { mutableStateOf(false) }
     val selected = ShotCategory.parse(selectedName) ?: ShotCategory.OVERVIEW
 
     fun refresh() {
@@ -81,6 +82,8 @@ fun LocalRoomScreen(
                 error = null
             } catch (e: Exception) {
                 error = userErrorMessage(e)
+            } finally {
+                loaded = true
             }
         }
     }
@@ -172,17 +175,24 @@ fun LocalRoomScreen(
     // selected category bound. Everything scrolls so no action hides
     // below the fold.
     ScreenColumn {
-        ScreenTitle(roomLabel)
-        JourneyShortcuts(onRooms = onRoomsShortcut, onReview = onReview)
         Column(
-            modifier = Modifier.verticalScroll(rememberScrollState()),
+            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            RoomCaptureControls(
-                session, evidences, nextRoom, coverage, na, selected,
-                { selectedName = it.name }, busy, error, lastClaim, ::toggleNa, ::capture,
-                ::removeEvidence, { viewing = it }, onOpenRoom, onReview,
-            )
+            JourneyShortcuts(onRooms = onRoomsShortcut, onReview = onReview)
+            val showLoading = rememberLoadingVisible(!loaded)
+            if (showLoading) {
+                ProgressStatus(true)
+                RoomCaptureSkeleton()
+            } else if (!loaded) {
+                // Grace period: data is on its way, paint nothing yet.
+            } else {
+                RoomCaptureControls(
+                    session, evidences, nextRoom, coverage, na, selected,
+                    { selectedName = it.name }, busy, error, lastClaim, ::toggleNa, ::capture,
+                    ::removeEvidence, { viewing = it }, onOpenRoom, onReview,
+                )
+            }
         }
     }
 

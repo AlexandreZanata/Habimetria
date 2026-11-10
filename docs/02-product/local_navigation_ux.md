@@ -7,12 +7,47 @@ Preserve the [capture flow](capture-flow.md) and
 
 ## Global destinations
 
-- `Início`: a short overview, `Nova vistoria`, and `Continuar vistoria`
-  for an existing unfinished Inspection. Creation still follows the
-  existing address, Tenancy and manually named Room flow.
+- `Início`: compact mint hero with decorative Brazilian single-storey
+  house art and native copy: `Vistoria fácil`, `Fotos, revisão e PDF.`,
+  and `Rápida e econômica`. One `Nova vistoria` action is followed directly by
+  `Meus imóveis` cards. No stat cards. Each card shows the cover photo
+  (or placeholder art), nickname/address with pin, rooms + status chips
+  and `Continuar` for an open draft; the `X imóveis >` header opens `Imóveis`.
+  Creation still follows the existing address, Tenancy and manually named
+  Room flow.
+  Copy and art occupy separate columns; text grows without truncation at
+  larger font scales. The value line communicates positioning, without
+  a fixed price or guaranteed completion time. The same decorative house
+  serves as fallback cover art only when no saved Property photo is present.
+  The hero uses the artwork's 3:2 aspect ratio without a tall empty image
+  box, with 12 dp vertical padding and spacing before its action.
+  Property covers are 104 dp wide and span the metadata row. Measure the
+  metadata first, then constrain the cover to that exact height; image
+  intrinsic dimensions never determine card height. Saved photos use
+  proportional center cropping; fallback art uses proportional fit so
+  the whole house remains visible. Neither image path stretches pixels.
+  The title
+  aligns with the cover top and is capped at one line; the address reserves
+  two lines with ellipsis. The overlaid options menu keeps its 48 dp target
+  without adding height above the address. Compact chips wrap only when
+  needed for window width or font scale. Text length does not expand normal
+  cards; larger accessibility fonts can grow the row and its cover together.
+  Full values remain available through Property details and text semantics.
 - `Imóveis`: local Property list, address/nickname, create/rename actions,
   and a Property detail showing its Inspections. Removal follows the
   [Property removal contract](../03-architecture/local_property_removal.md).
+  Match the PDF pages' outlined, rounded cards without shadows. Search is
+  a neutral rounded field with a visible label, search icon, clear action
+  and search-keyboard submit. Ativos/Arquivados use a full-width segmented
+  control with theme-green selection, a check icon and selected semantics.
+  Novo imóvel is the primary green action before the list; it expands the
+  existing address form in an outlined card, with a secondary Fechar cadastro
+  toggle. Field values stay saveable when the form closes. Creation retains
+  the existing create-and-start journey. Abrir imóvel is a labeled action
+  inside each Property card, with a divider and chevron. Archived cards
+  also retain restoration inside the same card. Loading, retry, search-empty
+  and archived-empty states stay distinct; management errors are visible
+  even when the creation form is closed. No API or persistence changes.
 - `Vistorias`: local Inspections grouped by Property, with clearly labeled
   `Em andamento` and `Selada` filters. DRAFT resumes capture/review;
   SEALED opens read-only review. Archived Properties remain discoverable

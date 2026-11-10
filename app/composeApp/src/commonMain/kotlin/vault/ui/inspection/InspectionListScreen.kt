@@ -29,8 +29,10 @@ import vault.local.STATUS_DRAFT
 import vault.local.STATUS_SEALED
 import vault.ui.AppContainer
 import vault.ui.ErrorText
+import vault.ui.InspectionRowSkeleton
 import vault.ui.ProgressStatus
 import vault.ui.Strings
+import vault.ui.rememberLoadingVisible
 import vault.ui.VaultTextField
 import vault.ui.property.PropertyStrings
 import vault.ui.property.RemovalFeedback
@@ -75,6 +77,8 @@ fun InspectionListScreen(
     }
 
     LaunchedEffect(local, filter) { load() }
+
+    val showLoading = rememberLoadingVisible(rows == null)
 
     val visible = (rows.orEmpty()).filter {
         val q = query.trim().lowercase()
@@ -146,11 +150,16 @@ fun InspectionListScreen(
                     OutlinedButton(onClick = { scope.launch { load() } }) { Text(Strings.retry) }
                 }
             }
-            rows == null -> {
+            rows == null && showLoading -> {
                 item {
                     ProgressStatus(true)
-                    Text(Strings.loadingProperties)
+                    InspectionRowSkeleton()
                 }
+                item { InspectionRowSkeleton() }
+                item { InspectionRowSkeleton() }
+            }
+            rows == null -> {
+                // Grace period: data is on its way, paint nothing yet.
             }
             visible.isEmpty() -> {
                 item {

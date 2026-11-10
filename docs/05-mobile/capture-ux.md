@@ -14,6 +14,30 @@
 - No embedded preview: `Fotografar` opens the full-screen system
   camera; shots return with the selected category bound.
 - Every photo is deletable individually (row, findings, files).
+- Room setup and capture share the PDF/Property pages' outlined cards,
+  neutral surfaces and green actions. The shared header supplies the Room
+  or page title; the body does not repeat it.
+- Room setup scrolls as one list, including the labeled rounded input,
+  optional presets, empty state and in-flow start action. Keyboard Done
+  invokes the same explicit add action. Draft name input is saveable.
+  Each Room card opens capture and shows its label, coverage bar and photo
+  count. Its labeled options menu retains rename, reorder and delete.
+- Capture shortcuts scroll with the content and show no false active
+  destination. The first outlined section contains wrapping category
+  selectors (green plus a check for selection) and the prominent shutter.
+  Category selection, N/A edits and onward navigation are disabled while
+  capture is busy. System camera and durable-save semantics are unchanged.
+- Coverage has its own card: repository percentage, distinct captured /
+  applicable category counts, and named photographed, missing or N/A
+  states. A hint explains N/A; its labeled action explicitly excludes or
+  reinstates a category. Initial loading never claims category completion.
+  N/A exclusions remain distinct from photographs.
+- Saved photos appear in a separate card in repository order, with bounded
+  proportional thumbnails, native category labels, full-screen viewing
+  and individual removal. Next Room and review are secondary outlined
+  actions. All content scrolls; controls retain 48 dp minimum targets and
+  text can wrap as font scale increases. Device visual and accessibility
+  acceptance remain manual checks.
 - The rules above still hold, except "Camera view is the home screen"
   and "Camera pre-warmed on Home", which described the old embedded
   CameraX preview.

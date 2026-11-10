@@ -38,7 +38,7 @@ fun LocalCompareScreen(
     onBack: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    var pairs by remember { mutableStateOf<List<PositionPair>>(emptyList()) }
+    var pairs by remember { mutableStateOf<List<PositionPair>?>(null) }
     var tenancyId by remember { mutableStateOf<String?>(null) }
     var sideBySide by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -57,6 +57,8 @@ fun LocalCompareScreen(
 
     LaunchedEffect(exitInspectionId) { refresh() }
 
+    val showLoading = rememberLoadingVisible(pairs == null)
+
     ScreenColumn {
         ScreenTitle(Strings.compareTitle)
         ErrorText(error)
@@ -65,7 +67,23 @@ fun LocalCompareScreen(
             TextButton(onClick = { sideBySide = false }) { Text(Strings.compareSlider) }
         }
         LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            val grouped = pairs.groupBy { it.roomLabel }
+            if (showLoading) {
+                item(key = "loading") { ProgressStatus(true) }
+                item(key = "skeleton-label") { SkeletonLine(0.4f, 20.dp) }
+                item(key = "skeleton-panels") {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SkeletonThumbnail(120.dp)
+                        SkeletonThumbnail(120.dp)
+                    }
+                }
+                item(key = "skeleton-panels-2") {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SkeletonThumbnail(120.dp)
+                        SkeletonThumbnail(120.dp)
+                    }
+                }
+            }
+            val grouped = pairs.orEmpty().groupBy { it.roomLabel }
             grouped.forEach { (label, roomPairs) ->
                 item(key = "header-$label") {
                     Text("$label", style = MaterialTheme.typography.titleMedium)

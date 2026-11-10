@@ -28,7 +28,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "1.25.0"
-      - run: make vet test
+      - run: make vet fmt-check test cover secrets
       - run: make test-integration
       - run: go run ./cmd/verify --format json testdata/fixture-package
         working-directory: backend

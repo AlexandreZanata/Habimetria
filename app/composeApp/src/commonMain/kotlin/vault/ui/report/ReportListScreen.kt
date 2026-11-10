@@ -9,10 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -33,8 +29,10 @@ import vault.local.REPORT_READY
 import vault.local.ReportOverview
 import vault.ui.AppContainer
 import vault.ui.ErrorText
+import vault.ui.InspectionRowSkeleton
 import vault.ui.ProgressStatus
 import vault.ui.Strings
+import vault.ui.rememberLoadingVisible
 import vault.ui.VaultTextField
 import vault.ui.property.PropertyStrings
 import vault.ui.property.RemovalFeedback
@@ -76,6 +74,8 @@ fun ReportListScreen(
 
     LaunchedEffect(local) { load() }
 
+    val showLoading = rememberLoadingVisible(reports == null || pending == null)
+
     fun matches(label: String): Boolean {
         val q = query.trim().lowercase()
         return q.isEmpty() || label.lowercase().contains(q)
@@ -108,11 +108,16 @@ fun ReportListScreen(
                     OutlinedButton(onClick = { scope.launch { load() } }) { Text(Strings.retry) }
                 }
             }
-            reports == null || pending == null -> {
+            showLoading -> {
                 item {
                     ProgressStatus(true)
-                    Text(Strings.loadingProperties)
+                    InspectionRowSkeleton()
                 }
+                item { InspectionRowSkeleton() }
+                item { InspectionRowSkeleton() }
+            }
+            reports == null || pending == null -> {
+                // Grace period: data is on its way, paint nothing yet.
             }
             ready.isEmpty() && awaiting.isEmpty() -> {
                 item {
@@ -161,10 +166,7 @@ fun ReportListScreen(
                             )
                         }
                         items(group, key = { it.inspectionId }) { item ->
-                            OutlinedButton(
-                                onClick = { onGenerate(item.inspectionId) },
-                                modifier = Modifier.fillMaxWidth(),
-                            ) { Text(Strings.generatePdf) }
+                            PendingRow(onGenerate = { onGenerate(item.inspectionId) })
                         }
                     }
                 }

@@ -17,6 +17,7 @@ VaultEntities.kt is split into:
 - [TrustedIssuer.kt](TrustedIssuer.kt)
 - [LocalFinding.kt](LocalFinding.kt)
 - [LocalFindingProblem.kt](LocalFindingProblem.kt)
+- [LocalRoomPreset.kt](LocalRoomPreset.kt): Settings-managed preset room names.
 
 VaultDaos.kt is split into:
 
@@ -35,6 +36,7 @@ VaultDaos.kt is split into:
 - [ReportDao.kt](ReportDao.kt)
 - [FindingDao.kt](FindingDao.kt)
 - [FindingProblemDao.kt](FindingProblemDao.kt)
+- [RoomPresetDao.kt](RoomPresetDao.kt)
 - [RoomCount.kt](RoomCount.kt)
 
 VaultMigrations.kt is split into:
@@ -56,4 +58,6 @@ VaultMigrations.kt is split into:
 
 - [Migration1516.kt](Migration1516.kt): optional Tenancy, direct Property, report details and Report history.
 - [Migration1617.kt](Migration1617.kt): manual display rotation for photo orientation correction.
+- [Migration1718.kt](Migration1718.kt): room_presets table for Settings-managed preset rooms.
+- [Migration1819.kt](Migration1819.kt): nullable properties.photoPath cover photo.
 - [InspectionReportDetails.kt](InspectionReportDetails.kt): DRAFT report details.

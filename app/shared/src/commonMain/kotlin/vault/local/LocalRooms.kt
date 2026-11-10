@@ -12,6 +12,11 @@ import vault.local.db.VaultDatabase
 interface RoomsOperations {
     suspend fun addRoom(inspectionId: String, label: String, sortHint: Int? = null): LocalRoom
 
+    // Copies Settings-managed preset rooms into this DRAFT inspection,
+    // skipping labels that already exist (case-insensitive). One atomic
+    // write; returns the full room list.
+    suspend fun addRoomsFromPresets(inspectionId: String): List<LocalRoom>
+
     suspend fun renameRoom(roomId: String, label: String): LocalRoom
 
     suspend fun deleteRoom(roomId: String, allowWithEvidence: Boolean = false)
@@ -40,6 +45,29 @@ internal class LocalRooms(private val db: VaultDatabase) : RoomsOperations {
         )
         db.roomDao().insert(row)
         return@localWrite row
+    }
+
+    override suspend fun addRoomsFromPresets(inspectionId: String): List<LocalRoom> = localWrite {
+        val inspection = guard.requireDraft(inspectionId)
+        val existing = db.roomDao().listForInspection(inspection.id)
+        val taken = existing.map { it.label.lowercase() }.toMutableSet()
+        var sort = existing.size
+        for (preset in db.roomPresetDao().listAll()) {
+            val clean = preset.label.trim()
+            if (clean.isEmpty() || clean.length > MAX_ROOM_LABEL) continue
+            if (!taken.add(clean.lowercase())) continue
+            db.roomDao().insert(
+                LocalRoom(
+                    id = newLocalId("room"),
+                    inspectionId = inspection.id,
+                    roomKey = "room_" + newLocalId("k").substringAfter("_"),
+                    label = clean,
+                    sort = sort++,
+                    naCategories = "",
+                ),
+            )
+        }
+        db.roomDao().listForInspection(inspection.id)
     }
 
     override suspend fun renameRoom(roomId: String, label: String): LocalRoom = localWrite {

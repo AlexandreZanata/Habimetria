@@ -54,7 +54,7 @@ func TestUploadGeoValidation(t *testing.T) {
 		InspectionID: "123e4567-e89b-12d3-a456-426614174000",
 		Type:         "photo", Mime: "image/jpeg",
 		Latitude: &lonely,
-		Content: strings.NewReader("x"),
+		Content:  strings.NewReader("x"),
 	})
 	if !errors.Is(err, ErrInvalid) {
 		t.Fatalf("lonely lat: want ErrInvalid, got %v", err)

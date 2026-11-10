@@ -15,11 +15,11 @@ import (
 )
 
 type stubEvidence struct {
-	result service.UploadResult
-	upErr  error
-	url    string
-	urlErr error
-	lines  []postgres.EvidenceLine
+	result  service.UploadResult
+	upErr   error
+	url     string
+	urlErr  error
+	lines   []postgres.EvidenceLine
 	listErr error
 }
 

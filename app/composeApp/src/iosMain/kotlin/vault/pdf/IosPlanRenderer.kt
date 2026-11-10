@@ -31,6 +31,7 @@ class IosPlanRenderer : PlanRenderer {
                         is PageItem.Photo -> {
                             val image = iosImageThumbnail(requireNotNull(loadPhoto(item.entry.evidenceId)), PREVIEW_MAX_EDGE)
                             try { drawIosPdfImage(context, image, item.rect) } finally { CGImageRelease(image) }
+                            text.drawStamp(item.rect, item.entry.stampLines)
                         }
                         is PageItem.Qr -> {
                             val image = iosPdfQr(item.content)

@@ -105,6 +105,11 @@ class MigrationTest {
         assertEquals(-23.5, reread.latitude)
         assertEquals("gps", reread.provider)
         assertEquals(-23.5001, reread.exifLatitude)
+
+        // v18: room_presets table exists and accepts writes.
+        val presets = RoomPresetRepository(db)
+        presets.add("Sala")
+        assertEquals(listOf("Sala"), presets.list().map { it.label })
         db.close()
     }
 }

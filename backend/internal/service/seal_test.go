@@ -11,11 +11,12 @@ import (
 	"time"
 
 	"vault/internal/store/postgres"
+	"vault/internal/testutil"
 )
 
 func sealEvidences() []postgres.SealEvidence {
-	room := "123e4567-e89b-12d3-a456-426614174001"
-	ts, _ := time.Parse(time.RFC3339, "2026-09-25T10:00:00Z")
+	room := testutil.ID(1)
+	ts := testutil.TestTime()
 	return []postgres.SealEvidence{
 		{Sequence: 1, EvidenceID: "ev-1", SHA256: "aa", Mime: "image/jpeg", Size: 100, RoomID: &room, ReceivedAtServer: ts},
 		{Sequence: 2, EvidenceID: "ev-2", SHA256: "bb", Mime: "image/jpeg", Size: 200, ReceivedAtServer: ts},
@@ -68,9 +69,9 @@ func TestGenerateVerifyCodeFormat(t *testing.T) {
 }
 
 func TestSealHMACVerifies(t *testing.T) {
-	svc := NewSeal(nil, StubPayment{}, "test-key")
+	svc := NewSeal(nil, StubPayment{}, testutil.HMACKey())
 	sig := svc.sign("manifest-sha")
-	mac := hmac.New(sha256.New, []byte("test-key"))
+	mac := hmac.New(sha256.New, []byte(testutil.HMACKey()))
 	mac.Write([]byte("manifest-sha"))
 	if want := hex.EncodeToString(mac.Sum(nil)); sig != want {
 		t.Fatalf("hmac mismatch: %s vs %s", sig, want)
@@ -84,7 +85,7 @@ func (denyPayment) Verify(context.Context, string) error { return ErrPayment }
 func TestSealDeniesUnpaid(t *testing.T) {
 	svc := NewSeal(nil, denyPayment{}, "k")
 	_, err := svc.Seal(context.Background(), SealInput{
-		InspectionID: "123e4567-e89b-12d3-a456-426614174000",
+		InspectionID: testutil.ID(0),
 	})
 	if !errors.Is(err, ErrPayment) {
 		t.Fatalf("want ErrPayment, got %v", err)

@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
@@ -65,6 +66,14 @@ fun LocalSealScreen(
         vault.ui.journey.JourneyShortcuts(onRooms = onRoomsShortcut, onReview = onReviewShortcut)
         BodyText(Strings.sealWarning)
         val current = eligibility
+        val showLoading = rememberLoadingVisible(current == null)
+        if (showLoading) {
+            ProgressStatus(true)
+            SkeletonLine(0.8f)
+            SkeletonLine(0.6f, 20.dp)
+            SkeletonLine(0.9f)
+            SkeletonLine(1f, 52.dp)
+        }
         if (current != null) {
             Text("${Strings.rooms}: ${current.rooms} · ${Strings.evidence}: ${current.evidences} · ${Strings.findingsList}: ${current.findings}")
             if (current.gaps.any { it.percent < 100 }) {

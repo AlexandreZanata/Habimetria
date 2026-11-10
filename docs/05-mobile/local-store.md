@@ -4,13 +4,16 @@ Normative for the on-device core. Code: `vault.local.db` in `:shared`.
 
 ## Database
 
-- Room KMP, `VaultDatabase`, schema v16, entities:
+- Room KMP, `VaultDatabase`, schema v19, entities:
   `properties → inspections → rooms → evidences → findings`
   with optional `tenancies` and `inspection_report_details`
   plus `manifests` (unique per inspection).
 - `properties.archived` (v14, U07): active vs archived visibility.
   Organizational only, never in Manifest payloads; legacy rows migrate
   as active. Empty unlinked Properties delete, populated ones archive.
+- `properties.photoPath` (v19): optional cover photo for the home card.
+  Organizational only, never in Manifest payloads; legacy rows migrate
+  with null (placeholder art).
 - Schema JSON exports to `app/shared/schemas/` and is committed.
   Version bumps require explicit `Migration` SQL; destructive
   migration is forbidden (photos must survive upgrades).
@@ -51,6 +54,8 @@ Normative for the on-device core. Code: `vault.local.db` in `:shared`.
 
 - Originals: `<filesDir>/vault/originals/<evidenceId>.bin`, written to
   `.tmp` then atomically renamed. Name never derives from photo counts.
+- Property covers: `vault/property_covers/<propertyId>.bin`, up to 10 MiB,
+  replaced atomically; the row keeps only the path. Organizational only.
 - Responsibility attachments: `vault/responsibility/<id>.bin`, original PDF
   bytes, limited to 10 MiB, immutable after seal; private files are removed
   with their Inspection. Report/receipt files live in `vault/reports` and

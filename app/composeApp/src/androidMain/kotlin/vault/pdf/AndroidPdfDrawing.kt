@@ -26,11 +26,33 @@ internal fun drawPdfText(canvas: Canvas, item: PageItem.Text, fonts: AndroidPdfF
     canvas.drawText(item.text, rect.x.toFloat(), (rect.y - paint.fontMetrics.ascent).toFloat(), paint)
 }
 
-internal fun drawPdfPhoto(canvas: Canvas, item: PageItem.Photo, bytes: ByteArray?) {
+internal fun drawPdfPhoto(canvas: Canvas, item: PageItem.Photo, bytes: ByteArray?, fonts: AndroidPdfFonts) {
     val bitmap = decodeOrientedAndroid(requireNotNull(bytes) { "missing photo: ${item.entry.evidenceId}" }, PREVIEW_MAX_EDGE)
     try {
         canvas.drawBitmap(bitmap, null, item.rect.androidRect(), Paint(Paint.FILTER_BITMAP_FLAG))
     } finally { bitmap.recycle() }
+    drawPhotoStamp(canvas, item, fonts)
+}
+
+// Location stamp over the photo (bottom-right, white with shadow), mirroring
+// field geotag-camera proofs. Drawn on the page only; photo bytes untouched.
+private fun drawPhotoStamp(canvas: Canvas, item: PageItem.Photo, fonts: AndroidPdfFonts) {
+    val lines = item.entry.stampLines.filter { it.isNotBlank() }
+    if (lines.isEmpty()) return
+    val rect = item.rect
+    val paint = fonts.paint(TextKind.SMALL).let { base ->
+        Paint(base).apply {
+            color = Color.WHITE
+            textAlign = Paint.Align.RIGHT
+            setShadowLayer(2.5f, 1f, 1f, Color.BLACK)
+        }
+    }
+    val step = (fonts.lineHeight(TextKind.SMALL) + 2.0).toFloat()
+    var baseline = (rect.y + rect.h - 4.0).toFloat()
+    for (line in lines.asReversed()) {
+        canvas.drawText(line, (rect.x + rect.w - 4.0).toFloat(), baseline, paint)
+        baseline -= step
+    }
 }
 
 internal fun drawPdfQr(canvas: Canvas, item: PageItem.Qr) {

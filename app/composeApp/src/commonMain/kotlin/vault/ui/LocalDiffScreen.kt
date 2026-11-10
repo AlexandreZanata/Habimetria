@@ -34,7 +34,7 @@ fun LocalDiffScreen(
     onBack: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    var pending by remember { mutableStateOf<List<VisualDiff>>(emptyList()) }
+    var pending by remember { mutableStateOf<List<VisualDiff>?>(null) }
     var labels by remember { mutableStateOf(mapOf<String, String>()) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -53,6 +53,8 @@ fun LocalDiffScreen(
     }
 
     LaunchedEffect(exitInspectionId) { refresh() }
+
+    val showLoading = rememberLoadingVisible(pending == null)
 
     ScreenColumn {
         ScreenTitle(Strings.diffTitle)
@@ -76,12 +78,20 @@ fun LocalDiffScreen(
             enabled = !busy,
         )
         LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            if (pending.isEmpty()) {
+            val list = pending.orEmpty()
+            if (showLoading) {
+                item(key = "loading") { ProgressStatus(true) }
+                item(key = "skeleton-1") { SkeletonLine(0.7f) }
+                item(key = "skeleton-2") { SkeletonLine(0.5f) }
+                item(key = "skeleton-3") { SkeletonLine(0.7f) }
+            } else if (pending == null) {
+                // Grace period: data is on its way, paint nothing yet.
+            } else if (list.isEmpty()) {
                 item(key = "empty") {
                     Text(Strings.diffEmpty, style = MaterialTheme.typography.bodyMedium)
                 }
             } else {
-                items(pending, key = { it.id }) { row ->
+                items(list, key = { it.id }) { row ->
                     DiffRow(
                         row = row,
                         roomLabel = labels[row.exitRoomId] ?: row.exitRoomId.takeLast(6),
