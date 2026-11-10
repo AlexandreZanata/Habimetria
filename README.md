@@ -55,3 +55,10 @@ L0–L8 are implemented with a green Linux pass (see
 `docs/06-roadmap/acceptance-report.md`); UI reaches the API only through
 the optional server mirror. Physical-device, simulator and macOS/Xcode
 gates remain explicitly unverified.
+
+## License
+
+Habimetria is released under the [Habimetria Visible Attribution License 1.0](LICENSE).
+Any use, including commercial use, is permitted provided the original system and
+creator references stay visibly credited in the interface. Third-party code, fonts
+and other materials retain their own licenses and notices.
