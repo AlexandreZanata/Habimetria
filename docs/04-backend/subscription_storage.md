@@ -7,7 +7,9 @@ Extend [database](database.md), [domain](../03-architecture/commercial_domain.md
 and the [lifecycle](../03-architecture/subscription_lifecycle.md).
 
 C09 pending registration/token/encrypted mail schema is implemented by
-[registration](account_registration.md); other identity groups remain planned.
+[registration](account_registration.md). Atomic ownership verification and the
+minimal audit allowlist follow [authentication](account_authentication.md);
+other identity groups remain planned.
 
 ## Incremental groups
 

@@ -60,7 +60,7 @@ func TestProofBindingAndRedaction(t *testing.T) {
 			t.Fatal("key formatting not redacted")
 		}
 	}
-	for _, bad := range []string{"", strings.Repeat("a", 42), strings.Repeat("!", 43), token + "="} {
+	for _, bad := range []string{"", strings.Repeat("a", 42), strings.Repeat("!", 43), token + "=", token + "\n"} {
 		if _, err := accountproof.Digest(bad); err == nil {
 			t.Fatal("invalid token accepted")
 		}

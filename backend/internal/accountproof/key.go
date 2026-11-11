@@ -72,6 +72,9 @@ func (k *Key) Open(user, operation string, envelope []byte) (string, error) {
 }
 
 func Digest(token string) ([]byte, error) {
+	if len(token) != 43 {
+		return nil, ErrProof
+	}
 	raw, err := base64.RawURLEncoding.Strict().DecodeString(token)
 	if err != nil || len(raw) != 32 {
 		return nil, ErrProof

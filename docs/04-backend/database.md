@@ -9,7 +9,8 @@ Migrations: `backend/migrations/0001_init.sql` (MVP core) →
 `0007_panel_capabilities.sql` (scoped commercial permission matrix) →
 `0008_panel_policy_audit.sql` (reasoned, typed administrative transitions) →
 `0009_account_registration.sql` (pending self-registration and encrypted mail enqueue) →
-`0010_account_mail_leases.sql` (bounded durable delivery and guarded completion).
+`0010_account_mail_leases.sql` (bounded durable delivery and guarded completion) →
+`0011_account_verification_audit.sql` (minimal email ownership audit).
 One version per file. See [web panel](web_panel.md).
 
 Planned commercial extensions are specified separately in
@@ -53,3 +54,5 @@ Contract and test inventory: [administrative authorization](admin_authorization.
 Pending identity, verification digests, encrypted outbox and HMAC throttle keys
 follow [registration](account_registration.md). Existing verification status
 is not backfilled or inferred. No private collection or paid right is seeded.
+Atomic ownership proof and shared credentials follow
+[account authentication](account_authentication.md).
