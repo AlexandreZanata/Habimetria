@@ -28,7 +28,7 @@ None means the whole release/program is complete.
 | C09 | CODE_VERIFIED | [C09 execution](c09_execution.md): pending identity, protected proofs, real SMTP and leased retry delivery/runtime; public verification/login remains C10 |
 | C10 | CODE_VERIFIED | [C10 execution](c10_execution.md): atomic email proof, shared web/JSON login, short-lived API authority and browser/real-DB checks |
 | C11 | CODE_VERIFIED | [C11 execution](c11_execution.md): customer recovery, atomic session invalidation, security mail and complete web/JSON checks |
-| C12 | IN_PROGRESS | [C12 execution](c12_execution.md): backend, shared coordinator and Android Keystore/probe; iOS storage pending; exact CI queued during Actions outage |
+| C12 | IN_PROGRESS | [C12 execution](c12_execution.md): backend, shared coordinator, Android Keystore/probe and iOS Keychain implemented; final pushed-head CI pending |
 | C13 | PENDING | No implementation evidence |
 | C14 | PENDING | No implementation evidence |
 | C15 | PENDING | No implementation evidence |

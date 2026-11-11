@@ -16,8 +16,8 @@ private object AndroidSessionGate { val mutex = Mutex() }
 /** One app process, app-private no-backup encrypted record, no plaintext fallback. */
 class AndroidSessionVault(context: Context, namespace: String = "main") : SessionVault {
     private val app = context.applicationContext
-    private val folder = File(app.noBackupFilesDir, "account-$namespace")
-    private val file = AtomicFile(File(folder, "session.bin"))
+    private val folder by lazy { File(app.noBackupFilesDir, "account-$namespace") }
+    private val file by lazy { AtomicFile(File(folder, "session.bin")) }
     private val crypto = AndroidSessionCipher("${app.packageName}.account.$namespace.v1", "${app.packageName}|account|$namespace|v1".encodeToByteArray())
     init { require(namespace.matches(Regex("[a-z0-9_-]{1,40}"))) }
 

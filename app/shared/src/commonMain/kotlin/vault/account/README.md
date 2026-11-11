@@ -8,6 +8,8 @@
   pending rotation before sending a refresh secret. Ambiguous responses require
   new login; cancellation/crash cannot replay a persisted old secret.
 - `SessionControls.kt`: own devices/revocation and local-versus-remote logout.
+- `SessionInstallation.kt`: non-secret installation marker; prevents silently
+  reusing Keychain credentials surviving uninstall. Never stores credentials.
 
 No local database/collection/queue is read or deleted. Native screens are C13.
 Production has no JVM/file/preference secret fallback. Platform implementations

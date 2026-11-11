@@ -67,6 +67,26 @@ plaintext, preferences or file fallback is permitted. Locked/corrupt/unavailable
 storage fails closed for connected work, while the local app remains usable.
 The adapters are injected through AppContainer; screens arrive in C13.
 
+Transport is lazy HTTPS, without cookies, redirect following or automatic retry;
+the old LAN HTTP mirror configuration cannot carry account credentials. Explicit
+loopback development opt-in is separate and disabled in native injection.
+Only explicit account operations open protected storage. Access expiry uses a
+monotonic in-memory deadline, not a device claim of server time. Stale client
+instances cannot reuse cached access or erase another saved User/family.
+
+Android storage syncs the encrypted record and parent directory before readback.
+Android 15+ requires unlocked key use; earlier releases use a Keyguard precheck
+and app credential-encrypted storage. Hardware backing is never presumed.
+iOS Keychain updates/readback run off the main thread with no shared access
+group or iCloud synchronization. A one-byte non-secret marker, excluded from
+backup, prevents silently reusing Keychain credentials surviving uninstall:
+missing marker purges the old record before acknowledgment; failed purge or
+corrupt marker cannot expose authority. Losing a marker may require fresh login.
+Explicit forget can recover corrupt credentials/marker, leaving originals intact.
+
+Implementation/test index: [app](../../app/README.md). Linux Kotlin compilation
+does not validate Apple Keychain runtime, entitlements, reinstall or backup/restore.
+
 Security references: [Android Keystore](https://developer.android.com/privacy-and-security/keystore),
 [Apple accessibility](https://developer.apple.com/documentation/security/ksecattraccessiblewhenunlockedthisdeviceonly),
 [refresh replay detection](https://www.rfc-editor.org/rfc/rfc9700.html#section-4.14.2).
