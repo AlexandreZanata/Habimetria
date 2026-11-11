@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"io/fs"
 	"log"
 	"net/http"
 	"net/url"
@@ -48,16 +47,7 @@ func New(service *panel.Service, storage storage.Reader, origin string) (*Web, e
 }
 
 func (p *Web) Routes() http.Handler {
-	mux := http.NewServeMux()
-	assets, _ := fs.Sub(files, "assets")
-	mux.Handle("GET /painel/assets/", http.StripPrefix("/painel/assets/", http.FileServerFS(assets)))
-	mux.HandleFunc("GET /painel/{$}", p.start)
-	mux.HandleFunc("POST /painel/entrar", p.signIn)
-	mux.HandleFunc("POST /painel/ativar", p.activate)
-	mux.HandleFunc("POST /painel/sair", p.signOut)
-	mux.HandleFunc("GET /painel/{section}", p.section)
-	mux.HandleFunc("POST /painel/{section}", p.change)
-	mux.HandleFunc("GET /painel/documentos/{id}", p.document)
+	mux := p.classifiedRoutes()
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-store")
 		w.Header().Set("Content-Security-Policy", "default-src 'none'; style-src 'self'; script-src 'self'; font-src 'self'; img-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'")
@@ -88,6 +78,9 @@ func sessionValue(r *http.Request, cookie string) string {
 }
 
 func (p *Web) actor(r *http.Request) (postgres.PanelActor, error) {
+	if a, ok := r.Context().Value(verifiedActorKey{}).(postgres.PanelActor); ok {
+		return a, nil
+	}
 	return p.service.Session(r.Context(), sessionValue(r, p.cookie))
 }
 

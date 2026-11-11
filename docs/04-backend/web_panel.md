@@ -112,6 +112,10 @@ the public origin when hosting the panel.
   isolation, availability, PDF byte consistency and terminal seal.
 - `seal_integration_test.go` checks no-proof/ignored-legacy-proof sealing,
   ownership, concurrent requests, empty validation and frozen history.
+- `route_policies.go`, `routes.go` and `route_policies_test.go` bind/test concrete
+  classified panel routes; `boundary_fixture_test.go` and
+  `boundary_integration_test.go` prove all API owner scopes, private panel
+  reads and non-paid-gated account/recipient controls against real PostgreSQL.
 
 Run `make verify` and `make secrets`. Run `make test-integration` with
 `TEST_DATABASE_URL` pointing at a disposable PostgreSQL 18.6 instance.

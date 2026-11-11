@@ -3,6 +3,7 @@
 vault/cmd/verify 60
 vault/internal/config 85
 vault/internal/httpapi 78
+vault/internal/httpapi/routepolicy 95
 vault/internal/service 55
 vault/internal/store/postgres 0
 vault/cmd/api 0

@@ -84,8 +84,29 @@ retains document authorization. Neither query parameter is an access grant.
 | GET/POST `/painel/configuracoes` | staff_control | Owner-managed permission matrix |
 | GET `/painel/documentos/{id}` | report_access | Titleholder or current reports.read and exact titleholder grant |
 
-The target registry binds these 23 child routes concretely. Adding an unknown
+The registry binds these 23 child routes concretely. Adding an unknown
 page or method must not inherit a generic section route's access implicitly.
+
+## Runtime registration and proof
+
+- `backend/internal/httpapi/route_policies.go` declares the API catalog;
+  `router.go` registers only its classified entries.
+- The shared [routepolicy package](../../backend/internal/httpapi/routepolicy/README.md)
+  rejects unclassified/duplicate/invalid catalogs at startup. Missing private
+  guards (including a guard returning nil) produce 503 without handler execution.
+  Public controls/recipients bypass private guards. `Rules()` returns a detached
+  sorted inventory, not a mutable authorization policy or public HTTP endpoint.
+- Panel `route_policies.go` and `routes.go` bind concrete sections. Private
+  sections require a database-verified session; existing service RBAC/ownership
+  and exact Report grants still decide resource access. The verified actor is
+  cached only within that request, never across requests or role revocation.
+- `route_policies_test.go` in API and panel packages pins public allowlists,
+  scope coverage and concrete section registration. The shared package tests
+  guard absence, invalid registration, HEAD and detached inspection behavior.
+- Panel `boundary_fixture_test.go` and `boundary_integration_test.go` exercise
+  all 24 owner routes with real DB records: anonymous/other/staff denial,
+  owner reads, body/query identity injection, account controls and valid/unknown
+  recipient tokens. Existing document tests still cover Report grant/revocation.
 
 ## Mobile and background entry points
 

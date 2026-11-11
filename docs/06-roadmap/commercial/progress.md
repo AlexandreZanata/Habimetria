@@ -18,7 +18,7 @@ None means the whole release/program is complete.
 | Slice | State | Evidence |
 |---|---|---|
 | C01 | CODE_VERIFIED | [C01 execution](c01_execution.md): seal decoupled, legacy providers/config retired, real-DB and local seal checks passed |
-| C02 | IN_PROGRESS | [C02 execution](c02_execution.md): hosted surface inventory; route enforcement pending |
+| C02 | CODE_VERIFIED | [C02 execution](c02_execution.md): classified API/panel registration, missing-guard denial and two-User isolation checks |
 | C03 | PENDING | No implementation evidence |
 | C04 | PENDING | No implementation evidence |
 | C05 | PENDING | No implementation evidence |

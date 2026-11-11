@@ -5,6 +5,11 @@ same-origin sessions. Owned private API resources require the titleholder's
 session. Legacy unclaimed resources are served only when the panel is
 disabled. `/v/{code}` and explicit Share links retain public access.
 
+[C02 entry-point policies](hosted_entry_points.md) bind registration to explicit
+classifications. An absent private authorization guard returns 503 without
+running a private handler; unknown classifications fail router construction.
+Concrete panel sections retain current session/RBAC/Report-grant checks.
+
 This documents the current baseline. C01.a removed the seal/payment dependency;
 the [commercial roadmap](../06-roadmap/commercial/README.md) adds separate
 monthly hosted authorization. Planned new routes are in
