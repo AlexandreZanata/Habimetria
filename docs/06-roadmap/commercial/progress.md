@@ -1,7 +1,7 @@
 # Commercial Program Progress
 
 Baseline: plan documented on 2026-11-11; implementation inspected at `060d968`.
-Implementation has advanced to C02. No new manual approval is claimed.
+Implementation has advanced to C03.a. No new manual approval is claimed.
 Use [runbook](agent_runbook.md). Every slice needs its own commit/push/checks.
 
 ## Status vocabulary
@@ -19,7 +19,7 @@ None means the whole release/program is complete.
 |---|---|---|
 | C01 | CODE_VERIFIED | [C01 execution](c01_execution.md): seal decoupled, legacy providers/config retired, real-DB and local seal checks passed |
 | C02 | CODE_VERIFIED | [C02 execution](c02_execution.md): classified API/panel registration, missing-guard denial and two-User isolation checks |
-| C03 | PENDING | No implementation evidence |
+| C03 | IN_PROGRESS | [C03 execution](c03_execution.md): reusable free local core regression; artifact/assistant/comparison extension pending |
 | C04 | PENDING | No implementation evidence |
 | C05 | PENDING | No implementation evidence |
 | C06 | PENDING | No implementation evidence |

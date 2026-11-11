@@ -54,3 +54,5 @@ Tests: [ReportProfilesTest.kt](../../../../commonTest/kotlin/vault/local/ReportP
 Code tests: [ReportIdentityTest.kt](../../../../commonTest/kotlin/vault/local/ReportIdentityTest.kt),
 [ReportDeclarationsTest.kt](../../../../commonTest/kotlin/vault/local/ReportDeclarationsTest.kt),
 [DeclarationRecoveryTest.kt](../../../../commonTest/kotlin/vault/local/DeclarationRecoveryTest.kt).
+
+Commercial free-journey regressions: [fixtures and tests](../../../../commonTest/kotlin/vault/local/README.md).
