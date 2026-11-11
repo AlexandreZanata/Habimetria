@@ -6,6 +6,7 @@ import kotlinx.coroutines.SupervisorJob
 import okio.FileSystem
 import vault.api.VaultApi
 import vault.api.platformEngine
+import vault.account.AccountSessions
 import vault.local.HomeBannerPreference
 import vault.local.LocalSession
 import vault.local.PlanRenderer
@@ -37,6 +38,7 @@ class AppContainer(
     val planRenderer: PlanRenderer? = null,
     val filePicker: LocalFilePicker? = null,
     val homeBannerPreference: HomeBannerPreference = HomeBannerPreference(FileSystem.SYSTEM, filesDir),
+    val account: AccountSessions? = null,
 ) {
     // serverMirror is the only path from UI layers to VaultApi: screens
     // ask the container for a mirror instead of calling the API
@@ -59,6 +61,7 @@ fun createContainer(
     local: LocalSession? = null,
     planRenderer: PlanRenderer? = null,
     filePicker: LocalFilePicker? = null,
+    accountSessions: AccountSessions? = null,
 ): AppContainer {
     val api = VaultApi(baseUrl, platformEngine())
     val store = CaptureStore(fs, "$filesDir/queue")
@@ -67,5 +70,6 @@ fun createContainer(
         api, store, pump, filesDir, photoCapture, platformPdf, onQueued,
         syncMode = syncMode, local = local, planRenderer = planRenderer, filePicker = filePicker,
         homeBannerPreference = HomeBannerPreference(fs, filesDir),
+        account = accountSessions,
     )
 }

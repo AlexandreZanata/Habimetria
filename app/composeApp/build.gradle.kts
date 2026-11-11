@@ -44,7 +44,8 @@ android {
         applicationId = "vault.app"
         minSdk = 26
         targetSdk = 36
-        testInstrumentationRunner = "vault.pdf.PdfDeviceRunner"
+        testInstrumentationRunner = providers.gradleProperty("vault.testRunner")
+            .getOrElse("vault.pdf.PdfDeviceRunner")
         versionCode = 2
         versionName = "0.2.0"
     }

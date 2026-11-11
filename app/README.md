@@ -178,6 +178,14 @@ verify preservation of populated v15 databases and historical signed bytes.
 exercise eight orientations, long notes, rental and technical PDFs, and
 portable package validation using isolated synthetic data.
 
+[Connected sessions](shared/src/commonMain/kotlin/vault/account/README.md) provide
+serialized refresh and logout via optional AppContainer injection.
+[Android storage](shared/src/androidMain/kotlin/vault/account/README.md),
+[shared tests](shared/src/commonTest/kotlin/vault/account/README.md) and the
+[Android probe](composeApp/src/androidInstrumentedTest/kotlin/vault/account/README.md)
+cover scope and persistence. Local startup performs no account IO. Credentials
+require HTTPS; the LAN HTTP mirror origin is rejected. Account screens remain C13.
+
 `PhotoDisplay.kt` freezes encoded/display dimensions at seal time. Report
 review offers standard or enlarged-photo presentation; `ResponsibilityDocumentTest.kt`
 checks attachment immutability, metadata freezing and independent rejection.

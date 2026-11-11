@@ -31,6 +31,11 @@ import vault.ui.App
 import vault.ui.ServerConfig
 import vault.ui.UploadWorker
 import vault.ui.createContainer
+import vault.account.AccountApi
+import vault.account.AccountSessions
+import vault.account.AndroidSessionVault
+import vault.api.platformEngine
+import java.util.UUID
 
 // Primary flow is local-first (L3): rooms, capture, review and seal run
 // on-device with no account, payment or network. The API integration
@@ -78,6 +83,8 @@ class MainActivity : ComponentActivity() {
             local = session,
             planRenderer = AndroidPlanRenderer(),
             filePicker = filePicker,
+            accountSessions = AccountSessions(AccountApi(baseUrl, platformEngine()), AndroidSessionVault(applicationContext),
+                { UUID.randomUUID().toString() }, "android", "Android"),
         )
         val navigator = resumeNavigator(session)
         wireSystemBack(navigator)
