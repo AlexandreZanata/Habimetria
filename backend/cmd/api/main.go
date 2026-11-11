@@ -58,7 +58,8 @@ func main() {
 		if !ok {
 			log.Fatal("object storage does not support authenticated reads")
 		}
-		web, err := panelweb.NewConnected(webService, reader, cfg.PanelOrigin, accounts.Registration, accounts.Verification)
+		web, err := panelweb.NewConnected(webService, reader, cfg.PanelOrigin, panelweb.AccountServices{
+			Registration: accounts.Registration, Verification: accounts.Verification, Recovery: accounts.Recovery, PasswordReset: accounts.PasswordReset})
 		if err != nil {
 			log.Fatalf("configure panel: %v", err)
 		}

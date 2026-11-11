@@ -105,7 +105,7 @@ granted and SEALED checks remain in the existing services/stores.
 ## Runtime activation and file index
 
 `cmd/api/account.go` wires shared services; `accountdelivery/registration.go`
-loads only the private proof key, never a worker SMTP password. Signup requires
+and C11's `requests.go` load only the private proof key, never a worker SMTP password. Signup requires
 enabled mail, a readable key and identical nonempty PANEL_ORIGIN and
 ACCOUNT_MAIL_ORIGIN. Missing key or mismatched origin disables signup with a
 safe operator message; it does not disable login or previously issued proofs.
@@ -123,7 +123,7 @@ no production activation or key provisioning is performed by code delivery.
 HTTP files: `httpapi/account.go`, `account_input.go`, `account_input_test.go`,
 `account_fixture_test.go`, `account_integration_test.go` and
 [accountauth](../../backend/internal/httpapi/accountauth/README.md).
-Web files: `panelweb/account_forms.go`, `views/registration.html`, existing
+Web files: `panelweb/account_forms.go`, `account_services.go`, `views/registration.html`, existing
 access/layout templates and styles/script. Test fixtures and executable proofs:
 `panelweb/account_fixture_test.go`, `account_forms_integration_test.go`,
 `account_api_integration_test.go`, `account_boundary_integration_test.go`.
@@ -134,6 +134,10 @@ own profile, cookie/bearer separation, cross-User Report privacy and SEALED writ
 origin mismatch disable signup while login and delivered proofs remain usable.
 
 ## Security references
+
+[C11 recovery](account_recovery.md) adds customer-owned password recovery and
+security notices. Protected/rotating native sessions and account screens remain
+C12-C13; no production administrative MFA or owner acceptance is claimed here.
 
 Generic authentication failures and shared derivation follow the
 [OWASP authentication guidance](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html).

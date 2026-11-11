@@ -8,7 +8,8 @@ transports must not accidentally accept one another's CSRF/refresh tokens.
 [C09 registration/delivery](account_registration.md) implements the internal
 service and durable SMTP worker. [C10 authentication](account_authentication.md)
 adds registrations, verification, login, own profile and current-access logout.
-Refresh/device management and recovery remain C11-C13.
+C11 adds [customer recovery](account_recovery.md). Refresh/device management
+and native account screens remain C12-C13.
 
 ## Identity and required controls
 

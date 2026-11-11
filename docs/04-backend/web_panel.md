@@ -51,7 +51,7 @@ Authorization expansion: [scoped administrative capabilities](admin_authorizatio
   issue or reissue links while activation is pending. Owners also manage
   team accounts and the role matrix. The panel generates links for manual
   delivery. Self-registration uses the separate C09 SMTP worker and C10 proof
-  flow; self-service password recovery remains C11.
+  flow; [C11 recovery](account_recovery.md) adds customer-owned password recovery.
 - A link expires after 30 minutes and is consumed atomically. Activated
   accounts authenticate with their own password. Staff cannot obtain a login
   link or reset an activated ordinary account through the panel. Legacy
@@ -103,6 +103,11 @@ Authorization expansion: [scoped administrative capabilities](admin_authorizatio
   or certify a PDF, author identity, receipt or agreement.
 
 ## Files and checks
+
+C11 adds `panelweb/account_services.go`, `recovery_forms.go`, `event_labels.go`
+and `views/recovery.html`, retaining the existing embedded identity and form
+styles. Recovery tests and activation details are indexed in the
+[recovery contract](account_recovery.md).
 
 - `backend/migrations/0005_panel.sql` extends identity and adds activation
   links, sessions, limits, permissions, report availability and audit.

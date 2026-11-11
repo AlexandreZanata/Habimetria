@@ -3,7 +3,12 @@ const fragment = location.hash.slice(1);
 if (fragment) {
   history.replaceState(null, '', location.pathname);
   const verification = /^verificar=([A-Za-z0-9_-]{43})$/.exec(fragment);
-  if (verification) {
+  const recovery = /^recuperar=([A-Za-z0-9_-]{43})$/.exec(fragment);
+  if (recovery) {
+    const field = document.getElementById('recovery-code');
+    if (field) field.value = recovery[1];
+    else if (location.pathname !== '/painel/redefinir') location.replace('/painel/redefinir#recuperar=' + recovery[1]);
+  } else if (verification) {
     const field = document.getElementById('verification-code');
     if (field) field.value = verification[1];
     else if (location.pathname !== '/painel/verificar') location.replace('/painel/verificar#verificar=' + verification[1]);

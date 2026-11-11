@@ -11,6 +11,8 @@ import (
 
 func TestAPIPublicRouteAllowlist(t *testing.T) {
 	want := map[string]routepolicy.Class{
+		"POST /api/v1/account/recovery":           routepolicy.PublicControl,
+		"POST /api/v1/account/password":           routepolicy.PublicControl,
 		"POST /api/v1/account/registrations":      routepolicy.PublicControl,
 		"POST /api/v1/account/verification":       routepolicy.PublicControl,
 		"POST /api/v1/account/sessions":           routepolicy.PublicControl,

@@ -8,19 +8,8 @@ import (
 	"vault/internal/credential"
 	"vault/internal/httpapi/accountauth"
 	"vault/internal/service/account"
-	"vault/internal/service/panel"
-	"vault/internal/storage"
 	"vault/internal/store/postgres"
 )
-
-func NewConnected(service *panel.Service, reader storage.Reader, origin string, registration *account.Registration, verification *account.Verification) (*Web, error) {
-	p, err := New(service, reader, origin)
-	if err != nil {
-		return nil, err
-	}
-	p.registration, p.verification = registration, verification
-	return p, nil
-}
 
 func (p *Web) registerAccount(w http.ResponseWriter, r *http.Request) {
 	if p.registration == nil {

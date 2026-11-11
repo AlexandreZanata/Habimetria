@@ -25,7 +25,7 @@ minimization and resource existence checks remain in the relevant service.
 
 ## API registrations
 
-There are 24 owner-scoped API operations, nine explicit public operations, two
+There are 24 owner-scoped API operations, eleven explicit public operations, two
 account controls and
 one optional delegated panel mount. GET policies also cover Go's implicit HEAD.
 All private scope strings resolve the stable Property owner, never an owner
@@ -35,6 +35,7 @@ supplied in the body/query. Unknown scopes are errors, not public fallbacks.
 |---|---|---|
 | GET `/healthz`, GET `/readyz`, GET `/api/v1/ping` | public_control | None |
 | POST `/api/v1/account/registrations`, `/api/v1/account/verification`, `/api/v1/account/sessions` | public_control | Bounded neutral initiation or purpose/credential validation and shared throttling |
+| POST `/api/v1/account/recovery`, `/api/v1/account/password` | public_control | Neutral customer initiation; purpose-bound atomic password replacement; no cookie/bearer authority |
 | GET `/api/v1/account/profile`, DELETE `/api/v1/account/sessions/current` | account_control | Current ordinary User's API bearer; no cookie or paid gate |
 | POST `/api/v1/properties` | hosted_owner | properties; creation policy in guard |
 | POST `/api/v1/properties/{id}/tenancies` | hosted_owner | properties |
@@ -74,6 +75,7 @@ retains document authorization. Neither query parameter is an access grant.
 |---|---|---|
 | GET `/painel/`, GET `/painel/assets/` subtree | public_control | Login rendering/static files; no hosted collection access |
 | GET `/painel/entrar`, GET/POST `/painel/cadastro`, GET/POST `/painel/verificar` | public_control | Shared signup/verification services; exact-Origin POST, no GET consume |
+| GET/POST `/painel/recuperar`, GET/POST `/painel/redefinir` | public_control | Customer-owned recovery; exact-Origin POST, no GET consume or auto-login |
 | POST `/painel/entrar`, POST `/painel/ativar` | public_control | Credentials/token purpose, expiry and rate limits |
 | POST `/painel/sair` | public_control | Session revocation/cookie cleanup, including expired sessions |
 | GET/POST `/painel/perfil` | account_control | Own profile only |
@@ -88,7 +90,7 @@ retains document authorization. Neither query parameter is an access grant.
 | GET/POST `/painel/configuracoes` | staff_control | Owner-managed permission matrix |
 | GET `/painel/documentos/{id}` | report_access | Titleholder or current reports.read and exact titleholder grant |
 
-The registry binds these 28 child routes concretely. Adding an unknown
+The registry binds these 32 child routes concretely. Adding an unknown
 page or method must not inherit a generic section route's access implicitly.
 
 ## Runtime registration and proof

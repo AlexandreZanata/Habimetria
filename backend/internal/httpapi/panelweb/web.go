@@ -31,6 +31,8 @@ type Web struct {
 	views          *template.Template
 	registration   *account.Registration
 	verification   *account.Verification
+	recovery       *account.RecoveryRequest
+	passwordReset  *account.PasswordReset
 }
 
 func New(service *panel.Service, storage storage.Reader, origin string) (*Web, error) {
@@ -98,6 +100,7 @@ func readForm(w http.ResponseWriter, r *http.Request) bool {
 
 func (p *Web) render(w http.ResponseWriter, status int, name string, data page) {
 	data.SignupEnabled = p.registration != nil
+	data.RecoveryEnabled = p.recovery != nil
 	var body bytes.Buffer
 	if err := p.views.ExecuteTemplate(&body, name, data); err != nil {
 		log.Printf("render panel %s: %v", name, err)

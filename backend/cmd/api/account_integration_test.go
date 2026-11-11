@@ -32,7 +32,7 @@ func TestAccountAvailabilityIntegration(t *testing.T) {
 		AccountMail: config.AccountMailConfig{Enabled: "true", Origin: "http://localhost:8080", Address: "127.0.0.1:1025", Mode: "plain", From: "sender@example.test", ProofKeyFile: path}}
 	p := panel.New(postgres.NewPanelStore(pool))
 	accounts := connectedAccount(cfg, pool, p)
-	if accounts.Registration == nil {
+	if accounts.Registration == nil || accounts.Recovery == nil || accounts.PasswordReset == nil {
 		t.Fatal("valid configuration did not enable signup")
 	}
 	if err := accounts.Registration.Register(ctx, "runtime@example.test", "192.0.2.4"); err != nil {
@@ -62,7 +62,7 @@ func TestAccountAvailabilityIntegration(t *testing.T) {
 			changed.AccountMail.ProofKeyFile = filepath.Join(directory, "missing")
 		}
 		h := connectedAccount(changed, pool, p)
-		if h.Registration != nil || h.Authentication == nil || h.Verification == nil || h.Credentials == nil {
+		if h.Registration != nil || h.Recovery != nil || h.PasswordReset == nil || h.Authentication == nil || h.Verification == nil || h.Credentials == nil {
 			t.Fatal("signup rollback disabled account controls", mode)
 		}
 	}
@@ -74,5 +74,20 @@ func TestAccountAvailabilityIntegration(t *testing.T) {
 	}
 	if _, err := h.Authentication.Login(ctx, "runtime@example.test", password); err != nil {
 		t.Fatal("missing mail key blocked login", err)
+	}
+	if err := accounts.Recovery.Request(ctx, "runtime@example.test", "192.0.2.5"); err != nil {
+		t.Fatal(err)
+	}
+	if err := pool.QueryRow(ctx, `SELECT user_id::text,id::text,proof_ciphertext FROM account_mail_outbox
+		WHERE template='password_recovery'`).Scan(&user, &operation, &ciphertext); err != nil {
+		t.Fatal(err)
+	}
+	recovery, err := key.OpenRecovery(user, operation, ciphertext)
+	if err != nil {
+		t.Fatal(err)
+	}
+	const replacement = "recovered runtime fixture password"
+	if err := h.PasswordReset.Reset(ctx, recovery, replacement, replacement); err != nil {
+		t.Fatal("missing mail key blocked recovery consumption", err)
 	}
 }

@@ -46,6 +46,8 @@ func NewRouter(d Deps) *routepolicy.Router {
 	})
 	mux.HandleFunc("POST /api/v1/account/registrations", d.Account.Register)
 	mux.HandleFunc("POST /api/v1/account/verification", d.Account.Verify)
+	mux.HandleFunc("POST /api/v1/account/recovery", d.Account.Recover)
+	mux.HandleFunc("POST /api/v1/account/password", d.Account.ResetPassword)
 	mux.HandleFunc("POST /api/v1/account/sessions", d.Account.Login)
 	mux.HandleFunc("GET /api/v1/account/profile", d.Account.Profile)
 	mux.HandleFunc("DELETE /api/v1/account/sessions/current", d.Account.Logout)

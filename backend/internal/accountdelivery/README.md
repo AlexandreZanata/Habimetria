@@ -7,6 +7,8 @@
   registration/delivery services. No file or SMTP access when disabled.
 - `registration.go` shares proof-key loading and provides API registration
   without reading a worker SMTP password. Runtime tests prove that isolation.
+- `requests.go` loads one proof key for registration and customer recovery.
+  Password replacement consumes existing digests independently of this runtime.
 - `runtime_test.go` exercises file policy, disabled startup, configuration,
   key isolation/redaction and actual runtime setup using only synthetic files.
 

@@ -44,7 +44,12 @@ func accountSetup(t *testing.T) accountFixture {
 	if err != nil {
 		t.Fatal(err)
 	}
-	h := &AccountHandler{registration, account.NewVerification(store), account.NewAuthentication(store, p), p}
+	recovery, err := account.NewRecoveryRequest(store, key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	h := &AccountHandler{Registration: registration, Verification: account.NewVerification(store), Authentication: account.NewAuthentication(store, p), Credentials: p,
+		Recovery: recovery, PasswordReset: account.NewPasswordReset(store)}
 	return accountFixture{t, ctx, pool, key, NewRouter(Deps{Account: h})}
 }
 

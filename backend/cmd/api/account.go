@@ -17,15 +17,17 @@ import (
 func connectedAccount(cfg config.Config, pool *pgxpool.Pool, credentials *panel.Service) *httpapi.AccountHandler {
 	store := postgres.NewAccountStore(pool)
 	h := &httpapi.AccountHandler{Authentication: account.NewAuthentication(store, credentials),
-		Verification: account.NewVerification(store), Credentials: credentials}
+		Verification: account.NewVerification(store), Credentials: credentials, PasswordReset: account.NewPasswordReset(store)}
 	if cfg.AccountMail.Enabled == "true" && (cfg.PanelOrigin == "" || cfg.PanelOrigin != cfg.AccountMail.Origin) {
-		log.Print("account registration unavailable: mail and panel origins must match")
+		log.Print("account mail requests unavailable: mail and panel origins must match")
 		return h
 	}
-	registration, err := accountdelivery.OpenRegistration(cfg.AccountMail, cfg.Environment, pool)
+	requests, err := accountdelivery.OpenRequests(cfg.AccountMail, cfg.Environment, pool)
 	if err != nil && !errors.Is(err, accountdelivery.ErrDisabled) {
-		log.Printf("account registration unavailable: %v", err)
+		log.Printf("account mail requests unavailable: %v", err)
 	}
-	h.Registration = registration
+	if requests != nil {
+		h.Registration, h.Recovery = requests.Registration, requests.Recovery
+	}
 	return h
 }

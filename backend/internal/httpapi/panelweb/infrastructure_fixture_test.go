@@ -25,7 +25,8 @@ func integrationWithStorage(t *testing.T, store collectionfixture.Objects) *harn
 	require(t, postgres.Apply(ctx, pool, migrations.FS))
 	p := panel.New(postgres.NewPanelStore(pool))
 	accounts := accountServices(t, pool, p)
-	web, err := panelweb.NewConnected(p, store, testOrigin, accounts.Registration, accounts.Verification)
+	web, err := panelweb.NewConnected(p, store, testOrigin, panelweb.AccountServices{
+		Registration: accounts.Registration, Verification: accounts.Verification, Recovery: accounts.Recovery, PasswordReset: accounts.PasswordReset})
 	require(t, err)
 	evidence := service.NewEvidence(pool, store)
 	router := httpapi.NewRouter(httpapi.Deps{

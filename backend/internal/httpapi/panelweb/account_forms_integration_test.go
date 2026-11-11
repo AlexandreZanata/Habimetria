@@ -49,7 +49,7 @@ func TestAccountFormsIntegration(t *testing.T) {
 	h.call("GET", "/painel/usuarios", cookie, nil, 403)
 	h.call("GET", "/painel/usuarios", owner, nil, 200)
 	// Mail-disabled rollback preserves login and already-issued verification.
-	web, err := panelweb.NewConnected(h.panel, nil, testOrigin, nil, accountServices(t, h.pool, h.panel).Verification)
+	web, err := panelweb.NewConnected(h.panel, nil, testOrigin, panelweb.AccountServices{Verification: accountServices(t, h.pool, h.panel).Verification})
 	require(t, err)
 	request := httptest.NewRequest("GET", testOrigin+"/painel/cadastro", nil)
 	out = httptest.NewRecorder()

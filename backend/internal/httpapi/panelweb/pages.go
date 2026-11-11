@@ -14,7 +14,7 @@ import (
 
 type page struct {
 	Activation                                   bool
-	SignupEnabled, Completed                     bool
+	SignupEnabled, RecoveryEnabled, Completed    bool
 	AccessCode                                   string
 	Actor                                        postgres.PanelActor
 	Section, Title, Subtitle, Error, Link, Query string
@@ -174,26 +174,5 @@ func roleLabel(role string) string {
 		return "Atendimento"
 	default:
 		return "Usuário"
-	}
-}
-
-func eventLabel(event string) string {
-	switch event {
-	case "signed_in":
-		return "Acesso autenticado"
-	case "email_verified":
-		return "E-mail confirmado"
-	case "account_created":
-		return "Conta cadastrada"
-	case "account_updated":
-		return "Conta atualizada"
-	case "access_issued":
-		return "Link de acesso gerado"
-	case "permissions_updated":
-		return "Permissões atualizadas"
-	case "profile_updated":
-		return "Perfil atualizado"
-	default:
-		return "Evento da plataforma"
 	}
 }

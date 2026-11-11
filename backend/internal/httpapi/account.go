@@ -17,6 +17,8 @@ type AccountHandler struct {
 	Verification   *account.Verification
 	Authentication *account.Authentication
 	Credentials    *panel.Service
+	Recovery       *account.RecoveryRequest
+	PasswordReset  *account.PasswordReset
 }
 
 type accountActorKey struct{}

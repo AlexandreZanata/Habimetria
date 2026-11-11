@@ -67,6 +67,47 @@ C11.b supplies complete JSON and web transport. Native account screens stay C13;
 device refresh families stay C12. Neither implementation activates production
 SMTP, subscriptions or owner gates.
 
+## JSON and browser contract (C11.b)
+
+- POST `/api/v1/account/recovery` accepts `{email}` and returns neutral 202
+  `recovery_requested`, including unknown/ineligible/cooldown/limited accounts.
+- POST `/api/v1/account/password` accepts
+  `{token,password,password_confirmation}` and returns 200 `password_updated`
+  only after replacement, revocation, audit and notice commit. No access token,
+  cookie, email or User ID is returned. Invalid/expired/replayed/cross-purpose
+  proof returns the same 401 `invalid_recovery`.
+
+Both reuse C10's no-store, 4096-byte JSON object/known-field bounds and reject
+Origin, cookies and Authorization. Invalid input/policy/confirmation is 400
+(`invalid_request`, `password_policy`, `password_confirmation`), size 413 and
+media type 415. Replacement shares the source login/verification budget; 429
+includes Retry-After 900. Storage/config failure is 503 `recovery_unavailable`;
+the shared limiter retains C10's `verification_unavailable` on its own outage.
+No infrastructure error details or account existence are disclosed.
+
+GET/POST `/painel/recuperar` and `/painel/redefinir` use the same services,
+bounded exact-Origin forms and the existing Manrope/pine/ivory identity.
+Recovery links put the proof in `#recuperar=`. The shared script removes it
+from history, handles root fragments and signed-in browsers, and fills only
+the recovery field. GET never consumes proof. Password/confirmation errors
+retain only the code in a no-store POST response, never echo the passwords.
+Success requires a deliberate new login and does not switch/clear another
+User's browser cookie. The target's old cookie/API tokens cease authorizing.
+
+Missing mail/key/origin agreement disables new initiation and hides its login
+link/form. The password consumer stays available for previously delivered
+links. API initiation uses `accountdelivery/requests.go` to load a single proof
+key for both purposes without SMTP credentials. It uses the existing API-only
+proof mount; no new production secrets or provider configuration are introduced.
+
+Source index: `httpapi/account_recovery.go`, `account_recovery_integration_test.go`;
+`panelweb/account_services.go`, `recovery_forms.go`, `event_labels.go`,
+`views/recovery.html`, `recovery_forms_integration_test.go`,
+`recovery_boundary_integration_test.go`; `accountdelivery/requests.go` and its
+existing runtime tests; updated API runtime tests. Tests cover neutral bodies,
+confirmation/replay/purpose, CSRF/transport, throttling, safe failures, old-session
+denial, unchanged private SEALED Report and another User's retained authority.
+
 The design follows the
 [OWASP recovery guidance](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html).
 Legal retention durations and production deliverability remain owner-controlled.

@@ -1,0 +1,47 @@
+{{define "recover"}}
+{{template "head" .}}
+<body class="access-page"><main class="access-card panel">
+  {{template "brand"}}
+  <p class="eyebrow">Sua conta Habimetria</p>
+  <h1>{{if .Completed}}Confira seu e-mail{{else}}Recupere sua senha{{end}}</h1>
+  {{if .Completed}}
+    <p role="status">Se a conta puder ser recuperada, você receberá um link para escolher uma nova senha.</p>
+    <p>Confira também a pasta de spam. O link vale por 30 minutos. Sua senha só muda quando você concluir a redefinição.</p>
+    <a class="btn primary" href="/painel/entrar">Voltar ao login</a>
+    <a href="/painel/recuperar">Solicitar outro link</a>
+  {{else}}
+    <p>Informe o e-mail usado na sua conta. Enviaremos as instruções se a recuperação estiver disponível para ela.</p>
+    {{if .Error}}<p class="notice error" role="alert">{{.Error}}</p>{{end}}
+    <form class="form-grid" method="post" action="/painel/recuperar">
+      <label>E-mail da conta<input name="email" type="email" maxlength="254" autocomplete="email" value="{{.Values.Get "email"}}" required></label>
+      <button class="btn primary">Receber link de recuperação</button>
+    </form>
+    <a href="/painel/entrar">Voltar ao login</a>
+  {{end}}
+</main>{{template "credit"}}</body></html>
+{{end}}
+{{define "reset-password"}}
+{{template "head" .}}
+<body class="access-page"><main class="access-card panel">
+  {{template "brand"}}
+  <p class="eyebrow">Recuperação de senha</p>
+  <h1>{{if .Completed}}Senha atualizada{{else}}Crie sua nova senha{{end}}</h1>
+  {{if .Completed}}
+    <p role="status">Sua senha foi alterada e as sessões anteriores foram encerradas. Entre novamente com a nova senha.</p>
+    <a class="btn primary" href="/painel/entrar">Entrar com a nova senha</a>
+  {{else}}
+    <p>Use o link recebido por e-mail. Por segurança, você precisará entrar novamente depois da alteração.</p>
+    {{if .Error}}<p class="notice error" role="alert">{{.Error}}</p>{{end}}
+    <form class="form-grid" method="post" action="/painel/redefinir">
+      <label>Código de recuperação<input id="recovery-code" name="codigo" type="password" maxlength="64" autocomplete="off" value="{{.AccessCode}}" aria-describedby="recovery-hint" required></label>
+      <small id="recovery-hint">O link do e-mail preenche este campo automaticamente.</small>
+      <label>Nova senha<input name="senha" type="password" minlength="15" maxlength="1024" autocomplete="new-password" aria-describedby="reset-hint" required></label>
+      <small id="reset-hint">Use pelo menos 15 caracteres. Você pode usar uma frase.</small>
+      <label>Confirme a nova senha<input name="confirmacao" type="password" minlength="15" maxlength="1024" autocomplete="new-password" required></label>
+      <button class="btn primary">Salvar nova senha</button>
+    </form>
+    {{if .RecoveryEnabled}}<a href="/painel/recuperar">Solicitar outro link</a>{{end}}
+    <a href="/painel/entrar">Voltar ao login</a>
+  {{end}}
+</main>{{template "credit"}}</body></html>
+{{end}}

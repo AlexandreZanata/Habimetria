@@ -28,8 +28,10 @@ func accountServices(t *testing.T, pool *pgxpool.Pool, p *panel.Service) *httpap
 	store := postgres.NewAccountStore(pool)
 	registration, err := account.NewRegistration(store, accountKey(t))
 	require(t, err)
+	recovery, err := account.NewRecoveryRequest(store, accountKey(t))
+	require(t, err)
 	return &httpapi.AccountHandler{Registration: registration, Verification: account.NewVerification(store),
-		Authentication: account.NewAuthentication(store, p), Credentials: p}
+		Authentication: account.NewAuthentication(store, p), Credentials: p, Recovery: recovery, PasswordReset: account.NewPasswordReset(store)}
 }
 
 func (h *harness) proof(email string) string {

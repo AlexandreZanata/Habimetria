@@ -12,6 +12,7 @@
     <label>Senha<input name="senha" type="password" maxlength="1024" autocomplete="current-password" required></label>
     <button class="btn primary">Entrar</button>
   </form>
+  {{if .RecoveryEnabled}}<a href="/painel/recuperar">Esqueci minha senha</a>{{end}}
   {{if .SignupEnabled}}<a href="/painel/cadastro">Ainda não tem conta? Crie sua conta</a>{{end}}
   <details id="ativacao" {{if .Activation}}open{{end}}>
     <summary>Recebi um convite de acesso</summary>

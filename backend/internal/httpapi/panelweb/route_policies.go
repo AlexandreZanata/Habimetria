@@ -3,6 +3,10 @@ package panelweb
 import "vault/internal/httpapi/routepolicy"
 
 var panelRoutePolicies = []routepolicy.Rule{
+	{Pattern: "GET /painel/recuperar", Class: routepolicy.PublicControl},
+	{Pattern: "POST /painel/recuperar", Class: routepolicy.PublicControl},
+	{Pattern: "GET /painel/redefinir", Class: routepolicy.PublicControl},
+	{Pattern: "POST /painel/redefinir", Class: routepolicy.PublicControl},
 	{Pattern: "GET /painel/entrar", Class: routepolicy.PublicControl},
 	{Pattern: "GET /painel/cadastro", Class: routepolicy.PublicControl},
 	{Pattern: "POST /painel/cadastro", Class: routepolicy.PublicControl},
