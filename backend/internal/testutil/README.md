@@ -8,3 +8,6 @@
 - [s3fixture](s3fixture/README.md): explicit loopback-only real S3 configuration.
 - [collectionfixture](collectionfixture/README.md): real-service synthetic owned/legacy
   collections, immutable snapshots and migration qualification.
+
+- [mailfixture](mailfixture/README.md): explicit loopback SMTP and bounded capture
+  polling without production defaults, HTTP redirects or inherited proxies.

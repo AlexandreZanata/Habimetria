@@ -22,6 +22,7 @@ type Config struct {
 	PanelOrigin   string // optional origin for the authenticated web panel
 	LegacyAPIMode string // owned | unclaimed-development; never inferred from panel exposure
 	Commerce      CommerceConfig
+	AccountMail   AccountMailConfig
 }
 
 func FromEnv() Config {
@@ -44,6 +45,7 @@ func FromEnv() Config {
 		PanelOrigin:   envOr("PANEL_ORIGIN", ""),
 		LegacyAPIMode: envOr("LEGACY_API_MODE", LegacyOwned),
 		Commerce:      commerceFromEnv(),
+		AccountMail:   accountMailFromEnv(),
 	}
 }
 

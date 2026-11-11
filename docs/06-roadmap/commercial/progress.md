@@ -1,7 +1,7 @@
 # Commercial Program Progress
 
 Baseline: plan documented on 2026-11-11; implementation inspected at `060d968`.
-Implementation has advanced to C09.a. No new manual approval is claimed.
+Implementation has advanced to C09.b. No new manual approval is claimed.
 Use [runbook](agent_runbook.md). Every slice needs its own commit/push/checks.
 
 ## Status vocabulary
@@ -25,7 +25,7 @@ None means the whole release/program is complete.
 | C06 | CODE_VERIFIED | [C06 execution](c06_execution.md): validated namespaces/secret references, isolated provider activation and recovery-preserving sale rollback |
 | C07 | CODE_VERIFIED | [C07 execution](c07_execution.md): scoped grants, reasoned atomic audit, escalation denial and concurrent authority checks |
 | C08 | CODE_VERIFIED | [C08 execution](c08_execution.md): isolated real dependencies, multi-owner/legacy migration and storage fixtures, measured baseline and sealed Room correction |
-| C09 | IN_PROGRESS | [C09 execution](c09_execution.md): pending identity and encrypted enqueue; transport/delivery pending |
+| C09 | IN_PROGRESS | [C09 execution](c09_execution.md): pending identity/encrypted enqueue and SMTP transport/configuration; durable worker pending |
 | C10 | PENDING | No implementation evidence |
 | C11 | PENDING | No implementation evidence |
 | C12 | PENDING | No implementation evidence |

@@ -21,6 +21,9 @@ func TestEnvExampleMatchesFromEnv(t *testing.T) {
 	for key := range commerceEnvironmentValues(CommerceConfig{}) {
 		keys = append(keys, key)
 	}
+	for key := range mailEnvironmentValues(AccountMailConfig{}) {
+		keys = append(keys, key)
+	}
 	saved := make(map[string]string, len(keys))
 	for _, k := range keys {
 		if v, ok := os.LookupEnv(k); ok {
@@ -67,6 +70,9 @@ func TestEnvExampleMatchesFromEnv(t *testing.T) {
 		"LOCAL_STORAGE_DIR": got.LocalDir, "HMAC_KEY": got.HMACKey,
 	}
 	for key, value := range commerceEnvironmentValues(got.Commerce) {
+		want[key] = value
+	}
+	for key, value := range mailEnvironmentValues(got.AccountMail) {
 		want[key] = value
 	}
 	for _, k := range keys {

@@ -41,7 +41,22 @@ body, password, raw URL or arbitrary template/payload is stored in this queue.
 Terminal delivery/cancellation removes ciphertext. Delivery is at-least-once;
 proof invalidation remains authoritative even if an older email is in flight.
 
-Mail transport and worker are added in the following C09 sub-slices. No local
+## SMTP transport
+
+The transport uses a single bounded Portuguese text template and configured
+origin, never a request Host header. Proofs travel in `/painel/#verificar=` URL
+fragments; C10 consumes them with a POST. Message-ID is stable per operation.
+Only explicit STARTTLS or implicit TLS with hostname/chain verification is
+accepted for external SMTP. Local development may use unauthenticated plain
+SMTP only on loopback with a loopback HTTP origin. There is no TLS downgrade,
+insecure certificate option, arbitrary subject/body or plaintext AUTH fallback.
+
+Every send has a connection/context deadline and cancellation closes the socket.
+Only the SMTP acceptance after DATA counts as accepted by the transport; this
+is not inbox receipt or account verification. Reply text, addresses, credentials
+and proof URLs never enter returned errors. Failures have closed codes and
+explicit transient/permanent classification. Worker/lease delivery follows in
+the next C09 sub-slice. No local
 feature, store entitlement or hosted collection is required by registration.
 Real provider identities/deliverability and legal retention remain unverified.
 
@@ -53,6 +68,10 @@ Real provider identities/deliverability and legal retention remain unverified.
   preserved legacy identity and pending/proof/queue constraints.
 - [Proof envelope](../../backend/internal/accountproof/README.md).
 - [Registration service](../../backend/internal/service/account/README.md).
+- [Mail test fixture](../../backend/internal/testutil/mailfixture/README.md).
+- [Mail adapter](../../backend/internal/mail/README.md).
+- `backend/internal/config/account_mail.go` and `account_mail_test.go` define
+  disabled-by-default settings, environment parity and activation validation.
 - PostgreSQL `account_registration.go` and `account_registration_limits.go`
   serialize registration/resend and enqueue atomically.
 - `backend/internal/service/account/registration_integration_test.go` and
@@ -64,3 +83,11 @@ Real provider identities/deliverability and legal retention remain unverified.
 
 Security approach follows [OWASP token guidance](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html);
 this is a registration implementation, not password recovery (C11).
+
+Account mail environment uses ACCOUNT_MAIL_ENABLED=false by default, an exact
+configured origin, SMTP address/from/mode, optional username/password-file and
+required proof-key file. Enabled production requires HTTPS, TLS and SMTP
+credentials. Disabled settings do not require secrets or contact SMTP. Paths
+are absolute references, not inline passwords; physical file policy is applied
+when the delivery runtime opens them. Env example and Compose forward the same
+fields. No file provisioning or production activation is performed by C09.

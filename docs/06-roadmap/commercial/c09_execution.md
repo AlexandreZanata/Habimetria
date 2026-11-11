@@ -34,8 +34,39 @@ Executed with C08 disposable PostgreSQL 18.6/Garage/Mailpit:
   Cryptographic primitive construction failures are not artificially injected.
 - Secrets, diff, documentation links/new-file references and file bounds: PASS.
 
+Commit `bbd43fdb535065cd5b2d509b5ae821e715927d51` was pushed to origin/dev;
+[CI run 377](https://github.com/AlexandreZanata/Habimetria/actions/runs/43069832334)
+passed backend and mobile-linux before C09.b began.
+
+## C09.b — Real SMTP transport and activation configuration
+
+Added a fixed bounded Portuguese message, stable operation Message-ID and
+configured fragment proof origin. Remote SMTP requires explicit TLS/STARTTLS
+with chain/hostname verification; local unauthenticated plaintext is restricted
+to development loopback. No optional TLS/downgrade or insecure certificate flag.
+Per-send deadlines/cancellation bound network work. Closed failure codes
+preserve retryability for transport outages and redact server-controlled replies,
+recipients and credentials; SMTP DATA acceptance is not inbox receipt.
+
+Added disabled-by-default account-mail settings with env-example/Compose parity,
+HTTPS/TLS/authentication requirements in production and private-file references.
+The real SMTP fixture tests TLS/authentication, untrusted certificate and missing
+STARTTLS denial before credentials/body, temporary/permanent rejection, dropped
+TLS transport and cancellation. The reusable loopback Mailpit capture fixture
+uses bounded polling without inherited proxies/redirects; actual SMTP proof
+content is verified through its API. Durable leasing/retry/worker is C09.c.
+
+Executed on disposable dependencies:
+
+- `GOTOOLCHAIN=go1.25.13` runner with `make verify test-integration cover
+  verify-commerce-config`: PASS, including all existing floors.
+- `go test -race -cover ./internal/mail ./internal/config`: PASS,
+  88.4% mail statement coverage (new floor 85%), configuration 100%.
+- Actual Mailpit SMTP/capture plus protocol/TLS tests: PASS, not skipped.
+- Secrets, diff, documentation references/links and changed-file bounds: PASS.
+
 Final commit/ref and exact-commit CI are checked after push; no self-hash is
-invented. SMTP transport/configuration and durable delivery remain C09.b/C09.c.
+invented. C09 remains in progress until durable worker delivery is verified.
 
 ## Manual gates
 
