@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"strings"
 
+	"vault/internal/authz"
+
 	"github.com/jackc/pgx/v5"
 )
 
@@ -66,7 +68,7 @@ func (s *PanelStore) Invite(ctx context.Context, actor, email, name, role string
 		if err := panelLink(ctx, tx, id, hash); err != nil {
 			return err
 		}
-		return panelAudit(ctx, tx, actor, "account_created", &id)
+		return panelPolicyAudit(ctx, tx, actor, "account_created", "account_onboarding", &id, PanelPolicyState{}, panelAccountState(role, true))
 	})
 }
 
@@ -90,7 +92,7 @@ func panelTarget(ctx context.Context, tx pgx.Tx, a PanelActor, id string) (role 
 
 func (s *PanelStore) Reissue(ctx context.Context, actor, id string, hash []byte) error {
 	return s.panelAdminWrite(ctx, actor, func(tx pgx.Tx, a PanelActor) error {
-		_, active, err := panelTarget(ctx, tx, a, id)
+		role, active, err := panelTarget(ctx, tx, a, id)
 		if err != nil {
 			return err
 		}
@@ -104,11 +106,14 @@ func (s *PanelStore) Reissue(ctx context.Context, actor, id string, hash []byte)
 		if err := panelLink(ctx, tx, id, hash); err != nil {
 			return err
 		}
-		return panelAudit(ctx, tx, actor, "access_issued", &id)
+		return panelPolicyAudit(ctx, tx, actor, "access_issued", "activation_delivery", &id, panelAccountState(role, active), panelAccountState(role, active))
 	})
 }
 
-func (s *PanelStore) UpdateAccount(ctx context.Context, actor, id, role string, active bool) error {
+func (s *PanelStore) UpdateAccount(ctx context.Context, actor, id, role string, active bool, reason string) error {
+	if !authz.ChangeReason(reason) {
+		return ErrPanelDenied
+	}
 	return s.panelAdminWrite(ctx, actor, func(tx pgx.Tx, a PanelActor) error {
 		if actor == id {
 			return ErrPanelDenied
@@ -132,7 +137,7 @@ func (s *PanelStore) UpdateAccount(ctx context.Context, actor, id, role string, 
 		if _, err := tx.Exec(ctx, `DELETE FROM panel_access_links WHERE user_id=$1`, id); err != nil {
 			return err
 		}
-		return panelAudit(ctx, tx, actor, "account_updated", &id)
+		return panelPolicyAudit(ctx, tx, actor, "account_updated", reason, &id, panelAccountState(prior, wasActive), panelAccountState(role, active))
 	})
 }
 

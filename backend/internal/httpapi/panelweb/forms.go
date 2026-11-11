@@ -37,13 +37,13 @@ func (p *Web) change(w http.ResponseWriter, r *http.Request) {
 			if state != "ativo" && state != "suspenso" {
 				err = panel.ErrInput
 			} else {
-				err = p.service.UpdateAccount(ctx, a.ID, values.Get("id"), role, state == "ativo")
+				err = p.service.UpdateAccount(ctx, a.ID, values.Get("id"), role, state == "ativo", values.Get("motivo"))
 			}
 		default:
 			err = panel.ErrInput
 		}
 	case "configuracoes":
-		err = p.service.SetRole(ctx, a.ID, values.Get("papel"), values["permissao"])
+		err = p.service.SetRole(ctx, a.ID, values.Get("papel"), values["permissao"], values.Get("motivo"))
 	case "perfil":
 		err = p.service.UpdateProfile(ctx, a.ID, values.Get("nome"))
 	case "imoveis":

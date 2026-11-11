@@ -23,10 +23,10 @@ func TestCommercialCapabilitiesIntegration(t *testing.T) {
 			continue
 		}
 		h.call("POST", "/painel/configuracoes", f.staff, url.Values{
-			"papel": {"support"}, "permissao": {"accounts.read", capability.ID},
+			"motivo": {"access_review"}, "papel": {"support"}, "permissao": {"accounts.read", capability.ID},
 		}, 400)
 	}
-	grant := url.Values{"papel": {"admin"}, "permissao": {"commerce.read", "finance.read", "grants.write", "events.replay"}}
+	grant := url.Values{"motivo": {"access_review"}, "papel": {"admin"}, "permissao": {"commerce.read", "finance.read", "grants.write", "events.replay"}}
 	h.call("POST", "/painel/configuracoes", support, grant, 403)
 	h.call("POST", "/painel/configuracoes", admin, grant, 403)
 	h.call("POST", "/painel/configuracoes", f.staff, grant, 303)

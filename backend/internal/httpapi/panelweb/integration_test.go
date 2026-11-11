@@ -165,10 +165,10 @@ func TestPanelIdentityIntegration(t *testing.T) {
 	h.call("GET", "/painel/usuarios?formato=csv", user, nil, 403)
 	h.call("GET", "/painel/usuarios?formato=csv", support, nil, 200)
 	h.call("POST", "/painel/usuarios", support, url.Values{
-		"acao": {"atualizar"}, "estado": {"suspenso"}, "id": {userID},
+		"motivo": {"access_review"}, "acao": {"atualizar"}, "estado": {"suspenso"}, "id": {userID},
 	}, 403)
 	h.call("POST", "/painel/equipe", otherOwner, url.Values{
-		"acao": {"atualizar"}, "papel": {"user"}, "estado": {"suspenso"}, "id": {primaryID},
+		"motivo": {"access_review"}, "acao": {"atualizar"}, "papel": {"user"}, "estado": {"suspenso"}, "id": {primaryID},
 	}, 409)
 	h.call("POST", "/painel/usuarios", primary, url.Values{"acao": {"acesso"}, "id": {userID}}, 403)
 	duplicate := h.call("POST", "/painel/usuarios", primary, url.Values{
@@ -180,7 +180,7 @@ func TestPanelIdentityIntegration(t *testing.T) {
 
 	h.call("GET", "/painel/configuracoes", primary, nil, 200)
 	h.call("POST", "/painel/configuracoes", primary, url.Values{
-		"papel": {"support"}, "permissao": {"reports.read"},
+		"motivo": {"access_review"}, "papel": {"support"}, "permissao": {"reports.read"},
 	}, 303)
 	h.call("GET", "/painel/usuarios", support, nil, 403)
 	h.call("GET", "/painel/disponibilizados", support, nil, 200)

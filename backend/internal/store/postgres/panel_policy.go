@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"slices"
 	"time"
 
 	"vault/internal/authz"
@@ -31,14 +32,21 @@ func (s *PanelStore) Roles(ctx context.Context) ([]PanelRole, error) {
 	return out, rows.Err()
 }
 
-func (s *PanelStore) SetRole(ctx context.Context, actor, role string, permissions []string) error {
+func (s *PanelStore) SetRole(ctx context.Context, actor, role string, permissions []string, reason string) error {
 	permissions, valid := authz.Normalize(role, permissions)
-	if !valid {
+	if !valid || !authz.ChangeReason(reason) {
 		return ErrPanelDenied
 	}
 	return s.panelAdminWrite(ctx, actor, func(tx pgx.Tx, a PanelActor) error {
 		if a.Role != "owner" {
 			return ErrPanelDenied
+		}
+		var before []string
+		if err := tx.QueryRow(ctx, `SELECT permissions FROM panel_role_permissions WHERE role=$1 FOR UPDATE`, role).Scan(&before); err != nil {
+			return panelMissing(err)
+		}
+		if slices.Equal(before, permissions) {
+			return nil
 		}
 		tag, err := tx.Exec(ctx, `UPDATE panel_role_permissions SET permissions=$2 WHERE role=$1`, role, permissions)
 		if err != nil {
@@ -47,17 +55,21 @@ func (s *PanelStore) SetRole(ctx context.Context, actor, role string, permission
 		if tag.RowsAffected() != 1 {
 			return ErrNotFound
 		}
-		return panelAudit(ctx, tx, actor, "permissions_updated", nil)
+		return panelPolicyAudit(ctx, tx, actor, "permissions_updated", reason, nil, panelRoleState(role, before), panelRoleState(role, permissions))
 	})
 }
 
 type PanelEvent struct {
-	Event, Actor string
-	At           time.Time
+	Event, Actor               string
+	Operation, Reason, Subject *string
+	Before, After              PanelPolicyState
+	At                         time.Time
 }
 
 func (s *PanelStore) Activity(ctx context.Context, offset int) ([]PanelEvent, error) {
-	rows, err := s.pool.Query(ctx, `SELECT a.event,u.display_name,a.occurred_at FROM panel_audit a JOIN users u ON u.id=a.actor_id
+	rows, err := s.pool.Query(ctx, `SELECT a.event,u.display_name,a.occurred_at,
+		a.operation_id::text,a.reason_code,a.subject_id::text,a.before_role,a.after_role,
+		a.before_active,a.after_active,a.before_permissions,a.after_permissions FROM panel_audit a JOIN users u ON u.id=a.actor_id
 		WHERE a.event IN ('account_created','account_updated','access_issued','permissions_updated','signed_in','profile_updated')
 		ORDER BY a.id DESC LIMIT 26 OFFSET $1`, offset)
 	if err != nil {
@@ -67,7 +79,8 @@ func (s *PanelStore) Activity(ctx context.Context, offset int) ([]PanelEvent, er
 	out := []PanelEvent{}
 	for rows.Next() {
 		var event PanelEvent
-		if err := rows.Scan(&event.Event, &event.Actor, &event.At); err != nil {
+		if err := rows.Scan(&event.Event, &event.Actor, &event.At, &event.Operation, &event.Reason, &event.Subject,
+			&event.Before.Role, &event.After.Role, &event.Before.Active, &event.After.Active, &event.Before.Permissions, &event.After.Permissions); err != nil {
 			return nil, err
 		}
 		out = append(out, event)

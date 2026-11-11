@@ -38,7 +38,7 @@ func New(service *panel.Service, storage storage.Reader, origin string) (*Web, e
 		return nil, errors.New("PANEL_ORIGIN must be an HTTPS origin or local HTTP loopback")
 	}
 	view, err := template.New("panel").Funcs(template.FuncMap{
-		"capabilities": roleCapabilities, "date": date, "role": roleLabel, "event": eventLabel, "has": slices.Contains[[]string, string],
+		"reason": reasonLabel, "policyState": policyStateLabel, "capabilities": roleCapabilities, "date": date, "role": roleLabel, "event": eventLabel, "has": slices.Contains[[]string, string],
 	}).ParseFS(files, "views/*.html")
 	if err != nil {
 		return nil, fmt.Errorf("parse panel views: %w", err)

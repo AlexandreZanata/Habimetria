@@ -23,11 +23,11 @@ func (s *Service) Accounts(ctx context.Context, actor postgres.PanelActor, staff
 	return s.store.Accounts(ctx, staff, query, offset)
 }
 
-func (s *Service) UpdateAccount(ctx context.Context, actor, id, role string, active bool) error {
-	if ValidateID(id) != nil || !validRole(role) {
+func (s *Service) UpdateAccount(ctx context.Context, actor, id, role string, active bool, reason string) error {
+	if ValidateID(id) != nil || !validRole(role) || !authz.ChangeReason(reason) {
 		return ErrInput
 	}
-	return s.store.UpdateAccount(ctx, actor, id, role, active)
+	return s.store.UpdateAccount(ctx, actor, id, role, active, reason)
 }
 
 func (s *Service) UpdateProfile(ctx context.Context, actor, name string) error {
@@ -38,12 +38,12 @@ func (s *Service) UpdateProfile(ctx context.Context, actor, name string) error {
 	return s.store.UpdateProfile(ctx, actor, name)
 }
 
-func (s *Service) SetRole(ctx context.Context, actor, role string, permissions []string) error {
+func (s *Service) SetRole(ctx context.Context, actor, role string, permissions []string, reason string) error {
 	allowed, valid := authz.Normalize(role, permissions)
-	if !valid {
+	if !valid || !authz.ChangeReason(reason) {
 		return ErrInput
 	}
-	return s.store.SetRole(ctx, actor, role, allowed)
+	return s.store.SetRole(ctx, actor, role, allowed, reason)
 }
 
 func (s *Service) Roles(ctx context.Context, actor postgres.PanelActor) ([]postgres.PanelRole, error) {

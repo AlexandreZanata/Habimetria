@@ -41,8 +41,9 @@
             <option value="ativo" {{if .Active}}selected{{end}}>Ativo</option>
             <option value="suspenso" {{if not .Active}}selected{{end}}>Suspenso</option>
           </select></label>
+          {{template "change-reason" .}}
           <button class="btn small primary" name="acao" value="atualizar">Salvar acesso</button>
-          {{if and .Active .Managed (not .Enrolled)}}<button class="btn small" name="acao" value="acesso">Gerar novo link de ativação</button>{{end}}
+          {{if and .Active .Managed (not .Enrolled)}}<button class="btn small" name="acao" value="acesso" formnovalidate>Gerar novo link de ativação</button>{{end}}
         </form>
       </details>
     {{else}}<small>—</small>{{end}}</td>

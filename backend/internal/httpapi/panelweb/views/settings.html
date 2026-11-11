@@ -12,6 +12,7 @@
     <label class="check"><input type="checkbox" name="permissao" value="{{.ID}}" {{if has $granted .ID}}checked{{end}}>{{.Label}}</label>
     {{end}}
     </fieldset>
+    {{template "change-reason" .}}
     <button class="btn primary">Salvar permissões</button>
   </form>
 </div></section>
@@ -23,8 +24,8 @@
 <section class="panel">
   <header class="panel-header"><div><h2>Histórico administrativo</h2><p>Horários do servidor em UTC.</p></div></header>
   {{if .Events}}<div class="table-scroll" role="region" aria-label="Atividade administrativa" tabindex="0">
-  <table><thead><tr><th scope="col">Evento</th><th scope="col">Ator</th><th scope="col">Horário</th></tr></thead><tbody>
-  {{range .Events}}<tr><td>{{event .Event}}</td><td>{{if .Actor}}{{.Actor}}{{else}}Conta cadastrada{{end}}</td><td>{{date .At}}</td></tr>{{end}}
+  <table><thead><tr><th scope="col">Evento</th><th scope="col">Ator</th><th scope="col">Horário</th><th scope="col">Alteração</th></tr></thead><tbody>
+  {{range .Events}}<tr><td>{{event .Event}}</td><td>{{if .Actor}}{{.Actor}}{{else}}Conta cadastrada{{end}}</td><td>{{date .At}}</td><td>{{if .Operation}}{{reason .Reason}}<br>{{if .Subject}}Conta: <code>{{.Subject}}</code><br>{{end}}{{policyState .Before}} → {{policyState .After}}<br><small>Operação: <code>{{.Operation}}</code></small>{{else}}Registro anterior ou evento sem alteração de permissões{{end}}</td></tr>{{end}}
   </tbody></table></div>
   {{else}}<p class="empty">Nenhuma atividade registrada.</p>{{end}}
 </section>
