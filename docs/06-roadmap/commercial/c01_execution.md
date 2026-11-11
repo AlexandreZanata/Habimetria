@@ -57,8 +57,9 @@ Executed checks after retirement:
 - `docker compose -f infra/docker-compose.yml config --quiet`: PASS.
 - `make secrets`, changed-file size/reference checks and diff checks: PASS.
 
-C01.b commit/push identity and exact-head CI are verified through Git history
-and the dev->main PR after push; no guessed self-referential commit hash.
+Commit `7f992cc` was pushed to origin/dev;
+[GitHub CI run 347](https://github.com/AlexandreZanata/Habimetria/actions/runs/43017823202)
+passed backend and mobile-linux on that exact commit.
 The complete C01 is code-verified. C02-C64 remain pending. This does not
 implement hosted billing/entitlement or approve production activation.
 

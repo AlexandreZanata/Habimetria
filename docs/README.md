@@ -28,6 +28,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `03-architecture/local_property_removal.md` — planned empty deletion, reversible archive and preservation of sealed history
 - `03-architecture/brazil_report_legal_requirements.md` — official Brazilian sources, tenancy/professional applicability and limits of legal claims
 - [03-architecture/commercial_domain.md](03-architecture/commercial_domain.md) — planned commercial vocabulary and authority
+- [03-architecture/hosted_entry_points.md](03-architecture/hosted_entry_points.md) — C02 API/panel/mobile/worker inventory and access/funding classifications
 - [03-architecture/subscription_lifecycle.md](03-architecture/subscription_lifecycle.md) — verified purchase, entitlement and recovery states
 - [03-architecture/account_lifecycle.md](03-architecture/account_lifecycle.md) — connected identity, sessions, recovery and deletion
 - [03-architecture/cloud_sync_contract.md](03-architecture/cloud_sync_contract.md) — paid hosted snapshots, changes and clean-device restore

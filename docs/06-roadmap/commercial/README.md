@@ -78,6 +78,9 @@ manual gate blocks activation of its dependent feature, not independent work.
 
 ## Repository baseline limitations
 
+Current hosted surfaces and transport boundaries are inventoried in
+[hosted entry points](../../03-architecture/hosted_entry_points.md).
+
 - Panel has invitation/password identity, RBAC and Report-specific availability;
   no self-service mail/recovery/mobile session integration yet.
 - At the inspected baseline SealService invoked PaymentPort. C01 removed
