@@ -78,5 +78,6 @@ Sources checked 2026-11-11; C06 does not perform any native/store test purchase.
 - [commerce_env_test.go](../../backend/internal/config/commerce_env_test.go):
   environment/example parity and override coverage.
 
-Operational exposure/rollback checks are the second C06 sub-slice. These
-settings do not add unclassified HTTP registrations or authorize private data.
+[Activation service](../../backend/internal/service/commerce/activation/README.md)
+and [provisioning/rollback](commercial_rollout.md) define the C06.b boundary.
+These settings add no HTTP registrations or authorization to private data.

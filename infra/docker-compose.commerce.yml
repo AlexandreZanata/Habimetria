@@ -1,0 +1,10 @@
+# Explicit read-only credential provisioning; never loaded by the default stack.
+services:
+  api:
+    volumes:
+      - type: bind
+        source: ${COMMERCE_SECRETS_SOURCE_DIR:?set the explicit credential source directory}
+        target: ${COMMERCE_SECRETS_DIR:-/run/secrets/habimetria}
+        read_only: true
+        bind:
+          create_host_path: false

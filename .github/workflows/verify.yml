@@ -30,7 +30,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "1.25.0"
-      - run: make vet fmt-check test cover secrets
+      - run: make vet fmt-check test cover secrets verify-commerce-config
       - run: make test-integration
       - run: go run ./cmd/verify --format json testdata/fixture-package
         working-directory: backend
