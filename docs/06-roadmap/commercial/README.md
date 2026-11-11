@@ -93,6 +93,9 @@ Current hosted surfaces and transport boundaries are inventoried in
   does not establish native readiness.
 - Enterprise test/scale/privacy plan contains planned work, not passed gates.
 
+The [C08 qualification baseline](qualification_baseline.md) records the actual
+disposable dependency/fixture checks and the remaining unverified boundaries.
+
 ## Completion evidence
 
 Use [requirements](requirements.md) to trace all 72 study IDs to slices and

@@ -39,6 +39,8 @@ explicit hosted allowances and historical version numbers. See the
 - No update/delete on `evidences` when parent inspection `SEALED`.
 - NULL legacy Property ownership is not public access. Production uses the
   owner-only guard; reviewed assignment follows the [operator runbook](legacy_ownership_runbook.md).
+- Room creation/template writes lock their Inspection and require DRAFT,
+  serialized against seal. See [fixture qualification](integration_fixtures.md).
 - `sequence` unique per inspection. Manifest ordered by it.
 - `verify_code`: `nanoid(10)`, unique index.
 

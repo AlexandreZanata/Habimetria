@@ -41,8 +41,45 @@ Executed on synthetic disposable services:
 - `make secrets`, diff checks, document links/new-file references and changed
   file line limits: PASS.
 
+Commit `2d4c421acf8b9cd11e00acc0670dcdb260a7b921` was pushed to origin/dev;
+[CI run 373](https://github.com/AlexandreZanata/Habimetria/actions/runs/43048198306)
+passed backend (including the new stack/lifecycle proofs) and mobile-linux
+before C08.b began.
+
+## C08.b — Multi-owner fixtures and measured baseline
+
+Added reusable explicit TEST-only S3 and real-service collection fixtures;
+shared panel test wiring now accepts local or real private storage. Two owners
+and an unclaimed collection contain DRAFT/SEALED data, Room/Evidence/Finding,
+Manifest, Report and Occurrence. Every generated object has bounded teardown.
+Upgrading from schema 0004 and replaying current migrations preserves core rows,
+private bytes, signed anchors, ownership and distinct device/server instants.
+There is no automatic enrollment/grant/offer. SQL failure injection proves DDL,
+data and migration-ledger rollback; a second database remains independent.
+
+Real-storage HTTP tests prove exact owner/staff/anonymous/legacy boundaries,
+Report availability/revocation, public minimization and immutable PDF retries.
+They exposed post-seal Room creation (HTTP 201). Corrected single/template writes
+with a DRAFT guard under the seal's Inspection row lock. Tests now require HTTP
+409 and unchanged rows/bytes. Actual seal/write queues prove stale writes are
+denied; template failure leaves no partial Rooms. Existing missing-parent,
+duplicate, DRAFT and idempotent behavior remains covered. No migration or
+historical data rewrite is needed for this store-boundary correction.
+
+Updated the [qualification baseline](qualification_baseline.md) with measured
+commands and explicit limits. Executed on disposable PostgreSQL/Garage/Mailpit:
+
+- `GOTOOLCHAIN=go1.25.13 make verify-infra`: PASS, including `make verify`,
+  integration, coverage, SMTP proof and real lifecycle cleanup.
+- Verbose/no-cache migration, private collection and S3 roundtrip checks: PASS.
+- Race detector for collection fixtures, S3 adapter, PostgreSQL and targeted
+  panel S3 isolation: PASS.
+- Configured unavailable S3 check: expected failure (not skipped), cleanup PASS.
+- `make secrets`, diff checks, documentation links/new-file references and
+  changed-file line bounds: PASS.
+
 Final commit/ref and exact-commit CI are checked after push; no self-hash is
-invented. Multi-owner/legacy fixtures and baseline refresh remain C08.b.
+invented here. C09-C64 remain pending.
 
 ## Manual gates
 

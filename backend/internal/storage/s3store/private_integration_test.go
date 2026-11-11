@@ -1,45 +1,25 @@
-package s3store
+package s3store_test
 
 import (
 	"context"
 	"io"
 	"net/http"
 	"net/url"
-	"os"
-	"strconv"
 	"strings"
 	"testing"
 	"time"
 
+	"vault/internal/storage/s3store"
+	"vault/internal/testutil/s3fixture"
+
 	"github.com/google/uuid"
 )
 
-func privateFixture(t *testing.T) (context.Context, *Store, Config) {
-	t.Helper()
-	endpoint := os.Getenv("S3_TEST_ENDPOINT")
-	if endpoint == "" {
-		t.Skip("S3_TEST_ENDPOINT unset: private object integration unverified")
-	}
-	u, err := url.Parse(endpoint)
-	if err != nil || u.Scheme != "http" || u.Hostname() != "127.0.0.1" || u.User != nil || u.Path != "" || u.RawQuery != "" || u.Fragment != "" {
-		t.Fatal("object integration requires an explicit loopback fixture endpoint")
-	}
-	port, err := strconv.Atoi(u.Port())
-	if err != nil || port < 1 || port > 65535 {
-		t.Fatal("invalid object fixture port")
-	}
-	cfg := Config{Endpoint: endpoint, Region: os.Getenv("S3_TEST_REGION"), Bucket: os.Getenv("S3_TEST_BUCKET"),
-		AccessKey: os.Getenv("S3_TEST_ACCESS_KEY"), SecretKey: os.Getenv("S3_TEST_SECRET_KEY"), UsePathStyle: true}
-	if cfg.Region == "" || !strings.HasPrefix(cfg.Bucket, "fixture-") || cfg.AccessKey == "" || cfg.SecretKey == "" {
-		t.Fatal("explicit synthetic S3 fixture configuration is incomplete")
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	t.Cleanup(cancel)
-	return ctx, New(cfg), cfg
-}
-
 func TestPrivateS3RoundtripIntegration(t *testing.T) {
-	ctx, store, cfg := privateFixture(t)
+	cfg := s3fixture.Config(t)
+	store := s3store.New(cfg)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 	for range 2 {
 		if err := store.EnsureBucket(ctx); err != nil {
 			t.Fatalf("ensure private bucket: %v", err)

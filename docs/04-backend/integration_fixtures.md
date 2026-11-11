@@ -61,3 +61,37 @@ redundancy, licensing, capacity or operational retention.
 [HAProxy configuration](https://docs.haproxy.org/3.2/configuration.html) defines
 the TCP-only gateway. Internal-only Docker networks cannot publish host ports;
 see [Docker networking](https://docs.docker.com/compose/how-tos/networking/).
+
+## Multi-owner and migration qualification
+
+The reusable [S3 fixture](../../backend/internal/testutil/s3fixture/README.md)
+uses only explicit loopback TEST settings. The
+[collection fixture](../../backend/internal/testutil/collectionfixture/README.md)
+creates synthetic DRAFT/SEALED collections using real services/storage. It
+accepts explicit owner IDs or an unclaimed legacy Property; it never claims
+existing data. Originals/Reports are tiny synthetic documents, not real photos
+or visually qualified PDFs. Each test deletes only its generated object keys.
+
+Migration tests seed two owners and NULL-owned legacy data at schema 0004,
+apply/replay every current migration, compare complete core rows and object
+digests, verify no automatic enrollment/grants/catalog seed, and inject a failed
+migration to prove DDL/ledger rollback. A second isolated database remains
+untouched. HTTP tests use the same fixture with real private S3 and current
+panel sessions, proving owner/staff/anonymous scope, exact Report grants and
+revocation, sealed-write rejection and unchanged bytes/Manifests.
+
+- `backend/internal/httpapi/panelweb/infrastructure_fixture_test.go` wires either
+  local or explicit real S3 storage into the same actual router.
+- `backend/internal/httpapi/panelweb/storage_isolation_integration_test.go`
+  exercises the multi-owner/legacy HTTP scenario against S3.
+- [Measured qualification baseline](../06-roadmap/commercial/qualification_baseline.md)
+  records executed commands and limits. No native/store/production gate is
+  inferred from these synthetic results.
+
+The real-storage scenario exposed post-seal Room creation. PostgreSQL
+`rooms.go` now uses `room_write.go` to require DRAFT under an Inspection row
+lock for both single creation and atomic template insertion. This shares the
+seal lock, keeps unknown-parent/duplicate behavior and rejects writes after
+seal with the existing ErrSealed/HTTP 409 contract; it does not rewrite history.
+`backend/internal/store/postgres/room_write_test.go` proves seal/write ordering,
+DRAFT behavior, template rollback and unchanged sealed Room inventory.

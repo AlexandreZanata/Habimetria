@@ -6,21 +6,13 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
 	"regexp"
 	"strings"
 	"testing"
-	"time"
 
-	"vault/internal/httpapi"
-	"vault/internal/httpapi/panelweb"
 	"vault/internal/service"
 	"vault/internal/service/panel"
-	"vault/internal/storage/localstore"
-	"vault/internal/store/postgres"
-	"vault/migrations"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -36,51 +28,6 @@ type harness struct {
 	panel    *panel.Service
 	evidence *service.EvidenceService
 	handler  http.Handler
-}
-
-func integration(t *testing.T) *harness {
-	t.Helper()
-	dsn := os.Getenv("TEST_DATABASE_URL")
-	if dsn == "" {
-		t.Skip("TEST_DATABASE_URL unset")
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
-	t.Cleanup(cancel)
-	admin, err := postgres.Open(ctx, dsn)
-	require(t, err)
-	t.Cleanup(admin.Close)
-	name := "panel_" + strings.ReplaceAll(uuid.NewString(), "-", "")
-	_, err = admin.Exec(ctx, "CREATE DATABASE "+name)
-	require(t, err)
-	t.Cleanup(func() {
-		c, stop := context.WithTimeout(context.Background(), 10*time.Second)
-		defer stop()
-		if _, err := admin.Exec(c, "DROP DATABASE "+name+" WITH (FORCE)"); err != nil {
-			t.Errorf("drop test database: %v", err)
-		}
-	})
-	cfg := admin.Config()
-	cfg.ConnConfig.Database = name
-	pool, err := pgxpool.NewWithConfig(ctx, cfg)
-	require(t, err)
-	t.Cleanup(pool.Close)
-	require(t, postgres.Apply(ctx, pool, migrations.FS))
-	p := panel.New(postgres.NewPanelStore(pool))
-	store := localstore.New(t.TempDir())
-	web, err := panelweb.New(p, store, testOrigin)
-	require(t, err)
-	evidence := service.NewEvidence(pool, store)
-	router := httpapi.NewRouter(httpapi.Deps{
-		Panel: web.Routes(), Guard: panelweb.ProtectLegacy(p, testOrigin, panelweb.LegacyPolicy{}),
-		Room: service.NewRoom(pool), Evidence: evidence,
-		Property: service.NewProperty(pool), Tenancy: service.NewTenancy(pool), Inspection: service.NewInspection(pool),
-		Finding: service.NewFinding(pool), Coverage: service.NewCoverage(pool),
-		Occurrence: service.NewOccurrence(pool), Compare: service.NewCompare(pool),
-		Share: service.NewShare(pool, store, testOrigin, "integration-test-key"), HMACKey: "integration-test-key",
-		Seal:   service.NewSeal(pool, "integration-test-key"),
-		Report: service.NewReport(pool, store, testOrigin),
-	})
-	return &harness{t: t, ctx: ctx, pool: pool, panel: p, evidence: evidence, handler: httpapi.SecurityHeaders(router)}
 }
 
 func require(t *testing.T, err error) {

@@ -1,7 +1,7 @@
 # Commercial Program Progress
 
 Baseline: plan documented on 2026-11-11; implementation inspected at `060d968`.
-Implementation has advanced to C08.a. No new manual approval is claimed.
+Implementation has advanced to C08. No new manual approval is claimed.
 Use [runbook](agent_runbook.md). Every slice needs its own commit/push/checks.
 
 ## Status vocabulary
@@ -24,7 +24,7 @@ None means the whole release/program is complete.
 | C05 | CODE_VERIFIED | [C05 execution](c05_execution.md): immutable monthly catalog, hosted-only validation, atomic versions/retirement and bounded history |
 | C06 | CODE_VERIFIED | [C06 execution](c06_execution.md): validated namespaces/secret references, isolated provider activation and recovery-preserving sale rollback |
 | C07 | CODE_VERIFIED | [C07 execution](c07_execution.md): scoped grants, reasoned atomic audit, escalation denial and concurrent authority checks |
-| C08 | IN_PROGRESS | [C08 execution](c08_execution.md): disposable dependencies verified; multi-owner fixtures/baseline pending |
+| C08 | CODE_VERIFIED | [C08 execution](c08_execution.md): isolated real dependencies, multi-owner/legacy migration and storage fixtures, measured baseline and sealed Room correction |
 | C09 | PENDING | No implementation evidence |
 | C10 | PENDING | No implementation evidence |
 | C11 | PENDING | No implementation evidence |
