@@ -73,7 +73,7 @@ func main() {
 		Evidence:   service.NewEvidence(pool, store),
 		Finding:    service.NewFinding(pool),
 		Coverage:   service.NewCoverage(pool),
-		Seal:       service.NewSeal(pool, buildPayments(cfg), cfg.HMACKey),
+		Seal:       service.NewSeal(pool, cfg.HMACKey),
 		Report:     service.NewReport(pool, store, cfg.VerifyBaseURL),
 		Share:      service.NewShare(pool, store, cfg.VerifyBaseURL, cfg.HMACKey),
 		Occurrence: service.NewOccurrence(pool),
@@ -97,19 +97,6 @@ func main() {
 	if err := srv.Shutdown(shutdownCtx); err != nil {
 		log.Printf("shutdown: %v", err)
 	}
-}
-
-// buildPayments selects the paywall backend. Default off keeps the MVP
-// frictionless (photos + evidence + PDF). Live mode enforces provider
-// proofs at seal; see docs/03-architecture/payments.md.
-func buildPayments(cfg config.Config) service.PaymentPort {
-	if cfg.PaymentsMode != "live" {
-		return service.StubPayment{}
-	}
-	if cfg.PaymentsProvider == "asaas" {
-		return service.NewAsaasProvider(cfg.AsaasAPIKey, cfg.AsaasAPIBase, nil)
-	}
-	return service.NewStripeProvider(cfg.StripeSecretKey, cfg.StripeAPIBase, nil)
 }
 
 // openStorage selects the S3 or local backend from env.

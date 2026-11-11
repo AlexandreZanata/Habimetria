@@ -14,6 +14,6 @@ capture, local seal, local PDF, local verification, local comparison,
 local assistant or file export. Subscription explanations must distinguish
 local durability from optional cloud preservation.
 
-The current backend still contains the old PaymentPort seam. Its removal
-and cloud-boundary replacement are implementation steps, not effects of
-this documentation change. See [payments](../03-architecture/payments.md).
+C01.a removed the backend seal/payment dependency. Legacy provider/config
+cleanup continues in C01.b; cloud entitlement enforcement is later roadmap
+work. See [payments](../03-architecture/payments.md).

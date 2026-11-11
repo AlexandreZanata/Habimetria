@@ -1,7 +1,7 @@
 # Commercial Program Progress
 
 Baseline: plan documented on 2026-11-11; implementation inspected at `060d968`.
-No commercial implementation or new manual approval is claimed by this file.
+Implementation has started at C01. No new manual approval is claimed.
 Use [runbook](agent_runbook.md). Every slice needs its own commit/push/checks.
 
 ## Status vocabulary
@@ -17,7 +17,7 @@ None means the whole release/program is complete.
 
 | Slice | State | Evidence |
 |---|---|---|
-| C01 | PENDING | No implementation evidence |
+| C01 | IN_PROGRESS | [C01 execution](c01_execution.md): payment dependency removed; configuration retirement pending |
 | C02 | PENDING | No implementation evidence |
 | C03 | PENDING | No implementation evidence |
 | C04 | PENDING | No implementation evidence |

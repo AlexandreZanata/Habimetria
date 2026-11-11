@@ -5,9 +5,9 @@ same-origin sessions. Owned private API resources require the titleholder's
 session. Legacy unclaimed resources are served only when the panel is
 disabled. `/v/{code}` and explicit Share links retain public access.
 
-This documents the current baseline, including the legacy payment seam.
-The [commercial roadmap](../06-roadmap/commercial/README.md) replaces that
-seam with monthly hosted authorization. Planned new routes are in
+This documents the current baseline. C01.a removed the seal/payment dependency;
+the [commercial roadmap](../06-roadmap/commercial/README.md) adds separate
+monthly hosted authorization. Planned new routes are in
 [subscription API](../04-backend/subscription_api.md); they do not exist yet.
 
 ## Ops (S1, implemented)
@@ -39,7 +39,7 @@ Preset enum: `stain | scratch | crack | broken | moisture | hole | other`.
 
 ## Seal, report, share, verify
 
-- `POST /inspections/{id}/seal` (S5, S6-basic) — returns { manifest_sha256, signature, report_id, verify_code }; paywall off by default, live mode enforces Stripe/Asaas proof (402); 404 missing, 409 sealed/changed, 422 empty
+- `POST /inspections/{id}/seal` — returns { manifest_sha256, signature, report_id, verify_code }; no payment proof required; deprecated optional string `payment_proof` accepted and ignored; 400 malformed input, 404 missing/unauthorized, 409 sealed/changed, 422 empty
 - `GET /reports/{id}` (S7) — report + QR-ready verify_url
 - `POST /reports/{id}/pdf` (S7) — two-pass final PDF attach, returns report_sha256
 - `GET /reports/{id}/download-url` (S7) — signed 5min PDF URL

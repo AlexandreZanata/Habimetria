@@ -73,7 +73,7 @@ func integration(t *testing.T) *harness {
 	router := httpapi.NewRouter(httpapi.Deps{
 		Panel: web.Routes(), Guard: panelweb.ProtectLegacy(p, testOrigin),
 		Room: service.NewRoom(pool), Evidence: evidence,
-		Seal:   service.NewSeal(pool, service.StubPayment{}, "integration-test-key"),
+		Seal:   service.NewSeal(pool, "integration-test-key"),
 		Report: service.NewReport(pool, store, testOrigin),
 	})
 	return &harness{t: t, ctx: ctx, pool: pool, panel: p, evidence: evidence, handler: httpapi.SecurityHeaders(router)}

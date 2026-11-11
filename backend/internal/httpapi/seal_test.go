@@ -64,13 +64,30 @@ func TestSealMissingMaps404(t *testing.T) {
 	}
 }
 
-func TestSealUnpaidMaps402(t *testing.T) {
-	h := NewSealHandler(stubSeal{err: service.ErrPayment})
-	req := httptest.NewRequest("POST", "/api/v1/inspections/x/seal", strings.NewReader(`{}`))
-	req.SetPathValue("id", "x")
-	rec := httptest.NewRecorder()
-	h.Seal(rec, req)
-	if rec.Code != http.StatusPaymentRequired {
-		t.Fatalf("want 402, got %d", rec.Code)
+func TestSealAcceptsAbsentAndLegacyProof(t *testing.T) {
+	for _, body := range []string{"", `{}`, `{"payment_proof":""}`, `{"payment_proof":"unpaid-legacy-proof"}`} {
+		t.Run(body, func(t *testing.T) {
+			h := NewSealHandler(stubSeal{out: service.SealOutput{Status: "SEALED"}})
+			req := httptest.NewRequest("POST", "/api/v1/inspections/x/seal", strings.NewReader(body))
+			req.SetPathValue("id", "x")
+			rec := httptest.NewRecorder()
+			h.Seal(rec, req)
+			if rec.Code != http.StatusCreated {
+				t.Fatalf("want 201 without a valid payment, got %d", rec.Code)
+			}
+		})
+	}
+}
+
+func TestSealRejectsMalformedLegacyBody(t *testing.T) {
+	for _, body := range []string{`{`, `{"payment_proof":42}`} {
+		h := NewSealHandler(stubSeal{})
+		req := httptest.NewRequest("POST", "/api/v1/inspections/x/seal", strings.NewReader(body))
+		req.SetPathValue("id", "x")
+		rec := httptest.NewRecorder()
+		h.Seal(rec, req)
+		if rec.Code != http.StatusBadRequest {
+			t.Fatalf("want 400 for %q, got %d", body, rec.Code)
+		}
 	}
 }

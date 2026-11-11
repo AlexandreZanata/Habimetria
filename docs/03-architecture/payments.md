@@ -3,18 +3,23 @@
 Target authority: [service monetization](../02-product/service_monetization.md).
 Execution: [commercial roadmap](../06-roadmap/commercial/README.md).
 
-## Current implementation, not the target
+## Current implementation — C01.a
 
-`backend/internal/service/payment*.go` implements Stripe/Asaas proof checks.
-`SealService` invokes PaymentPort; `PAYMENTS_MODE=off` is the default.
-The legacy `live` mode can require a proof before server sealing.
-`SEAL_PRICE_CENTS=2990` is historical configuration, not an approved price.
+`SealService` accepts only InspectionID and has no payment dependency. API
+wiring does not construct or contact a payment provider. The HTTP endpoint
+still accepts the deprecated optional string `payment_proof` for old clients;
+its value is ignored and grants no hosted rights. Normal ownership checks,
+empty-inspection validation, signing and terminal SEALED behavior remain.
+
+Legacy `payment*.go`, environment fields and their old signing-config check
+remain temporarily until C01.b retires them and replaces the signing check
+independently of billing. Do not activate or reuse these unused providers.
 There is no Play Billing, StoreKit, monthly catalog or entitlement ledger yet.
 
 Do not activate the legacy payment gate as a subscription implementation.
-Remove its coupling to seal in C01. Existing clients may send payment_proof
-temporarily for compatibility; it must not grant subscription rights.
-Remove obsolete production configuration with a documented migration.
+Sealing is already decoupled. Existing clients may send payment_proof
+temporarily for compatibility; it cannot grant subscription rights.
+C01.b removes obsolete configuration with a documented migration.
 External providers are not substitutes for mobile-store digital purchases.
 
 ## Target boundary

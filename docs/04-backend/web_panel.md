@@ -110,6 +110,8 @@ the public origin when hosting the panel.
   login, revocation, server-side permissions, duplicate email, and primary
   owner protection. `documents_integration_test.go` checks ownership,
   isolation, availability, PDF byte consistency and terminal seal.
+- `seal_integration_test.go` checks no-proof/ignored-legacy-proof sealing,
+  ownership, concurrent requests, empty validation and frozen history.
 
 Run `make verify` and `make secrets`. Run `make test-integration` with
 `TEST_DATABASE_URL` pointing at a disposable PostgreSQL 18.6 instance.

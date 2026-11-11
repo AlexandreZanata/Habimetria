@@ -1,6 +1,6 @@
 # Commercial Execution Plan — Free Local, Paid Monthly Infrastructure
 
-Status: DOCUMENTED, implementation not started by this delivery.
+Status: implementation in progress; see [progress](progress.md).
 Decision: owner, 2026-11-11. Baseline inspected: dev at `060d968`.
 Always re-inspect HEAD; existing code and prior manual results can change.
 The previous PDF requirements study is superseded wherever it proposed paid
@@ -80,8 +80,9 @@ manual gate blocks activation of its dependent feature, not independent work.
 
 - Panel has invitation/password identity, RBAC and Report-specific availability;
   no self-service mail/recovery/mobile session integration yet.
-- Legacy SealService still invokes PaymentPort; default mode off is not a
-  subscription entitlement implementation. C01 removes that coupling.
+- At the inspected baseline SealService invoked PaymentPort. C01.a removes
+  that coupling; C01.b retires unused providers/configuration. Neither is a
+  subscription entitlement implementation.
 - No native purchase adapters or commercial ledger found.
 - Local collections are not automatically account-synchronized to the panel.
 - Local multiple immutable Reports need server representation parity.
