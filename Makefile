@@ -9,6 +9,7 @@ verify-infra:
 
 verify-commerce-config:
 	python3 infra/verify_commerce_config.py
+	python3 infra/verify_account_mail_config.py
 
 verify-mobile:
 	cd app && ./gradlew :shared:jvmTest :shared:compileKotlinIosSimulatorArm64 :composeApp:assembleDebug

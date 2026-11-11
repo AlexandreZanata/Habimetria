@@ -2,6 +2,7 @@ package testutil
 
 import (
 	"context"
+	"net/url"
 	"os"
 	"strings"
 	"testing"
@@ -45,4 +46,24 @@ func Database(t *testing.T) (context.Context, *pgxpool.Pool) {
 	}
 	t.Cleanup(pool.Close)
 	return ctx, pool
+}
+
+// DatabaseDSN preserves the isolated database when handing a pool to a command.
+// pgx Config.ConnString retains its original parsed string after Database edits.
+func DatabaseDSN(pool *pgxpool.Pool) string {
+	dsn := os.Getenv("TEST_DATABASE_URL")
+	database := pool.Config().ConnConfig.Database
+	if strings.HasPrefix(dsn, "postgres://") || strings.HasPrefix(dsn, "postgresql://") {
+		parsed, err := url.Parse(dsn)
+		if err == nil {
+			parsed.Path = "/" + database
+			parsed.RawPath = ""
+			query := parsed.Query()
+			query.Del("dbname")
+			query.Del("database")
+			parsed.RawQuery = query.Encode()
+			return parsed.String()
+		}
+	}
+	return dsn + " dbname=" + database
 }

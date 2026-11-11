@@ -65,8 +65,48 @@ Executed on disposable dependencies:
 - Actual Mailpit SMTP/capture plus protocol/TLS tests: PASS, not skipped.
 - Secrets, diff, documentation references/links and changed-file bounds: PASS.
 
+Commit `aa7573bf1f0d2cfc3bcc4c0e0b1a97e6fb40021d` was pushed to origin/dev;
+[CI run 379](https://github.com/AlexandreZanata/Habimetria/actions/runs/43072070416)
+passed backend and mobile-linux before C09.c began.
+
+## C09.c — Leased delivery and operational runtime
+
+Added migration 0010, SKIP LOCKED claims, reclaimable 60-second leases,
+current identity/proof/expiry checks, guarded completion and bounded retry
+(up to five claims, server backoff/jitter). Terminal states remove ciphertext.
+Resend cancels pending/sending proofs; stale completion cannot overwrite a
+new lease. Bounded cleanup expires proofs/limits without inventing operational
+history retention. SMTP/DB failure does not fabricate delivery or verification.
+
+Wired the actual runtime using a dedicated private master/SMTP password,
+strict file/alias/bounds checks, safe error formatting and independent account
+configuration. Added account-mail status/once/daemon command with aggregate
+JSON and graceful shutdown, explicit read-only/non-creating worker overlay,
+image binary/CA certificates and a synthetic profile-render check in CI.
+No public registration control or token consumption is added before C10.
+
+Real PostgreSQL/Mailpit tests cover the complete encrypted enqueue-to-SMTP
+path, duplicate batch replay, concurrent workers, real SMTP outage/recovery,
+permanent recipient rejection, expired/ineligible/corrupt proof erasure,
+interrupted claims, stale leases, resend during flight, completion DB failure,
+exhaustion, safe status without SMTP/store configuration and daemon shutdown.
+Command fixtures explicitly preserve the isolated database DSN; private test
+files use private directories rather than relying on the process umask.
+
+Executed with disposable C08 dependencies:
+
+- `GOTOOLCHAIN=go1.25.13 make verify-infra`: PASS, including regular verify,
+  real integration, existing coverage floors and real teardown/signal proofs.
+- `make verify-commerce-config`: PASS, including the new account-worker profile.
+- `go test -race -cover` for account, runtime, SMTP and command: PASS.
+  Statement coverage: account 91.0%, runtime 81.9%, SMTP 88.4%, command 80.8%.
+  New enforced runtime floor: 75%; prior account/SMTP floors remain unchanged.
+- Local Docker image build: PASS; binary and CA-bundle check with network
+  disabled: PASS; invalid option rejected with expected exit 1.
+- Secrets, diff, document links/new-file references and file line bounds: PASS.
+
 Final commit/ref and exact-commit CI are checked after push; no self-hash is
-invented. C09 remains in progress until durable worker delivery is verified.
+invented here. C10-C64 and all owner-controlled gates remain pending.
 
 ## Manual gates
 

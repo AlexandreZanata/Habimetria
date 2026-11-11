@@ -19,7 +19,7 @@ var ErrInput = errors.New("invalid account registration input")
 
 type unavailable struct{ cause error }
 
-func (e unavailable) Error() string                  { return "account registration unavailable" }
+func (e unavailable) Error() string                  { return "account service unavailable" }
 func (e unavailable) Unwrap() error                  { return e.cause }
 func (e unavailable) Format(state fmt.State, _ rune) { _, _ = io.WriteString(state, e.Error()) }
 

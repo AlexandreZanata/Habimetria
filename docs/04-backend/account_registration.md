@@ -55,8 +55,7 @@ Every send has a connection/context deadline and cancellation closes the socket.
 Only the SMTP acceptance after DATA counts as accepted by the transport; this
 is not inbox receipt or account verification. Reply text, addresses, credentials
 and proof URLs never enter returned errors. Failures have closed codes and
-explicit transient/permanent classification. Worker/lease delivery follows in
-the next C09 sub-slice. No local
+explicit transient/permanent classification. Leased delivery applies the durable contract below. No local
 feature, store entitlement or hosted collection is required by registration.
 Real provider identities/deliverability and legal retention remain unverified.
 
@@ -91,3 +90,41 @@ credentials. Disabled settings do not require secrets or contact SMTP. Paths
 are absolute references, not inline passwords; physical file policy is applied
 when the delivery runtime opens them. Env example and Compose forward the same
 fields. No file provisioning or production activation is performed by C09.
+
+## Durable delivery
+
+Migration 0010 adds 60-second job leases. Claims use SKIP LOCKED; the SMTP
+operation runs outside database transactions with its 15-second deadline.
+Before each send, current pending identity, verification digest and server
+expiry are rechecked. Digest/ciphertext binding must agree. Replacement cancels
+pending/sending jobs; an in-flight old email cannot restore its invalid proof.
+
+Completion requires the exact unexpired lease. Abandoned jobs are reclaimable;
+stale workers cannot overwrite a newer lease. Transient failures retry up to
+five claims with server exponential delay (30-300 seconds plus bounded jitter).
+Certificate/configuration, rejected recipient, invalid proof and expired or
+ineligible identity become terminal safe codes. Terminal states remove proof
+ciphertext. Expired verification/limit rows are pruned in bounded batches;
+operational delivery history awaits approved retention, not an invented period.
+
+SMTP acceptance followed by process/DB failure can cause a duplicate email.
+The same operation Message-ID/proof is reused; no exactly-once inbox promise.
+The verification digest remains the authority and C10 consumes it once.
+The worker exposes only aggregate counters, never bodies, recipients or links.
+Database failures propagate; zero batch exit means results persisted, not that
+all messages reached an inbox. No resend impersonates an existing customer.
+
+- PostgreSQL `account_mail_lease.go` and `account_mail_completion.go` own the
+  claims, eligibility, guarded completion, counters and bounded cleanup.
+- Account `delivery.go`, `delivery_integration_test.go` and
+  `delivery_limits_test.go` and `delivery_recovery_test.go` test concurrency, SMTP outage/retry, invalid/expired
+  proofs, lease loss/reclaim, replacement, terminal erasure and real SMTP capture.
+- `backend/migrations/0010_account_mail_leases.sql` adds guarded delivery leases.
+- [Delivery runtime](../../backend/internal/accountdelivery/README.md) and
+  [worker command](../../backend/cmd/account-mail/README.md) configure the actual
+  private-file/SMTP adapter without enabling public registration.
+
+`infra/verify_account_mail_config.py` verifies explicit worker exposure, complete
+env forwarding and its read-only non-creating private mount. The API receives
+no worker secret mount. The image includes the worker and CA certificates.
+The deployment overlay never sends mail unless explicitly configured/enabled.

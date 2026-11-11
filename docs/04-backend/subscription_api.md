@@ -5,6 +5,10 @@ with handler/service/store separation and update [API surface](../03-architectur
 Reuse panel identity and authorization; browser cookie and mobile bearer
 transports must not accidentally accept one another's CSRF/refresh tokens.
 
+[C09 registration/delivery](account_registration.md) implements the internal
+service and durable SMTP worker. Public initiation/verification/login transport
+remains C10; no public signup route is exposed before its confirmation flow.
+
 ## Identity and required controls
 
 | Method / suffix | Behavior |

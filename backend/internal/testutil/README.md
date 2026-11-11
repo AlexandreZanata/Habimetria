@@ -2,7 +2,8 @@
 
 - [testutil.go](testutil.go): deterministic fake identifiers, instants and keys.
 - [database.go](database.go): isolated per-test PostgreSQL database with explicit
-  migration setup and cleanup. TEST_DATABASE_URL must name disposable test
+  migration setup and cleanup. DatabaseDSN preserves the actual isolated name
+  when configuring an executable (pgx retains the original parsed DSN). TEST_DATABASE_URL must name disposable test
   infrastructure with database-creation permission; no production fallback.
 
 - [s3fixture](s3fixture/README.md): explicit loopback-only real S3 configuration.

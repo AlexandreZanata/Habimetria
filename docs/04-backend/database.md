@@ -8,7 +8,8 @@ Migrations: `backend/migrations/0001_init.sql` (MVP core) →
 `0006_service_plans.sql` (immutable individual monthly hosted-service catalog) →
 `0007_panel_capabilities.sql` (scoped commercial permission matrix) →
 `0008_panel_policy_audit.sql` (reasoned, typed administrative transitions) →
-`0009_account_registration.sql` (pending self-registration and encrypted mail enqueue).
+`0009_account_registration.sql` (pending self-registration and encrypted mail enqueue) →
+`0010_account_mail_leases.sql` (bounded durable delivery and guarded completion).
 One version per file. See [web panel](web_panel.md).
 
 Planned commercial extensions are specified separately in
