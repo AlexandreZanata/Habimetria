@@ -28,6 +28,11 @@ specified in [ServicePlan catalog](service_plan_catalog.md); other groups remain
 
 ## Invariants (enforce in service + CHECK)
 
+Catalog tables are separate from the core: `service_plans` owns stable identity
+and terminal retirement; `service_plan_versions` owns immutable monthly terms,
+explicit hosted allowances and historical version numbers. See the
+[catalog contract](service_plan_catalog.md) for columns, formats and rollout.
+
 - `SEALED` requires `sealed_at NOT NULL`, `manifest_sha256 NOT NULL`.
 - No update/delete on `evidences` when parent inspection `SEALED`.
 - NULL legacy Property ownership is not public access. Production uses the

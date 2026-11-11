@@ -1,7 +1,8 @@
 # Commercial Domain — Planned Vocabulary and Boundaries
 
-Status: implementation contract for the
-[roadmap](../06-roadmap/commercial/README.md), not existing tables or routes.
+Status: implementation contract for the [roadmap](../06-roadmap/commercial/README.md).
+The [ServicePlan catalog](../04-backend/service_plan_catalog.md) is implemented by C05;
+other commercial records/routes remain planned.
 [Inspection vocabulary](domain-model.md) remains authoritative.
 
 ## Records

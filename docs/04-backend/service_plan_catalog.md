@@ -54,6 +54,12 @@ enforces shape, registration, units, finite amounts, period/scope and immutabili
 even on direct SQL writes. The insert guard serializes with plan retirement.
 Services append under a plan row lock, allocate the next version and preserve
 unique history under concurrency. No device time or billing data enters seals.
+The internal service validates codes, canonical UUIDs, version numbers and
+keyset cursors. History pages contain at most 100 versions, ordered by number;
+clients continue after the last returned number. Unknown plans return not-found,
+storage failures remain errors, and unsupported terms never return partial rights.
+No mutation transport is wired: current staff permission/audit exposure belongs
+to C07/C41, and store-qualified offer availability remains a later boundary.
 
 Expand-only deployment: retain the new tables/functions/triggers on binary
 rollback. There are no customers/plans to backfill and no automatic sale enable.
@@ -68,3 +74,5 @@ analysis; it cannot rewrite purchased rights or sealed artifacts.
 - [Fixture index](../../backend/internal/testutil/README.md).
 - [Schema regressions](../../backend/internal/store/postgres/service_plan_schema_test.go):
   migration replay/populated upgrade, constraints, immutable history/retirement.
+- [Catalog service and persistence](../../backend/internal/service/commerce/catalog/README.md):
+  typed terms, validation, transactional append/retirement and bounded queries.

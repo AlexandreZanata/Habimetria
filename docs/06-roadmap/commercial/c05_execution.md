@@ -30,8 +30,45 @@ Executed against disposable PostgreSQL 18.6-alpine:
 - `make secrets`, diff checks, document links/new-file references and changed
   file line limits: PASS.
 
-Commit/ref and exact-commit CI are checked after push; this file does not
-invent its own not-yet-known commit hash. C05.b is still pending.
+Commit `6e20396c0534a97765fa8681222f4661e1ff6adb` was pushed to origin/dev;
+[CI run 361](https://github.com/AlexandreZanata/Habimetria/actions/runs/43032457156)
+passed backend and mobile-linux before C05.b began.
+
+## C05.b — Service and query validation
+
+Added typed ServicePlan/version/allowance records, a real PostgreSQL store and
+the internal catalog service. Validate stable codes, canonical UUIDs, trimmed
+names, monthly individual format, hosted-only finite allowances and exact
+units/windows. Pagination uses bounded version-number keysets. SQL and service
+validation both reject paid local/required-control capabilities. Reads reject
+unknown terms/JSON fields rather than returning partially understood rights.
+
+Appends allocate monotonically under the plan row lock; retirement serializes
+with them and is idempotent/terminal. Failed writes leave no partial version
+or consumed number. Committed terms survive caller edits and retirement;
+server-only instants and integer precision are checked in real roundtrips.
+Storage outages stay errors. Concurrent appends and append/retirement races
+are exercised on disposable PostgreSQL, including unknown-future-format reads.
+
+The catalog package has a new 95% coverage floor (measured 100% in its real-DB
+suite). No catalog transport/mutation UI, StoreProduct mapping, price, provider
+activation or entitlement is introduced. Staff authorization/audit exposure
+remains C07/C41, and store mapping/readback remains C24.
+
+Executed with the same disposable PostgreSQL 18.6-alpine database:
+
+- `go test ./internal/service/commerce/catalog -count=1 -cover`: PASS,
+  100% statement coverage of the catalog service/validation package.
+- `GOTOOLCHAIN=go1.25.13 make verify test-integration cover` with
+  TEST_DATABASE_URL: PASS, including all existing floors and new catalog 95%.
+- `go test -race ./internal/service/commerce/catalog ./internal/store/postgres`
+  with the same DB/toolchain: PASS.
+- `make secrets`, diff checks, document links/new-file references and changed
+  file line limits: PASS.
+
+Final commit/ref and exact-commit CI are checked through Git/PR after push;
+its own not-yet-known commit hash is not fabricated. No native/store/customer
+gate is inferred by these internal services.
 
 ## Manual gates
 
