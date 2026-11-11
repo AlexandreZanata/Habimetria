@@ -1,5 +1,11 @@
 # MVP 0.1 — Frozen Scope (ship in days, not weeks)
 
+Historical baseline. Current local flow and commercial direction supersede
+old template/account/paywall choices. All local features are free; follow
+[service monetization](../02-product/service_monetization.md) and the
+[commercial execution plan](commercial/README.md) for new work. The original
+S1-S9 sequence below is not authorization to restore a per-seal paywall.
+
 ## MVP focus (binding decision)
 
 Speed over completeness: **photos + evidence + verifiable PDF only**.

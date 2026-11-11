@@ -43,6 +43,14 @@ User
 
 Share ≠ agreement. Log `created | accessed | downloaded`.
 
+## Commercial separation
+
+All local functionality is free under
+[service monetization](../02-product/service_monetization.md).
+Monthly hosted-service rights follow the separate
+[commercial domain](commercial_domain.md). Subscription states never extend
+`DRAFT | SEALED`; billing cannot rewrite Evidence, Manifest or Report.
+
 ## Local PDF profiles
 
 - New local Inspection rows may own a Property directly. Tenancy is

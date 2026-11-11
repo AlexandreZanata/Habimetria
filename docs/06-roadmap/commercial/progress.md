@@ -1,0 +1,98 @@
+# Commercial Program Progress
+
+Baseline: plan documented on 2026-11-11; implementation inspected at `060d968`.
+No commercial implementation or new manual approval is claimed by this file.
+Use [runbook](agent_runbook.md). Every slice needs its own commit/push/checks.
+
+## Status vocabulary
+
+`PENDING`: not delivered. `IN_PROGRESS`: active implementation.
+`CODE_VERIFIED`: required code checks passed and pushed; external evidence
+may remain pending. `QUALIFIED`: applicable integration/sandbox evidence also
+exists. `ACCEPTED`: all applicable owner/manual gates recorded.
+`BLOCKED_EXTERNAL`: name missing gate and continue independent work.
+None means the whole release/program is complete.
+
+## Slice ledger
+
+| Slice | State | Evidence |
+|---|---|---|
+| C01 | PENDING | No implementation evidence |
+| C02 | PENDING | No implementation evidence |
+| C03 | PENDING | No implementation evidence |
+| C04 | PENDING | No implementation evidence |
+| C05 | PENDING | No implementation evidence |
+| C06 | PENDING | No implementation evidence |
+| C07 | PENDING | No implementation evidence |
+| C08 | PENDING | No implementation evidence |
+| C09 | PENDING | No implementation evidence |
+| C10 | PENDING | No implementation evidence |
+| C11 | PENDING | No implementation evidence |
+| C12 | PENDING | No implementation evidence |
+| C13 | PENDING | No implementation evidence |
+| C14 | PENDING | No implementation evidence |
+| C15 | PENDING | No implementation evidence |
+| C16 | PENDING | No implementation evidence |
+| C17 | PENDING | No implementation evidence |
+| C18 | PENDING | No implementation evidence |
+| C19 | PENDING | No implementation evidence |
+| C20 | PENDING | No implementation evidence |
+| C21 | PENDING | No implementation evidence |
+| C22 | PENDING | No implementation evidence |
+| C23 | PENDING | No implementation evidence |
+| C24 | PENDING | No implementation evidence |
+| C25 | PENDING | No implementation evidence |
+| C26 | PENDING | No implementation evidence |
+| C27 | PENDING | No implementation evidence |
+| C28 | PENDING | No implementation evidence |
+| C29 | PENDING | No implementation evidence |
+| C30 | PENDING | No implementation evidence |
+| C31 | PENDING | No implementation evidence |
+| C32 | PENDING | No implementation evidence |
+| C33 | PENDING | No implementation evidence |
+| C34 | PENDING | No implementation evidence |
+| C35 | PENDING | No implementation evidence |
+| C36 | PENDING | No implementation evidence |
+| C37 | PENDING | No implementation evidence |
+| C38 | PENDING | No implementation evidence |
+| C39 | PENDING | No implementation evidence |
+| C40 | PENDING | No implementation evidence |
+| C41 | PENDING | No implementation evidence |
+| C42 | PENDING | No implementation evidence |
+| C43 | PENDING | No implementation evidence |
+| C44 | PENDING | No implementation evidence |
+| C45 | PENDING | No implementation evidence |
+| C46 | PENDING | No implementation evidence |
+| C47 | PENDING | No implementation evidence |
+| C48 | PENDING | No implementation evidence |
+| C49 | PENDING | No implementation evidence |
+| C50 | PENDING | No implementation evidence |
+| C51 | PENDING | No implementation evidence |
+| C52 | PENDING | No implementation evidence |
+| C53 | PENDING | No implementation evidence |
+| C54 | PENDING | No implementation evidence |
+| C55 | PENDING | No implementation evidence |
+| C56 | PENDING | No implementation evidence |
+| C57 | PENDING | No implementation evidence |
+| C58 | PENDING | No implementation evidence |
+| C59 | PENDING | No implementation evidence |
+| C60 | PENDING | No implementation evidence |
+| C61 | PENDING | No implementation evidence |
+| C62 | PENDING | No implementation evidence |
+| C63 | PENDING | No implementation evidence |
+| C64 | PENDING | No implementation evidence |
+
+## Required per-slice evidence
+
+Replace the row when delivered and link a concise dated record with starting
+commit, changed scope/sub-slice, pushed commit/ref, exact commands/results,
+CI run and remaining gate IDs. Keep this index under 200 lines; create a
+referenced evidence file when records grow. Never write its own not-yet-known
+commit hash as a guess; record it in the next update or use verified Git history.
+
+## Manual gate ledger
+
+G01-G12 are UNVERIFIED for this program. Existing automated checks and past
+UI observations do not approve new account/billing/cloud/store functionality.
+Only update individual gates with actual dated evidence and the appropriate
+owner/operator acceptance. See [release gates](release_gates.md).

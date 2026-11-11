@@ -7,6 +7,9 @@ Migrations: `backend/migrations/0001_init.sql` (MVP core) →
 `0005_panel.sql` (web identity, sessions, permissions and availability).
 One version per file. See [web panel](web_panel.md).
 
+Planned commercial extensions are specified separately in
+[subscription storage](subscription_storage.md). They are not yet migrations.
+
 ## Core tables
 
 - `users(id, email CITEXT UNIQUE, created_at)`

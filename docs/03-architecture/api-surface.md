@@ -5,6 +5,11 @@ same-origin sessions. Owned private API resources require the titleholder's
 session. Legacy unclaimed resources are served only when the panel is
 disabled. `/v/{code}` and explicit Share links retain public access.
 
+This documents the current baseline, including the legacy payment seam.
+The [commercial roadmap](../06-roadmap/commercial/README.md) replaces that
+seam with monthly hosted authorization. Planned new routes are in
+[subscription API](../04-backend/subscription_api.md); they do not exist yet.
+
 ## Ops (S1, implemented)
 
 - `GET /healthz` — always 200: { status, database, uptime }

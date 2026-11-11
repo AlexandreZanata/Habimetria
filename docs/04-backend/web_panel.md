@@ -6,6 +6,11 @@ and forms as server-rendered templates. The stylesheet and Manrope assets
 belong to this area. Browser state contains neither the account database nor
 the authorization policy. No demonstration records or PDFs ship in the panel.
 
+Planned commercial expansion: [administration](commercial_admin.md) and
+[execution roadmap](../06-roadmap/commercial/README.md). Their subscription,
+costing, self-service and cloud capabilities are not implemented by this panel
+baseline; do not present the plan as production availability.
+
 ## Run locally
 
 Use PostgreSQL 18.6 and the existing Go API configuration. The panel is

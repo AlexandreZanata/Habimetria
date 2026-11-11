@@ -23,3 +23,7 @@ Rules: handlers never touch `database/sql`. Stores never import `net/http`. Serv
 
 The optional [web panel](web_panel.md) follows the same handler, service and
 PostgreSQL boundaries. The Go binary embeds its templates and static assets.
+
+Planned monthly commerce follows the same boundaries; proposed package
+ownership is in [commercial domain](../03-architecture/commercial_domain.md).
+No provider calls in stores and no subscription dependency in local workflows.

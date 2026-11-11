@@ -22,6 +22,11 @@ app/
 Rules: all business rules in `commonMain`. Platform code only for camera, storage, workers. UI: Compose Multiplatform, one question per screen.
 Screens reach the API only through `ServerMirror` via `AppContainer`; never call `VaultApi` directly.
 
+Planned account, native store and hosted-service features use injected
+use cases/adapters through AppContainer; see
+[subscription experience](subscription_experience.md). All local use cases
+remain free and independent of those adapters.
+
 ## Local-first (L0 authority)
 
 - Shared repositories/use cases own validation, coverage, snapshot,
