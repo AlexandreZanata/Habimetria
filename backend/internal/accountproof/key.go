@@ -46,25 +46,33 @@ func New(master []byte) (*Key, error) {
 func (k *Key) Format(state fmt.State, _ rune) { _, _ = io.WriteString(state, "[account key redacted]") }
 func (k *Key) MarshalJSON() ([]byte, error)   { return []byte(`"[account key redacted]"`), nil }
 
-func binding(user, operation string) []byte {
-	return []byte(fmt.Sprintf("email_verification:%d:%s:%s", len(user), user, operation))
+func binding(purpose, user, operation string) []byte {
+	return []byte(fmt.Sprintf("%s:%d:%s:%s", purpose, len(user), user, operation))
 }
 
 func (k *Key) Issue(user, operation string) (digest, ciphertext []byte) {
+	return k.issue("email_verification", user, operation)
+}
+
+func (k *Key) issue(purpose, user, operation string) (digest, ciphertext []byte) {
 	var raw [32]byte
 	rand.Read(raw[:])
 	hash := sha256.Sum256(raw[:])
 	nonce := make([]byte, k.aead.NonceSize())
 	rand.Read(nonce)
 	envelope := append([]byte{1}, nonce...)
-	return hash[:], k.aead.Seal(envelope, nonce, raw[:], binding(user, operation))
+	return hash[:], k.aead.Seal(envelope, nonce, raw[:], binding(purpose, user, operation))
 }
 
 func (k *Key) Open(user, operation string, envelope []byte) (string, error) {
+	return k.open("email_verification", user, operation, envelope)
+}
+
+func (k *Key) open(purpose, user, operation string, envelope []byte) (string, error) {
 	if len(envelope) != 61 || envelope[0] != 1 {
 		return "", ErrProof
 	}
-	raw, err := k.aead.Open(nil, envelope[1:13], envelope[13:], binding(user, operation))
+	raw, err := k.aead.Open(nil, envelope[1:13], envelope[13:], binding(purpose, user, operation))
 	if err != nil || len(raw) != 32 {
 		return "", ErrProof
 	}

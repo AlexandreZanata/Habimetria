@@ -47,7 +47,14 @@ func New(t *testing.T) *Capture {
 }
 
 func (c *Capture) Find(t *testing.T, operation, domain string) Message {
+	return c.FindKind(t, operation, domain, "email-verification")
+}
+
+func (c *Capture) FindKind(t *testing.T, operation, domain, kind string) Message {
 	t.Helper()
+	if kind != "email-verification" && kind != "password-recovery" && kind != "password-changed" {
+		t.Fatal("unknown fixture mail kind")
+	}
 	read := func(path string, out any) {
 		t.Helper()
 		response, err := c.client.Get(c.HTTP + path)
@@ -61,7 +68,7 @@ func (c *Capture) Find(t *testing.T, operation, domain string) Message {
 	}
 	for range 40 {
 		var found struct{ Messages []struct{ ID string } }
-		read("/api/v1/search?query="+url.QueryEscape("message-id:"+operation+".email-verification@"+domain), &found)
+		read("/api/v1/search?query="+url.QueryEscape("message-id:"+operation+"."+kind+"@"+domain), &found)
 		if len(found.Messages) > 0 {
 			var message Message
 			read("/api/v1/message/"+url.PathEscape(found.Messages[0].ID), &message)

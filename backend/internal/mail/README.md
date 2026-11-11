@@ -9,6 +9,10 @@
   no downgrade, certificate/auth checks, cancellation and safe failures.
 - `template_test.go`: input/header bounds and fixed message identity/content.
 - `mailpit_integration_test.go`: real C08 SMTP capture and decoded message proof.
+- `account_message.go` and `account_message_test.go`: closed recovery/security
+  templates, purpose-specific Message-ID and redacted message formatting.
+  Security notices accept no token/password. `smtp.go` uses the same real secure
+  transport for all templates; verification callers retain their adapter.
 
 SMTP DATA acceptance is not inbox delivery. Public proof consumption is C10;
 durable leasing/retry belongs to account delivery. No application mail is sent

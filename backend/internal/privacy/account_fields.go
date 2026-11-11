@@ -2,6 +2,11 @@ package privacy
 
 func accountFields() []Field {
 	return []Field{
+		{"account_password_recoveries", "user_id", "identity-link", "bind a customer-owned recovery proof to its User", "operational"},
+		{"account_password_recoveries", "token_hash", "capability-digest", "validate a single-use purpose-bound password recovery", "operational"},
+		{"account_password_recoveries", "created_at", "temporal", "server creation of a customer recovery window", "operational"},
+		{"account_password_recoveries", "expires_at", "temporal", "server deadline for single-use recovery authority", "operational"},
+		{"account_mail_outbox", "recipient_digest", "pseudonymized-identifier", "prevent security notice delivery to a changed recipient address", "operational"},
 		{"account_access_sessions", "user_id", "identity-link", "resolve short-lived API authority to its current ordinary User", "operational"},
 		{"account_access_sessions", "token_hash", "capability-digest", "validate and revoke API-only access without retaining the raw secret", "operational"},
 		{"account_access_sessions", "created_at", "temporal", "server issuance of short-lived API authority", "operational"},

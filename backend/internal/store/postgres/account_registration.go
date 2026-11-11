@@ -50,7 +50,7 @@ func (s *AccountStore) Register(ctx context.Context, email string, source, addre
 		}
 		proof := issue(user)
 		if _, err := tx.Exec(ctx, `UPDATE account_mail_outbox SET state='cancelled',proof_ciphertext=NULL,
-			completed_at=now(),failure_code='replaced',lease_id=NULL,lease_until=NULL WHERE user_id=$1 AND state IN ('pending','sending')`, user); err != nil {
+			completed_at=now(),failure_code='replaced',lease_id=NULL,lease_until=NULL WHERE user_id=$1 AND template='email_verification' AND state IN ('pending','sending')`, user); err != nil {
 			return err
 		}
 		if _, err := tx.Exec(ctx, `INSERT INTO account_verifications(user_id,token_hash) VALUES($1,$2)

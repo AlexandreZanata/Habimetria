@@ -30,7 +30,11 @@ func NewSMTP(settings Settings, password []byte) (*SMTP, error) {
 }
 
 func (s *SMTP) SendVerification(ctx context.Context, to, token, operation string) error {
-	payload, err := message(s.settings, to, token, operation)
+	return s.SendAccount(ctx, AccountMessage{"email_verification", to, token, operation})
+}
+
+func (s *SMTP) SendAccount(ctx context.Context, message AccountMessage) error {
+	payload, err := accountMessage(s.settings, message)
 	if err != nil {
 		return err
 	}
@@ -78,7 +82,7 @@ func (s *SMTP) SendVerification(ctx context.Context, to, token, operation string
 	if err := client.Mail(s.settings.From); err != nil {
 		return protocolFailure(err)
 	}
-	if err := client.Rcpt(to); err != nil {
+	if err := client.Rcpt(message.Recipient); err != nil {
 		return protocolFailure(err)
 	}
 	data, err := client.Data()

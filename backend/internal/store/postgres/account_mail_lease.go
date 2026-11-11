@@ -13,9 +13,9 @@ var ErrAccountMailLease = errors.New("account mail lease unavailable")
 
 type AccountMailLease struct{ ID, Lease string }
 type AccountMailPayload struct {
-	User, Recipient    string
-	Digest, Ciphertext []byte
-	Current, Unexpired bool
+	User, Recipient, Template string
+	Digest, Ciphertext        []byte
+	Current, Unexpired        bool
 }
 
 func (p AccountMailPayload) Format(state fmt.State, _ rune) {
@@ -51,13 +51,19 @@ func (s *AccountStore) ClaimMail(ctx context.Context) (*AccountMailLease, error)
 
 func (s *AccountStore) MailPayload(ctx context.Context, lease AccountMailLease) (AccountMailPayload, error) {
 	var payload AccountMailPayload
-	err := s.pool.QueryRow(ctx, `SELECT u.id::text,u.email::text,o.token_hash,o.proof_ciphertext,
-		u.registration_started_at IS NOT NULL AND u.email_verified_at IS NULL AND NOT u.panel_active
-		AND u.panel_role='user' AND u.panel_password IS NULL AND u.panel_managed AND v.token_hash IS NOT NULL,
-		COALESCE(v.expires_at>clock_timestamp(),false)
+	err := s.pool.QueryRow(ctx, `SELECT u.id::text,u.email::text,o.template,o.token_hash,o.proof_ciphertext,
+		CASE o.template
+		WHEN 'email_verification' THEN u.registration_started_at IS NOT NULL AND u.email_verified_at IS NULL AND NOT u.panel_active
+		AND u.panel_role='user' AND u.panel_password IS NULL AND u.panel_managed AND v.token_hash IS NOT NULL
+		WHEN 'password_recovery' THEN u.panel_active AND u.panel_role='user' AND u.panel_managed
+		AND u.panel_password IS NOT NULL AND NOT u.panel_primary AND r.token_hash IS NOT NULL
+		WHEN 'password_changed' THEN o.recipient_digest=digest(lower(u.email::text),'sha256') ELSE false END,
+		CASE o.template WHEN 'password_changed' THEN true WHEN 'password_recovery' THEN COALESCE(r.expires_at>clock_timestamp(),false)
+		ELSE COALESCE(v.expires_at>clock_timestamp(),false) END
 		FROM account_mail_outbox o JOIN users u ON u.id=o.user_id LEFT JOIN account_verifications v ON v.user_id=o.user_id AND v.token_hash=o.token_hash
+		LEFT JOIN account_password_recoveries r ON r.user_id=o.user_id AND r.token_hash=o.token_hash
 		WHERE o.id=$1 AND o.lease_id=$2 AND o.state='sending' AND o.lease_until>clock_timestamp()`, lease.ID, lease.Lease).
-		Scan(&payload.User, &payload.Recipient, &payload.Digest, &payload.Ciphertext, &payload.Current, &payload.Unexpired)
+		Scan(&payload.User, &payload.Recipient, &payload.Template, &payload.Digest, &payload.Ciphertext, &payload.Current, &payload.Unexpired)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return payload, ErrAccountMailLease
 	}

@@ -72,6 +72,7 @@ func RetentionClasses() map[string]string {
 		"account_verifications": "operational", "account_mail_outbox": "operational",
 		"account_registration_limits": "operational",
 		"account_access_sessions":     "operational",
+		"account_password_recoveries": "operational",
 		"service_plans":               "system", "service_plan_versions": "system",
 	}
 }

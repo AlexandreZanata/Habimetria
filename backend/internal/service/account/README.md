@@ -21,3 +21,11 @@ tests transport separation, expiry, revocation and stale-credential denial.
 `delivery.go` claims bounded leases, rechecks current proof/identity, sends outside
 transactions and records only guarded durable results. `delivery_integration_test.go`
 `delivery_limits_test.go` and `delivery_recovery_test.go` cover actual SMTP and failure/reclaim boundaries.
+
+`request_policy.go` shares bounded email/peer validation and the neutral response
+floor. `recovery.go` owns customer initiation and confirmed password replacement;
+`delivery_message.go` dispatches only fixed purpose-bound messages. Tests:
+`recovery_fixture_test.go`, `recovery_integration_test.go`, `recovery_safety_test.go`
+and `recovery_mail_integration_test.go`. The
+[recovery contract](../../../../docs/04-backend/account_recovery.md) indexes the
+store, schema, privacy and transport boundaries.

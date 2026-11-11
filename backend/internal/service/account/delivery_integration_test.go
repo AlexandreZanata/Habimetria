@@ -18,8 +18,8 @@ import (
 
 type senderFunc func(context.Context, string, string, string) error
 
-func (f senderFunc) SendVerification(ctx context.Context, to, proof, operation string) error {
-	return f(ctx, to, proof, operation)
+func (f senderFunc) SendAccount(ctx context.Context, m mail.AccountMessage) error {
+	return f(ctx, m.Recipient, m.Token, m.Operation)
 }
 func delivery(t *testing.T, f fixture, sender account.Sender) *account.Delivery {
 	t.Helper()

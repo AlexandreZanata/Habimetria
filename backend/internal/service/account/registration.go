@@ -5,9 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/mail"
-	"net/netip"
-	"strings"
 	"time"
 
 	"vault/internal/accountproof"
@@ -37,29 +34,12 @@ func NewRegistration(store *postgres.AccountStore, key *accountproof.Key) (*Regi
 }
 
 func (s *Registration) Register(ctx context.Context, email, source string) error {
-	email = strings.ToLower(strings.TrimSpace(email))
-	a, err := mail.ParseAddress(email)
-	ip, ipErr := netip.ParseAddr(source)
-	if err != nil || a.Address != email || len(email) > 254 || ipErr != nil || strings.ContainsAny(email, "\r\n") {
-		return ErrInput
+	email, source, err := requestAddress(email, source)
+	if err != nil {
+		return err
 	}
-	for _, r := range email {
-		if r > 127 {
-			return ErrInput
-		}
-	}
-	// A common response floor covers the normal insert/existing/cooldown paths.
-	// Outages and overload can exceed it; this is not a constant-latency claim.
-	started := time.Now()
-	defer func() {
-		timer := time.NewTimer(max(0, 250*time.Millisecond-time.Since(started)))
-		defer timer.Stop()
-		select {
-		case <-timer.C:
-		case <-ctx.Done():
-		}
-	}()
-	err = s.store.Register(ctx, email, s.key.Throttle("source", ip.Unmap().String()), s.key.Throttle("address", email), func(user string) postgres.AccountChallenge {
+	defer responseFloor(ctx, time.Now())
+	err = s.store.Register(ctx, email, s.key.Throttle("source", source), s.key.Throttle("address", email), func(user string) postgres.AccountChallenge {
 		operation := uuid.NewString()
 		digest, ciphertext := s.key.Issue(user, operation)
 		return postgres.AccountChallenge{Operation: operation, Digest: digest, Ciphertext: ciphertext}

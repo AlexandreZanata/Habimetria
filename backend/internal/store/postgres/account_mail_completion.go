@@ -43,6 +43,11 @@ func (s *AccountStore) MailStatus(ctx context.Context) (AccountMailStatus, error
 }
 
 func (s *AccountStore) PruneRegistrationProofs(ctx context.Context) error {
+	if _, err := s.pool.Exec(ctx, `DELETE FROM account_password_recoveries WHERE user_id IN (SELECT r.user_id FROM account_password_recoveries r
+		WHERE r.expires_at<=now() AND NOT EXISTS(SELECT 1 FROM account_mail_outbox o WHERE o.user_id=r.user_id
+		AND o.token_hash=r.token_hash AND o.state IN ('pending','sending')) ORDER BY r.expires_at LIMIT 100)`); err != nil {
+		return fmt.Errorf("prune expired recovery proofs: %w", err)
+	}
 	_, err := s.pool.Exec(ctx, `DELETE FROM account_verifications WHERE user_id IN (SELECT v.user_id FROM account_verifications v
 		WHERE v.expires_at<=now() AND NOT EXISTS(SELECT 1 FROM account_mail_outbox o WHERE o.user_id=v.user_id
 		AND o.token_hash=v.token_hash AND o.state IN ('pending','sending')) ORDER BY v.expires_at LIMIT 100)`)

@@ -11,6 +11,8 @@ C09 pending registration/token/encrypted mail schema is implemented by
 minimal audit allowlist follow [authentication](account_authentication.md);
 The same contract specifies C10's 15-minute API access digests. Device refresh
 families, rotation history and other identity groups remain planned for C12+.
+C11 [password recovery](account_recovery.md) adds a distinct proof table and
+extends the leased outbox with recovery/security templates and recipient binding.
 
 ## Incremental groups
 

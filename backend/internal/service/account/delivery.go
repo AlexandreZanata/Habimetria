@@ -2,7 +2,6 @@ package account
 
 import (
 	"context"
-	"crypto/subtle"
 	"errors"
 
 	"vault/internal/accountproof"
@@ -11,7 +10,7 @@ import (
 )
 
 type Sender interface {
-	SendVerification(context.Context, string, string, string) error
+	SendAccount(context.Context, mail.AccountMessage) error
 }
 type Delivery struct {
 	store  *postgres.AccountStore
@@ -59,13 +58,7 @@ func (s *Delivery) Drain(ctx context.Context, limit int) (DeliveryResult, error)
 		case !payload.Unexpired:
 			code = "expired"
 		default:
-			token, err := s.key.Open(payload.User, lease.ID, payload.Ciphertext)
-			digest, digestErr := accountproof.Digest(token)
-			if err != nil || digestErr != nil || subtle.ConstantTimeCompare(digest, payload.Digest) != 1 {
-				code = "invalid_proof"
-			} else if err := s.sender.SendVerification(ctx, payload.Recipient, token, lease.ID); err != nil {
-				code, retry = mail.Failure(err)
-			}
+			code, retry = s.send(ctx, payload, lease.ID)
 		}
 		if err := ctx.Err(); err != nil {
 			return result, err

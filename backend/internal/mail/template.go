@@ -3,6 +3,7 @@ package mail
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"mime/quotedprintable"
 	stdmail "net/mail"
 	"net/url"
@@ -13,22 +14,32 @@ import (
 )
 
 func message(settings Settings, to, token, operation string) ([]byte, error) {
-	if !validAddress(to) {
+	return accountMessage(settings, AccountMessage{"email_verification", to, token, operation})
+}
+
+func accountMessage(settings Settings, m AccountMessage) ([]byte, error) {
+	if !validAddress(m.Recipient) {
 		return nil, failure("rejected", false, ErrConfiguration)
 	}
-	if _, err := accountproof.Digest(token); err != nil {
-		return nil, failure("invalid_proof", false, err)
+	if m.Template != "password_changed" {
+		if _, err := accountproof.Digest(m.Token); err != nil {
+			return nil, failure("invalid_proof", false, err)
+		}
 	}
-	id, err := uuid.Parse(operation)
-	if err != nil || id.String() != operation {
+	id, err := uuid.Parse(m.Operation)
+	if err != nil || id.String() != m.Operation {
 		return nil, failure("invalid_proof", false, ErrConfiguration)
 	}
 	u, _ := url.Parse(settings.Origin) // Validated by NewSMTP.
+	subject, identity, text, err := accountCopy(settings.Origin, m)
+	if err != nil {
+		return nil, err
+	}
 	var out bytes.Buffer
-	fmt.Fprintf(&out, "From: %s\r\nTo: %s\r\nSubject: Confirme seu e-mail na Habimetria\r\n", (&stdmail.Address{Name: "Habimetria", Address: settings.From}).String(), to)
-	fmt.Fprintf(&out, "Message-ID: <%s.email-verification@%s>\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\n", operation, u.Hostname())
+	fmt.Fprintf(&out, "From: %s\r\nTo: %s\r\nSubject: %s\r\n", (&stdmail.Address{Name: "Habimetria", Address: settings.From}).String(), m.Recipient, subject)
+	fmt.Fprintf(&out, "Message-ID: <%s.%s@%s>\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\n", m.Operation, identity, u.Hostname())
 	body := quotedprintable.NewWriter(&out)
-	_, err = fmt.Fprintf(body, "Recebemos um pedido para criar uma conta Habimetria.\r\n\r\nPara confirmar seu e-mail, abra:\r\n%s/painel/verificar#verificar=%s\r\n\r\nEste link expira em 30 minutos. A senha será definida após a confirmação.\r\nSe você não fez este pedido, ignore esta mensagem.\r\n", settings.Origin, token)
+	_, err = io.WriteString(body, text)
 	if err != nil {
 		return nil, failure("invalid_proof", false, err)
 	}
