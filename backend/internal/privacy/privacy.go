@@ -19,6 +19,8 @@ type Field struct {
 // are included with handling rules, not just direct identifiers.
 func Registry() []Field {
 	return []Field{
+		{"service_plans", "code", "catalog-identifier", "stable offer identifier; must not hold customer identity", "system"},
+		{"service_plan_versions", "name", "catalog-label", "monthly offer display name; must not hold personal names", "system"},
 		{"users", "email", "direct-identifier", "account identity for sign-in and access management", "identity"},
 		{"users", "display_name", "direct-identifier", "account profile and staff attribution", "identity"},
 		{"users", "panel_password", "credential-digest", "verify the account password with a unique salt", "identity"},
@@ -63,5 +65,6 @@ func RetentionClasses() map[string]string {
 		"panel_access_links": "operational", "panel_sessions": "operational",
 		"panel_login_limits": "operational", "panel_report_access": "operational",
 		"panel_role_permissions": "system", "panel_audit": "operational-log",
+		"service_plans": "system", "service_plan_versions": "system",
 	}
 }

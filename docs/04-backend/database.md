@@ -4,11 +4,13 @@ Migrations: `backend/migrations/0001_init.sql` (MVP core) →
 `0002_geo.sql` (device geolocation claims) →
 `0003_seal.sql` (manifest vault + nullable report artifacts) →
 `0004_comparisons.sql` (V1.3 entry-vs-exit tags) →
-`0005_panel.sql` (web identity, sessions, permissions and availability).
+`0005_panel.sql` (web identity, sessions, permissions and availability) →
+`0006_service_plans.sql` (immutable individual monthly hosted-service catalog).
 One version per file. See [web panel](web_panel.md).
 
 Planned commercial extensions are specified separately in
-[subscription storage](subscription_storage.md). They are not yet migrations.
+[subscription storage](subscription_storage.md). The implemented catalog is
+specified in [ServicePlan catalog](service_plan_catalog.md); other groups remain planned.
 
 ## Core tables
 

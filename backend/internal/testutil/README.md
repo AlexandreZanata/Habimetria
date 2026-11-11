@@ -1,0 +1,6 @@
+# Synthetic test infrastructure
+
+- [testutil.go](testutil.go): deterministic fake identifiers, instants and keys.
+- [database.go](database.go): isolated per-test PostgreSQL database with explicit
+  migration setup and cleanup. TEST_DATABASE_URL must name disposable test
+  infrastructure with database-creation permission; no production fallback.

@@ -1,6 +1,7 @@
 # Subscription Storage — Planned PostgreSQL Extensions
 
-Target only. Allocate actual migration versions from repository HEAD when
+Target except the [C05 ServicePlan catalog](service_plan_catalog.md), implemented
+by migration 0006. StoreProduct mappings remain C24. Allocate new versions from HEAD when
 executing; never assume `0006` is still free. PostgreSQL 18.6-alpine only.
 Extend [database](database.md), [domain](../03-architecture/commercial_domain.md)
 and the [lifecycle](../03-architecture/subscription_lifecycle.md).
