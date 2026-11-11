@@ -27,20 +27,30 @@ func (s *Service) Activate(ctx context.Context, access, password string) (string
 }
 
 func (s *Service) Login(ctx context.Context, email, password string) (string, error) {
-	email, err := cleanEmail(email)
-	if err != nil || !credential.Valid(password) {
-		return "", postgres.ErrNotFound
-	}
-	user, encoded, err := s.store.Credential(ctx, email)
-	if err != nil && !errors.Is(err, postgres.ErrNotFound) {
+	user, encoded, err := s.Authenticate(ctx, email, password)
+	if err != nil {
 		return "", err
-	}
-	if !credential.Match(password, encoded) || err != nil {
-		return "", postgres.ErrNotFound
 	}
 	return withAccessLink(func(session []byte) error {
 		return s.store.StartSession(ctx, user, encoded, session)
 	})
+}
+
+// Authenticate shares credential verification without issuing a browser session.
+// The caller must atomically recheck the credential and its transport's authority.
+func (s *Service) Authenticate(ctx context.Context, email, password string) (string, []byte, error) {
+	email, err := cleanEmail(email)
+	if err != nil || !credential.Valid(password) {
+		return "", nil, postgres.ErrNotFound
+	}
+	user, encoded, err := s.store.Credential(ctx, email)
+	if err != nil && !errors.Is(err, postgres.ErrNotFound) {
+		return "", nil, err
+	}
+	if !credential.Match(password, encoded) || err != nil {
+		return "", nil, postgres.ErrNotFound
+	}
+	return user, encoded, nil
 }
 
 func (s *Service) AllowAuthentication(ctx context.Context, ip, email string) error {

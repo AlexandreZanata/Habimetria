@@ -31,6 +31,31 @@ rollback must not erase already committed immutable audit facts.
 expiry, replacement, policy, rollback, purpose separation and panel login with
 the verified credential. All fixtures are synthetic and use disposable PostgreSQL.
 
+## API access authority (C10.b)
+
+`service/account/authentication.go` reuses `panel.Authenticate` and the same
+rate-limit authority. `store/postgres/account_sessions.go` issues a random
+256-bit secret only after locking and rechecking the active ordinary User and
+expected credential. Staff receive the same unavailable-login result. This
+does not introduce native administrative login before C14 MFA.
+
+Migration `0012_account_access_sessions.sql` stores SHA-256 digests with a fixed
+`account_api` audience and a server-issued lifetime of 15 minutes. Reads recheck
+expiry, current role and active status. A User trigger deletes access on any
+credential, role or active-status change; reverting a change cannot resurrect
+old access. Expired-row cleanup is bounded to 100 per issuance. Revocation is
+idempotent. Browser cookies and API access never query each other's tables.
+No raw access secret or credential copy is stored in the session table.
+`internal/privacy/account_fields.go` registers its identity/digest/time purposes
+and operational retention class; no legal retention duration is invented.
+
+`service/account/authentication_integration_test.go` tests legacy credential
+compatibility without fabricating verified status, staff/unknown denial,
+audience separation, expiry, revocation and stale-credential checks at issuance.
+HTTP entry points follow in the next C10 sub-slice. Device refresh families,
+rotation/reuse detection and protected native storage remain C12; app screens
+remain C13. These short-lived credentials do not grant a subscription.
+
 ## Security references
 
 Generic authentication failures and shared derivation follow the

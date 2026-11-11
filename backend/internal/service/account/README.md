@@ -14,6 +14,10 @@ consumption and credential enrollment. The
 [authentication contract](../../../../docs/04-backend/account_authentication.md)
 also indexes the PostgreSQL transaction, migration and shared password package.
 
+`authentication.go` reuses panel credential verification and issues a separate
+short-lived ordinary-User API audience. `authentication_integration_test.go`
+tests transport separation, expiry, revocation and stale-credential denial.
+
 `delivery.go` claims bounded leases, rechecks current proof/identity, sends outside
 transactions and records only guarded durable results. `delivery_integration_test.go`
 `delivery_limits_test.go` and `delivery_recovery_test.go` cover actual SMTP and failure/reclaim boundaries.

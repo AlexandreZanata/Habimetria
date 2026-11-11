@@ -9,7 +9,8 @@ and the [lifecycle](../03-architecture/subscription_lifecycle.md).
 C09 pending registration/token/encrypted mail schema is implemented by
 [registration](account_registration.md). Atomic ownership verification and the
 minimal audit allowlist follow [authentication](account_authentication.md);
-other identity groups remain planned.
+The same contract specifies C10's 15-minute API access digests. Device refresh
+families, rotation history and other identity groups remain planned for C12+.
 
 ## Incremental groups
 

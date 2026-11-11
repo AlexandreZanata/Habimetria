@@ -2,6 +2,10 @@ package privacy
 
 func accountFields() []Field {
 	return []Field{
+		{"account_access_sessions", "user_id", "identity-link", "resolve short-lived API authority to its current ordinary User", "operational"},
+		{"account_access_sessions", "token_hash", "capability-digest", "validate and revoke API-only access without retaining the raw secret", "operational"},
+		{"account_access_sessions", "created_at", "temporal", "server issuance of short-lived API authority", "operational"},
+		{"account_access_sessions", "expires_at", "temporal", "server deadline for API authority; no device clock claim", "operational"},
 		{"users", "registration_started_at", "temporal", "server instant of self-registration; no device claim", "identity"},
 		{"users", "email_verified_at", "temporal", "server observation of email proof; never inferred for legacy accounts", "identity"},
 		{"account_verifications", "user_id", "identity-link", "bind an expiring verification to its pending User", "operational"},

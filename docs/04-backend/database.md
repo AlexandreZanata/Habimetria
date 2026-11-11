@@ -10,7 +10,8 @@ Migrations: `backend/migrations/0001_init.sql` (MVP core) →
 `0008_panel_policy_audit.sql` (reasoned, typed administrative transitions) →
 `0009_account_registration.sql` (pending self-registration and encrypted mail enqueue) →
 `0010_account_mail_leases.sql` (bounded durable delivery and guarded completion) →
-`0011_account_verification_audit.sql` (minimal email ownership audit).
+`0011_account_verification_audit.sql` (minimal email ownership audit) →
+`0012_account_access_sessions.sql` (short-lived API audience and invalidation).
 One version per file. See [web panel](web_panel.md).
 
 Planned commercial extensions are specified separately in
