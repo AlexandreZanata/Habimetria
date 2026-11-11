@@ -6,6 +6,11 @@
   and offline contexts; optional mirror calls must produce zero HTTP requests.
 - [FreeLocalCoreTest.kt](FreeLocalCoreTest.kt): durable capture, findings,
   coverage, safety validation and terminal signed sealing in every context.
+- [FreeLocalPlanRenderer.kt](FreeLocalPlanRenderer.kt): drawing-port test double
+  that consumes every photo in the real shared plan; no native PDF drawing.
+- [FreeLocalJourneyTest.kt](FreeLocalJourneyTest.kt): assistant decisions,
+  entry/exit comparison, Report versions, declarations, ZIP import/export,
+  trust separation, unchanged signed bytes and tamper rejection in all contexts.
 
 Run `./gradlew :shared:jvmTest --tests 'vault.local.FreeLocal*'` from `app`.
 These are code regressions; account/store lifecycle and native device gates

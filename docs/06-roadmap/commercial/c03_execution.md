@@ -31,9 +31,44 @@ Executed checks:
 - `make secrets`, `git diff --check`, local documentation links/new-file
   references and changed-file line limits: PASS.
 
-This sub-slice does not complete C03.b or claim real purchase-expiration
-tests. Commit/ref/CI are checked after push; its own commit hash is recorded
-in the next sub-slice instead of guessing a self-referential identity.
+Commit `5a22116913195a9e8a43d7c4b849d39cbbac2239` was pushed to origin/dev.
+[CI run 353](https://github.com/AlexandreZanata/Habimetria/actions/runs/43024308547)
+passed backend and mobile-linux. This sub-slice alone does not complete
+C03.b or claim real purchase-expiration tests.
+
+## C03.b — Artifacts and complete local regression
+
+Extended all three contexts through real shared layout/photo-source processing,
+Report publication/receipts, versions, ZIP export/import and verification.
+The drawing port uses an explicit test double: artifact bytes are synthetic,
+so passing tests do not qualify native PDF rendering, visual layout or sharing.
+The assistant cannot create Findings until explicitly confirmed; ignored
+suggestions and entry/exit comparison tags survive restart. All four explicit
+declaration intents are exported without modifying the original Report,
+receipt, Manifest or original-photo hashes. Historical ZIPs remain valid.
+
+Fresh-recipient verification keeps an included signer UNKNOWN until independently
+pinned. Equal-length tampering is rejected without conflating source integrity
+with unchanged PDF/signature checks. A JVM regression deletes the entire issuer
+database/private-file directory before import and runs the independent Go
+verifier: original artifacts must pass and a modified PDF must fail. The shared
+Go invocation also retains the existing certificate declaration regression.
+
+Executed checks:
+
+- `./gradlew :shared:jvmTest --tests 'vault.local.FreeLocal*' --tests
+  'vault.local.DeclarationInteroperabilityTest'` from app: PASS. Both independent
+  verifier scenarios preserve strict stdout JSON parsing and tamper rejection.
+- `make verify-mobile`: PASS, 216 shared JVM tests with no failures/skips,
+  shared iOS Simulator Kotlin compilation and Android debug assembly.
+- `make verify`: PASS; no new PostgreSQL integration claim without a DB.
+- `make secrets`, `git diff --check`, local document links/new-file references
+  and changed-file limits: PASS.
+
+Commit/ref and exact-commit CI are checked through Git/PR after push; this
+file does not invent its own not-yet-known hash. No native store expiration,
+account lifecycle or device gate is inferred. Real account/billing event
+matrices still require their later implementations and C50 acceptance work.
 
 ## Manual gates
 
