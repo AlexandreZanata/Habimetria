@@ -28,5 +28,7 @@ Planned commercial extensions are specified separately in
 
 - `SEALED` requires `sealed_at NOT NULL`, `manifest_sha256 NOT NULL`.
 - No update/delete on `evidences` when parent inspection `SEALED`.
+- NULL legacy Property ownership is not public access. Production uses the
+  owner-only guard; reviewed assignment follows the [operator runbook](legacy_ownership_runbook.md).
 - `sequence` unique per inspection. Manifest ordered by it.
 - `verify_code`: `nanoid(10)`, unique index.

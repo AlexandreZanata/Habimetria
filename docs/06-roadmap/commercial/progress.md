@@ -1,7 +1,7 @@
 # Commercial Program Progress
 
 Baseline: plan documented on 2026-11-11; implementation inspected at `060d968`.
-Implementation has advanced to C04.a. No new manual approval is claimed.
+Implementation has advanced to C04. No new manual approval is claimed.
 Use [runbook](agent_runbook.md). Every slice needs its own commit/push/checks.
 
 ## Status vocabulary
@@ -20,7 +20,7 @@ None means the whole release/program is complete.
 | C01 | CODE_VERIFIED | [C01 execution](c01_execution.md): seal decoupled, legacy providers/config retired, real-DB and local seal checks passed |
 | C02 | CODE_VERIFIED | [C02 execution](c02_execution.md): classified API/panel registration, missing-guard denial and two-User isolation checks |
 | C03 | CODE_VERIFIED | [C03 execution](c03_execution.md): three-context free local journey, immutable artifacts and independent package verification |
-| C04 | IN_PROGRESS | [C04 execution](c04_execution.md): strict private API policy; legacy/public/job compatibility verification pending |
+| C04 | CODE_VERIFIED | [C04 execution](c04_execution.md): owner-only default, scoped comparisons, revocation/legacy compatibility and reviewed assignment runbook |
 | C05 | PENDING | No implementation evidence |
 | C06 | PENDING | No implementation evidence |
 | C07 | PENDING | No implementation evidence |

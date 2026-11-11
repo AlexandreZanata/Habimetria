@@ -11,6 +11,10 @@ Planned commercial expansion: [administration](commercial_admin.md) and
 costing, self-service and cloud capabilities are not implemented by this panel
 baseline; do not present the plan as production availability.
 
+[Legacy ownership runbook](legacy_ownership_runbook.md) defines safe runtime
+modes, rollback and individually reviewed assignment of existing NULL-owner
+Properties without changing their sealed artifacts.
+
 ## Run locally
 
 Use PostgreSQL 18.6 and the existing Go API configuration. The panel is
@@ -123,6 +127,11 @@ the public origin when hosting the panel.
   `config/legacy_api_test.go` pins secure defaults and development restrictions.
 - `comparison_ownership_integration_test.go` rejects cross-owner/wrong-side
   Evidence references and blocks reads of legacy invalid comparison rows.
+- `legacy_compatibility_fixture_test.go` and `legacy_compatibility_integration_test.go`
+  exercise real development API uploads/seal/PDF/Share and secure mode transitions.
+- `legacy_revocation_integration_test.go` checks current session/role/capability
+  authority; `legacy_assignment_integration_test.go` rehearses reviewed ownership
+  assignment, immutable artifacts, audit and no automatic bootstrap claims.
 
 Run `make verify` and `make secrets`. Run `make test-integration` with
 `TEST_DATABASE_URL` pointing at a disposable PostgreSQL 18.6 instance.
