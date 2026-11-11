@@ -139,8 +139,10 @@ rejects unknown classification/missing authorization at registration/runtime.
 Ownership and current panel RBAC remain service-backed, with two-User proof.
 This does not introduce account sessions into mobile clients or paid rights.
 
-The legacy guard still allows unclaimed resources when the panel is disabled;
-it denies them with the panel enabled and always protects claimed resources.
-Production/unclaimed migration is C04. Required monthly entitlement/quota
+The C04 guard defaults to owned resources independently of panel exposure.
+Unclaimed API work requires explicit validated `unclaimed-development` mode
+with local HTTP origins and no panel; production rejects that exception.
+Existing owned resources always require their owner's current session.
+Required monthly entitlement/quota
 enforcement is C18/C21 and related cloud steps. Documented funding class is
 not a claim those services are already monetized or production-qualified.

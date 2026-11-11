@@ -8,13 +8,21 @@ import (
 	"vault/internal/store/postgres"
 )
 
-// ProtectLegacy requires the Property owner's session for claimed data.
-// Unclaimed demo resources are available only with the panel disabled.
-func ProtectLegacy(s *panel.Service, origin string) func(string, http.HandlerFunc) http.HandlerFunc {
+// LegacyPolicy defaults to owner-only access independently of panel exposure.
+// The development exception must come from validated application configuration.
+type LegacyPolicy struct{ AllowUnclaimedDevelopment bool }
+
+func ProtectLegacy(s *panel.Service, origin string, policy LegacyPolicy) func(string, http.HandlerFunc) http.HandlerFunc {
 	return func(scope string, next http.HandlerFunc) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Cache-Control", "no-store")
+			if s == nil {
+				http.Error(w, "authorization unavailable", http.StatusServiceUnavailable)
+				return
+			}
+			allowUnclaimed := policy.AllowUnclaimedDevelopment && origin == ""
 			if r.PathValue("id") == "" {
-				if origin != "" {
+				if scope != "properties" || !allowUnclaimed {
 					http.Error(w, "create the property through the authenticated panel", http.StatusForbidden)
 					return
 				}
@@ -34,15 +42,18 @@ func ProtectLegacy(s *panel.Service, origin string) func(string, http.HandlerFun
 				http.Error(w, "resource unavailable", http.StatusInternalServerError)
 				return
 			}
-			if owner == nil && origin != "" {
+			if owner == nil && !allowUnclaimed {
 				http.NotFound(w, r)
 				return
 			}
 			if owner != nil {
-				w.Header().Set("Cache-Control", "no-store")
 				actor, err := s.Session(r.Context(), sessionValue(r, cookieName(origin)))
-				if err != nil || actor.ID != *owner {
+				if errors.Is(err, postgres.ErrNotFound) || (err == nil && actor.ID != *owner) {
 					http.NotFound(w, r)
+					return
+				}
+				if err != nil {
+					http.Error(w, "authorization unavailable", http.StatusInternalServerError)
 					return
 				}
 				if r.Method != "GET" && r.Method != "HEAD" && (origin == "" || r.Header.Get("Origin") != origin) {

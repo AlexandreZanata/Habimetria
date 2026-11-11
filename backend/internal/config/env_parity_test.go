@@ -13,7 +13,7 @@ import (
 // this test pins the host-run contract only.
 func TestEnvExampleMatchesFromEnv(t *testing.T) {
 	keys := []string{
-		"APP_ENV", "PORT", "DATABASE_URL", "VERIFY_BASE_URL", "PANEL_ORIGIN",
+		"APP_ENV", "PORT", "DATABASE_URL", "VERIFY_BASE_URL", "PANEL_ORIGIN", "LEGACY_API_MODE",
 		"STORAGE_BACKEND", "S3_ENDPOINT", "S3_REGION", "S3_BUCKET",
 		"S3_ACCESS_KEY", "S3_SECRET_KEY", "S3_PATH_STYLE", "LOCAL_STORAGE_DIR",
 		"HMAC_KEY",
@@ -55,8 +55,9 @@ func TestEnvExampleMatchesFromEnv(t *testing.T) {
 	want := map[string]string{
 		"APP_ENV": got.Environment, "PORT": got.Port, "DATABASE_URL": got.DatabaseURL,
 		"VERIFY_BASE_URL": got.VerifyBaseURL, "STORAGE_BACKEND": got.StorageBackend,
-		"PANEL_ORIGIN": got.PanelOrigin,
-		"S3_ENDPOINT":  got.S3Endpoint, "S3_REGION": got.S3Region,
+		"PANEL_ORIGIN":    got.PanelOrigin,
+		"LEGACY_API_MODE": got.LegacyAPIMode,
+		"S3_ENDPOINT":     got.S3Endpoint, "S3_REGION": got.S3Region,
 		"S3_BUCKET": got.S3Bucket, "S3_ACCESS_KEY": got.S3AccessKey,
 		"S3_SECRET_KEY":     got.S3SecretKey,
 		"S3_PATH_STYLE":     map[bool]string{true: "true", false: "false"}[got.S3PathStyle],

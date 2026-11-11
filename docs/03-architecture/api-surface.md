@@ -65,6 +65,12 @@ Preset enum: `stain | scratch | crack | broken | moisture | hole | other`.
 ## Comparisons (V1.3, S9)
 
 - `POST /tenancies/{id}/comparisons` — { entry_room_id, exit_room_id, shot_category, entry_evidence_id?, exit_evidence_id?, tag } → 200 upsert; retags overwrite, history stays on device.
-- `GET /tenancies/{id}/comparisons` — tags, oldest first; 404 unknown tenancy.
+- `GET /tenancies/{id}/comparisons` — tags, oldest first; 404 unknown tenancy or legacy out-of-scope references.
+
+Comparison Evidence references must belong to the selected entry/exit Room
+and Inspection. Unknown, foreign or wrong-side Evidence returns 404 without
+changing the existing tag. Reads reject legacy invalid references. Private API
+ownership remains required with the panel disabled; isolated local legacy
+development requires the explicit mode in [web panel](../04-backend/web_panel.md).
 - Closed vocabularies: tag `no_change|changed|wear`, category `overview|walls|openings|floor|ceiling`.
 - Rooms must sit on the tenancy's entry/exit inspections (400); tags describe visual state only, never liability.

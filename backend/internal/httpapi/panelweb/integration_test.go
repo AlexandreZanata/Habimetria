@@ -71,7 +71,7 @@ func integration(t *testing.T) *harness {
 	require(t, err)
 	evidence := service.NewEvidence(pool, store)
 	router := httpapi.NewRouter(httpapi.Deps{
-		Panel: web.Routes(), Guard: panelweb.ProtectLegacy(p, testOrigin),
+		Panel: web.Routes(), Guard: panelweb.ProtectLegacy(p, testOrigin, panelweb.LegacyPolicy{}),
 		Room: service.NewRoom(pool), Evidence: evidence,
 		Property: service.NewProperty(pool), Tenancy: service.NewTenancy(pool), Inspection: service.NewInspection(pool),
 		Finding: service.NewFinding(pool), Coverage: service.NewCoverage(pool),

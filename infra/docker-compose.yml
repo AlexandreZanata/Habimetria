@@ -48,6 +48,7 @@ services:
       DATABASE_URL: ${DATABASE_URL:-postgres://vault:vault@postgres:5432/vault?sslmode=disable}
       VERIFY_BASE_URL: ${VERIFY_BASE_URL:-http://localhost:8080}
       PANEL_ORIGIN: ${PANEL_ORIGIN:-}
+      LEGACY_API_MODE: ${LEGACY_API_MODE:-owned}
       STORAGE_BACKEND: s3
       S3_ENDPOINT: ${S3_ENDPOINT:-http://minio:9000}
       S3_REGION: us-east-1

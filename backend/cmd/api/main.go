@@ -80,7 +80,9 @@ func main() {
 		Compare:    service.NewCompare(pool),
 		HMACKey:    cfg.HMACKey,
 		Panel:      webHandler,
-		Guard:      panelweb.ProtectLegacy(webService, cfg.PanelOrigin),
+		Guard: panelweb.ProtectLegacy(webService, cfg.PanelOrigin, panelweb.LegacyPolicy{
+			AllowUnclaimedDevelopment: cfg.LegacyAPIMode == config.LegacyUnclaimedDevelopment,
+		}),
 	})
 
 	srv := &http.Server{Addr: ":" + cfg.Port, Handler: httpapi.SecurityHeaders(mux)}

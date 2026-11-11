@@ -65,11 +65,12 @@ the public origin when hosting the panel.
 - The user area lists Properties, Inspections and Reports owned through
   `properties.owner_user_id`. An owned Property can start an entry Inspection
   in DRAFT through an atomic Tenancy and Inspection creation.
-- With the panel enabled, private legacy API resource routes require a
-  session for the owning account. Unclaimed legacy rows are excluded and
-  the panel is the entry point for creating an owned Property. With the
-  panel disabled, existing unclaimed mobile API flows remain available.
-  Ownership checks still prevent anonymous access to claimed resources.
+- Private legacy API routes require the Property owner's current session,
+  including when the panel is disabled. Unclaimed rows are excluded by default;
+  the panel creates owned Properties. `LEGACY_API_MODE=unclaimed-development`
+  explicitly restores unclaimed API work only for isolated development with
+  a local HTTP verification origin and no panel. Production rejects this mode.
+  The exception never grants anonymous access to owned resources.
 - The mobile-only collection stays on its device. The panel does not claim
   unowned records or automatically synchronize local inspections or PDFs.
   Capture, seal, PDF rendering and upload continue through their existing
@@ -116,6 +117,12 @@ the public origin when hosting the panel.
   classified panel routes; `boundary_fixture_test.go` and
   `boundary_integration_test.go` prove all API owner scopes, private panel
   reads and non-paid-gated account/recipient controls against real PostgreSQL.
+- `legacy_ownership_integration_test.go` checks every owner route/HEAD with
+  panel enabled/disabled, unclaimed records, forged worker/owner claims and
+  authorization failure. `legacy_test.go` covers absent authorization;
+  `config/legacy_api_test.go` pins secure defaults and development restrictions.
+- `comparison_ownership_integration_test.go` rejects cross-owner/wrong-side
+  Evidence references and blocks reads of legacy invalid comparison rows.
 
 Run `make verify` and `make secrets`. Run `make test-integration` with
 `TEST_DATABASE_URL` pointing at a disposable PostgreSQL 18.6 instance.
