@@ -1,0 +1,79 @@
+services:
+  postgres:
+    image: postgres:18.6-alpine
+    environment:
+      POSTGRES_USER: fixture
+      POSTGRES_PASSWORD: ${FIXTURE_DB_PASSWORD:?required}
+      POSTGRES_DB: fixture
+    volumes: ["database:/var/lib/postgresql"]
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "fixture", "-d", "fixture"]
+      interval: 1s
+      timeout: 3s
+      retries: 60
+    cap_drop: ["ALL"]
+    cap_add: ["CHOWN", "DAC_OVERRIDE", "FOWNER", "SETGID", "SETUID"]
+    security_opt: ["no-new-privileges:true"]
+  objects:
+    image: dxflrs/garage:v2.5.0@sha256:677e5b758e4425a325b811c425c026bf35a4bf42f7ddbaa773de3f4fd779a5a5
+    command: ["/garage", "server", "--single-node", "--default-bucket"]
+    environment:
+      GARAGE_DEFAULT_ACCESS_KEY: ${FIXTURE_S3_ACCESS_KEY:?required}
+      GARAGE_DEFAULT_SECRET_KEY: ${FIXTURE_S3_SECRET_KEY:?required}
+      GARAGE_DEFAULT_BUCKET: ${FIXTURE_S3_BUCKET:?required}
+    volumes:
+      - type: bind
+        source: ${FIXTURE_GARAGE_CONFIG:?required}
+        target: /etc/garage.toml
+        read_only: true
+        bind:
+          create_host_path: false
+      - objects:/data
+    read_only: true
+    cap_drop: ["ALL"]
+    cap_add: ["DAC_READ_SEARCH"]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      test: ["CMD", "/garage", "status"]
+      interval: 1s
+      timeout: 3s
+      retries: 60
+  mail:
+    image: axllent/mailpit:v1.27.4@sha256:df6c2541907e1be6fac21f509927cf6ed771617a1f4b361ef66d97bd05593d2d
+    environment:
+      MP_SMTP_ALLOWED_RECIPIENTS: '@example\.test\z'
+      MP_SMTP_DISABLE_RDNS: "true"
+      MP_DISABLE_VERSION_CHECK: "true"
+      MP_MAX_MESSAGES: "100"
+    tmpfs: ["/tmp"]
+    read_only: true
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+  gateway:
+    image: haproxy:3.2-alpine@sha256:1c3568e520453cc8ba98c39501febcf450429c80e6cc27ecad779961d76e597c
+    ports: ["127.0.0.1::5432", "127.0.0.1::3900", "127.0.0.1::1025", "127.0.0.1::8025"]
+    networks: ["default", "ingress"]
+    volumes:
+      - type: bind
+        source: ${FIXTURE_PROXY_CONFIG:?required}
+        target: /usr/local/etc/haproxy/haproxy.cfg
+        read_only: true
+        bind:
+          create_host_path: false
+    depends_on:
+      postgres:
+        condition: service_healthy
+      objects:
+        condition: service_healthy
+      mail:
+        condition: service_healthy
+    read_only: true
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+networks:
+  default:
+    internal: true
+  ingress:
+volumes:
+  database:
+  objects:

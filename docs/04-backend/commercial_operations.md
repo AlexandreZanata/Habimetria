@@ -79,6 +79,9 @@ token, wrong-owner grant, mass upload loss, store downtime, runaway cost and
 PII exposure. Preserve evidence with limited access; legal/privacy operator
 determines applicable ANPD/subject notices and timelines.
 
+[C08 disposable fixtures](integration_fixtures.md) provide the implemented local
+PostgreSQL/S3-compatible/mail-sandbox check command and isolation contract.
+
 ## Production proof
 
 Run migration replay and failure injection on disposable real PostgreSQL,
