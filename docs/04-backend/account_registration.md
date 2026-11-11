@@ -11,8 +11,8 @@ and a parsed source IP, normalizes case/whitespace and returns no account ID,
 proof or existence result. No password is accepted before email ownership is
 proved: C10 asks the verifier to choose the password using the existing policy.
 This avoids activating a password chosen by someone else for that address.
-Public API/web/native signup and token consumption are C10/C13 integrations;
-there is no public signup exposure or unusable signup control in C09.
+Public JSON/web signup and token consumption now follow
+[C10 authentication](account_authentication.md). Native app screens remain C13.
 
 Only a new ordinary User becomes self-registration-pending: inactive, managed,
 no password/session, with server registration instant and no verified instant.
@@ -27,8 +27,9 @@ Resend replaces the prior verification digest and cancels its queued mail.
 Tokens have 256 random bits, one purpose (`email_verification`), a server
 30-minute expiry, and only SHA-256 digests in the verification table. Invalid
 syntax is an input error; database/queue failures propagate as unavailable,
-never a false claim of durable acceptance. HTTP neutral response/timing and
-trusted source-address transport checks belong to C10.
+never a false claim of durable acceptance. C10 applies a common 250ms response
+floor to valid initiation paths, shared neutral bodies and connection-peer-only
+source checks. Overload/outages can exceed the floor; no perfect timing claim.
 
 ## Durable secret handling
 
@@ -44,7 +45,7 @@ proof invalidation remains authoritative even if an older email is in flight.
 ## SMTP transport
 
 The transport uses a single bounded Portuguese text template and configured
-origin, never a request Host header. Proofs travel in `/painel/#verificar=` URL
+origin, never a request Host header. Proofs travel in `/painel/verificar#verificar=` URL
 fragments; C10 consumes them with a POST. Message-ID is stable per operation.
 Only explicit STARTTLS or implicit TLS with hostname/chain verification is
 accepted for external SMTP. Local development may use unauthenticated plain
@@ -122,9 +123,10 @@ all messages reached an inbox. No resend impersonates an existing customer.
 - `backend/migrations/0010_account_mail_leases.sql` adds guarded delivery leases.
 - [Delivery runtime](../../backend/internal/accountdelivery/README.md) and
   [worker command](../../backend/cmd/account-mail/README.md) configure the actual
-  private-file/SMTP adapter without enabling public registration.
+  private-file/SMTP adapter independently of public registration.
 
 `infra/verify_account_mail_config.py` verifies explicit worker exposure, complete
 env forwarding and its read-only non-creating private mount. The API receives
-no worker secret mount. The image includes the worker and CA certificates.
+no worker secret mount; the separate C10 API overlay mounts only the proof key.
+The image includes the worker and CA certificates.
 The deployment overlay never sends mail unless explicitly configured/enabled.

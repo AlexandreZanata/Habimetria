@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"vault/internal/service/account"
 	"vault/internal/service/panel"
 	"vault/internal/storage"
 	"vault/internal/store/postgres"
@@ -28,6 +29,8 @@ type Web struct {
 	origin, cookie string
 	secure         bool
 	views          *template.Template
+	registration   *account.Registration
+	verification   *account.Verification
 }
 
 func New(service *panel.Service, storage storage.Reader, origin string) (*Web, error) {
@@ -94,6 +97,7 @@ func readForm(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (p *Web) render(w http.ResponseWriter, status int, name string, data page) {
+	data.SignupEnabled = p.registration != nil
 	var body bytes.Buffer
 	if err := p.views.ExecuteTemplate(&body, name, data); err != nil {
 		log.Printf("render panel %s: %v", name, err)

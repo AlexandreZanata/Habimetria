@@ -14,6 +14,7 @@ import (
 
 type page struct {
 	Activation                                   bool
+	SignupEnabled, Completed                     bool
 	AccessCode                                   string
 	Actor                                        postgres.PanelActor
 	Section, Title, Subtitle, Error, Link, Query string
@@ -180,6 +181,8 @@ func eventLabel(event string) string {
 	switch event {
 	case "signed_in":
 		return "Acesso autenticado"
+	case "email_verified":
+		return "E-mail confirmado"
 	case "account_created":
 		return "Conta cadastrada"
 	case "account_updated":

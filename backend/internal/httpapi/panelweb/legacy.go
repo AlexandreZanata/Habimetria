@@ -4,13 +4,18 @@ import (
 	"errors"
 	"net/http"
 
+	"vault/internal/httpapi/accountauth"
+	"vault/internal/service/account"
 	"vault/internal/service/panel"
 	"vault/internal/store/postgres"
 )
 
 // LegacyPolicy defaults to owner-only access independently of panel exposure.
 // The development exception must come from validated application configuration.
-type LegacyPolicy struct{ AllowUnclaimedDevelopment bool }
+type LegacyPolicy struct {
+	AllowUnclaimedDevelopment bool
+	API                       *account.Authentication
+}
 
 func ProtectLegacy(s *panel.Service, origin string, policy LegacyPolicy) func(string, http.HandlerFunc) http.HandlerFunc {
 	return func(scope string, next http.HandlerFunc) http.HandlerFunc {
@@ -47,7 +52,19 @@ func ProtectLegacy(s *panel.Service, origin string, policy LegacyPolicy) func(st
 				return
 			}
 			if owner != nil {
-				actor, err := s.Session(r.Context(), sessionValue(r, cookieName(origin)))
+				var actor postgres.PanelActor
+				var err error
+				native := len(r.Header.Values("Authorization")) != 0
+				if native {
+					token, ok := accountauth.Bearer(r)
+					if !ok || policy.API == nil {
+						http.NotFound(w, r)
+						return
+					}
+					actor, err = policy.API.Session(r.Context(), token)
+				} else {
+					actor, err = s.Session(r.Context(), sessionValue(r, cookieName(origin)))
+				}
 				if errors.Is(err, postgres.ErrNotFound) || (err == nil && actor.ID != *owner) {
 					http.NotFound(w, r)
 					return
@@ -56,7 +73,7 @@ func ProtectLegacy(s *panel.Service, origin string, policy LegacyPolicy) func(st
 					http.Error(w, "authorization unavailable", http.StatusInternalServerError)
 					return
 				}
-				if r.Method != "GET" && r.Method != "HEAD" && (origin == "" || r.Header.Get("Origin") != origin) {
+				if !native && r.Method != "GET" && r.Method != "HEAD" && (origin == "" || r.Header.Get("Origin") != origin) {
 					http.Error(w, "invalid origin", http.StatusForbidden)
 					return
 				}

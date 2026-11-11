@@ -26,7 +26,7 @@ func TestBoundedVerificationTemplate(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if !strings.Contains(string(body), settings.Origin+"/painel/#verificar="+token) || parsed.Header.Get("Message-ID") != "<"+operation+".email-verification@localhost>" || len(data) > 2048 {
+		if !strings.Contains(string(body), settings.Origin+"/painel/verificar#verificar="+token) || parsed.Header.Get("Message-ID") != "<"+operation+".email-verification@localhost>" || len(data) > 2048 {
 			t.Fatal("template identity/origin/bounds differ")
 		}
 	}

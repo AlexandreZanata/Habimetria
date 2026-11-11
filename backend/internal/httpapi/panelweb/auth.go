@@ -2,9 +2,9 @@ package panelweb
 
 import (
 	"errors"
-	"net"
 	"net/http"
 
+	"vault/internal/httpapi/accountauth"
 	"vault/internal/service/panel"
 	"vault/internal/store/postgres"
 )
@@ -61,11 +61,7 @@ func (p *Web) activate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Web) limitAuth(w http.ResponseWriter, r *http.Request, email string) bool {
-	host, _, err := net.SplitHostPort(r.RemoteAddr)
-	if err != nil {
-		host = r.RemoteAddr
-	}
-	err = p.service.AllowAuthentication(r.Context(), host, email)
+	err := p.service.AllowAuthentication(r.Context(), accountauth.Source(r), email)
 	if errors.Is(err, postgres.ErrPanelRate) {
 		w.Header().Set("Retry-After", "900")
 		p.render(w, http.StatusTooManyRequests, "login", page{Error: "Muitas tentativas. Aguarde 15 minutos e tente novamente."})

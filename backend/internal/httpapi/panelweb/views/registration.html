@@ -1,0 +1,46 @@
+{{define "register"}}
+{{template "head" .}}
+<body class="access-page"><main class="access-card panel">
+  {{template "brand"}}
+  <p class="eyebrow">Sua conta Habimetria</p>
+  <h1>{{if .Completed}}Confira seu e-mail{{else}}Crie sua conta{{end}}</h1>
+  {{if .Completed}}
+    <p role="status">Se o endereço puder ser usado, você receberá um link para confirmar seu e-mail e escolher sua senha.</p>
+    <p>Confira também a pasta de spam. O link vale por 30 minutos.</p>
+    <a class="btn primary" href="/painel/entrar">Ir para o login</a>
+    <a href="/painel/cadastro">Solicitar outro link</a>
+  {{else}}
+    <p>Acesse a área web com sua conta. O app continua funcionando no dispositivo sem cadastro.</p>
+    {{if .Error}}<p class="notice error" role="alert">{{.Error}}</p>{{end}}
+    <form class="form-grid" method="post" action="/painel/cadastro">
+      <label>E-mail<input name="email" type="email" maxlength="254" autocomplete="email" value="{{.Values.Get "email"}}" required></label>
+      <button class="btn primary">Receber link de confirmação</button>
+    </form>
+    <a href="/painel/entrar">Já tenho uma conta</a>
+  {{end}}
+</main>{{template "credit"}}</body></html>
+{{end}}
+{{define "verify"}}
+{{template "head" .}}
+<body class="access-page"><main class="access-card panel">
+  {{template "brand"}}
+  <p class="eyebrow">Confirmação de e-mail</p>
+  <h1>{{if .Completed}}Sua conta está pronta{{else}}Escolha sua senha{{end}}</h1>
+  {{if .Completed}}
+    <p role="status">Seu e-mail foi confirmado. Entre com seu e-mail e a senha que você acabou de criar.</p>
+    <a class="btn primary" href="/painel/entrar">Entrar na minha conta</a>
+  {{else}}
+    <p>Use o link recebido por e-mail para concluir o cadastro com segurança.</p>
+    {{if .Error}}<p class="notice error" role="alert">{{.Error}}</p>{{end}}
+    <form class="form-grid" method="post" action="/painel/verificar">
+      <label>Código de confirmação<input id="verification-code" name="codigo" type="password" maxlength="64" autocomplete="off" value="{{.AccessCode}}" required aria-describedby="code-hint"></label>
+      <small id="code-hint">O link do e-mail preenche este campo automaticamente.</small>
+      <label>Crie uma senha<input name="senha" type="password" minlength="15" maxlength="1024" autocomplete="new-password" required aria-describedby="password-hint"></label>
+      <small id="password-hint">Use pelo menos 15 caracteres. Você pode usar uma frase.</small>
+      <button class="btn primary">Confirmar e-mail e criar senha</button>
+    </form>
+    <noscript><p>Ative o JavaScript para preencher o código pelo link ou cole o código recebido.</p></noscript>
+    {{if .SignupEnabled}}<a href="/painel/cadastro">Solicitar novo link</a>{{end}}
+  {{end}}
+</main>{{template "credit"}}</body></html>
+{{end}}

@@ -3,7 +3,6 @@ package accountdelivery
 import (
 	"errors"
 
-	"vault/internal/accountproof"
 	"vault/internal/config"
 	"vault/internal/mail"
 	"vault/internal/service/account"
@@ -20,23 +19,9 @@ type Runtime struct {
 }
 
 func Open(settings config.AccountMailConfig, environment string, pool *pgxpool.Pool) (*Runtime, error) {
-	if err := settings.Validate(environment); err != nil {
-		return nil, Unavailable("configuration", err)
-	}
-	if settings.Enabled != "true" {
-		return nil, ErrDisabled
-	}
-	if pool == nil {
-		return nil, Unavailable("database", account.ErrInput)
-	}
-	master, err := readSecret(settings.ProofKeyFile, 32)
+	key, err := proofKey(settings, environment, pool)
 	if err != nil {
-		return nil, Unavailable("proof key", err)
-	}
-	key, err := accountproof.New(master)
-	clear(master)
-	if err != nil {
-		return nil, Unavailable("proof key", err)
+		return nil, err
 	}
 	var password []byte
 	if settings.PasswordFile != "" {

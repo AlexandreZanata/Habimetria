@@ -13,7 +13,22 @@ Concrete panel sections retain current session/RBAC/Report-grant checks.
 This documents the current baseline. C01.a removed the seal/payment dependency;
 the [commercial roadmap](../06-roadmap/commercial/README.md) adds separate
 monthly hosted authorization. Planned new routes are in
-[subscription API](../04-backend/subscription_api.md); they do not exist yet.
+[subscription API](../04-backend/subscription_api.md).
+
+## Connected account (C10)
+
+- `POST /account/registrations` — `{email}`, neutral 202 after durable initiation;
+  503 when mail/proof configuration is unavailable. No password at signup.
+- `POST /account/verification` — `{token,password}`, 200 after atomic consumption;
+  same 401 for unavailable/expired/replayed proof; no automatic session.
+- `POST /account/sessions` — `{email,password}`, 200 with a 15-minute API bearer;
+  same 401 for invalid, absent, inactive or staff identity.
+- `GET /account/profile` — current ordinary User's `id,email,name` only.
+- `DELETE /account/sessions/current` — revoke current bearer, 204.
+
+Account endpoints are no-store and independent of payment. JSON/native and
+browser-cookie transports stay separate. See the complete
+[authentication contract](../04-backend/account_authentication.md).
 
 ## Ops (S1, implemented)
 

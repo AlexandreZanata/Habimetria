@@ -28,7 +28,7 @@ func message(settings Settings, to, token, operation string) ([]byte, error) {
 	fmt.Fprintf(&out, "From: %s\r\nTo: %s\r\nSubject: Confirme seu e-mail na Habimetria\r\n", (&stdmail.Address{Name: "Habimetria", Address: settings.From}).String(), to)
 	fmt.Fprintf(&out, "Message-ID: <%s.email-verification@%s>\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\n", operation, u.Hostname())
 	body := quotedprintable.NewWriter(&out)
-	_, err = fmt.Fprintf(body, "Recebemos um pedido para criar uma conta Habimetria.\r\n\r\nPara confirmar seu e-mail, abra:\r\n%s/painel/#verificar=%s\r\n\r\nEste link expira em 30 minutos. A senha será definida após a confirmação.\r\nSe você não fez este pedido, ignore esta mensagem.\r\n", settings.Origin, token)
+	_, err = fmt.Fprintf(body, "Recebemos um pedido para criar uma conta Habimetria.\r\n\r\nPara confirmar seu e-mail, abra:\r\n%s/painel/verificar#verificar=%s\r\n\r\nEste link expira em 30 minutos. A senha será definida após a confirmação.\r\nSe você não fez este pedido, ignore esta mensagem.\r\n", settings.Origin, token)
 	if err != nil {
 		return nil, failure("invalid_proof", false, err)
 	}

@@ -51,13 +51,14 @@ func main() {
 	}
 
 	webService := panel.New(postgres.NewPanelStore(pool))
+	accounts := connectedAccount(cfg, pool, webService)
 	var webHandler http.Handler
 	if cfg.PanelOrigin != "" {
 		reader, ok := store.(storage.Reader)
 		if !ok {
 			log.Fatal("object storage does not support authenticated reads")
 		}
-		web, err := panelweb.New(webService, reader, cfg.PanelOrigin)
+		web, err := panelweb.NewConnected(webService, reader, cfg.PanelOrigin, accounts.Registration, accounts.Verification)
 		if err != nil {
 			log.Fatalf("configure panel: %v", err)
 		}
@@ -80,8 +81,10 @@ func main() {
 		Compare:    service.NewCompare(pool),
 		HMACKey:    cfg.HMACKey,
 		Panel:      webHandler,
+		Account:    accounts,
 		Guard: panelweb.ProtectLegacy(webService, cfg.PanelOrigin, panelweb.LegacyPolicy{
 			AllowUnclaimedDevelopment: cfg.LegacyAPIMode == config.LegacyUnclaimedDevelopment,
+			API:                       accounts.Authentication,
 		}),
 	})
 

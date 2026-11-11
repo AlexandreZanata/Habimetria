@@ -11,7 +11,12 @@ import (
 
 func TestAPIPublicRouteAllowlist(t *testing.T) {
 	want := map[string]routepolicy.Class{
-		"GET /healthz": routepolicy.PublicControl, "GET /readyz": routepolicy.PublicControl,
+		"POST /api/v1/account/registrations":      routepolicy.PublicControl,
+		"POST /api/v1/account/verification":       routepolicy.PublicControl,
+		"POST /api/v1/account/sessions":           routepolicy.PublicControl,
+		"GET /api/v1/account/profile":             routepolicy.AccountControl,
+		"DELETE /api/v1/account/sessions/current": routepolicy.AccountControl,
+		"GET /healthz":                            routepolicy.PublicControl, "GET /readyz": routepolicy.PublicControl,
 		"GET /api/v1/ping": routepolicy.PublicControl, "/painel/": routepolicy.Delegated,
 		"GET /v/{code}": routepolicy.PublicRecipient, "GET /s/{token}": routepolicy.PublicRecipient,
 		"GET /s/{token}/pdf": routepolicy.PublicRecipient,

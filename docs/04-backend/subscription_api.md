@@ -1,13 +1,14 @@
 # Subscription and Account API — Planned Contract
 
-These routes do not exist yet. Introduce them in small slices under `/api/v1`
+Except the C10 account routes below, these routes remain planned. Introduce them in small slices under `/api/v1`
 with handler/service/store separation and update [API surface](../03-architecture/api-surface.md).
 Reuse panel identity and authorization; browser cookie and mobile bearer
 transports must not accidentally accept one another's CSRF/refresh tokens.
 
 [C09 registration/delivery](account_registration.md) implements the internal
-service and durable SMTP worker. Public initiation/verification/login transport
-remains C10; no public signup route is exposed before its confirmation flow.
+service and durable SMTP worker. [C10 authentication](account_authentication.md)
+adds registrations, verification, login, own profile and current-access logout.
+Refresh/device management and recovery remain C11-C13.
 
 ## Identity and required controls
 
@@ -24,6 +25,12 @@ remains C10; no public signup route is exposed before its confirmation flow.
 | POST `/account/exports` | Durable privacy export request; rate-limit without paywall |
 | POST `/account/deletion` | Reauthenticated deletion request, status and next steps |
 | GET `/account/requests/{id}` | Own request status; no paid entitlement required |
+
+C10 implements GET profile only, plus DELETE `/account/sessions/current` for
+the presented API access. Login returns `access_token`, `token_type=Bearer` and
+`expires_in=900`. Native JSON calls accept no Origin/cookie or mixed credentials;
+browser forms retain exact-Origin cookies. Full wire bounds/errors and activation
+requirements are specified in [authentication](account_authentication.md).
 
 No token/email/secret in URLs except deliberately single-use verification
 links; scrub query logs and referrers. Secure native storage holds refresh

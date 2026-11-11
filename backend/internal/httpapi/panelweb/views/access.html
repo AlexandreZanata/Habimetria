@@ -12,8 +12,9 @@
     <label>Senha<input name="senha" type="password" maxlength="1024" autocomplete="current-password" required></label>
     <button class="btn primary">Entrar</button>
   </form>
+  {{if .SignupEnabled}}<a href="/painel/cadastro">Ainda não tem conta? Crie sua conta</a>{{end}}
   <details id="ativacao" {{if .Activation}}open{{end}}>
-    <summary>Ativar minha conta</summary>
+    <summary>Recebi um convite de acesso</summary>
     <p>Use o código recebido e escolha uma senha para os próximos acessos.</p>
     <form class="form-grid" method="post" action="/painel/ativar">
       <label>Código de ativação<input id="codigo" name="codigo" type="password" maxlength="64" autocomplete="off" value="{{.AccessCode}}" required></label>
@@ -23,7 +24,6 @@
   </details>
 </main>
 {{template "credit"}}
-<script src="/painel/assets/access.js" defer></script>
 </body></html>
 {{end}}
 {{define "failure"}}

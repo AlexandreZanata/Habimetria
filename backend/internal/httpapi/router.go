@@ -25,12 +25,16 @@ type Deps struct {
 	Compare    *service.CompareService
 	HMACKey    string
 	Panel      http.Handler
+	Account    *AccountHandler
 	Guard      func(string, http.HandlerFunc) http.HandlerFunc
 }
 
 // NewRouter binds API endpoints to reviewed transport policies.
 func NewRouter(d Deps) *routepolicy.Router {
 	mux := routepolicy.New(apiRoutePolicies, func(rule routepolicy.Rule, next http.Handler) http.Handler {
+		if rule.Class == routepolicy.AccountControl {
+			return d.Account.Guard(next)
+		}
 		if d.Guard == nil || rule.Class != routepolicy.HostedOwner || rule.Scope == "" {
 			return nil
 		}
@@ -40,6 +44,11 @@ func NewRouter(d Deps) *routepolicy.Router {
 		}
 		return protected
 	})
+	mux.HandleFunc("POST /api/v1/account/registrations", d.Account.Register)
+	mux.HandleFunc("POST /api/v1/account/verification", d.Account.Verify)
+	mux.HandleFunc("POST /api/v1/account/sessions", d.Account.Login)
+	mux.HandleFunc("GET /api/v1/account/profile", d.Account.Profile)
+	mux.HandleFunc("DELETE /api/v1/account/sessions/current", d.Account.Logout)
 	if d.Panel != nil {
 		mux.Handle("/painel/", d.Panel)
 	}

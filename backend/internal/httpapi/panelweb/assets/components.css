@@ -59,5 +59,6 @@ td:not(:first-child) { white-space: nowrap; }
   .welcome { grid-template-columns: minmax(0, 1fr) 70px; }
 }
 .access-card details { border-top: 1px solid var(--line); padding-top: 12px; }
+.access-card .form-grid .btn { justify-self: stretch; width: 100%; }
 .access-card details > p { margin: 8px 0 12px; }
 .access-card summary { color: var(--pine); min-height: 44px; padding: 9px 0; font-weight: 700; }

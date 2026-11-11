@@ -13,6 +13,8 @@ func TestPanelUsesConcreteClassifiedRoutes(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := map[string]bool{
+		"GET /painel/entrar": true, "GET /painel/cadastro": true, "POST /painel/cadastro": true,
+		"GET /painel/verificar": true, "POST /painel/verificar": true,
 		"GET /painel/{$}": true, "GET /painel/assets/": true,
 		"POST /painel/entrar": true, "POST /painel/ativar": true, "POST /painel/sair": true,
 	}
@@ -30,7 +32,7 @@ func TestPanelUsesConcreteClassifiedRoutes(t *testing.T) {
 			t.Fatal("generic section route bypasses concrete policy review")
 		}
 	}
-	if len(want) != 0 || len(router.Rules()) != 23 {
+	if len(want) != 0 || len(router.Rules()) != 28 {
 		t.Fatalf("incomplete panel allowlist: missing=%v routes=%d", want, len(router.Rules()))
 	}
 	for class, want := range map[routepolicy.Class]int{routepolicy.AccountControl: 2, routepolicy.HostedOwner: 6, routepolicy.StaffControl: 9, routepolicy.ReportAccess: 1} {

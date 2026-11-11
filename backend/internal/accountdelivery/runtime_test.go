@@ -91,6 +91,9 @@ func TestPrivateAccountSecrets(t *testing.T) {
 }
 
 func TestAccountRuntimeActivationIntegration(t *testing.T) {
+	if _, err := OpenRegistration(config.AccountMailConfig{}, "development", nil); !errors.Is(err, ErrDisabled) {
+		t.Fatal("disabled API required secrets")
+	}
 	if _, err := Open(config.AccountMailConfig{}, "development", nil); !errors.Is(err, ErrDisabled) {
 		t.Fatal("disabled runtime required resources")
 	}
@@ -140,6 +143,13 @@ func TestAccountRuntimeActivationIntegration(t *testing.T) {
 	settings.Mode = "tls"
 	settings.Username = "fixture"
 	settings.PasswordFile = password
+	registration, err := OpenRegistration(settings, "development", pool)
+	if err != nil {
+		t.Fatal("API read the missing SMTP credential", err)
+	}
+	if err := registration.Register(ctx, "api-only@example.test", "192.0.2.32"); err != nil {
+		t.Fatal(err)
+	}
 	if _, err := Open(settings, "development", pool); err == nil {
 		t.Fatal("missing SMTP credential accepted")
 	}

@@ -24,11 +24,12 @@ func integrationWithStorage(t *testing.T, store collectionfixture.Objects) *harn
 	ctx, pool := testutil.Database(t)
 	require(t, postgres.Apply(ctx, pool, migrations.FS))
 	p := panel.New(postgres.NewPanelStore(pool))
-	web, err := panelweb.New(p, store, testOrigin)
+	accounts := accountServices(t, pool, p)
+	web, err := panelweb.NewConnected(p, store, testOrigin, accounts.Registration, accounts.Verification)
 	require(t, err)
 	evidence := service.NewEvidence(pool, store)
 	router := httpapi.NewRouter(httpapi.Deps{
-		Panel: web.Routes(), Guard: panelweb.ProtectLegacy(p, testOrigin, panelweb.LegacyPolicy{}),
+		Panel: web.Routes(), Account: accounts, Guard: panelweb.ProtectLegacy(p, testOrigin, panelweb.LegacyPolicy{API: accounts.Authentication}),
 		Room: service.NewRoom(pool), Evidence: evidence,
 		Property: service.NewProperty(pool), Tenancy: service.NewTenancy(pool), Inspection: service.NewInspection(pool),
 		Finding: service.NewFinding(pool), Coverage: service.NewCoverage(pool),

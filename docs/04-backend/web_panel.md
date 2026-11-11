@@ -18,6 +18,8 @@ Properties without changing their sealed artifacts.
 [Pending self-registration](account_registration.md) extends the same users.
 Staff cannot activate a self-registration before email verification; existing
 invitation/recovery behavior stays separate.
+The [C10 authentication contract](account_authentication.md) defines working
+signup/verification forms, JSON login and opt-in proof-only API deployment.
 
 ## Run locally
 
@@ -48,7 +50,8 @@ Authorization expansion: [scoped administrative capabilities](admin_authorizatio
 - Staff with account-write permission can create ordinary accounts and
   issue or reissue links while activation is pending. Owners also manage
   team accounts and the role matrix. The panel generates links for manual
-  delivery. It has no outbound mail or self-service password recovery.
+  delivery. Self-registration uses the separate C09 SMTP worker and C10 proof
+  flow; self-service password recovery remains C11.
 - A link expires after 30 minutes and is consumed atomically. Activated
   accounts authenticate with their own password. Staff cannot obtain a login
   link or reset an activated ordinary account through the panel. Legacy

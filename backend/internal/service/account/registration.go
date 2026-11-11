@@ -8,6 +8,7 @@ import (
 	"net/mail"
 	"net/netip"
 	"strings"
+	"time"
 
 	"vault/internal/accountproof"
 	"vault/internal/store/postgres"
@@ -47,6 +48,17 @@ func (s *Registration) Register(ctx context.Context, email, source string) error
 			return ErrInput
 		}
 	}
+	// A common response floor covers the normal insert/existing/cooldown paths.
+	// Outages and overload can exceed it; this is not a constant-latency claim.
+	started := time.Now()
+	defer func() {
+		timer := time.NewTimer(max(0, 250*time.Millisecond-time.Since(started)))
+		defer timer.Stop()
+		select {
+		case <-timer.C:
+		case <-ctx.Done():
+		}
+	}()
 	err = s.store.Register(ctx, email, s.key.Throttle("source", ip.Unmap().String()), s.key.Throttle("address", email), func(user string) postgres.AccountChallenge {
 		operation := uuid.NewString()
 		digest, ciphertext := s.key.Issue(user, operation)

@@ -4,6 +4,11 @@ import "vault/internal/httpapi/routepolicy"
 
 // Monthly rights are later service checks; these classes do not grant them.
 var apiRoutePolicies = []routepolicy.Rule{
+	{Pattern: "POST /api/v1/account/registrations", Class: routepolicy.PublicControl},
+	{Pattern: "POST /api/v1/account/verification", Class: routepolicy.PublicControl},
+	{Pattern: "POST /api/v1/account/sessions", Class: routepolicy.PublicControl},
+	{Pattern: "GET /api/v1/account/profile", Class: routepolicy.AccountControl},
+	{Pattern: "DELETE /api/v1/account/sessions/current", Class: routepolicy.AccountControl},
 	{Pattern: "GET /healthz", Class: routepolicy.PublicControl},
 	{Pattern: "GET /readyz", Class: routepolicy.PublicControl},
 	{Pattern: "GET /api/v1/ping", Class: routepolicy.PublicControl},
