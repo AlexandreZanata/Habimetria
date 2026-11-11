@@ -119,10 +119,20 @@ func (h *AccountHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var input struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
+		Email    string          `json:"email"`
+		Password string          `json:"password"`
+		Device   *account.Device `json:"device"`
 	}
 	if !accountInput(w, r, &input) || !h.limit(w, r, input.Email) {
+		return
+	}
+	if input.Device != nil {
+		pair, err := h.Authentication.LoginDevice(r.Context(), input.Email, input.Password, *input.Device)
+		if err != nil {
+			deviceError(w, err)
+			return
+		}
+		writeJSON(w, 200, pair)
 		return
 	}
 	token, err := h.Authentication.Login(r.Context(), input.Email, input.Password)

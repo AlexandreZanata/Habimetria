@@ -30,7 +30,9 @@ func (s *AccountStore) StartAccess(ctx context.Context, user string, password, d
 func (s *AccountStore) AccessActor(ctx context.Context, digest []byte) (PanelActor, error) {
 	a, err := scanPanelActor(s.pool.QueryRow(ctx, `SELECT `+panelAccountColumns+`, '{}'::text[]
 		FROM users u JOIN account_access_sessions s ON s.user_id=u.id
+		LEFT JOIN account_device_sessions f ON f.id=s.family_id AND f.user_id=u.id
 		WHERE s.token_hash=$1 AND s.audience='account_api' AND s.expires_at>clock_timestamp()
+		AND (s.family_id IS NULL OR (f.revoked_at IS NULL AND f.expires_at>clock_timestamp()))
 		AND u.panel_active AND u.panel_role='user' AND u.panel_password IS NOT NULL`, digest))
 	if err != nil {
 		return PanelActor{}, fmt.Errorf("read API access: %w", err)
@@ -39,8 +41,26 @@ func (s *AccountStore) AccessActor(ctx context.Context, digest []byte) (PanelAct
 }
 
 func (s *AccountStore) EndAccess(ctx context.Context, digest []byte) error {
-	if _, err := s.pool.Exec(ctx, `DELETE FROM account_access_sessions WHERE token_hash=$1`, digest); err != nil {
-		return fmt.Errorf("revoke API access: %w", err)
-	}
-	return nil
+	return pgx.BeginFunc(ctx, s.pool, func(tx pgx.Tx) error {
+		var user, family string
+		err := tx.QueryRow(ctx, `SELECT user_id::text,COALESCE(family_id::text,'') FROM account_access_sessions WHERE token_hash=$1`, digest).Scan(&user, &family)
+		if err == pgx.ErrNoRows {
+			return nil
+		}
+		if err != nil {
+			return fmt.Errorf("read logout access: %w", err)
+		}
+		if err := deviceUser(ctx, tx, user); err != nil {
+			return err
+		}
+		if family != "" {
+			if err := revokeDevice(ctx, tx, family, "logout"); err != nil {
+				return err
+			}
+		}
+		if _, err := tx.Exec(ctx, `DELETE FROM account_access_sessions WHERE token_hash=$1`, digest); err != nil {
+			return fmt.Errorf("revoke API access: %w", err)
+		}
+		return nil
+	})
 }

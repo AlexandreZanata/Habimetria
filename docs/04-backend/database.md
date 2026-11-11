@@ -12,7 +12,8 @@ Migrations: `backend/migrations/0001_init.sql` (MVP core) →
 `0010_account_mail_leases.sql` (bounded durable delivery and guarded completion) →
 `0011_account_verification_audit.sql` (minimal email ownership audit) →
 `0012_account_access_sessions.sql` (short-lived API audience and invalidation) →
-`0013_account_password_recovery.sql` (customer proof, invalidation and security mail).
+`0013_account_password_recovery.sql` (customer proof, invalidation and security mail) →
+`0014_account_device_sessions.sql` ([native families and rotation](device_sessions.md)).
 One version per file. See [web panel](web_panel.md).
 
 Planned commercial extensions are specified separately in

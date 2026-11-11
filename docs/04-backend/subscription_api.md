@@ -9,7 +9,7 @@ transports must not accidentally accept one another's CSRF/refresh tokens.
 service and durable SMTP worker. [C10 authentication](account_authentication.md)
 adds registrations, verification, login, own profile and current-access logout.
 C11 adds [customer recovery](account_recovery.md). Refresh/device management
-and native account screens remain C12-C13.
+and native account screens follow [C12 device sessions](device_sessions.md)/C13.
 
 ## Identity and required controls
 

@@ -28,6 +28,10 @@ func (s *AccountStore) ResetPassword(ctx context.Context, digest, password []byt
 		if tag.RowsAffected() != 1 {
 			return ErrNotFound
 		}
+		if _, err := tx.Exec(ctx, `UPDATE account_device_sessions SET revoked_at=clock_timestamp(),revoke_reason='password_reset'
+			WHERE user_id=$1 AND revoked_at IS NULL`, user); err != nil {
+			return fmt.Errorf("revoke reset device families: %w", err)
+		}
 		if _, err := tx.Exec(ctx, `UPDATE users SET panel_password=$2 WHERE id=$1`, user, password); err != nil {
 			return fmt.Errorf("replace password: %w", err)
 		}

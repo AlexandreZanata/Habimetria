@@ -45,6 +45,7 @@ func TestAbsentAccountServices(t *testing.T) {
 	for _, tc := range []struct{ method, path string }{
 		{"POST", "registrations"}, {"POST", "verification"}, {"POST", "sessions"}, {"GET", "profile"}, {"DELETE", "sessions/current"},
 		{"POST", "recovery"}, {"POST", "password"},
+		{"POST", "sessions/refresh"}, {"GET", "sessions"}, {"DELETE", "sessions/11111111-1111-4111-8111-111111111111"},
 	} {
 		out := httptest.NewRecorder()
 		router.ServeHTTP(out, httptest.NewRequest(tc.method, "http://localhost/api/v1/account/"+tc.path, nil))

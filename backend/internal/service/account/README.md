@@ -29,3 +29,9 @@ floor. `recovery.go` owns customer initiation and confirmed password replacement
 and `recovery_mail_integration_test.go`. The
 [recovery contract](../../../../docs/04-backend/account_recovery.md) indexes the
 store, schema, privacy and transport boundaries.
+
+`device_tokens.go` and `device_sessions.go` issue purpose-separated device
+credentials and controls. `device_sessions_integration_test.go` and
+`device_controls_integration_test.go` cover concurrency/replay, expiry, rollback,
+scope, revocation and technical bounds. Store/schema/HTTP files are indexed by
+[native sessions](../../../../docs/04-backend/device_sessions.md).

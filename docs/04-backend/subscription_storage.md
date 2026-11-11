@@ -13,6 +13,8 @@ The same contract specifies C10's 15-minute API access digests. Device refresh
 families, rotation history and other identity groups remain planned for C12+.
 C11 [password recovery](account_recovery.md) adds a distinct proof table and
 extends the leased outbox with recovery/security templates and recipient binding.
+C12 [device sessions](device_sessions.md) adds families, spent refresh digests and
+family-linked API access; no private collection or billing facts are changed.
 
 ## Incremental groups
 

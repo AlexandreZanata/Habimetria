@@ -1,7 +1,7 @@
 package privacy
 
 func accountFields() []Field {
-	return []Field{
+	return append(deviceFields(), []Field{
 		{"account_password_recoveries", "user_id", "identity-link", "bind a customer-owned recovery proof to its User", "operational"},
 		{"account_password_recoveries", "token_hash", "capability-digest", "validate a single-use purpose-bound password recovery", "operational"},
 		{"account_password_recoveries", "created_at", "temporal", "server creation of a customer recovery window", "operational"},
@@ -19,5 +19,5 @@ func accountFields() []Field {
 		{"account_mail_outbox", "token_hash", "capability-digest", "match delivery to the current verification proof", "operational"},
 		{"account_mail_outbox", "proof_ciphertext", "encrypted-capability", "deliver a narrowly scoped proof; erase on terminal state", "operational"},
 		{"account_registration_limits", "key_hash", "pseudonymized-identifier", "HMAC source/address throttling without raw IP/email", "operational"},
-	}
+	}...)
 }

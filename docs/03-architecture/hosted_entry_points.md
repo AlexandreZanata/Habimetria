@@ -25,7 +25,7 @@ minimization and resource existence checks remain in the relevant service.
 
 ## API registrations
 
-There are 24 owner-scoped API operations, eleven explicit public operations, two
+There are 24 owner-scoped API operations, twelve explicit public operations, four
 account controls and
 one optional delegated panel mount. GET policies also cover Go's implicit HEAD.
 All private scope strings resolve the stable Property owner, never an owner
@@ -36,6 +36,8 @@ supplied in the body/query. Unknown scopes are errors, not public fallbacks.
 | GET `/healthz`, GET `/readyz`, GET `/api/v1/ping` | public_control | None |
 | POST `/api/v1/account/registrations`, `/api/v1/account/verification`, `/api/v1/account/sessions` | public_control | Bounded neutral initiation or purpose/credential validation and shared throttling |
 | POST `/api/v1/account/recovery`, `/api/v1/account/password` | public_control | Neutral customer initiation; purpose-bound atomic password replacement; no cookie/bearer authority |
+| POST `/api/v1/account/sessions/refresh` | public_control | Device-bound single-use refresh; replay revokes its family |
+| GET `/api/v1/account/sessions`, DELETE `/api/v1/account/sessions/{id}` | account_control | Current User's API bearer, own device families only |
 | GET `/api/v1/account/profile`, DELETE `/api/v1/account/sessions/current` | account_control | Current ordinary User's API bearer; no cookie or paid gate |
 | POST `/api/v1/properties` | hosted_owner | properties; creation policy in guard |
 | POST `/api/v1/properties/{id}/tenancies` | hosted_owner | properties |

@@ -29,6 +29,9 @@ monthly hosted authorization. Planned new routes are in
 - C11: `POST /account/password` — `{token,password,password_confirmation}`,
   200 `password_updated` after durable reset/revocation/notice; no login.
   See [recovery](../04-backend/account_recovery.md) for bounds and errors.
+- C12: device-aware login, POST `/account/sessions/refresh`, GET
+  `/account/sessions` and DELETE `/account/sessions/{id}` follow the
+  [native session contract](../04-backend/device_sessions.md).
 
 Account endpoints are no-store and independent of payment. JSON/native and
 browser-cookie transports stay separate. See the complete

@@ -51,6 +51,9 @@ func NewRouter(d Deps) *routepolicy.Router {
 	mux.HandleFunc("POST /api/v1/account/sessions", d.Account.Login)
 	mux.HandleFunc("GET /api/v1/account/profile", d.Account.Profile)
 	mux.HandleFunc("DELETE /api/v1/account/sessions/current", d.Account.Logout)
+	mux.HandleFunc("POST /api/v1/account/sessions/refresh", d.Account.Refresh)
+	mux.HandleFunc("GET /api/v1/account/sessions", d.Account.Devices)
+	mux.HandleFunc("DELETE /api/v1/account/sessions/{id}", d.Account.RevokeDevice)
 	if d.Panel != nil {
 		mux.Handle("/painel/", d.Panel)
 	}
