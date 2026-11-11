@@ -24,8 +24,8 @@
     <td><strong>{{if .Name}}{{.Name}}{{else}}Nome pendente{{end}}</strong></td>
     <td>{{.Email}}</td>
     <td>{{role .Role}}{{if .Primary}} <small>· Principal</small>{{end}}</td>
-    <td>{{if not .Active}}<span class="status suspended">Suspenso</span>{{else if not .Managed}}<span class="status neutral">Conta legada</span>{{else if not .Enrolled}}<span class="status pending">Aguardando ativação</span>{{else}}<span class="status">Ativo</span>{{end}}</td>
-    <td>{{if and (not .Primary) (ne .ID $page.Actor.ID) ($page.Actor.Can "accounts.write") (or (eq .Role "user") (eq $page.Actor.Role "owner"))}}
+    <td>{{if .Pending}}<span class="status pending">Verificação pendente</span>{{else if not .Active}}<span class="status suspended">Suspenso</span>{{else if not .Managed}}<span class="status neutral">Conta legada</span>{{else if not .Enrolled}}<span class="status pending">Aguardando ativação</span>{{else}}<span class="status">Ativo</span>{{end}}</td>
+    <td>{{if and (not .Primary) (not .Pending) (ne .ID $page.Actor.ID) ($page.Actor.Can "accounts.write") (or (eq .Role "user") (eq $page.Actor.Role "owner"))}}
       <details class="row-actions"><summary>Gerenciar</summary>
         <form method="post" action="/painel/{{$page.Section}}" class="form-grid compact">
           <input type="hidden" name="id" value="{{.ID}}">

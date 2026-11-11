@@ -76,12 +76,13 @@ func panelTarget(ctx context.Context, tx pgx.Tx, a PanelActor, id string) (role 
 	if !a.Can("accounts.write") {
 		return "", false, ErrPanelDenied
 	}
-	var primary bool
-	err = tx.QueryRow(ctx, `SELECT panel_role,panel_active,panel_primary FROM users WHERE id=$1 FOR UPDATE`, id).Scan(&role, &active, &primary)
+	var primary, pending bool
+	err = tx.QueryRow(ctx, `SELECT panel_role,panel_active,panel_primary,
+		registration_started_at IS NOT NULL AND email_verified_at IS NULL FROM users WHERE id=$1 FOR UPDATE`, id).Scan(&role, &active, &primary, &pending)
 	if err != nil {
 		return "", false, panelMissing(err)
 	}
-	if role != "user" && a.Role != "owner" {
+	if pending || (role != "user" && a.Role != "owner") {
 		return "", false, ErrPanelDenied
 	}
 	if primary {
@@ -165,7 +166,7 @@ func (s *PanelStore) Accounts(ctx context.Context, staff bool, search string, of
 	out := []PanelAccount{}
 	for rows.Next() {
 		var a PanelAccount
-		if err := rows.Scan(&a.ID, &a.Email, &a.Name, &a.Role, &a.Active, &a.Primary, &a.CreatedAt, &a.Managed, &a.Enrolled); err != nil {
+		if err := rows.Scan(&a.ID, &a.Email, &a.Name, &a.Role, &a.Active, &a.Primary, &a.CreatedAt, &a.Managed, &a.Enrolled, &a.Pending); err != nil {
 			return nil, err
 		}
 		out = append(out, a)

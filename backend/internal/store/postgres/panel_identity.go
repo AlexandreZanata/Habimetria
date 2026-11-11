@@ -24,9 +24,9 @@ type PanelStore struct{ pool *pgxpool.Pool }
 func NewPanelStore(pool *pgxpool.Pool) *PanelStore { return &PanelStore{pool: pool} }
 
 type PanelAccount struct {
-	ID, Email, Name, Role              string
-	Active, Primary, Managed, Enrolled bool
-	CreatedAt                          time.Time
+	ID, Email, Name, Role                       string
+	Active, Primary, Managed, Enrolled, Pending bool
+	CreatedAt                                   time.Time
 }
 
 type PanelActor struct {
@@ -39,13 +39,14 @@ func (a PanelActor) Can(permission string) bool {
 }
 
 const panelAccountColumns = `u.id::text, u.email::text, u.display_name, u.panel_role,
-	u.panel_active, u.panel_primary, u.created_at, u.panel_managed, u.panel_password IS NOT NULL`
+	u.panel_active, u.panel_primary, u.created_at, u.panel_managed, u.panel_password IS NOT NULL,
+	u.registration_started_at IS NOT NULL AND u.email_verified_at IS NULL`
 
 const panelPermissionColumn = `COALESCE((SELECT permissions FROM panel_role_permissions p WHERE p.role=u.panel_role), '{}')`
 
 func scanPanelActor(row pgx.Row) (PanelActor, error) {
 	var a PanelActor
-	err := row.Scan(&a.ID, &a.Email, &a.Name, &a.Role, &a.Active, &a.Primary, &a.CreatedAt, &a.Managed, &a.Enrolled, &a.Permissions)
+	err := row.Scan(&a.ID, &a.Email, &a.Name, &a.Role, &a.Active, &a.Primary, &a.CreatedAt, &a.Managed, &a.Enrolled, &a.Pending, &a.Permissions)
 	return a, panelMissing(err)
 }
 

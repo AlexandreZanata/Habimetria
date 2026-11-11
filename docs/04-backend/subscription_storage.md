@@ -6,6 +6,9 @@ executing; never assume `0006` is still free. PostgreSQL 18.6-alpine only.
 Extend [database](database.md), [domain](../03-architecture/commercial_domain.md)
 and the [lifecycle](../03-architecture/subscription_lifecycle.md).
 
+C09 pending registration/token/encrypted mail schema is implemented by
+[registration](account_registration.md); other identity groups remain planned.
+
 ## Incremental groups
 
 1. Catalog: `service_plans`, immutable `service_plan_versions`, `store_products`.

@@ -15,6 +15,10 @@ baseline; do not present the plan as production availability.
 modes, rollback and individually reviewed assignment of existing NULL-owner
 Properties without changing their sealed artifacts.
 
+[Pending self-registration](account_registration.md) extends the same users.
+Staff cannot activate a self-registration before email verification; existing
+invitation/recovery behavior stays separate.
+
 ## Run locally
 
 Use PostgreSQL 18.6 and the existing Go API configuration. The panel is

@@ -2,6 +2,8 @@
 # lower a floor only with a recorded reason, raise it with new suites.
 vault/cmd/verify 60
 vault/internal/authz 100
+vault/internal/accountproof 85
+vault/internal/service/account 85
 vault/internal/config 95
 vault/internal/httpapi 78
 vault/internal/httpapi/routepolicy 95

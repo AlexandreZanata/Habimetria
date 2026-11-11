@@ -7,7 +7,8 @@ Migrations: `backend/migrations/0001_init.sql` (MVP core) →
 `0005_panel.sql` (web identity, sessions, permissions and availability) →
 `0006_service_plans.sql` (immutable individual monthly hosted-service catalog) →
 `0007_panel_capabilities.sql` (scoped commercial permission matrix) →
-`0008_panel_policy_audit.sql` (reasoned, typed administrative transitions).
+`0008_panel_policy_audit.sql` (reasoned, typed administrative transitions) →
+`0009_account_registration.sql` (pending self-registration and encrypted mail enqueue).
 One version per file. See [web panel](web_panel.md).
 
 Planned commercial extensions are specified separately in
@@ -47,3 +48,7 @@ explicit hosted allowances and historical version numbers. See the
 C07 adds `0007_panel_capabilities.sql`: closed commercial capability constraints,
 restricted support grants and duplicate rejection; existing grants are retained.
 Contract and test inventory: [administrative authorization](admin_authorization.md).
+
+Pending identity, verification digests, encrypted outbox and HMAC throttle keys
+follow [registration](account_registration.md). Existing verification status
+is not backfilled or inferred. No private collection or paid right is seeded.

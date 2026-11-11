@@ -18,7 +18,7 @@ type Field struct {
 // Registry lists personal-data columns. Free-text and image-locator rows
 // are included with handling rules, not just direct identifiers.
 func Registry() []Field {
-	return []Field{
+	return append(accountFields(), []Field{
 		{"service_plans", "code", "catalog-identifier", "stable offer identifier; must not hold customer identity", "system"},
 		{"service_plan_versions", "name", "catalog-label", "monthly offer display name; must not hold personal names", "system"},
 		{"users", "email", "direct-identifier", "account identity for sign-in and access management", "identity"},
@@ -50,7 +50,7 @@ func Registry() []Field {
 		{"manifests", "body", "sealed-payload", "canonical sealed payload; no direct PII by construction, tracked by name", "sealed-record"},
 		{"shares", "token", "capability", "bearer token for recipient access; rotate, never log", "operational"},
 		{"access_logs", "ip_hash", "pseudonymized-network", "HMAC-pseudonymized viewer IP for share audit", "operational-log"},
-	}
+	}...)
 }
 
 // RetentionClasses assigns every application table a retention class.
@@ -69,6 +69,8 @@ func RetentionClasses() map[string]string {
 		"panel_access_links": "operational", "panel_sessions": "operational",
 		"panel_login_limits": "operational", "panel_report_access": "operational",
 		"panel_role_permissions": "system", "panel_audit": "operational-log",
-		"service_plans": "system", "service_plan_versions": "system",
+		"account_verifications": "operational", "account_mail_outbox": "operational",
+		"account_registration_limits": "operational",
+		"service_plans":               "system", "service_plan_versions": "system",
 	}
 }
