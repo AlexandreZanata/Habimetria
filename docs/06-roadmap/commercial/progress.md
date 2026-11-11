@@ -1,7 +1,7 @@
 # Commercial Program Progress
 
 Baseline: plan documented on 2026-11-11; implementation inspected at `060d968`.
-Implementation has advanced to C05. No new manual approval is claimed.
+Implementation has advanced to C06.a. No new manual approval is claimed.
 Use [runbook](agent_runbook.md). Every slice needs its own commit/push/checks.
 
 ## Status vocabulary
@@ -22,7 +22,7 @@ None means the whole release/program is complete.
 | C03 | CODE_VERIFIED | [C03 execution](c03_execution.md): three-context free local journey, immutable artifacts and independent package verification |
 | C04 | CODE_VERIFIED | [C04 execution](c04_execution.md): owner-only default, scoped comparisons, revocation/legacy compatibility and reviewed assignment runbook |
 | C05 | CODE_VERIFIED | [C05 execution](c05_execution.md): immutable monthly catalog, hosted-only validation, atomic versions/retirement and bounded history |
-| C06 | PENDING | No implementation evidence |
+| C06 | IN_PROGRESS | [C06 execution](c06_execution.md): explicit commercial config/env parity; activation/rollback isolation pending |
 | C07 | PENDING | No implementation evidence |
 | C08 | PENDING | No implementation evidence |
 | C09 | PENDING | No implementation evidence |

@@ -18,6 +18,9 @@ func TestEnvExampleMatchesFromEnv(t *testing.T) {
 		"S3_ACCESS_KEY", "S3_SECRET_KEY", "S3_PATH_STYLE", "LOCAL_STORAGE_DIR",
 		"HMAC_KEY",
 	}
+	for key := range commerceEnvironmentValues(CommerceConfig{}) {
+		keys = append(keys, key)
+	}
 	saved := make(map[string]string, len(keys))
 	for _, k := range keys {
 		if v, ok := os.LookupEnv(k); ok {
@@ -62,6 +65,9 @@ func TestEnvExampleMatchesFromEnv(t *testing.T) {
 		"S3_SECRET_KEY":     got.S3SecretKey,
 		"S3_PATH_STYLE":     map[bool]string{true: "true", false: "false"}[got.S3PathStyle],
 		"LOCAL_STORAGE_DIR": got.LocalDir, "HMAC_KEY": got.HMACKey,
+	}
+	for key, value := range commerceEnvironmentValues(got.Commerce) {
+		want[key] = value
 	}
 	for _, k := range keys {
 		fv, ok := file[k]

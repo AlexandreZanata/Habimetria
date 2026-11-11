@@ -48,5 +48,5 @@ func (c Config) Validate() error {
 		(c.Environment != "development" || protected || c.VerifyBaseURL == "" || c.PanelOrigin != "") {
 		return errors.New("unclaimed-development requires APP_ENV=development, a local HTTP VERIFY_BASE_URL and no PANEL_ORIGIN")
 	}
-	return nil
+	return c.Commerce.Validate(c.Environment)
 }

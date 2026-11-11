@@ -6,6 +6,9 @@ Read [administration](commercial_admin.md), [cost pricing](cost_pricing.md),
 
 ## Environments and deployment
 
+[C06 commercial configuration](commercial_configuration.md) defines the
+implemented provider namespace/credential-reference and new-sale controls.
+
 Separate production/sandbox databases, object namespaces, store credentials,
 topics/endpoints, product mappings, email identities and analytics.
 Use PostgreSQL 18.6-alpine, TLS/public domain, private storage, least-privilege

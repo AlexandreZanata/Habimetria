@@ -21,6 +21,7 @@ type Config struct {
 	VerifyBaseURL string // public origin embedded in QR codes
 	PanelOrigin   string // optional origin for the authenticated web panel
 	LegacyAPIMode string // owned | unclaimed-development; never inferred from panel exposure
+	Commerce      CommerceConfig
 }
 
 func FromEnv() Config {
@@ -42,6 +43,7 @@ func FromEnv() Config {
 		VerifyBaseURL: envOr("VERIFY_BASE_URL", "http://localhost:8080"),
 		PanelOrigin:   envOr("PANEL_ORIGIN", ""),
 		LegacyAPIMode: envOr("LEGACY_API_MODE", LegacyOwned),
+		Commerce:      commerceFromEnv(),
 	}
 }
 
