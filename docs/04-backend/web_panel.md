@@ -27,7 +27,7 @@ session and set a password of at least 15 characters. For a host-run API,
 set the same `PANEL_ORIGIN` and `DATABASE_URL` when running
 `go run ./cmd/api` and `go run ./cmd/panel-owner <email> <name>` from
 `backend/`. HTTP is accepted for local loopback origins. Use an HTTPS
-origin, a random HMAC key of at least 32 bytes, and TLS termination on
+origin, `APP_ENV=production`, a random HMAC key of at least 32 bytes, and TLS termination on
 the public origin when hosting the panel.
 
 ## Identity, permissions and audit

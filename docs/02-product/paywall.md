@@ -14,6 +14,6 @@ capture, local seal, local PDF, local verification, local comparison,
 local assistant or file export. Subscription explanations must distinguish
 local durability from optional cloud preservation.
 
-C01.a removed the backend seal/payment dependency. Legacy provider/config
-cleanup continues in C01.b; cloud entitlement enforcement is later roadmap
-work. See [payments](../03-architecture/payments.md).
+C01 removed the backend seal/payment dependency, unused providers and old
+per-seal price/configuration. Cloud entitlement enforcement is later roadmap
+work. See [payments](../03-architecture/payments.md) for deployment migration.

@@ -3,7 +3,7 @@
 Target authority: [service monetization](../02-product/service_monetization.md).
 Execution: [commercial roadmap](../06-roadmap/commercial/README.md).
 
-## Current implementation — C01.a
+## Current implementation — C01
 
 `SealService` accepts only InspectionID and has no payment dependency. API
 wiring does not construct or contact a payment provider. The HTTP endpoint
@@ -11,16 +11,39 @@ still accepts the deprecated optional string `payment_proof` for old clients;
 its value is ignored and grants no hosted rights. Normal ownership checks,
 empty-inspection validation, signing and terminal SEALED behavior remain.
 
-Legacy `payment*.go`, environment fields and their old signing-config check
-remain temporarily until C01.b retires them and replaces the signing check
-independently of billing. Do not activate or reuse these unused providers.
+Legacy PaymentPort/Stripe/Asaas providers, their environment fields and the
+default per-seal price have been removed. The obsolete payment-error-to-402
+mapping is also removed. No payment provider is configured by this API.
 There is no Play Billing, StoreKit, monthly catalog or entitlement ledger yet.
 
-Do not activate the legacy payment gate as a subscription implementation.
-Sealing is already decoupled. Existing clients may send payment_proof
-temporarily for compatibility; it cannot grant subscription rights.
-C01.b removes obsolete configuration with a documented migration.
+Existing clients may send payment_proof temporarily for compatibility; it
+cannot grant subscription rights. Removing this JSON compatibility requires
+a separate client-contract migration, not an unannounced rejection.
 External providers are not substitutes for mobile-store digital purchases.
+
+## Deployment migration from the legacy seam
+
+1. Remove `PAYMENTS_MODE`, `PAYMENTS_PROVIDER`, `STRIPE_SECRET_KEY`,
+   `STRIPE_API_BASE`, `ASAAS_API_KEY`, `ASAAS_API_BASE`, `SEAL_PRICE_CENTS`
+   and `SEAL_CURRENCY` from deployment configuration. They are no longer read;
+   leaving stale values cannot enable a paywall or provider calls.
+2. Set `APP_ENV=production` for every shared/beta/production API, independent
+   of whether any paid feature is enabled. Only `development` and `production`
+   are accepted; an absent setting defaults to local development.
+3. Configure a random HMAC_KEY of at least 32 bytes. Production and advertised
+   non-loopback or HTTPS verify/panel origins reject empty, short or development
+   signing keys before connecting/listening. Local HTTP loopback development
+   remains bootable. HTTPS panel protection is retained independently of billing.
+4. Preserve an existing secure HMAC_KEY when migrating; do not casually rotate
+   it and invalidate historical verification. A legacy undersized key needs
+   an explicit compatible key-rotation/preservation procedure before deployment;
+   do not rewrite historical Manifests to satisfy the new configuration.
+
+No database migration, re-seal, Report rewrite or client payment is needed.
+`backend/internal/service/seal_integration_test.go` checks real stored bytes,
+HMAC, server/device time separation, terminality and database failure context.
+Run coverage with TEST_DATABASE_URL pointing at disposable PostgreSQL 18.6;
+skipped integration is not coverage proof.
 
 ## Target boundary
 

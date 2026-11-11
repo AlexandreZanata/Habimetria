@@ -41,6 +41,7 @@ services:
     build:
       context: ../backend
     environment:
+      APP_ENV: ${APP_ENV:-development}
       PORT: "8080"
       # Inside compose the defaults point at service names; host runs use
       # infra/.env.example (localhost origins) which matches config.FromEnv.
@@ -55,13 +56,6 @@ services:
       S3_SECRET_KEY: minio12345
       S3_PATH_STYLE: "true"
       HMAC_KEY: ${HMAC_KEY:-dev-only-change-me}
-      # Paywall: off keeps the MVP frictionless. Live needs keys.
-      PAYMENTS_MODE: ${PAYMENTS_MODE:-off}
-      PAYMENTS_PROVIDER: ${PAYMENTS_PROVIDER:-stripe}
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
-      ASAAS_API_KEY: ${ASAAS_API_KEY:-}
-      SEAL_PRICE_CENTS: ${SEAL_PRICE_CENTS:-2990}
-      SEAL_CURRENCY: ${SEAL_CURRENCY:-BRL}
     ports:
       - "8080:8080"
     depends_on:

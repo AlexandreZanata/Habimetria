@@ -80,8 +80,8 @@ manual gate blocks activation of its dependent feature, not independent work.
 
 - Panel has invitation/password identity, RBAC and Report-specific availability;
   no self-service mail/recovery/mobile session integration yet.
-- At the inspected baseline SealService invoked PaymentPort. C01.a removes
-  that coupling; C01.b retires unused providers/configuration. Neither is a
+- At the inspected baseline SealService invoked PaymentPort. C01 removed
+  that coupling and retired unused providers/configuration. This is not a
   subscription entitlement implementation.
 - No native purchase adapters or commercial ledger found.
 - Local collections are not automatically account-synchronized to the panel.

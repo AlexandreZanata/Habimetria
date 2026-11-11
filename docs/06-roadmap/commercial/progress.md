@@ -17,7 +17,7 @@ None means the whole release/program is complete.
 
 | Slice | State | Evidence |
 |---|---|---|
-| C01 | IN_PROGRESS | [C01 execution](c01_execution.md): payment dependency removed; configuration retirement pending |
+| C01 | CODE_VERIFIED | [C01 execution](c01_execution.md): seal decoupled, legacy providers/config retired, real-DB and local seal checks passed |
 | C02 | PENDING | No implementation evidence |
 | C03 | PENDING | No implementation evidence |
 | C04 | PENDING | No implementation evidence |

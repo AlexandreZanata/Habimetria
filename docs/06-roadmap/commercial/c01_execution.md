@@ -24,16 +24,43 @@ Executed checks:
   PASS, including the new real-DB seal suite and existing panel/document tests.
 - `cd app && ./gradlew :shared:jvmTest --tests vault.local.LocalSealTest`:
   PASS (local snapshot signing, concurrency, invalid input and tamper checks).
-- Exact-commit GitHub CI is inspected after push.
+- Commit `3a41539` pushed to origin/dev.
+- [GitHub CI run 345](https://github.com/AlexandreZanata/Habimetria/actions/runs/43016613560):
+  backend and mobile-linux PASS on that exact commit.
 
-The sub-slice's commit/push identity is available in Git history and is
-recorded explicitly in the next update rather than guessed before commit.
+## C01.b — Legacy retirement and independent signing protection
 
-## C01.b — Pending
+- Removed unused PaymentPort/Stripe/Asaas adapters and their obsolete tests,
+  configuration/default price and HTTP payment-error mapping.
+- Added APP_ENV development/production validation. Production and non-local
+  or HTTPS advertised origins require configured 32+ byte signing keys;
+  invalid environments/origins fail before API startup. Local development
+  stays usable. Retired payment environment settings have no effect.
+- Preserved deprecated JSON compatibility. Documented configuration migration
+  and preserving existing signing keys/history in
+  [payments](../../03-architecture/payments.md).
+- Added `backend/internal/service/seal_integration_test.go`: real stored bytes,
+  independently computed digest/HMAC, server/device-time separation, missing/
+  empty/sealed behavior and surfaced database failures.
+- Retiring previously covered adapters exposed insufficient service coverage
+  without DB tests. Added real seal-service proof rather than lowering the
+  55% floor. Run coverage with TEST_DATABASE_URL as already configured in CI.
 
-Retire unused provider code/configuration and the old default price. Preserve
-production signing-key validation independently of billing; document deployment
-migration and retain ignored JSON compatibility for old clients.
+Executed checks after retirement:
+
+- `TEST_DATABASE_URL=<disposable PostgreSQL 18.6> make verify`: PASS, including
+  all configured integration tests; dedicated `make test-integration` also PASS.
+- `TEST_DATABASE_URL=<disposable PostgreSQL 18.6> GOTOOLCHAIN=go1.25.13 make cover`:
+  PASS with the unchanged coverage floor.
+- `go test -race -run 'TestSeal(ServiceIntegrity|WithoutPayment)Integration'
+  ./internal/service ./internal/httpapi/panelweb` with that DB: PASS.
+- `docker compose -f infra/docker-compose.yml config --quiet`: PASS.
+- `make secrets`, changed-file size/reference checks and diff checks: PASS.
+
+C01.b commit/push identity and exact-head CI are verified through Git history
+and the dev->main PR after push; no guessed self-referential commit hash.
+The complete C01 is code-verified. C02-C64 remain pending. This does not
+implement hosted billing/entitlement or approve production activation.
 
 ## Manual gates
 

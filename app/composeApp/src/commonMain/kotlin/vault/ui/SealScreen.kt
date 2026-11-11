@@ -10,8 +10,8 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
 import vault.api.SealResult
 
-// Seal: one tap, server ack with verify code. No login, no paywall
-// in MVP (PAYMENTS_MODE=off). PDF arrives in M4.
+// Legacy server seal: acknowledgment with verify code; no payment proof.
+// Local sealing remains independent of this optional API journey.
 @Composable
 fun SealScreen(
     container: AppContainer,

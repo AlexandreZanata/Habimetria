@@ -4,6 +4,7 @@ import "os"
 
 // Config is env-only. No config files in MVP.
 type Config struct {
+	Environment string // development | production; independent of billing
 	Port        string
 	DatabaseURL string
 	S3Endpoint  string
@@ -19,22 +20,11 @@ type Config struct {
 
 	VerifyBaseURL string // public origin embedded in QR codes
 	PanelOrigin   string // optional origin for the authenticated web panel
-
-	// Paywall (S6-basic). MVP default is off: photos + evidence + PDF
-	// stay frictionless. Auth, users and billing ship only if the
-	// project moves forward. See docs/03-architecture/payments.md.
-	PaymentsMode     string // off | live
-	PaymentsProvider string // stripe | asaas
-	StripeSecretKey  string
-	StripeAPIBase    string
-	AsaasAPIKey      string
-	AsaasAPIBase     string
-	SealPriceCents   string
-	SealCurrency     string
 }
 
 func FromEnv() Config {
 	return Config{
+		Environment: envOr("APP_ENV", "development"),
 		Port:        envOr("PORT", "8080"),
 		DatabaseURL: envOr("DATABASE_URL", "postgres://vault:vault@localhost:5432/vault?sslmode=disable"),
 		S3Endpoint:  envOr("S3_ENDPOINT", "http://localhost:9000"),
@@ -50,15 +40,6 @@ func FromEnv() Config {
 
 		VerifyBaseURL: envOr("VERIFY_BASE_URL", "http://localhost:8080"),
 		PanelOrigin:   envOr("PANEL_ORIGIN", ""),
-
-		PaymentsMode:     envOr("PAYMENTS_MODE", "off"),
-		PaymentsProvider: envOr("PAYMENTS_PROVIDER", "stripe"),
-		StripeSecretKey:  envOr("STRIPE_SECRET_KEY", ""),
-		StripeAPIBase:    envOr("STRIPE_API_BASE", "https://api.stripe.com"),
-		AsaasAPIKey:      envOr("ASAAS_API_KEY", ""),
-		AsaasAPIBase:     envOr("ASAAS_API_BASE", "https://sandbox.asaas.com/api/v3"),
-		SealPriceCents:   envOr("SEAL_PRICE_CENTS", "2990"),
-		SealCurrency:     envOr("SEAL_CURRENCY", "BRL"),
 	}
 }
 

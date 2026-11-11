@@ -27,7 +27,8 @@ beta: the device matrix below, the five-user sessions per
 - `infra/.env.example` matches `config.FromEnv` defaults;
   `docker compose -f infra/docker-compose.yml config` renders with
   `postgres`/`minio` healthy dependencies and the API `/healthz` gate.
-- Live boot fails fast without a real `HMAC_KEY`
+- `APP_ENV=production` boot fails fast without a random 32+ byte `HMAC_KEY`,
+  independently of billing; non-loopback/HTTPS advertised origins also enforce it
   (`config.Validate`, covered by `internal/config` tests).
 - `make verify-all` green on the release commit.
 - `make bench-apk` release APK vs 15 MB budget recorded.

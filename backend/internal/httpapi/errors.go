@@ -15,8 +15,6 @@ func writeError(w http.ResponseWriter, err error) {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 	case errors.Is(err, service.ErrTooLarge):
 		writeJSON(w, http.StatusRequestEntityTooLarge, map[string]string{"error": err.Error()})
-	case errors.Is(err, service.ErrPayment):
-		writeJSON(w, http.StatusPaymentRequired, map[string]string{"error": err.Error()})
 	case errors.Is(err, service.ErrQuota):
 		writeJSON(w, http.StatusUnprocessableEntity, map[string]string{"error": err.Error()})
 	case errors.Is(err, postgres.ErrEmpty):
