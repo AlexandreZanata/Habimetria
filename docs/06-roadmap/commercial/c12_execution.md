@@ -72,8 +72,17 @@ All 16 session/installation tests passed, including four real temporary-filesyst
 marker tests for reinstall, purge-before-acknowledgment, retry and corruption.
 Local documentation links/file bounds and diff checks passed. Logs:
 `/tmp/habimetria-c12c-backend-check.log`, `/tmp/habimetria-c12c-mobile-check.log`,
-`/tmp/habimetria-c12c-final-mobile.log`. The pushed SHA/exact CI follows in the
-next evidence update. C12 code is implemented; final pushed-head CI is pending.
+`/tmp/habimetria-c12c-final-mobile.log`. Secret checks passed before committing.
+
+C12.c was pushed to dev as `c616cb8d427e508313b5e3a02298852f680d4e53`.
+Required `backend` and `mobile-linux` both passed in
+[CI #397](https://github.com/AlexandreZanata/Habimetria/actions/runs/43112608475).
+All 232 JVM tests passed locally, with zero failures/errors/skips. C12 is
+CODE_VERIFIED. The final evidence-only commit is identified by
+`docs(auth): record verified native session delivery` in dev history;
+its exact-head CI is maintained on
+[PR 21](https://github.com/AlexandreZanata/Habimetria/pull/21) without a circular
+self-hash. Main is unchanged; C13-C64 remain pending.
 
 Native account screens remain C13. Apple Keychain runtime/entitlements,
 locked-screen behavior, reinstall/backup/restore, G01-G12 and all owner-controlled
