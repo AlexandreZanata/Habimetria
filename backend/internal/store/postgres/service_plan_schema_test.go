@@ -20,7 +20,11 @@ func TestServicePlanMigrationIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	expected := 0
 	for _, entry := range entries {
+		if strings.HasSuffix(entry.Name(), ".sql") {
+			expected++
+		}
 		if !strings.HasSuffix(entry.Name(), ".sql") || entry.Name() >= "0006" {
 			continue
 		}
@@ -51,7 +55,7 @@ func TestServicePlanMigrationIntegration(t *testing.T) {
 	if err := pool.QueryRow(ctx, `SELECT (SELECT count(*) FROM service_plans), (SELECT count(*) FROM service_plan_versions), (SELECT count(*) FROM schema_migrations)`).Scan(&plans, &versions, &applied); err != nil {
 		t.Fatal(err)
 	}
-	if address != "Synthetic pre-catalog Property" || owner != nil || plans != 0 || versions != 0 || applied != 6 {
+	if address != "Synthetic pre-catalog Property" || owner != nil || plans != 0 || versions != 0 || applied != expected {
 		t.Fatal("migration changed existing data, seeded an offer or failed replay")
 	}
 }

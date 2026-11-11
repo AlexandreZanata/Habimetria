@@ -2,14 +2,12 @@ package panel
 
 import (
 	"context"
-	"slices"
 
+	"vault/internal/authz"
 	"vault/internal/store/postgres"
 
 	"github.com/google/uuid"
 )
-
-var Permissions = []string{"accounts.read", "accounts.write", "reports.read", "audit.read"}
 
 func ValidateID(id string) error {
 	if _, err := uuid.Parse(id); err != nil {
@@ -41,26 +39,15 @@ func (s *Service) UpdateProfile(ctx context.Context, actor, name string) error {
 }
 
 func (s *Service) SetRole(ctx context.Context, actor, role string, permissions []string) error {
-	if role != "admin" && role != "support" {
-		return ErrInput
-	}
-	allowed := make([]string, 0, len(Permissions))
-	for _, permission := range Permissions {
-		if slices.Contains(permissions, permission) {
-			allowed = append(allowed, permission)
-		}
-	}
-	if len(allowed) != len(permissions) {
-		return ErrInput
-	}
-	if slices.Contains(allowed, "accounts.write") && (role == "support" || !slices.Contains(allowed, "accounts.read")) {
+	allowed, valid := authz.Normalize(role, permissions)
+	if !valid {
 		return ErrInput
 	}
 	return s.store.SetRole(ctx, actor, role, allowed)
 }
 
 func (s *Service) Roles(ctx context.Context, actor postgres.PanelActor) ([]postgres.PanelRole, error) {
-	if actor.Role != "owner" {
+	if !actor.Active || actor.Role != "owner" {
 		return nil, postgres.ErrPanelDenied
 	}
 	return s.store.Roles(ctx)

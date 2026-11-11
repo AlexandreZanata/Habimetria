@@ -34,6 +34,8 @@ set the same `PANEL_ORIGIN` and `DATABASE_URL` when running
 origin, `APP_ENV=production`, a random HMAC key of at least 32 bytes, and TLS termination on
 the public origin when hosting the panel.
 
+Authorization expansion: [scoped administrative capabilities](admin_authorization.md).
+
 ## Identity, permissions and audit
 
 - The operator bootstraps one primary owner. Re-running the command for

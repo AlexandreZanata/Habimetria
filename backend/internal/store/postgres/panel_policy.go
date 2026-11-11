@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"vault/internal/authz"
+
 	"github.com/jackc/pgx/v5"
 )
 
@@ -30,6 +32,10 @@ func (s *PanelStore) Roles(ctx context.Context) ([]PanelRole, error) {
 }
 
 func (s *PanelStore) SetRole(ctx context.Context, actor, role string, permissions []string) error {
+	permissions, valid := authz.Normalize(role, permissions)
+	if !valid {
+		return ErrPanelDenied
+	}
 	return s.panelAdminWrite(ctx, actor, func(tx pgx.Tx, a PanelActor) error {
 		if a.Role != "owner" {
 			return ErrPanelDenied

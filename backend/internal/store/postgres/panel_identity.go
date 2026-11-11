@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"slices"
 	"time"
+	"vault/internal/authz"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -34,7 +34,7 @@ type PanelActor struct {
 }
 
 func (a PanelActor) Can(permission string) bool {
-	return a.Active && (a.Role == "owner" || slices.Contains(a.Permissions, permission))
+	return authz.Can(a.Active, a.Role, a.Permissions, permission)
 }
 
 const panelAccountColumns = `u.id::text, u.email::text, u.display_name, u.panel_role,

@@ -3,13 +3,14 @@
 {{range .Roles}}
 <section class="panel"><div class="panel-body">
   <h2>{{role .Role}}</h2>
+  <p>Permissões comerciais preparam o acesso a serviços futuros. Não disponibilizam relatórios privados.</p>
   <form class="form-grid" method="post" action="/painel/configuracoes">
     <input type="hidden" name="papel" value="{{.Role}}">
     <fieldset><legend>Permissões</legend>
-    <label class="check"><input type="checkbox" name="permissao" value="accounts.read" {{if has .Permissions "accounts.read"}}checked{{end}}>Consultar contas</label>
-    {{if eq .Role "admin"}}<label class="check"><input type="checkbox" name="permissao" value="accounts.write" {{if has .Permissions "accounts.write"}}checked{{end}}>Gerenciar contas de usuários</label>{{end}}
-    <label class="check"><input type="checkbox" name="permissao" value="reports.read" {{if has .Permissions "reports.read"}}checked{{end}}>Consultar relatórios disponibilizados</label>
-    <label class="check"><input type="checkbox" name="permissao" value="audit.read" {{if has .Permissions "audit.read"}}checked{{end}}>Consultar atividade administrativa</label>
+    {{$granted := .Permissions}}
+    {{range capabilities .Role}}
+    <label class="check"><input type="checkbox" name="permissao" value="{{.ID}}" {{if has $granted .ID}}checked{{end}}>{{.Label}}</label>
+    {{end}}
     </fieldset>
     <button class="btn primary">Salvar permissões</button>
   </form>

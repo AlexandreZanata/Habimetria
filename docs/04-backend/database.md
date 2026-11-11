@@ -39,3 +39,7 @@ explicit hosted allowances and historical version numbers. See the
   owner-only guard; reviewed assignment follows the [operator runbook](legacy_ownership_runbook.md).
 - `sequence` unique per inspection. Manifest ordered by it.
 - `verify_code`: `nanoid(10)`, unique index.
+
+C07 adds `0007_panel_capabilities.sql`: closed commercial capability constraints,
+restricted support grants and duplicate rejection; existing grants are retained.
+Contract and test inventory: [administrative authorization](admin_authorization.md).
