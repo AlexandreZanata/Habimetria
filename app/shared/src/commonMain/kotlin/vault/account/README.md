@@ -10,6 +10,8 @@
 - `SessionControls.kt`: own devices/revocation and local-versus-remote logout.
 - `SessionInstallation.kt`: non-secret installation marker; prevents silently
   reusing Keychain credentials surviving uninstall. Never stores credentials.
+- `AccountEnrollment.kt`: bounded public registration, verification and recovery
+  requests with neutral initiation and explicit server acknowledgment.
 
 No local database/collection/queue is read or deleted. Native screens are C13.
 Production has no JVM/file/preference secret fallback. Platform implementations

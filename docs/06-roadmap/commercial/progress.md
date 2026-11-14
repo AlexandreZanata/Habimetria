@@ -1,7 +1,7 @@
 # Commercial Program Progress
 
 Baseline: plan documented on 2026-11-11; implementation inspected at `060d968`.
-Implementation has advanced through C12 (code-verified). No new manual approval is claimed.
+Implementation has advanced through C12 (code-verified); C13 is in progress. No new manual approval is claimed.
 Use [runbook](agent_runbook.md). Every slice needs its own commit/push/checks.
 
 ## Status vocabulary
@@ -29,7 +29,7 @@ None means the whole release/program is complete.
 | C10 | CODE_VERIFIED | [C10 execution](c10_execution.md): atomic email proof, shared web/JSON login, short-lived API authority and browser/real-DB checks |
 | C11 | CODE_VERIFIED | [C11 execution](c11_execution.md): customer recovery, atomic session invalidation, security mail and complete web/JSON checks |
 | C12 | CODE_VERIFIED | [C12 execution](c12_execution.md): rotating families, scoped controls, protected Android/iOS storage, 16 session tests and Android probe; implementation CI passed; iOS runtime/manual gates unverified |
-| C13 | PENDING | No implementation evidence |
+| C13 | IN_PROGRESS | [C13 execution](c13_execution.md): public account transport; account screens, device controls and native validation pending |
 | C14 | PENDING | No implementation evidence |
 | C15 | PENDING | No implementation evidence |
 | C16 | PENDING | No implementation evidence |

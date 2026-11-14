@@ -26,7 +26,7 @@ class AccountApi private constructor(
     constructor(baseUrl: String, engine: HttpClientEngineFactory<*>, allowLocalHttp: Boolean = false) :
         this(baseUrl, allowLocalHttp, { HttpClient(engine) { secureTransport() } })
     private val http = lazy(clientFactory)
-    private val json = Json { ignoreUnknownKeys = true }
+    internal val json = Json { ignoreUnknownKeys = true }
     val origin: String get() = try {
         val u = Url(baseUrl)
         val local = u.host in setOf("localhost", "127.0.0.1", "::1", "[::1]")
@@ -53,10 +53,10 @@ class AccountApi private constructor(
         send(HttpMethod.Delete, "sessions/$id", access = access, expected = 204)
     }
     fun close() { if (http.isInitialized()) http.value.close() }
-    private inline fun <reified T> decode(text: String): T = try { json.decodeFromString(text) }
+    internal inline fun <reified T> decode(text: String): T = try { json.decodeFromString(text) }
         catch (_: Exception) { throw SessionFailure("invalid_response") }
 
-    private suspend fun send(method: HttpMethod, path: String, body: String? = null, access: String? = null, expected: Int = 200): String {
+    internal suspend fun send(method: HttpMethod, path: String, body: String? = null, access: String? = null, expected: Int = 200): String {
         val target = origin
         try {
             val response = http.value.request("$target/api/v1/account/$path") {

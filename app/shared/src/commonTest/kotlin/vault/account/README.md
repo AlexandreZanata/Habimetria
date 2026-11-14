@@ -7,6 +7,8 @@
   record preservation, bounded decoding and credential redaction.
 - `SessionControlsTest.kt`: durable local logout before network, unconfirmed
   remote revocation, scoped 401 cleanup and stale coordinator isolation.
+- `AccountEnrollmentTest.kt`: public enrollment/recovery transport, explicit
+  acknowledgments, request bounds and HTTPS origin enforcement.
 
 Run `:shared:jvmTest`. No production plaintext/JVM secret adapter is provided.
 Platform storage and owner acceptance require separate native evidence.
