@@ -1,5 +1,7 @@
 # Brand and report authorship UI
 
+- [account/README.md](account/README.md): connected account, recovery and device controls.
+
 - [brand/HabimetriaBrand.kt](brand/HabimetriaBrand.kt): geometric H mark from the brand vectors.
 - [ThemeColors.kt](ThemeColors.kt): complete Material color roles for the light and dark brand palettes.
 - [VaultModals.kt](VaultModals.kt): shared width for confirmation dialogs, forms and bottom sheets.

@@ -17,6 +17,7 @@ sealed interface Route {
     data object Inspections : Route
     data object Reports : Route
     data object Settings : Route
+    data object Account : Route
     data object FindingProblems : Route
     data object RoomPresets : Route
     data class Rooms(val inspectionId: String) : Route
@@ -71,7 +72,7 @@ fun Route.destination(): Route = when (this) {
     Route.Home, Route.NewInspection -> Route.Home
     Route.Properties, is Route.PropertyDetail -> Route.Properties
     Route.Inspections -> Route.Inspections
-    Route.Settings, Route.Reports, Route.FindingProblems -> Route.Settings
+    Route.Settings, Route.Reports, Route.FindingProblems, Route.RoomPresets, Route.Account -> Route.Settings
     else -> Route.Inspections
 }
 

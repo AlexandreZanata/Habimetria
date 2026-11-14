@@ -33,6 +33,8 @@ fun MainViewController(platformPdf: PlatformPdf) = ComposeUIViewController {
             filePicker = vault.ui.IosFilePicker(),
             accountSessions = AccountSessions(AccountApi("http://localhost:8080", platformEngine()),
                 IosSessionVault(appFilesDir()), { NSUUID().UUIDString.lowercase() }, "ios", "iPhone"),
+            accountFactory = { origin -> AccountSessions(AccountApi(origin, platformEngine()),
+                IosSessionVault(appFilesDir()), { NSUUID().UUIDString.lowercase() }, "ios", "iPhone") },
         ) }
     App(container)
 }

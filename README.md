@@ -14,7 +14,7 @@
 - **Relatórios e compartilhamento:** gere PDF com fotos e QR, compartilhe pelo sistema e exporte ou importe pacotes verificáveis em ZIP.
 - **Trabalho local:** imóveis, capturas, lacre, PDF, comparação e verificação no dispositivo funcionam sem conta ou assinatura. Os horários locais são declarações do dispositivo, não horários certificados pelo servidor.
 - **Painel web e API:** área autenticada para administração e acesso autorizado a imóveis, vistorias e relatórios armazenados no servidor.
-- **Conta e segurança:** cadastro e verificação de e-mail, recuperação de senha e sessões de dispositivos com rotação e revogação estão implementados na base de serviços. As telas de conta no app ainda estão planejadas.
+- **Conta e segurança:** telas de cadastro, verificação de e-mail, recuperação de senha, perfil e gerenciamento de dispositivos usam a base de serviços com sessões rotativas. O acesso conectado requer um servidor HTTPS configurado.
 - **Serviços futuros:** planos mensais para recursos hospedados, compras pelas lojas, backup e sincronização estão em desenvolvimento. Não há preço ou assinatura disponível para contratação neste repositório.
 
 ## Acesso e downloads

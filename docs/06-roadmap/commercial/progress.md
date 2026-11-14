@@ -29,7 +29,7 @@ None means the whole release/program is complete.
 | C10 | CODE_VERIFIED | [C10 execution](c10_execution.md): atomic email proof, shared web/JSON login, short-lived API authority and browser/real-DB checks |
 | C11 | CODE_VERIFIED | [C11 execution](c11_execution.md): customer recovery, atomic session invalidation, security mail and complete web/JSON checks |
 | C12 | CODE_VERIFIED | [C12 execution](c12_execution.md): rotating families, scoped controls, protected Android/iOS storage, 16 session tests and Android probe; implementation CI passed; iOS runtime/manual gates unverified |
-| C13 | IN_PROGRESS | [C13 execution](c13_execution.md): public account transport; account screens, device controls and native validation pending |
+| C13 | IN_PROGRESS | [C13 execution](c13_execution.md): account screens and device controls implemented; pushed-head CI and native/manual gates pending |
 | C14 | PENDING | No implementation evidence |
 | C15 | PENDING | No implementation evidence |
 | C16 | PENDING | No implementation evidence |

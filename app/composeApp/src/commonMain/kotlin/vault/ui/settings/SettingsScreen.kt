@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.ViewDay
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -41,6 +42,7 @@ fun SettingsScreen(
     onOpenReports: () -> Unit,
     onOpenProblems: () -> Unit,
     onOpenRoomPresets: () -> Unit,
+    onOpenAccount: () -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 16.dp)
@@ -54,6 +56,13 @@ fun SettingsScreen(
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         ) {
             Column {
+                SettingsRow(
+                    icon = Icons.Filled.Person,
+                    title = "Conta",
+                    subtitle = "Acesse sua conta e gerencie dispositivos",
+                    modifier = Modifier.clickable(onClick = onOpenAccount),
+                )
+                HorizontalDivider()
                 SettingsRow(
                     icon = Icons.Filled.Description,
                     title = Strings.settingsReportsTitle,

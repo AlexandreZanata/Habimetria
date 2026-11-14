@@ -85,6 +85,8 @@ class MainActivity : ComponentActivity() {
             filePicker = filePicker,
             accountSessions = AccountSessions(AccountApi(baseUrl, platformEngine()), AndroidSessionVault(applicationContext),
                 { UUID.randomUUID().toString() }, "android", "Android"),
+            accountFactory = { origin -> AccountSessions(AccountApi(origin, platformEngine()), AndroidSessionVault(applicationContext),
+                { UUID.randomUUID().toString() }, "android", "Android") },
         )
         val navigator = resumeNavigator(session)
         wireSystemBack(navigator)

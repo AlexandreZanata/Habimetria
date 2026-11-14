@@ -82,7 +82,13 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
                     onOpenReports = { navigator.navigate(Route.Reports) },
                     onOpenProblems = { navigator.navigate(Route.FindingProblems) },
                     onOpenRoomPresets = { navigator.navigate(Route.RoomPresets) },
+                    onOpenAccount = { navigator.navigate(Route.Account) },
                 )
+            }
+            Route.Account -> ChromeShell(r, container, navigator, "Conta", true, {
+                navigator.goBackOr(Route.Settings)
+            }) {
+                vault.ui.account.AccountScreen(container.accountFactory)
             }
             Route.FindingProblems -> ChromeShell(r, container, navigator, SettingsStrings.problemsTitle, true, {
                 navigator.goBackOr(Route.Settings)

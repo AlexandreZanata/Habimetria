@@ -39,6 +39,7 @@ class AppContainer(
     val filePicker: LocalFilePicker? = null,
     val homeBannerPreference: HomeBannerPreference = HomeBannerPreference(FileSystem.SYSTEM, filesDir),
     val account: AccountSessions? = null,
+    val accountFactory: ((String) -> AccountSessions)? = null,
 ) {
     // serverMirror is the only path from UI layers to VaultApi: screens
     // ask the container for a mirror instead of calling the API
@@ -62,6 +63,7 @@ fun createContainer(
     planRenderer: PlanRenderer? = null,
     filePicker: LocalFilePicker? = null,
     accountSessions: AccountSessions? = null,
+    accountFactory: ((String) -> AccountSessions)? = null,
 ): AppContainer {
     val api = VaultApi(baseUrl, platformEngine())
     val store = CaptureStore(fs, "$filesDir/queue")
@@ -71,5 +73,6 @@ fun createContainer(
         syncMode = syncMode, local = local, planRenderer = planRenderer, filePicker = filePicker,
         homeBannerPreference = HomeBannerPreference(fs, filesDir),
         account = accountSessions,
+        accountFactory = accountFactory,
     )
 }
