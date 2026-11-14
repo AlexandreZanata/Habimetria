@@ -48,4 +48,10 @@ synthetic origin; no real credentials or server request were used. Logs:
 Live HTTPS account/mail delivery, full device-session interaction and owner
 accessibility checks still need an actual configured environment and user-owned
 validation. iOS host, Keychain runtime and owner release gates remain UNVERIFIED.
-The commit and exact-head CI are recorded on the PR; a queued run is not a pass.
+Implementation was pushed in `b42928bed97acc6db9de60d27b5048e622d8cb6c`,
+`79b907e` and `cb8b9c08ba09a3dcc8ee66777475e1f33ba318b7`. Required backend and
+mobile-linux checks passed for the implementation in
+[CI #407](https://github.com/AlexandreZanata/Habimetria/actions/runs/43608317401).
+The final evidence-only commit and its exact-head CI are tracked on
+[PR 21](https://github.com/AlexandreZanata/Habimetria/pull/21). C13 is
+CODE_VERIFIED, not owner-accepted; C14 remains pending.
