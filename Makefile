@@ -1,6 +1,15 @@
-.PHONY: verify verify-mobile verify-ios-macos verify-all bench bench-apk up down test test-integration vet fmt-check cover secrets
+.PHONY: verify verify-infra verify-commerce-config verify-mobile verify-ios-macos verify-all bench bench-apk up down test test-integration vet fmt-check cover secrets
 
 verify: vet fmt-check test
+
+verify-infra:
+	python3 -m unittest discover -s infra/test -p '*_test.py'
+	python3 infra/test/run.py
+	python3 infra/test/verify_lifecycle.py
+
+verify-commerce-config:
+	python3 infra/verify_commerce_config.py
+	python3 infra/verify_account_mail_config.py
 
 verify-mobile:
 	cd app && ./gradlew :shared:jvmTest :shared:compileKotlinIosSimulatorArm64 :composeApp:assembleDebug

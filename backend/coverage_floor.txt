@@ -1,9 +1,19 @@
 # Per-package statement-coverage floors (percent). The ratchet only rises:
 # lower a floor only with a recorded reason, raise it with new suites.
 vault/cmd/verify 60
-vault/internal/config 85
+vault/internal/authz 100
+vault/internal/accountproof 85
+vault/internal/credential 85
+vault/internal/accountdelivery 75
+vault/internal/service/account 85
+vault/internal/config 95
+vault/internal/mail 85
 vault/internal/httpapi 78
+vault/internal/httpapi/accountauth 95
+vault/internal/httpapi/routepolicy 95
 vault/internal/service 55
+vault/internal/service/commerce/catalog 95
+vault/internal/service/commerce/activation 85
 vault/internal/store/postgres 0
 vault/cmd/api 0
 vault/internal/evidence 0

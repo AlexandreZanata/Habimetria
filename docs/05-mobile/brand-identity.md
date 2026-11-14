@@ -21,7 +21,8 @@ covers and at small sizes.
 
 Construction rules:
 
-- Build on a square grid; stems, crossbar and notch share one module.
+- Trace the supplied square monogram. The small central cutout opens
+  upward from the gap between the two stems.
 - Keep right angles; no rounded corners inside the mark.
 - Use a single flat color. Never add shadows, gradients or outlines.
 - Minimum size: 16 dp for the isolated mark, 24 dp beside the wordmark.
@@ -88,10 +89,15 @@ Report covers use title 20 pt, heading 16 pt, body 12 pt, small 9 pt.
 
 App:
 
-- Header carries the mark; the screen title stays readable beside it.
-- Primary action: pinho surface with Marfim label.
-- Background: Marfim. Cards and secondary surfaces: Sálvia tints.
-- Bottom navigation uses pinho selection with a Sálvia indicator.
+- Every masthead pairs the monogram with the screen title in the same
+  position and type style. Home uses lowercase `habimetria` as its title.
+- Primary actions use Pinho and Marfim in strong contrast. A Pinho feature
+  panel uses a Marfim button so its action remains distinct.
+- Background: Marfim. Cards use ivory tints and fine outlines. Sálvia
+  supports selection and secondary details.
+- In light mode, the masthead, bottom navigation and status badges use
+  Pinho with white labels and icons. Selected destinations and status
+  filters use Pinho ink on white.
 
 Report cover:
 

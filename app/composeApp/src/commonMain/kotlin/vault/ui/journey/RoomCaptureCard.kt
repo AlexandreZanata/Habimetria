@@ -6,16 +6,17 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -33,11 +34,29 @@ internal fun RoomCaptureCard(
     onSelect: (ShotCategory) -> Unit,
     onCapture: () -> Unit,
 ) {
-    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+    val colors = MaterialTheme.colorScheme
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = colors.surfaceContainer,
+        shape = MaterialTheme.shapes.large,
+    ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(Strings.captureIn, style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
-                Text(JourneyStrings.captureHint, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Surface(shape = MaterialTheme.shapes.small, color = colors.inverseSurface) {
+                    Icon(
+                        Icons.Filled.CameraAlt, contentDescription = null, tint = colors.inverseOnSurface,
+                        modifier = Modifier.padding(10.dp),
+                    )
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        Strings.captureIn,
+                        color = colors.primary,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.semantics { heading() },
+                    )
+                    Text(JourneyStrings.captureHint, style = MaterialTheme.typography.bodyMedium)
+                }
             }
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 ShotCategory.entries.forEach { category ->
@@ -49,11 +68,6 @@ internal fun RoomCaptureCard(
                         leadingIcon = if (selected == category) {
                             { Icon(Icons.Filled.Check, contentDescription = null) }
                         } else null,
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                            selectedLabelColor = MaterialTheme.colorScheme.primary,
-                            selectedLeadingIconColor = MaterialTheme.colorScheme.primary,
-                        ),
                         modifier = Modifier.heightIn(min = 48.dp),
                     )
                 }

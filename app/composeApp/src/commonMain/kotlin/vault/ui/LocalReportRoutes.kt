@@ -62,11 +62,7 @@ internal fun LocalReportRoutes(r: Route, container: AppContainer, navigator: Vau
             is Route.LocalInspector -> ChromeShell(r, container, navigator, Strings.inspectorTitle, true, { navigator.goBack() }) {
                 val local = container.local
                 if (local != null) {
-                    LocalInspectorScreen(
-                        session = local,
-                        inspectionId = r.inspectionId,
-                        onBack = { navigator.goBack() },
-                    )
+                    LocalInspectorScreen(session = local, inspectionId = r.inspectionId)
                 } else {
                     ScreenColumn {
                         ErrorText(Strings.pdfSealFirst)

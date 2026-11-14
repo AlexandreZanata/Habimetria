@@ -19,12 +19,13 @@ class AndroidPlanRenderer : PlanRenderer {
         try {
             for ((index, plan) in pages.withIndex()) {
                 if (isCancelled()) throw RenderCancelledException()
-                val page = document.startPage(PdfDocument.PageInfo.Builder(595, 842, plan.number).create())
+                val page = document.startPage(PdfDocument.PageInfo.Builder(PDF_PAGE_WIDTH_PT.toInt(), PDF_PAGE_HEIGHT_PT.toInt(), plan.number).create())
                 try {
-                    drawPdfChrome(page.canvas, plan, pages.size, fonts)
-                    for (item in plan.items) {
+                    for (item in plan.items + plan.chrome) {
                         if (isCancelled()) throw RenderCancelledException()
                         when (item) {
+                            is PageItem.Fill -> drawPdfFill(page.canvas, item)
+                            is PageItem.Path -> drawPdfPath(page.canvas, item)
                             is PageItem.Text -> drawPdfText(page.canvas, item, fonts)
                             is PageItem.Photo -> drawPdfPhoto(page.canvas, item, loadPhoto(item.entry.evidenceId), fonts)
                             is PageItem.Qr -> drawPdfQr(page.canvas, item)

@@ -23,6 +23,7 @@ func NewSealHandler(svc sealer) *SealHandler {
 
 func (h *SealHandler) Seal(w http.ResponseWriter, r *http.Request) {
 	var body struct {
+		// Deprecated: accepted for old clients, ignored and never sent to a provider.
 		PaymentProof string `json:"payment_proof"`
 	}
 	if r.ContentLength != 0 {
@@ -33,7 +34,6 @@ func (h *SealHandler) Seal(w http.ResponseWriter, r *http.Request) {
 	}
 	out, err := h.svc.Seal(r.Context(), service.SealInput{
 		InspectionID: r.PathValue("id"),
-		PaymentProof: body.PaymentProof,
 	})
 	if err != nil {
 		writeError(w, err)

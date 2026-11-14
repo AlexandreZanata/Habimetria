@@ -11,7 +11,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,6 +40,7 @@ import vault.ui.VaultTextField
 import vault.ui.claimSummary
 import vault.ui.decodeThumbnail
 import vault.ui.userErrorMessage
+import vault.ui.VaultModalBottomSheet
 
 // One evidence row in review: thumbnail, sequence, location claim and
 // finding count. The issue entry stays available until sealed. The
@@ -90,7 +90,9 @@ fun ReviewEvidenceRow(
             if (findingCount > 0) Text("$findingCount ${Strings.findingsList.lowercase()}")
         }
         if (onIssue != null) {
-            Button(onClick = onIssue) { Text(Strings.reportIssue) }
+            Button(onClick = onIssue, shape = MaterialTheme.shapes.medium) {
+                Text(Strings.reportIssue)
+            }
         }
     }
 }
@@ -108,7 +110,7 @@ fun FindingInputSheet(
     onDone: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    VaultModalBottomSheet(onDismissRequest = onDismiss) {
         val scope = rememberCoroutineScope()
         var options by remember { mutableStateOf<List<ProblemOption>?>(null) }
         var presetCode by rememberSaveable { mutableStateOf(FindingPreset.STAIN.name) }

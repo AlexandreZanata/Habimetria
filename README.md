@@ -1,67 +1,59 @@
-# Habimetria — MVP
+# Habimetria
 
-> Not an inspection form. A digital safe for rental evidence.
-> Capture → Seal → Share → Compare.
->
-> **Cada detalhe, documentado.** — Vistorias e documentação de imóveis.
+**Cada detalhe, documentado.** Vistorias e documentação de imóveis com captura fotográfica, lacre e relatórios verificáveis.
 
-Tenant-first product: prove months later **"it was already like this when I moved in."**
+![Identidade visual Habimetria e exemplo conceitual da interface](assets/identidade-habimetria.png)
 
-## Ultra-fast MVP thesis
+*A imagem apresenta a identidade visual e uma proposta de interface; não representa uma captura atual do aplicativo.*
 
-- **Mobile:** Kotlin Multiplatform (Android + iOS), Compose Multiplatform, photo-first, guided capture, offline queue.
-- **Backend:** Go + PostgreSQL 18.6-alpine + S3-compatible object storage.
-- **Trust core:** SHA-256 per file + server timestamp + evidence manifest + sealed report hash + public verification page + QR in PDF.
-- **Docs:** 100% English, small normalized files, AI-agent buildable and maintainable.
-- **Brand:** Pinho, Marfim, Grafite and Sálvia with Manrope; see [brand identity](docs/05-mobile/brand-identity.md).
+## Recursos
 
-## Repo layout
+- **Vistorias no celular:** cadastre imóveis, nomeie cômodos, fotografe categorias e acompanhe a cobertura de cada ambiente.
+- **Registro de detalhes:** adicione problemas por opções predefinidas e observações; revise as fotos antes de lacrar.
+- **Lacre e integridade:** a vistoria lacrada é imutável. O aplicativo calcula hashes e gera um manifesto para verificação; novos registros seguem como ocorrências.
+- **Relatórios e compartilhamento:** gere PDF com fotos e QR, compartilhe pelo sistema e exporte ou importe pacotes verificáveis em ZIP.
+- **Trabalho local:** imóveis, capturas, lacre, PDF, comparação e verificação no dispositivo funcionam sem conta ou assinatura. Os horários locais são declarações do dispositivo, não horários certificados pelo servidor.
+- **Painel web e API:** área autenticada para administração e acesso autorizado a imóveis, vistorias e relatórios armazenados no servidor.
+- **Conta e segurança:** telas de cadastro, verificação de e-mail, recuperação de senha, perfil e gerenciamento de dispositivos usam a base de serviços com sessões rotativas. O acesso conectado requer um servidor HTTPS configurado.
+- **Serviços futuros:** planos mensais para recursos hospedados, compras pelas lojas, backup e sincronização estão em desenvolvimento. Não há preço ou assinatura disponível para contratação neste repositório.
 
-```text
-docs/       # English source of truth (vision → architecture → roadmap → ai-ops)
-backend/    # Go API + worker + migrations
-app/        # Kotlin Multiplatform app
-infra/      # docker-compose, postgres:18.6-alpine, minio, env templates
-```
+## Acesso e downloads
 
-## Quick start (day 0)
+| Plataforma | Situação e acesso |
+| --- | --- |
+| Android | Código e build de desenvolvimento disponíveis. [Instruções de compilação](app/README.md#local-verification-linux). Não há release publicado neste repositório. |
+| iOS | Código compartilhado e fontes do aplicativo disponíveis; o projeto Xcode e a validação em iPhone ainda são necessários. [Orientações para iOS](app/iosApp/README.md). |
+| Web | O painel é executado junto ao servidor; consulte a [configuração e as permissões](docs/04-backend/web_panel.md). Nenhum endereço público de produção está informado. |
+| Código-fonte | [Baixar código](https://github.com/AlexandreZanata/Habimetria/archive/refs/heads/main.zip) ou consultar [releases](https://github.com/AlexandreZanata/Habimetria/releases). O desenvolvimento atual está na branch `dev`. |
+| Google Play e App Store | Publicação ainda não confirmada; links de instalação serão adicionados quando estiverem disponíveis. |
+
+## Interface e identidade
+
+![Monograma e nome Habimetria](docs/05-mobile/assets/habimetria-logo.svg)
+
+A interface usa o monograma H, verde pinho, marfim e tipografia Manrope. O fluxo prioriza fotos, informações claras e uso em dispositivos móveis. A imagem acima é um recurso de marca; capturas reais de telas poderão ser adicionadas após uma revisão que evite expor dados de imóveis ou usuários.
+
+## Executar o projeto
 
 ```bash
 cp infra/.env.example infra/.env
 docker compose -f infra/docker-compose.yml up --build
 # API: http://localhost:8080/healthz
-# Verify page API: http://localhost:8080/v/ABC123
 ```
 
-## MVP 0.1 scope (freeze)
+Para compilar e testar o aplicativo, consulte o [guia do app](app/README.md). O painel web requer configuração de autenticação e permissões: veja o [guia do painel](docs/04-backend/web_panel.md). As configurações de desenvolvimento não representam uma implantação de produção.
 
-1. Property + rooms
-2. Guided photo capture
-3. Findings (photo + preset + optional note)
-4. Original upload + SHA-256 + server timestamp
-5. Seal inspection (DRAFT → SEALED, no rollback)
-6. Paywall at seal: "Protect this tenancy for R$29,90"
-7. PDF + QR + public `/v/{code}` verification
-8. Share link + access log
+## Arquitetura e documentação
 
-Out of MVP: accounts with passwords, agency dashboard, AI diff, video-first, edit-after-seal.
+- `app/` — aplicativo Kotlin Multiplatform e interface Compose.
+- `backend/` — API, painel web, serviços Go e migrações.
+- `infra/` — infraestrutura de desenvolvimento e testes.
+- `docs/` — contratos de produto, arquitetura e planejamento em inglês.
 
-See `docs/06-roadmap/mvp-01.md` and `docs/README.md`.
+Consulte o [índice de documentação](docs/README.md), o [plano comercial](docs/06-roadmap/commercial/README.md) e o [progresso das etapas](docs/06-roadmap/commercial/progress.md). A direção comercial mantém as funções locais gratuitas e prevê mensalidades para serviços hospedados; o plano ainda está em execução.
 
-## Next delivery scope (in progress)
+Alterações seguem de `dev` para `main` por pull request, com os checks `backend` e `mobile-linux` exigidos pela [proteção da branch](https://github.com/AlexandreZanata/Habimetria/rules/26970165).
 
-[Local validation roadmap](docs/06-roadmap/local_validation_plan.md):
-professional Material 3 UI, manually named rooms, real Android/iOS photo
-capture with location claims, complete on-device persistence/seal/PDF,
-offline integrity verification and a reproducible device acceptance matrix.
-L0–L8 are implemented with a green Linux pass (see
-`docs/06-roadmap/acceptance-report.md`); UI reaches the API only through
-the optional server mirror. Physical-device, simulator and macOS/Xcode
-gates remain explicitly unverified.
+## Licença
 
-## License
-
-Habimetria is released under the [Habimetria Visible Attribution License 1.0](LICENSE).
-Any use, including commercial use, is permitted provided the original system and
-creator references stay visibly credited in the interface. Third-party code, fonts
-and other materials retain their own licenses and notices.
+Distribuído sob a [Habimetria Visible Attribution License 1.0](LICENSE). O uso, inclusive comercial, requer a atribuição visível ao sistema e ao criador. Componentes de terceiros mantêm suas próprias licenças e avisos.

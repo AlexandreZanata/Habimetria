@@ -1,12 +1,12 @@
 package vault.ui.journey
 
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import vault.local.db.LocalRoom
 import vault.ui.Strings
 import vault.ui.VaultTextField
+import vault.ui.VaultAlertDialog
 
 // Rename dialog for a manually named room. DRAFT-only by caller.
 @Composable
@@ -17,7 +17,7 @@ fun RoomRenameDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    AlertDialog(
+    VaultAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(Strings.rename) },
         text = {
@@ -37,7 +37,7 @@ fun RoomDeleteDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    AlertDialog(
+    VaultAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(Strings.deleteRoomTitle) },
         text = {

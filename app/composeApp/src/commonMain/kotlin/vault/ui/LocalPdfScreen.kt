@@ -12,6 +12,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import vault.local.*
 import vault.local.db.LocalManifest
 import vault.local.db.LocalReport
+import vault.ui.journey.JourneyShortcuts
+import vault.ui.report.PdfOptionIcons
+import vault.ui.report.PdfOptionRow
+import vault.ui.report.PdfOptionsGroup
+import vault.ui.report.PdfSectionDivider
+import vault.ui.report.PdfStatusCard
+import vault.ui.report.ReportStrings
+import vault.ui.review.PdfOptionsSkeleton
 
 @Composable
 fun LocalPdfScreen(
@@ -28,6 +36,7 @@ fun LocalPdfScreen(
     var progress by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var verification by remember { mutableStateOf<ReportVerification?>(null) }
     var busy by remember { mutableStateOf(false) }
+    var rendering by remember { mutableStateOf(false) }
     val cancelled = remember { MutableStateFlow(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var showDeclaration by remember { mutableStateOf(false) }
@@ -51,7 +60,11 @@ fun LocalPdfScreen(
         try { busy = true; load() } catch (e: Exception) { error = userErrorMessage(e) } finally { busy = false; loaded = true }
     }
     fun generate(newVersion: Boolean) {
-        busy = true; cancelled.value = false; error = null; verification = null
+        busy = true
+        rendering = true
+        cancelled.value = false
+        error = null
+        verification = null
         scope.launch {
             try {
                 report = withContext(Dispatchers.Default) {
@@ -63,7 +76,11 @@ fun LocalPdfScreen(
             } catch (_: RenderCancelledException) { error = Strings.pdfCancelled }
             catch (_: IncompleteReportException) { error = Strings.pdfIncomplete }
             catch (e: Exception) { error = userErrorMessage(e) }
-            finally { busy = false; progress = null }
+            finally {
+                rendering = false
+                busy = false
+                progress = null
+            }
         }
     }
     fun share(packageFile: Boolean) {
@@ -85,105 +102,101 @@ fun LocalPdfScreen(
     if (showDeclaration && report != null) DeclarationSheet(session, report!!.id, picker) { showDeclaration = false; revision++ }
     if (showExternal && report != null) ExternalSigningSheet(session, report!!.id, picker) { showExternal = false; revision++ }
     ScreenColumn {
-        ScreenTitle(Strings.reportPdf)
-        // The PDF exists only on sealed inspections and Rooms redirects
-        // those back to Review, so route there directly instead of
-        // bouncing off Rooms.
-        vault.ui.report.PdfJourneySegments(
-            onRooms = { if (manifest != null) onReviewShortcut() else onRoomsShortcut() },
+        // Rooms redirects sealed inspections back to Review.
+        JourneyShortcuts(
+            onRooms = if (manifest != null) onReviewShortcut else onRoomsShortcut,
             onReview = onReviewShortcut,
         )
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            val current = report
-            val showLoading = rememberLoadingVisible(!loaded)
-            if (showLoading) {
-                vault.ui.ProgressStatus(true)
-                vault.ui.report.PdfStatusSkeleton()
-                vault.ui.report.PdfOptionSkeleton()
-                vault.ui.report.PdfOptionSkeleton()
-                vault.ui.report.PdfOptionSkeleton()
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            if (rememberLoadingVisible(!loaded)) {
+                LoadingSkeleton(spacing = 16.dp) {
+                    RecordPanelSkeleton(featured = true)
+                    PdfOptionsSkeleton()
+                }
             }
-            if (loaded) {
+            if (!loaded) return@Column
+
+            val current = report
             val ready = current?.status == REPORT_READY && verification?.allOk() == true
             if (ready) {
-                vault.ui.report.PdfStatusCard(
-                    versionNumber = current!!.versionNumber,
-                    shareEnabled = !busy,
-                    onShare = { share(false) },
-                )
+                PdfStatusCard(current.versionNumber, shareEnabled = !busy, onShare = { share(false) })
             }
             if (current?.status == REPORT_READY && verification != null && !ready) {
-                Text("A verificação detectou arquivo ausente ou alterado. O compartilhamento está bloqueado.", color = MaterialTheme.colorScheme.error)
+                ErrorText(ReportStrings.integrityFailure)
             }
             progress?.let { (done, total) ->
-                LinearProgressIndicator(progress = { if (total == 0) 0f else done / total.toFloat() }, modifier = Modifier.fillMaxWidth())
+                LinearProgressIndicator(
+                    progress = { if (total == 0) 0f else done / total.toFloat() },
+                    modifier = Modifier.fillMaxWidth(),
+                )
                 Text("$done/$total páginas")
             }
             ErrorText(error)
-            if (!busy && current?.status != REPORT_READY) VaultButton(Strings.pdfGenerate, { generate(false) }, enabled = manifest != null)
-            if (busy) VaultButton(Strings.pdfCancel, { cancelled.value = true })
-            vault.ui.report.PdfSectionHeader(Strings.pdfMoreOptions, Strings.pdfMoreOptionsBody)
-            vault.ui.report.PdfOptionCard(
-                vault.ui.report.PdfOptionIcons.zip,
-                Strings.pdfPackageTitle,
-                Strings.pdfPackageBody,
-                enabled = !busy && ready,
-                onClick = { share(true) },
-            )
-            vault.ui.report.PdfOptionCard(
-                vault.ui.report.PdfOptionIcons.authorship,
-                Strings.pdfAuthorshipTitle,
-                Strings.pdfAuthorshipBody,
-                enabled = !busy && ready,
-                onClick = { showDeclaration = true },
-            )
-            vault.ui.report.PdfOptionCard(
-                vault.ui.report.PdfOptionIcons.external,
-                Strings.pdfExternalTitle,
-                Strings.pdfExternalBody,
-                enabled = !busy && ready,
-                onClick = { showExternal = true },
-            )
-            declarations.forEach { DeclarationStatus(it) }
-            vault.ui.report.PdfSectionDivider()
-            vault.ui.report.PdfSectionHeader(Strings.pdfMoreActions, Strings.pdfMoreActionsBody)
-            if (current?.status == REPORT_READY) {
-                vault.ui.report.PdfOptionCard(
-                    vault.ui.report.PdfOptionIcons.newVersion,
-                    Strings.pdfNewVersionTitle,
-                    Strings.pdfNewVersionBody,
-                    enabled = !busy,
-                    onClick = { generate(true) },
-                )
+            ProgressStatus(busy && !rendering)
+            if (!busy && current?.status != REPORT_READY) {
+                VaultButton(Strings.pdfGenerate, { generate(false) }, enabled = manifest != null)
             }
-            vault.ui.report.PdfOptionCard(
-                vault.ui.report.PdfOptionIcons.offline,
-                Strings.verifyTitle,
-                Strings.pdfVerifyBody,
-                enabled = !busy,
-                onClick = onVerify,
-            )
+            if (rendering) VaultButton(Strings.pdfCancel, { cancelled.value = true })
+
+            PdfOptionsGroup(ReportStrings.documentsSection) {
+                PdfOptionRow(PdfOptionIcons.zip, ReportStrings.packageTitle, ReportStrings.packageBody, !busy && ready) {
+                    share(true)
+                }
+                PdfSectionDivider()
+                PdfOptionRow(PdfOptionIcons.authorship, ReportStrings.declarationsTitle, ReportStrings.declarationsBody, !busy && ready) {
+                    showDeclaration = true
+                }
+                PdfSectionDivider()
+                PdfOptionRow(PdfOptionIcons.external, ReportStrings.externalTitle, ReportStrings.externalBody, !busy && ready) {
+                    showExternal = true
+                }
+            }
+            declarations.forEach { DeclarationStatus(it) }
+            PdfOptionsGroup(ReportStrings.verificationSection) {
+                PdfOptionRow(PdfOptionIcons.offline, Strings.verifyTitle, ReportStrings.verifyBody, !busy, onVerify)
+                if (current?.status == REPORT_READY) {
+                    PdfSectionDivider()
+                    PdfOptionRow(PdfOptionIcons.newVersion, ReportStrings.newVersionTitle, ReportStrings.newVersionBody, !busy) {
+                        generate(true)
+                    }
+                }
+            }
             if (versions.size > 1) {
                 Text("Histórico de versões", style = MaterialTheme.typography.titleMedium)
                 versions.forEach { version ->
                     TextButton(enabled = !busy, onClick = {
-                        declarations = emptyList(); report = version; verification = null; busy = true
+                        declarations = emptyList()
+                        report = version
+                        verification = null
+                        busy = true
                         scope.launch {
-                            try { verification = withContext(Dispatchers.Default) { generator.verify(version.id) }; load() }
-                            catch (e: Exception) { error = userErrorMessage(e) }
-                            finally { busy = false }
+                            try {
+                                load()
+                            } catch (e: Exception) {
+                                error = userErrorMessage(e)
+                            } finally {
+                                busy = false
+                            }
                         }
                     }) { Text("Versão ${version.versionNumber} · ${version.status} · ${version.createdAtDevice}") }
                 }
             }
-            Text("O ZIP inclui PDF, recibo, manifesto, chave pública, declarações registradas, originais e os dados pessoais completos fornecidos. Permite verificar a integridade offline; a identidade do autor continua declarada.", style = MaterialTheme.typography.bodySmall)
-            Text("PAdES/Gov.br/ACT são etapas externas opcionais com ação explícita. O app não incorpora PAdES nem promete aceitação jurídica; cópias externas exigem conferência no verificador oficial.",
-                style = MaterialTheme.typography.bodySmall)
-            TextButton(onClick = { showDetails = !showDetails }) { Text(Strings.technicalDetails) }
-            if (showDetails && current != null) {
-                Text("Relatório: ${current.id}\nManifesto: ${current.manifestSha256}\nPDF: ${current.pdfSha256.orEmpty()}", style = MaterialTheme.typography.bodySmall)
-                verification?.let { Text("PDF: ${it.pdfIntact} · manifesto: ${it.manifestOk} · recibo: ${it.receiptOk} · originais: ${it.originalsIntact} · declarações: ${it.declarationsIntact}", style = MaterialTheme.typography.bodySmall) }
-            }
+            PdfOptionsGroup(ReportStrings.notesTitle) {
+                Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(ReportStrings.packageNotes, style = MaterialTheme.typography.bodySmall)
+                    Text(ReportStrings.externalNotes, style = MaterialTheme.typography.bodySmall)
+                    if (current != null) {
+                        TextButton(onClick = { showDetails = !showDetails }) {
+                            Text(if (showDetails) ReportStrings.hideTechnicalDetails else Strings.technicalDetails)
+                        }
+                        if (showDetails) {
+                            Text("Relatório: ${current.id}\nManifesto: ${current.manifestSha256}\nPDF: ${current.pdfSha256.orEmpty()}", style = MaterialTheme.typography.bodySmall)
+                            verification?.let {
+                                Text("PDF: ${it.pdfIntact} · manifesto: ${it.manifestOk} · recibo: ${it.receiptOk} · originais: ${it.originalsIntact} · declarações: ${it.declarationsIntact}", style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                    }
+                }
             }
         }
     }

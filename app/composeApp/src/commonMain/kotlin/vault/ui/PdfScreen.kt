@@ -36,6 +36,8 @@ fun PdfScreen(
     var manifestSha by remember { mutableStateOf("") }
     var sealedAt by remember { mutableStateOf("") }
     var status by remember { mutableStateOf("Ready.") }
+    var loadingDetail by remember(reportId) { mutableStateOf(true) }
+    val showDetailSkeleton = rememberLoadingVisible(loadingDetail)
     var busy by remember { mutableStateOf(false) }
     var pdfPath by remember { mutableStateOf<String?>(null) }
     var check by remember { mutableStateOf<VerifyResult?>(null) }
@@ -49,6 +51,8 @@ fun PdfScreen(
             sealedAt = detail.report.sealedAt
         } catch (e: Exception) {
             error = userErrorMessage(e)
+        } finally {
+            loadingDetail = false
         }
     }
 
@@ -56,7 +60,11 @@ fun PdfScreen(
         ScreenTitle(Strings.reportPdf)
         BodyText("${Strings.code}: $verifyCode")
         ProgressStatus(busy)
-        BodyText(status)
+        if (showDetailSkeleton) {
+            LoadingSkeleton { SkeletonLine(0.34f) }
+        } else if (!loadingDetail && (verifyUrl.isNotEmpty() || error == null)) {
+            BodyText(status)
+        }
         ErrorText(error)
         VaultButton(
             onClick = {

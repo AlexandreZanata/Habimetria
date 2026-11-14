@@ -1,7 +1,6 @@
 package vault.ui.property
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -12,11 +11,11 @@ import androidx.compose.ui.unit.dp
 // Measure metadata first. Artwork's native pixel dimensions must never
 // determine card height; the cover gets exactly the measured text height.
 @Composable
-internal fun PropertyCardRow(photoPath: String?, content: @Composable () -> Unit) {
+internal fun PropertyCardRow(cover: @Composable () -> Unit, content: @Composable () -> Unit) {
     Layout(
         modifier = Modifier.fillMaxWidth(),
         content = {
-            PropertyCover(photoPath = photoPath, modifier = Modifier.fillMaxSize())
+            cover()
             Box { content() }
         },
     ) { measurables, constraints ->

@@ -11,21 +11,24 @@ app/
   iosApp/      # Swift host (project assembly in M2, macOS runner)
 ```
 
-Bundled decorative artwork and its generation prompt are documented in
+The shared architectural illustration is documented in
 [Home artwork](../docs/05-mobile/home_artwork.md).
 
 UI chrome lives in `composeApp/.../vault/ui/`:
 `VaultShell` (single inset boundary + header),
-`VaultChrome` (destination bar/rail, header subtitle, shell wiring).
+`VaultChrome` (destination bar/rail and shell wiring).
 `HomeScreen` prioritizes new/resume via the hero to `Route.NewInspection`;
 property management lives in `vault/ui/property/`: `NewInspectionScreen`
 (dedicated address form), `PropertyListScreen` (search, aggregated
 overviews, detail entry), `PropertyDetailScreen` (bounded inspection
 history with DRAFT/SEALED filter), `PropertyDataForm` (editable data
 section), `PropertyForm` (address form, creation block),
-`HomeHeroBanner` (short copy + Brazilian house), `PropertyCards` (property rows),
+`HomeHeroBanner` (brand signature + architectural elevation), `PropertyCards`
+(photo-led Home cards and compact management rows),
 `HomePropertyStates` (shared loading/error/empty), `PropertyActions`
 (creation helpers), `PropertyStrings` (feature copy).
+`HomeBannerPreference` (`shared/.../vault/local/HomeBannerPreference.kt`)
+stores the device-local hero visibility shared by Home and Settings.
 Journey destinations read bulk overviews from `LocalOverviewRepository`
 (`shared/.../vault/local/LocalOverviews.kt`, queries in `ListingDaos`):
 `vault/ui/inspection/` (`InspectionListScreen` with Em andamento/Selada
@@ -36,7 +39,7 @@ plus explicit pending "Gerar PDF" entries; DRAFT never offers
 generation, pending never claims an existing report; `ReportRows`
 with red delete plus `ReportDeleteHost` confirmation).
 `vault/ui/settings/` (`SettingsScreen`: device-local sections; reports
-live here as a detail route under Configurações; `FindingProblemsScreen`
+live here as a detail route under Ajustes; `FindingProblemsScreen`
 toggles built-ins and manages customs, `SettingsStrings` owns the copy).
 Finding display labels live in `shared/.../vault/findings/FindingLabels.kt`
 (`label()` per `AppLocale`); stored codes never change.
@@ -174,6 +177,11 @@ verify preservation of populated v15 databases and historical signed bytes.
 [Native Android PDF probes](composeApp/src/androidInstrumentedTest/kotlin/vault/pdf/README.md)
 exercise eight orientations, long notes, rental and technical PDFs, and
 portable package validation using isolated synthetic data.
+
+[Connected sessions](shared/src/commonMain/kotlin/vault/account/README.md) manage serialized refresh/logout via optional AppContainer injection.
+[Android Keystore](shared/src/androidMain/kotlin/vault/account/README.md) and [iOS Keychain](shared/src/iosMain/kotlin/vault/account/README.md) protect stored credentials.
+[Shared tests](shared/src/commonTest/kotlin/vault/account/README.md), [installation tests](shared/src/jvmTest/kotlin/vault/account/README.md) and the [Android probe](composeApp/src/androidInstrumentedTest/kotlin/vault/account/README.md) cover scope and persistence.
+Local startup performs no account IO. Credentials require HTTPS; the LAN HTTP mirror origin is rejected. Account screens remain C13.
 
 `PhotoDisplay.kt` freezes encoded/display dimensions at seal time. Report
 review offers standard or enlarged-photo presentation; `ResponsibilityDocumentTest.kt`

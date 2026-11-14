@@ -77,6 +77,50 @@ class PdfContractTest {
     }
 
     @Test
+    fun editorialSequenceLinksRoomPagesAndMovesTheQrToIntegrity() {
+        val model = modelFixture(photos = 6, rooms = 6)
+        val pages = paginateModel(model) { ImageDims(1448, 1086) }
+        val titles = outlineForPages(pages).associate { it.title to it.pageNumber }
+        assertEquals(1, titles["Relatório de vistoria"])
+        assertEquals(2, titles["Imóvel, autoria e escopo"])
+        assertEquals(3, titles["Síntese e navegação"])
+        assertEquals(10, titles["Integridade e autoria"])
+        val summary = pages[2].items.filterIsInstance<PageItem.Text>()
+        for (index in model.rooms.indices) {
+            val room = model.rooms[index]
+            val page = index + 4
+            assertEquals(page, titles[room.label])
+            val row = summary.single { it.text == room.label }
+            assertTrue(summary.any { it.text == page.pdfNumber() && it.rect!!.y == row.rect!!.y })
+            val photo = pages[page - 1].items.filterIsInstance<PageItem.Photo>().single()
+            assertEquals(room.photos.single().evidenceId, photo.entry.evidenceId)
+        }
+        assertEquals(listOf(10), pages.filter { page -> page.items.any { it is PageItem.Qr } }.map { it.number })
+        pages.forEach { page ->
+            assertTrue(page.chrome.filterIsInstance<PageItem.Text>().any {
+                it.text == "${page.number.pdfNumber()} / ${pages.size.pdfNumber()}"
+            })
+        }
+    }
+
+    @Test
+    fun multiPageIndexUsesPhysicalRoomNumbersAfterContinuations() {
+        val model = modelFixture(photos = 37, rooms = 37)
+        val pages = paginateModel(model) { ImageDims(800, 600) }
+        val titles = outlineForPages(pages).associate { it.title to it.pageNumber }
+        val indexPages = pages.subList(2, titles.getValue(model.rooms.first().label) - 1)
+        assertTrue(indexPages.size > 1)
+        for (room in model.rooms) {
+            val index = indexPages.single { page ->
+                page.items.filterIsInstance<PageItem.Text>().any { it.text == room.label }
+            }
+            val cells = index.items.filterIsInstance<PageItem.Text>()
+            val label = cells.single { it.text == room.label }
+            assertTrue(cells.any { it.text == titles.getValue(room.label).pdfNumber() && it.rect!!.y == label.rect!!.y })
+        }
+    }
+
+    @Test
     fun undecodablePhotoBlocksFinalPagination() {
         val model = modelFixture(photos = 3, rooms = 1)
         assertFailsWith<LocalValidationException> { paginateModel(model) { null } }

@@ -38,7 +38,7 @@ tamper rejection, V1.1–V1.5, V-sync mirror).
 | Occurrence/addendum | `OccurrenceChainTest` (sealed snapshot immutable, occurrence links, exit repeat photos) | history append-only |
 | Compare/inspector | `CompareTagTest`, `AiSuggestionTest` (tags never assign liability, ignore persists) | no liability text |
 | Share/verify | `ShareTokenTest` (token entropy/uniqueness, revoked link 404s, access-log trio created/accessed/downloaded) | no token reuse |
-| Paywall seam | `PaywallOffTest` (mode off seals freely, mode on requires proof, stub never charges) | off by default |
+| Commercial boundary | free-local regression and hosted entitlement/quota tests per [commercial plan](commercial/README.md); old per-seal live mode is superseded | no local payment gate |
 
 ## T2 — Integration tests (real dependencies)
 

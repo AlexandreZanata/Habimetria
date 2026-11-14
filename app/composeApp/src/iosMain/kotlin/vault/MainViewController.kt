@@ -11,6 +11,11 @@ import vault.pdf.PlatformPdf
 import vault.ui.App
 import vault.ui.IosPhotoCapture
 import vault.ui.createContainer
+import vault.account.AccountApi
+import vault.account.AccountSessions
+import vault.account.IosSessionVault
+import vault.api.platformEngine
+import platform.Foundation.NSUUID
 
 // Entry point embedded by iosApp's ContentView. The Swift host injects
 // its PDFKit/CoreImage pipeline; capture runs through AVFoundation (L4).
@@ -26,6 +31,10 @@ fun MainViewController(platformPdf: PlatformPdf) = ComposeUIViewController {
             local = session,
             syncMode = SyncMode.LOCAL_ONLY,
             filePicker = vault.ui.IosFilePicker(),
+            accountSessions = AccountSessions(AccountApi("http://localhost:8080", platformEngine()),
+                IosSessionVault(appFilesDir()), { NSUUID().UUIDString.lowercase() }, "ios", "iPhone"),
+            accountFactory = { origin -> AccountSessions(AccountApi(origin, platformEngine()),
+                IosSessionVault(appFilesDir()), { NSUUID().UUIDString.lowercase() }, "ios", "iPhone") },
         ) }
     App(container)
 }

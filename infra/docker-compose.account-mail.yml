@@ -1,0 +1,28 @@
+# Explicit opt-in only; requires operator-owned private files and SMTP identity.
+services:
+  account-mail:
+    build:
+      context: ../backend
+    entrypoint: ["/account-mail"]
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      DATABASE_URL: ${DATABASE_URL:-postgres://vault:vault@postgres:5432/vault?sslmode=disable}
+      ACCOUNT_MAIL_ENABLED: ${ACCOUNT_MAIL_ENABLED:-false}
+      ACCOUNT_MAIL_ORIGIN: ${ACCOUNT_MAIL_ORIGIN:-}
+      ACCOUNT_MAIL_SMTP_ADDRESS: ${ACCOUNT_MAIL_SMTP_ADDRESS:-}
+      ACCOUNT_MAIL_FROM: ${ACCOUNT_MAIL_FROM:-}
+      ACCOUNT_MAIL_SMTP_MODE: ${ACCOUNT_MAIL_SMTP_MODE:-starttls}
+      ACCOUNT_MAIL_SMTP_USERNAME: ${ACCOUNT_MAIL_SMTP_USERNAME:-}
+      ACCOUNT_MAIL_SMTP_PASSWORD_FILE: ${ACCOUNT_MAIL_SMTP_PASSWORD_FILE:-}
+      ACCOUNT_MAIL_PROOF_KEY_FILE: ${ACCOUNT_MAIL_PROOF_KEY_FILE:-}
+    volumes:
+      - type: bind
+        source: ${ACCOUNT_MAIL_SECRETS_SOURCE_DIR:?explicit private source required}
+        target: /run/secrets/account-mail
+        read_only: true
+        bind:
+          create_host_path: false
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped

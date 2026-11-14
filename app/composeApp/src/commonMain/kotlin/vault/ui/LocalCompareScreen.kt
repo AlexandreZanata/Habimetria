@@ -2,8 +2,10 @@ package vault.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
@@ -57,7 +60,7 @@ fun LocalCompareScreen(
 
     LaunchedEffect(exitInspectionId) { refresh() }
 
-    val showLoading = rememberLoadingVisible(pairs == null)
+    val showLoading = rememberLoadingVisible(pairs == null && error == null)
 
     ScreenColumn {
         ScreenTitle(Strings.compareTitle)
@@ -68,18 +71,10 @@ fun LocalCompareScreen(
         }
         LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             if (showLoading) {
-                item(key = "loading") { ProgressStatus(true) }
-                item(key = "skeleton-label") { SkeletonLine(0.4f, 20.dp) }
-                item(key = "skeleton-panels") {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        SkeletonThumbnail(120.dp)
-                        SkeletonThumbnail(120.dp)
-                    }
-                }
-                item(key = "skeleton-panels-2") {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        SkeletonThumbnail(120.dp)
-                        SkeletonThumbnail(120.dp)
+                item(key = "loading") {
+                    LoadingSkeleton {
+                        SkeletonLine(0.4f, 16.dp)
+                        repeat(2) { ComparePairSkeleton(sideBySide) }
                     }
                 }
             }
@@ -199,10 +194,13 @@ private fun decodeThumb(session: LocalSession, evidence: LocalEvidence): ImageBi
 @Composable
 private fun CompareThumb(bitmap: ImageBitmap?, label: String, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
-        if (bitmap != null) {
-            Image(bitmap, label, Modifier.fillMaxWidth())
+        val frame = Modifier.fillMaxWidth().aspectRatio(ComparePhotoAspectRatio)
+        if (bitmap == null) {
+            Box(frame, contentAlignment = Alignment.Center) {
+                Text(Strings.compareNoPhoto, style = MaterialTheme.typography.bodyMedium)
+            }
         } else {
-            Text(Strings.compareNoPhoto, style = MaterialTheme.typography.bodyMedium)
+            Image(bitmap, label, frame)
         }
         Text(label, style = MaterialTheme.typography.labelLarge)
     }

@@ -3,37 +3,27 @@ package vault.ui.property
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.FilterChip
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
-import vault.local.STATUS_DRAFT
 import vault.local.STATUS_SEALED
 import vault.local.db.LocalInspection
-import vault.local.db.LocalProperty
-import vault.ui.AppContainer
-import vault.ui.ErrorText
-import vault.ui.ProgressStatus
+import vault.local.formatSealedAtDevice
 import vault.ui.Strings
-import vault.ui.userErrorMessage
-
+import vault.ui.inspection.InspectionStatusBadge
+import vault.ui.inspection.InspectionStrings
 
 @Composable
 internal fun InspectionRow(
@@ -43,14 +33,34 @@ internal fun InspectionRow(
     onReview: () -> Unit,
 ) {
     val sealed = inspection.status == STATUS_SEALED
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            if (sealed) PropertyStrings.sealedLabel else PropertyStrings.draftLabel,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        OutlinedButton(onClick = { if (sealed) onReview() else onResume() }, enabled = !busy) {
-            Text(if (sealed) Strings.review else Strings.continueAction)
+    val colors = MaterialTheme.colorScheme
+    val title = when (inspection.kind) {
+        "exit" -> InspectionStrings.kindExit
+        "technical" -> InspectionStrings.kindTechnical
+        else -> InspectionStrings.kindEntry
+    }
+    OutlinedCard(modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(title, color = colors.primary, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    formatSealedAtDevice(inspection.createdAtDevice),
+                    color = colors.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            InspectionStatusBadge(sealed)
+            HorizontalDivider(color = colors.outlineVariant)
+            TextButton(
+                onClick = if (sealed) onReview else onResume,
+                enabled = !busy,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+            ) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text(if (sealed) Strings.review else Strings.continueAction, Modifier.weight(1f))
+                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+                }
+            }
         }
     }
 }

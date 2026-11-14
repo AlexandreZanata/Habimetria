@@ -1,21 +1,31 @@
-# System Overview — Minimal but Credible
+# System Overview — Local Authority, Optional Hosted Services
 
-```text
-KMP App (Android+iOS)
-   │  HTTPS + resumable upload, signed URLs
-   ▼
-Go API (:8080)
-   ├── Postgres 18.6-alpine (source of truth)
-   ├── S3-compatible storage (originals immutable)
-   ├── PDF worker (async queue → PDF + QR)
-   ├── Payment port (Stripe / MercadoPago)
-   └── Public verify API: GET /v/{code}
-```
+The KMP app performs capture, durable local storage, review, seal, PDF,
+share and verification without a server. This entire path is free.
+SQLite/private files and platform signing keys support local authority;
+see [local validation](local_validation_architecture.md).
 
-## Principles
+The Go API uses PostgreSQL 18.6-alpine, private S3-compatible/local object
+storage and an optional authenticated web panel. Existing API mirror and
+upload seams do not yet form full account-aware backup/synchronization.
 
-- API stateless. All trust fields server-side.
-- Storage private. Only `signed URL, 5 min TTL`.
-- Originals never overwritten. Derivatives: `preview.webp`, `thumbnail.webp`.
-- Async heavy work: hash verify, thumbnails, PDF.
-- No agency ERP in MVP. Tenant app + share link only.
+## Planned commercial extension
+
+- Google Play Billing / StoreKit clients initiate purchases.
+- Verified store events feed server-side Subscription/Entitlement records.
+- Paid hosted capabilities check account ownership, entitlement and quota.
+- Admin cost estimates guide store-published monthly prices.
+- Original bytes, finalized Reports and SEALED inspections stay immutable.
+- Cloud processing never impersonates certified device time or identity.
+
+See [payments](payments.md),
+[service monetization](../02-product/service_monetization.md) and the
+[commercial roadmap](../06-roadmap/commercial/README.md).
+
+## Boundaries
+
+The API is stateless outside durable database/jobs/object storage. Local
+hashes measure integrity; remote receipts acknowledge only actual server
+observations. Private object access is authorized and short-lived.
+Derivatives get separate identities. Public verification is minimized.
+Authentication, privacy controls and purchase recovery are not paywalls.

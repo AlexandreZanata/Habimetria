@@ -15,7 +15,7 @@ Capture → Seal → Share → Compare
 Entry:
 
 ```text
-New property → rooms → guided capture → findings → review → seal → pay → share
+New property → rooms → guided capture → findings → review → local seal → PDF → share
 ```
 
 Exit:
@@ -31,6 +31,12 @@ Open property → exit inspection → repeat photos → entry × exit compare �
 - Feels like a **digital safe**, not a bureaucratic form.
 - Home headline: **"Don't pay for what you didn't break."**
 - CTA: **"Protect my tenancy"**
+
+## Commercial boundary
+
+The complete on-device journey is free. Optional hosted preservation,
+synchronization and collaboration use admin-priced monthly subscriptions.
+See [service monetization](../02-product/service_monetization.md).
 
 ## Trust triad (brandable)
 

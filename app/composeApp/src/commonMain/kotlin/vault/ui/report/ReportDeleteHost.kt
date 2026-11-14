@@ -2,7 +2,6 @@ package vault.ui.report
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -23,6 +22,7 @@ import vault.ui.AppContainer
 import vault.ui.ErrorText
 import vault.ui.Strings
 import vault.ui.userErrorMessage
+import vault.ui.VaultAlertDialog
 
 // Professional confirmation for report removal: what goes, what stays,
 // cancel-safe, busy-guarded, failure keeps context with retry. The
@@ -62,7 +62,7 @@ fun ReportDeleteHost(
         }
     }
 
-    AlertDialog(
+    VaultAlertDialog(
         onDismissRequest = { if (!busy) onDismiss() },
         title = { Text(ReportStrings.deleteTitle) },
         text = {

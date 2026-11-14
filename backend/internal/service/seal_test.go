@@ -69,7 +69,7 @@ func TestGenerateVerifyCodeFormat(t *testing.T) {
 }
 
 func TestSealHMACVerifies(t *testing.T) {
-	svc := NewSeal(nil, StubPayment{}, testutil.HMACKey())
+	svc := NewSeal(nil, testutil.HMACKey())
 	sig := svc.sign("manifest-sha")
 	mac := hmac.New(sha256.New, []byte(testutil.HMACKey()))
 	mac.Write([]byte("manifest-sha"))
@@ -78,16 +78,12 @@ func TestSealHMACVerifies(t *testing.T) {
 	}
 }
 
-type denyPayment struct{}
-
-func (denyPayment) Verify(context.Context, string) error { return ErrPayment }
-
-func TestSealDeniesUnpaid(t *testing.T) {
-	svc := NewSeal(nil, denyPayment{}, "k")
+func TestSealRejectsInvalidInspection(t *testing.T) {
+	svc := NewSeal(nil, testutil.HMACKey())
 	_, err := svc.Seal(context.Background(), SealInput{
-		InspectionID: testutil.ID(0),
+		InspectionID: "invalid-inspection",
 	})
-	if !errors.Is(err, ErrPayment) {
-		t.Fatalf("want ErrPayment, got %v", err)
+	if !errors.Is(err, ErrInvalid) {
+		t.Fatalf("want ErrInvalid, got %v", err)
 	}
 }

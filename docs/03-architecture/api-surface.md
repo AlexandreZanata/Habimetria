@@ -1,6 +1,41 @@
 # API Surface — MVP REST
 
-Base: `/api/v1`. Auth: magic-link JWT (Bearer). Public: `/v/{code}`.
+The base is `/api/v1`. The [web panel](../04-backend/web_panel.md) uses
+same-origin sessions. Owned private API resources require the titleholder's
+session. Legacy unclaimed resources are served only when the panel is
+disabled. `/v/{code}` and explicit Share links retain public access.
+
+[C02 entry-point policies](hosted_entry_points.md) bind registration to explicit
+classifications. An absent private authorization guard returns 503 without
+running a private handler; unknown classifications fail router construction.
+Concrete panel sections retain current session/RBAC/Report-grant checks.
+
+This documents the current baseline. C01.a removed the seal/payment dependency;
+the [commercial roadmap](../06-roadmap/commercial/README.md) adds separate
+monthly hosted authorization. Planned new routes are in
+[subscription API](../04-backend/subscription_api.md).
+
+## Connected account (C10-C11)
+
+- `POST /account/registrations` — `{email}`, neutral 202 after durable initiation;
+  503 when mail/proof configuration is unavailable. No password at signup.
+- `POST /account/verification` — `{token,password}`, 200 after atomic consumption;
+  same 401 for unavailable/expired/replayed proof; no automatic session.
+- `POST /account/sessions` — `{email,password}`, 200 with a 15-minute API bearer;
+  same 401 for invalid, absent, inactive or staff identity.
+- `GET /account/profile` — current ordinary User's `id,email,name` only.
+- `DELETE /account/sessions/current` — revoke current bearer, 204.
+- C11: `POST /account/recovery` — `{email}`, neutral 202 `recovery_requested`.
+- C11: `POST /account/password` — `{token,password,password_confirmation}`,
+  200 `password_updated` after durable reset/revocation/notice; no login.
+  See [recovery](../04-backend/account_recovery.md) for bounds and errors.
+- C12: device-aware login, POST `/account/sessions/refresh`, GET
+  `/account/sessions` and DELETE `/account/sessions/{id}` follow the
+  [native session contract](../04-backend/device_sessions.md).
+
+Account endpoints are no-store and independent of payment. JSON/native and
+browser-cookie transports stay separate. See the complete
+[authentication contract](../04-backend/account_authentication.md).
 
 ## Ops (S1, implemented)
 
@@ -31,7 +66,7 @@ Preset enum: `stain | scratch | crack | broken | moisture | hole | other`.
 
 ## Seal, report, share, verify
 
-- `POST /inspections/{id}/seal` (S5, S6-basic) — returns { manifest_sha256, signature, report_id, verify_code }; paywall off by default, live mode enforces Stripe/Asaas proof (402); 404 missing, 409 sealed/changed, 422 empty
+- `POST /inspections/{id}/seal` — returns { manifest_sha256, signature, report_id, verify_code }; no payment proof required; deprecated optional string `payment_proof` accepted and ignored; 400 malformed input, 404 missing/unauthorized, 409 sealed/changed, 422 empty
 - `GET /reports/{id}` (S7) — report + QR-ready verify_url
 - `POST /reports/{id}/pdf` (S7) — two-pass final PDF attach, returns report_sha256
 - `GET /reports/{id}/download-url` (S7) — signed 5min PDF URL
@@ -52,6 +87,12 @@ Preset enum: `stain | scratch | crack | broken | moisture | hole | other`.
 ## Comparisons (V1.3, S9)
 
 - `POST /tenancies/{id}/comparisons` — { entry_room_id, exit_room_id, shot_category, entry_evidence_id?, exit_evidence_id?, tag } → 200 upsert; retags overwrite, history stays on device.
-- `GET /tenancies/{id}/comparisons` — tags, oldest first; 404 unknown tenancy.
+- `GET /tenancies/{id}/comparisons` — tags, oldest first; 404 unknown tenancy or legacy out-of-scope references.
+
+Comparison Evidence references must belong to the selected entry/exit Room
+and Inspection. Unknown, foreign or wrong-side Evidence returns 404 without
+changing the existing tag. Reads reject legacy invalid references. Private API
+ownership remains required with the panel disabled; isolated local legacy
+development requires the explicit mode in [web panel](../04-backend/web_panel.md).
 - Closed vocabularies: tag `no_change|changed|wear`, category `overview|walls|openings|floor|ceiling`.
 - Rooms must sit on the tenancy's entry/exit inspections (400); tags describe visual state only, never liability.

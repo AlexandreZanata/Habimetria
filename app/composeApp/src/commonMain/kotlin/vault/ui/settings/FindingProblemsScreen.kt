@@ -31,9 +31,9 @@ import kotlinx.coroutines.launch
 import vault.local.ProblemOption
 import vault.ui.AppContainer
 import vault.ui.ErrorText
-import vault.ui.ProgressStatus
 import vault.ui.ScreenTitle
-import vault.ui.SkeletonLine
+import vault.ui.LoadingSkeleton
+import vault.ui.SettingsRowSkeleton
 import vault.ui.rememberLoadingVisible
 import vault.ui.VaultTextField
 import vault.ui.userErrorMessage
@@ -59,7 +59,7 @@ fun FindingProblemsScreen(container: AppContainer) {
 
     LaunchedEffect(local) { load() }
 
-    val showLoading = rememberLoadingVisible(options == null)
+    val showLoading = rememberLoadingVisible(options == null && error == null)
 
     fun run(work: suspend () -> Unit) {
         scope.launch {
@@ -92,10 +92,9 @@ fun FindingProblemsScreen(container: AppContainer) {
         }
         item { ErrorText(error) }
         if (showLoading) {
-            item { ProgressStatus(true) }
-            item { SkeletonLine(0.6f, 20.dp) }
-            item { SkeletonLine(0.5f, 20.dp) }
-            item { SkeletonLine(0.7f, 20.dp) }
+            item(key = "loading") {
+                LoadingSkeleton(spacing = 8.dp) { repeat(3) { SettingsRowSkeleton(withSwitch = true) } }
+            }
         } else if (options == null) {
             // Grace period: data is on its way, paint nothing yet.
         } else {

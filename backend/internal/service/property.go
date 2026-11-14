@@ -10,7 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// PropertyService creates properties. Address only — no signup wall in MVP.
+// PropertyService creates unclaimed Properties for the explicit development API.
 type PropertyService struct {
 	pool *pgxpool.Pool
 }

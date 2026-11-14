@@ -11,7 +11,9 @@ No claim of automatic judicial acceptance.
 ## Optional personal identification
 
 Rental capture/finalization does not require name, CPF, email or phone.
-Review offers an explicit optional identification section. CPF format/check
+The Report details dialog keeps a labeled close button in its header while
+the form scrolls. The rental identification switch and its label share one
+aligned touch target when editing is available. CPF format/check
 digits are validated if provided, never described as government verification.
 Users choose whether the supplied CPF appears fully or masked in the PDF;
 the complete voluntarily supplied declaration is in the private signed
@@ -93,8 +95,9 @@ unreviewed scope is never advertised as compliant.
 
 ## Editorial presentation
 
-Use A4, 30 mm left/top and 20 mm right/bottom, body 12 pt, smaller source/
-caption/footer text, consistent single-spacing and numbered textual sections.
+Use the A4 grid and local Manrope fonts specified in the
+[PDF rendering contract](local_pdf_contract.md), with 12 pt body text,
+smaller source/caption/footer text and numbered sections.
 Professional presentation adds title/identification, author-written summary/
 keywords, contents, scope/method, evidence, analysis/conclusions, references
 and separately identified technical/integrity appendices. Cover uses a

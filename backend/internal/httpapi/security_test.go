@@ -25,3 +25,38 @@ func TestSecurityHeadersPresent(t *testing.T) {
 		}
 	}
 }
+
+func TestRouterWiresPrivateResourcesAndPanel(t *testing.T) {
+	router := NewRouter(Deps{
+		Guard: func(scope string, _ http.HandlerFunc) http.HandlerFunc {
+			return func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("X-Test-Scope", scope)
+				w.WriteHeader(http.StatusForbidden)
+			}
+		},
+		Panel: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusNoContent)
+		}),
+	})
+	for _, route := range []struct{ method, path, scope string }{
+		{"POST", "/api/v1/properties", "properties"},
+		{"POST", "/api/v1/tenancies/id/inspections", "tenancies"},
+		{"GET", "/api/v1/inspections/id/evidences/download-url", "inspections"},
+		{"POST", "/api/v1/rooms/id/findings", "rooms"},
+		{"GET", "/api/v1/reports/id/download-url", "reports"},
+		{"GET", "/api/v1/occurrences/id/evidences", "occurrences"},
+	} {
+		res := httptest.NewRecorder()
+		router.ServeHTTP(res, httptest.NewRequest(route.method, route.path, nil))
+		if res.Code != http.StatusForbidden || res.Header().Get("X-Test-Scope") != route.scope {
+			t.Errorf("%s %s is not protected by the %s scope", route.method, route.path, route.scope)
+		}
+	}
+	for path, want := range map[string]int{"/painel/": http.StatusNoContent, "/api/v1/ping": http.StatusOK} {
+		res := httptest.NewRecorder()
+		router.ServeHTTP(res, httptest.NewRequest(http.MethodGet, path, nil))
+		if res.Code != want || res.Header().Get("X-Test-Scope") != "" {
+			t.Errorf("%s returned %d with scope %q", path, res.Code, res.Header().Get("X-Test-Scope"))
+		}
+	}
+}

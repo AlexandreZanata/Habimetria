@@ -41,11 +41,34 @@ services:
     build:
       context: ../backend
     environment:
+      APP_ENV: ${APP_ENV:-development}
       PORT: "8080"
       # Inside compose the defaults point at service names; host runs use
       # infra/.env.example (localhost origins) which matches config.FromEnv.
       DATABASE_URL: ${DATABASE_URL:-postgres://vault:vault@postgres:5432/vault?sslmode=disable}
       VERIFY_BASE_URL: ${VERIFY_BASE_URL:-http://localhost:8080}
+      PANEL_ORIGIN: ${PANEL_ORIGIN:-}
+      LEGACY_API_MODE: ${LEGACY_API_MODE:-owned}
+      COMMERCE_ENV: ${COMMERCE_ENV:-}
+      COMMERCE_NEW_PURCHASES_ENABLED: ${COMMERCE_NEW_PURCHASES_ENABLED:-false}
+      COMMERCE_SECRETS_DIR: ${COMMERCE_SECRETS_DIR:-/run/secrets/habimetria}
+      GOOGLE_PLAY_ENABLED: ${GOOGLE_PLAY_ENABLED:-false}
+      GOOGLE_PLAY_PACKAGE_NAME: ${GOOGLE_PLAY_PACKAGE_NAME:-}
+      GOOGLE_PLAY_SECRET_REF: ${GOOGLE_PLAY_SECRET_REF:-}
+      APP_STORE_ENABLED: ${APP_STORE_ENABLED:-false}
+      APP_STORE_BUNDLE_ID: ${APP_STORE_BUNDLE_ID:-}
+      APP_STORE_APP_ID: ${APP_STORE_APP_ID:-}
+      APP_STORE_ISSUER_ID: ${APP_STORE_ISSUER_ID:-}
+      APP_STORE_KEY_ID: ${APP_STORE_KEY_ID:-}
+      APP_STORE_SECRET_REF: ${APP_STORE_SECRET_REF:-}
+      ACCOUNT_MAIL_ENABLED: ${ACCOUNT_MAIL_ENABLED:-false}
+      ACCOUNT_MAIL_ORIGIN: ${ACCOUNT_MAIL_ORIGIN:-}
+      ACCOUNT_MAIL_SMTP_ADDRESS: ${ACCOUNT_MAIL_SMTP_ADDRESS:-}
+      ACCOUNT_MAIL_FROM: ${ACCOUNT_MAIL_FROM:-}
+      ACCOUNT_MAIL_SMTP_MODE: ${ACCOUNT_MAIL_SMTP_MODE:-starttls}
+      ACCOUNT_MAIL_SMTP_USERNAME: ${ACCOUNT_MAIL_SMTP_USERNAME:-}
+      ACCOUNT_MAIL_SMTP_PASSWORD_FILE: ${ACCOUNT_MAIL_SMTP_PASSWORD_FILE:-}
+      ACCOUNT_MAIL_PROOF_KEY_FILE: ${ACCOUNT_MAIL_PROOF_KEY_FILE:-}
       STORAGE_BACKEND: s3
       S3_ENDPOINT: ${S3_ENDPOINT:-http://minio:9000}
       S3_REGION: us-east-1
@@ -54,13 +77,6 @@ services:
       S3_SECRET_KEY: minio12345
       S3_PATH_STYLE: "true"
       HMAC_KEY: ${HMAC_KEY:-dev-only-change-me}
-      # Paywall: off keeps the MVP frictionless. Live needs keys.
-      PAYMENTS_MODE: ${PAYMENTS_MODE:-off}
-      PAYMENTS_PROVIDER: ${PAYMENTS_PROVIDER:-stripe}
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
-      ASAAS_API_KEY: ${ASAAS_API_KEY:-}
-      SEAL_PRICE_CENTS: ${SEAL_PRICE_CENTS:-2990}
-      SEAL_CURRENCY: ${SEAL_CURRENCY:-BRL}
     ports:
       - "8080:8080"
     depends_on:

@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import vault.nav.Route
 import vault.nav.VaultNavigator
+import vault.ui.property.rememberHomeBannerState
 import vault.ui.settings.SettingsStrings
 
 // App owns the navigator; screens receive callbacks and stay stateless
@@ -13,11 +14,15 @@ import vault.ui.settings.SettingsStrings
 @Composable
 fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNavigator() }) {
     val route by navigator.route.collectAsState()
+    val homeBanner = rememberHomeBannerState(container.homeBannerPreference)
     HabimetriaTheme {
         when (val r = route) {
-            Route.Home -> ChromeShell(r, container, navigator, Strings.home, false, {}) {
+            Route.Home -> ChromeShell(r, container, navigator, Strings.appName.lowercase(), false, {}) {
                 HomeScreen(
                     container,
+                    showBanner = homeBanner.visible,
+                    bannerError = homeBanner.error,
+                    onHideBanner = if (homeBanner.canChange) { { homeBanner.setVisible(false) } } else null,
                     onReady = { navigator.startInspection(it) },
                     onNewInspection = { navigator.navigate(Route.NewInspection) },
                     onOpenDetail = { navigator.navigate(Route.PropertyDetail(it)) },
@@ -71,10 +76,19 @@ fun App(container: AppContainer, navigator: VaultNavigator = remember { VaultNav
             }
             Route.Settings -> ChromeShell(r, container, navigator, Strings.settings, false, {}) {
                 vault.ui.settings.SettingsScreen(
+                    showHomeBanner = homeBanner.visible,
+                    bannerError = homeBanner.error,
+                    onHomeBannerChange = if (homeBanner.canChange) homeBanner::setVisible else null,
                     onOpenReports = { navigator.navigate(Route.Reports) },
                     onOpenProblems = { navigator.navigate(Route.FindingProblems) },
                     onOpenRoomPresets = { navigator.navigate(Route.RoomPresets) },
+                    onOpenAccount = { navigator.navigate(Route.Account) },
                 )
+            }
+            Route.Account -> ChromeShell(r, container, navigator, "Conta", true, {
+                navigator.goBackOr(Route.Settings)
+            }) {
+                vault.ui.account.AccountScreen(container.accountFactory)
             }
             Route.FindingProblems -> ChromeShell(r, container, navigator, SettingsStrings.problemsTitle, true, {
                 navigator.goBackOr(Route.Settings)

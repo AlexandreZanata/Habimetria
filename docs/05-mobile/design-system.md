@@ -1,23 +1,27 @@
 # Design System — Material 3 Tokens and Components (L2)
 
 Normative identity: [brand-identity.md](brand-identity.md). Code:
-`vault.ui.Theme` (brand roles, Manrope, shapes), `vault.ui.Strings`
+`vault.ui.ThemeColors` (brand roles), `vault.ui.Theme` (Manrope and shapes), `vault.ui.Strings`
 (pt-BR copy), `vault.ui.VaultComponents` (shared building blocks),
-`vault.ui.brand.HabimetriaBrand` (mark and lockup).
+`vault.ui.brand.HabimetriaBrand` (monogram).
 
 ## Brand palette
 
 Base palette is fixed by the brand document: Pinho `#123D35`, Marfim
 `#F4F3EE`, Grafite `#28332F`, Sálvia `#A7B8A7`. UI roles below derive
-from it; no screen hardcodes a color.
+from it. Both schemes define every Material role, including fixed colors,
+from the brand palette, neutral scrims and semantic error colors.
 
 Light roles:
 
 - `primary` Pinho; `onPrimary` Marfim; primary action and headers.
 - `primaryContainer` Sálvia; `onPrimaryContainer` Pinho.
 - `secondary` Sálvia; `onSecondary` Grafite.
+- In both modes, `secondaryContainer` is Pinho with white
+  `onSecondaryContainer` for selected chips using Material defaults.
 - `background`, `surface`, `surfaceContainerLow/Lowest/High` Marfim and
-  ivory tints; `onBackground`, `onSurface` Grafite.
+  ivory tints, including warm white `#FBFAF6` for raised reading surfaces;
+  `onBackground`, `onSurface` Grafite.
 - `surfaceVariant`, `surfaceDim`, `surfaceContainer/Highest` sage-ivory
   supporting tints; `onSurfaceVariant` Grafite.
 - `outline` and `outlineVariant` muted pinho-gray; never pure black.
@@ -27,24 +31,26 @@ Dark roles:
 
 - `primary` `#BFD3C4` (light sálvia), `onPrimary` Pinho.
 - `primaryContainer` `#1E3A32`, `onPrimaryContainer` `#E8EFE9`.
-- `background`, `surface` `#0E1512`; `surfaceContainer` `#15201C`;
+- `background` `#0E1512`; `surface` and `surfaceContainer` `#15201C`;
   `surfaceVariant` `#1E2C27`; `onBackground`, `onSurface` Marfim.
 - Dark tokens are independent constants so light edits never recolor
   dark mode. Dark follows the system setting.
+
+Both schemes use Pinho, Marfim and Sálvia for the inverse feature panels.
 
 ## Typography
 
 - **Manrope** is bundled as static 400/500/600/700 weights
   (`composeResources/font`); the system sans is only a fallback.
 - Titles use Medium/SemiBold with tight leading; body uses Regular.
-- Roles: `headlineMedium` 32/40, `headlineSmall` 24/32, `titleLarge`
+- Roles: `displaySmall` 38/42, `headlineMedium` 32/38, `headlineSmall` 24/32, `titleLarge`
   20/28 SemiBold, `titleMedium` 16/24 SemiBold, `bodyLarge` 16/24,
   `bodyMedium` 14/20, `labelLarge` 14/20 Medium.
 - Numbers and evidence codes stay tabular where the platform allows.
 
 ## Shapes and density
 
-- Rounded scale 4/8/12/16/28 for chips, cards, sheets and the app icon
+- Rounded scale 4/10/14/20/28 for chips, cards, sheets and the app icon
   language; keep right angles only inside the brand mark.
 - 20 dp horizontal screen padding, 12 dp stack spacing, 48 dp minimum
   touch target.
@@ -54,20 +60,45 @@ Dark roles:
 
 - `ScreenColumn`: the single content wrapper (spacing + padding once).
 - `ScreenTitle`, `BodyText`, `ErrorText` (error role, never bare red).
-- `VaultButton`: full-width, 48 dp minimum touch target.
-- `ProgressStatus`, `VaultTextField`.
+- `VaultButton`: full-width, 52 dp minimum height. In `Nova vistoria`,
+  the enabled `Iniciar vistoria` button uses Pinho and white in both modes.
+- `ProgressStatus`, outlined `VaultTextField`.
+- `RecordPanel`: icon and copy for contextual states, with an inverse
+  treatment when it carries a primary seal or share action.
+- `StatusBadge`: a rounded icon and label for Property and Inspection
+  states. Light mode uses white ink on Pinho. Selectable status filters
+  reverse this pair for the current selection.
 - `HabimetriaMark`: geometric H from the brand asset, tinted by the
   current content color.
-- `HabimetriaWordmark`: mark plus lowercase `habimetria` for hero and
-  brand surfaces.
+- [Architectural elevation](home_artwork.md): decorative drawing for Home
+  and Property cover fallbacks.
+
+## Loading states
+
+- Keep the shell and available content in place. Skeletons appear only
+  in sections awaiting data, after a 150 ms threshold, and clear when
+  the read completes, fails, or returns an empty result.
+- Match the loaded layout's card shapes, spacing, and media and control
+  dimensions. Use theme surface roles for the shimmer, including inverse
+  surfaces, and share one animation phase across each loading group.
+- Expose one accessible loading indicator per group. Placeholders are
+  decorative and have no actions. Keep progress indicators for operations
+  the user started, such as saving, exporting, and uploading.
 
 ## Adaptive shell
 
+- In light mode the masthead and compact bottom bar use the same Pinho
+  `inverseSurface` as the Home hero, with white (`#FFFFFF`) text
+  and icons. The selected bottom-bar tile reverses the pair.
 - Breakpoints live in shared `vault.nav` (`windowClassFor`,
   `maxContentWidthDp`, `roomsColumns`, `useSideBySide`) so Android,
   iOS, tablets, foldables and multi-window behave identically.
-- `VaultShell` caps content width on medium/expanded windows and hosts
-  the brand mark beside the screen title.
+- `VaultShell` caps content width on medium/expanded windows and places
+  the monogram and one-line `titleLarge` title in a fixed 64 dp row
+  across all routes. Back sits at the trailing edge.
+- Forms, confirmation dialogs and bottom sheets share the same width
+  policy. The surface takes 94% of the available width up to a 600 dp
+  measurement cap. The photo viewer uses the full screen.
 - Phones stack preview above controls; wide windows place them side
   by side with an independently scrolling control column, so no
   action hides in landscape.

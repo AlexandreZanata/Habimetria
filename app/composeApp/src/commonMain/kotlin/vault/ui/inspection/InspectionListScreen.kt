@@ -2,15 +2,17 @@ package vault.ui.inspection
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.FilterChip
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Assignment
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,11 +32,11 @@ import vault.local.STATUS_SEALED
 import vault.ui.AppContainer
 import vault.ui.ErrorText
 import vault.ui.InspectionRowSkeleton
-import vault.ui.ProgressStatus
+import vault.ui.LoadingSkeleton
+import vault.ui.RecordPanel
 import vault.ui.Strings
 import vault.ui.rememberLoadingVisible
 import vault.ui.VaultTextField
-import vault.ui.property.PropertyStrings
 import vault.ui.property.RemovalFeedback
 import vault.ui.userErrorMessage
 
@@ -113,30 +115,16 @@ fun InspectionListScreen(
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        item { RecordPanel(Icons.AutoMirrored.Outlined.Assignment, InspectionStrings.listTitle, InspectionStrings.listBody) }
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(
-                    selected = filter == "ALL",
-                    onClick = { filter = "ALL" },
-                    label = { Text(PropertyStrings.filterAll) },
-                )
-                FilterChip(
-                    selected = filter == "DRAFT",
-                    onClick = { filter = "DRAFT" },
-                    label = { Text(PropertyStrings.filterDraft) },
-                )
-                FilterChip(
-                    selected = filter == "SEALED",
-                    onClick = { filter = "SEALED" },
-                    label = { Text(PropertyStrings.filterSealed) },
-                )
-            }
+            InspectionStatusFilters(selected = filter, onSelect = { filter = it })
         }
         item {
             VaultTextField(
                 value = query,
                 onValueChange = { query = it },
                 label = InspectionStrings.search,
+                leadingIcon = Icons.Outlined.Search,
             )
         }
         val done = feedback
@@ -151,19 +139,14 @@ fun InspectionListScreen(
                 }
             }
             rows == null && showLoading -> {
-                item {
-                    ProgressStatus(true)
-                    InspectionRowSkeleton()
+                item(key = "loading") {
+                    LoadingSkeleton { repeat(3) { InspectionRowSkeleton() } }
                 }
-                item { InspectionRowSkeleton() }
-                item { InspectionRowSkeleton() }
             }
-            rows == null -> {
-                // Grace period: data is on its way, paint nothing yet.
-            }
+            rows == null -> Unit
             visible.isEmpty() -> {
                 item {
-                    Text(if (query.isBlank()) InspectionStrings.emptyAll else InspectionStrings.emptyFilter)
+                    Text(if (query.isBlank() && filter == "ALL") InspectionStrings.emptyAll else InspectionStrings.emptyFilter, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
                 }
             }
             else -> {

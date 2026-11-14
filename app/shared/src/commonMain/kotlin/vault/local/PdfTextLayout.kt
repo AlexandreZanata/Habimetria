@@ -28,65 +28,121 @@ fun measuredPdfLines(text: String, maxWidth: Double, widthOf: (String) -> Double
     return lines
 }
 
-fun textSize(kind: TextKind): Double = when (kind) {
-    TextKind.TITLE -> PDF_TITLE_SIZE
-    TextKind.HEADING -> PDF_HEADING_SIZE
-    TextKind.BODY -> PDF_BODY_SIZE
-    TextKind.SMALL -> PDF_SMALL_SIZE
-}
+internal data class PdfColumn(val x: Double, val width: Double, val align: PdfAlign = PdfAlign.LEFT)
+internal val pdfBody = PdfColumn(PDF_MARGIN_LEFT_PT, contentWidthPt())
+internal val pdfRight = PDF_PAGE_WIDTH_PT - PDF_MARGIN_RIGHT_PT
 
-internal class PdfLayoutBuilder(private val renderer: PdfTextMetrics, private val reportId: String, private val maxPhotoHeight: Double = PDF_MAX_PHOTO_HEIGHT_PT) {
+internal class PdfLayoutBuilder(private val renderer: PdfTextMetrics, private val reportId: String) {
     val pages = mutableListOf<RenderPage>()
-    val sections = mutableListOf<Pair<String, Int>>()
     private var items = mutableListOf<PageItem>()
-    var y = PDF_MARGIN_TOP_PT
+    private var outlineTitle: String? = null
+    private var continuation: String? = null
+    var y = 99.0
         private set
     val currentNumber: Int get() = pages.size + 1
 
-    fun section(title: String) {
-        ensure(renderer.lineHeight(TextKind.HEADING) * 3)
-        sections.add(title to currentNumber)
-        text(title, TextKind.HEADING)
+    fun heading(label: String, title: String, subtitle: String? = null, column: PdfColumn = pdfBody) {
+        outlineTitle = title
+        text(label, TextKind.LABEL, 10.0)
+        text(title, TextKind.TITLE, 8.0, column)
+        subtitle?.let { text(it, gapAfter = 12.0) }
+        continuation = label
     }
-    fun ensure(height: Double) { if (y + height > bottomLimitPt()) flush() }
-    fun gap(height: Double = 8.0) { ensure(height); y += height }
+
+    fun ensure(height: Double) {
+        if (y + height <= bottomLimitPt()) return
+        val label = continuation
+        flush()
+        if (label != null) {
+            continuation = label
+            text("$label · CONTINUAÇÃO", TextKind.LABEL, 16.0)
+        }
+    }
+
+    fun spaceTo(top: Double) { y = maxOf(y, top) }
+    fun gap(height: Double = 8.0) { y += height }
     fun marker(item: PageItem) { items.add(item) }
-    fun text(text: String, kind: TextKind = TextKind.BODY, gapAfter: Double = 6.0) {
-        for (line in renderer.measureText(text, kind, contentWidthPt())) {
-            val height = renderer.lineHeight(kind)
-            ensure(height)
-            items.add(PageItem.Text(kind, line, PdfRect(PDF_MARGIN_LEFT_PT, y, contentWidthPt(), height)))
-            y += height
+
+    fun lines(text: String, kind: TextKind, column: PdfColumn = pdfBody): List<String> =
+        renderer.measureText(text, kind, column.width)
+
+    fun height(kind: TextKind): Double = renderer.lineHeight(kind)
+
+    fun put(line: String, kind: TextKind, top: Double, column: PdfColumn = pdfBody, tone: PdfTone = kind.tone) {
+        marker(PageItem.Text(kind, line, PdfRect(column.x, top, column.width, height(kind)), tone, column.align))
+    }
+
+    fun cell(text: String, kind: TextKind, top: Double, column: PdfColumn = pdfBody, tone: PdfTone = kind.tone) {
+        lines(text, kind, column).forEachIndexed { i, line -> put(line, kind, top + i * height(kind), column, tone) }
+    }
+
+    fun text(text: String, kind: TextKind = TextKind.BODY, gapAfter: Double = 6.0, column: PdfColumn = pdfBody) {
+        for (line in lines(text, kind, column)) {
+            ensure(height(kind))
+            put(line, kind, y, column)
+            y += height(kind)
         }
         gap(gapAfter)
     }
-    fun photo(entry: PdfPhotoEntry, dims: ImageDims) {
+
+    fun fill(top: Double, height: Double, tone: PdfTone, column: PdfColumn = pdfBody) {
+        marker(PageItem.Fill(PdfRect(column.x, top, column.width, height), tone))
+    }
+
+    fun rule(top: Double = y, tone: PdfTone = PdfTone.RULE) {
+        marker(PageItem.Path(listOf(PdfPoint(pdfBody.x, top), PdfPoint(pdfRight, top)), tone, 0.6))
+    }
+
+    fun panel(label: String, content: String, tone: PdfTone = PdfTone.SAGE, accent: Boolean = true) {
+        val column = PdfColumn(pdfBody.x + 16, pdfBody.width - 32)
+        val body = lines(content, TextKind.CAPTION, column)
+        val lineHeight = height(TextKind.CAPTION)
+        val labels = lines(label, TextKind.LABEL, column)
+        val padding = 30.0 + labels.size * height(TextKind.LABEL)
+        val available = bottomLimitPt() - y
+        val entire = padding + lineHeight * body.size
+        if (entire > available) ensure(minOf(entire, padding + lineHeight * 3))
+        var start = 0
+        while (start < body.size) {
+            ensure(padding + lineHeight)
+            val count = minOf(body.size - start, ((bottomLimitPt() - y - padding) / lineHeight).toInt())
+            val panelHeight = padding + lineHeight * count
+            fill(y, panelHeight, tone)
+            if (accent) fill(y, panelHeight, PdfTone.PINE, PdfColumn(pdfBody.x, 3.0))
+            labels.forEachIndexed { i, line -> put(line, TextKind.LABEL, y + 10 + i * height(TextKind.LABEL), column) }
+            body.subList(start, start + count).forEachIndexed { i, line ->
+                put(line, TextKind.CAPTION, y + padding - 11 + i * lineHeight, column)
+            }
+            y += panelHeight + 10
+            start += count
+        }
+    }
+
+    fun photo(entry: PdfPhotoEntry, dims: ImageDims, maxHeight: Double) {
         require(dims.width > 0 && dims.height > 0) { "invalid image dimensions" }
         val aspect = dims.width.toDouble() / dims.height
-        val height = minOf(contentWidthPt() / aspect, maxPhotoHeight)
+        val height = minOf(pdfBody.width / aspect, maxHeight)
         val width = height * aspect
-        val captions = listOf(entry.caption, entry.claimLine.orEmpty())
-        val captionHeight = captions.sumOf { renderer.measureText(it, TextKind.SMALL, contentWidthPt()).size } *
-            renderer.lineHeight(TextKind.SMALL) + 12.0
-        // Reserve image + its reference. Long claim blocks may continue afterward.
-        ensure(height + minOf(captionHeight, 100.0))
-        // Wrap the on-photo stamp to the photo width so no line spills past
-        // the rect; the overlay keeps every character, it never truncates.
-        val stamp = wrapStampLines(entry.stampLines, width, renderer::measureText)
-        items.add(PageItem.Photo(entry.copy(stampLines = stamp), PdfRect(PDF_MARGIN_LEFT_PT + (contentWidthPt() - width) / 2, y, width, height)))
-        y += height + 6.0
-        text(entry.caption, TextKind.SMALL, 2.0)
-        entry.claimLine?.let { text(it, TextKind.SMALL) }
-        gap(6.0)
+        ensure(height + 6 + lines(entry.caption, TextKind.CAPTION).size * height(TextKind.CAPTION))
+        // For extreme panoramas or narrow photos, full metadata still appears below the image.
+        val stamp = if (width >= 24) wrapStampLines(entry.stampLines, width - 8, renderer::measureText) else emptyList()
+        val fits = stamp.size * (height(TextKind.SMALL) + 2) + 8 <= height
+        val slot = PdfRect(pdfBody.x + (pdfBody.width - width) / 2, y, width, height)
+        marker(PageItem.Photo(entry.copy(stampLines = if (fits) stamp else emptyList()), slot))
+        y += height + 6
+        text(entry.caption, TextKind.CAPTION, 2.0)
+        entry.claimLine?.let {
+            ensure(35.0)
+            text("DADOS DO REGISTRO", TextKind.LABEL, 2.0)
+            text(it, TextKind.SMALL, 12.0)
+        }
     }
-    fun qr(content: String) {
-        ensure(108.0)
-        items.add(PageItem.Qr(content, PdfRect(PDF_MARGIN_LEFT_PT, y, 100.0, 100.0)))
-        y += 108.0
-    }
+
     fun flush() {
-        if (items.isNotEmpty()) pages.add(RenderPage(pages.size + 1, reportId, items.toList()))
+        if (items.isNotEmpty()) pages.add(RenderPage(currentNumber, reportId, items.toList(), outlineTitle))
         items = mutableListOf()
-        y = PDF_MARGIN_TOP_PT
+        y = 99.0
+        outlineTitle = null
+        continuation = null
     }
 }

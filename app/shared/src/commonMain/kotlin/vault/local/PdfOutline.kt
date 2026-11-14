@@ -11,13 +11,12 @@ data class PdfOutlineEntry(val title: String, val pageNumber: Int)
 fun outlineForPages(pages: List<RenderPage>): List<PdfOutlineEntry> {
     val sections = mutableListOf<PdfOutlineEntry>()
     pages.forEach { page ->
-        page.items.filterIsInstance<PageItem.Text>().firstOrNull()?.let { first ->
-            if (first.kind == TextKind.HEADING || first.kind == TextKind.TITLE) {
-                val title = first.text.take(120)
-                if (title.isNotBlank() && (sections.isEmpty() || sections.last().title != title)) {
-                    sections.add(PdfOutlineEntry(title, page.number))
-                }
-            }
+        val first = page.items.filterIsInstance<PageItem.Text>().firstOrNull()
+        val title = page.outlineTitle ?: first?.takeIf {
+            it.kind == TextKind.TITLE || it.kind == TextKind.HEADING
+        }?.text
+        if (!title.isNullOrBlank() && sections.lastOrNull()?.title != title) {
+            sections.add(PdfOutlineEntry(title, page.number))
         }
     }
     return sections

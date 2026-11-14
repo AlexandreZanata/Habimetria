@@ -7,7 +7,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,7 +45,7 @@ internal fun ExternalSigningSheet(session: LocalSession, reportId: String, picke
     val generator = remember(session) {
         ReportGenerator(session.db, session.filesDir, session.originals, session.derivatives, platformSigner(session.filesDir))
     }
-    ModalBottomSheet(onDismissRequest = { if (!busy) onClose() }) {
+    VaultModalBottomSheet(onDismissRequest = { if (!busy) onClose() }) {
         Column(Modifier.padding(20.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text("Assinatura externa opcional (PAdES / Gov.br / carimbo do tempo)", style = MaterialTheme.typography.titleLarge)
             Text("O PDF local continua válido offline. A assinatura externa usa uma cópia: o original é preservado e a cópia nunca é marcada como verificada aqui.",

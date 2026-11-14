@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.RectF
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
@@ -11,20 +12,36 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import com.google.zxing.qrcode.QRCodeWriter
 import vault.local.*
 
-internal fun drawPdfChrome(canvas: Canvas, page: RenderPage, total: Int, fonts: AndroidPdfFonts) {
-    val small = fonts.paint(TextKind.SMALL)
-    canvas.drawText("HABIMETRIA | REGISTRO FOTOGRÁFICO", PDF_MARGIN_LEFT_PT.toFloat(), 45f, small)
-    canvas.drawLine(PDF_MARGIN_LEFT_PT.toFloat(), 55f, (PDF_PAGE_WIDTH_PT - PDF_MARGIN_RIGHT_PT).toFloat(), 55f, Paint().apply { color = Color.rgb(18, 61, 53); strokeWidth = 1.5f })
-    canvas.drawText(page.header, PDF_MARGIN_LEFT_PT.toFloat(), 807f, small)
-    canvas.drawText("${page.number} / $total", 495f, 807f, small)
-    canvas.drawText("Hora e localização informadas pelo dispositivo", PDF_MARGIN_LEFT_PT.toFloat(), 824f, small)
+internal fun drawPdfFill(canvas: Canvas, item: PageItem.Fill) {
+    canvas.drawRect(item.rect.androidRect(), Paint().apply { color = item.tone.argb })
+}
+
+internal fun drawPdfPath(canvas: Canvas, item: PageItem.Path) {
+    val path = Path()
+    val first = item.points.first()
+    path.moveTo(first.x.toFloat(), first.y.toFloat())
+    for (point in item.points.drop(1)) path.lineTo(point.x.toFloat(), point.y.toFloat())
+    canvas.drawPath(path, Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = item.tone.argb
+        item.strokeWidth?.let { width ->
+            style = Paint.Style.STROKE
+            strokeWidth = width.toFloat()
+        }
+    })
 }
 
 internal fun drawPdfText(canvas: Canvas, item: PageItem.Text, fonts: AndroidPdfFonts) {
     val rect = requireNotNull(item.rect) { "text must be paginated before drawing" }
-    val paint = fonts.paint(item.kind)
-    canvas.drawText(item.text, rect.x.toFloat(), (rect.y - paint.fontMetrics.ascent).toFloat(), paint)
+    val paint = Paint(fonts.paint(item.kind)).apply { color = item.tone.argb }
+    val origin = when (item.align) {
+        PdfAlign.LEFT -> rect.x
+        PdfAlign.CENTER -> rect.x + (rect.w - paint.measureText(item.text)) / 2
+        PdfAlign.RIGHT -> rect.x + rect.w - paint.measureText(item.text)
+    }
+    canvas.drawText(item.text, origin.toFloat(), (rect.y - paint.fontMetrics.ascent).toFloat(), paint)
 }
+
+private val PdfTone.argb: Int get() = rgb or (0xFF shl 24)
 
 internal fun drawPdfPhoto(canvas: Canvas, item: PageItem.Photo, bytes: ByteArray?, fonts: AndroidPdfFonts) {
     val bitmap = decodeOrientedAndroid(requireNotNull(bytes) { "missing photo: ${item.entry.evidenceId}" }, PREVIEW_MAX_EDGE)

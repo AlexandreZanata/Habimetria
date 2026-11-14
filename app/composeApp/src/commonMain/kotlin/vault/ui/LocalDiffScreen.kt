@@ -54,7 +54,7 @@ fun LocalDiffScreen(
 
     LaunchedEffect(exitInspectionId) { refresh() }
 
-    val showLoading = rememberLoadingVisible(pending == null)
+    val showLoading = rememberLoadingVisible(pending == null && error == null)
 
     ScreenColumn {
         ScreenTitle(Strings.diffTitle)
@@ -80,10 +80,9 @@ fun LocalDiffScreen(
         LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             val list = pending.orEmpty()
             if (showLoading) {
-                item(key = "loading") { ProgressStatus(true) }
-                item(key = "skeleton-1") { SkeletonLine(0.7f) }
-                item(key = "skeleton-2") { SkeletonLine(0.5f) }
-                item(key = "skeleton-3") { SkeletonLine(0.7f) }
+                item(key = "loading") {
+                    LoadingSkeleton { repeat(3) { DecisionRowSkeleton() } }
+                }
             } else if (pending == null) {
                 // Grace period: data is on its way, paint nothing yet.
             } else if (list.isEmpty()) {

@@ -17,16 +17,35 @@ class IosPlanRenderer : PlanRenderer {
     override suspend fun render(pages: List<RenderPage>, loadPhoto: suspend (String) -> ByteArray?,
         onProgress: (Int, Int) -> Unit, isCancelled: () -> Boolean): ByteArray = withContext(Dispatchers.Default) {
         val backing = NSMutableData()
-        UIGraphicsBeginPDFContextToData(backing, CGRectMake(0.0, 0.0, 595.0, 842.0), null)
+        val bounds = CGRectMake(0.0, 0.0, PDF_PAGE_WIDTH_PT, PDF_PAGE_HEIGHT_PT)
+        UIGraphicsBeginPDFContextToData(backing, bounds, null)
         try {
             for ((index, page) in pages.withIndex()) {
                 if (isCancelled()) throw RenderCancelledException()
-                UIGraphicsBeginPDFPageWithInfo(CGRectMake(0.0, 0.0, 595.0, 842.0), null)
+                UIGraphicsBeginPDFPageWithInfo(bounds, null)
                 val context = UIGraphicsGetCurrentContext() ?: error("PDF context unavailable")
-                text.chrome(page, pages.size)
-                for (item in page.items) {
+                for (item in page.items + page.chrome) {
                     if (isCancelled()) throw RenderCancelledException()
                     when (item) {
+                        is PageItem.Fill -> {
+                            item.tone.uiColor.setFill()
+                            CGContextFillRect(context, CGRectMake(item.rect.x, item.rect.y, item.rect.w, item.rect.h))
+                        }
+                        is PageItem.Path -> {
+                            CGContextBeginPath(context)
+                            val start = item.points.first()
+                            CGContextMoveToPoint(context, start.x, start.y)
+                            for (point in item.points.drop(1)) CGContextAddLineToPoint(context, point.x, point.y)
+                            val width = item.strokeWidth
+                            if (width == null) {
+                                item.tone.uiColor.setFill()
+                                CGContextFillPath(context)
+                            } else {
+                                item.tone.uiColor.setStroke()
+                                CGContextSetLineWidth(context, width)
+                                CGContextStrokePath(context)
+                            }
+                        }
                         is PageItem.Text -> text.draw(item)
                         is PageItem.Photo -> {
                             val image = iosImageThumbnail(requireNotNull(loadPhoto(item.entry.evidenceId)), PREVIEW_MAX_EDGE)

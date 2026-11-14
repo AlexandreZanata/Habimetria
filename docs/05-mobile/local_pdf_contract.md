@@ -44,29 +44,29 @@ pages for professional Evidence without replacing the original attachment.
 
 ## Page composition and output quality
 
-1. Cover: title/purpose, address/unit, Inspection/Report IDs, author/roles,
-   reported dates, presentation choice and concise verification limits.
-2. Summary: Room index with actual page references, evidence/Findings counts,
-   coverage and explicit inaccessible/non-applicable categories.
-3. Room sections: stable Evidence reference/category, intact photo, complete
-   caption/notes, device capture time and per-photo location status.
-4. Professional sections when applicable: scope, method/standards, analysis,
-   conclusions, recommendations and ART/RRT reference/attachment information.
-5. Verification appendix: full Manifest/original digests, key fingerprint,
-   renderer/layout version, methodology, QR identity and receipt instructions.
-6. Signing/acknowledgment statements: identify exactly whose action is recorded;
-   empty signature lines, sharing and QR scans do not count as signatures.
+1. Cover: Habimetria mark, two-line title, Inspection kind, Property
+   address, architectural line drawing, totals, Report ID and declared date.
+2. Identification: full Property address, author and participant declarations,
+   scope, methods, limitations and ART/RRT declarations where applicable.
+3. Summary: striped Room index with physical page references, Evidence and
+   Finding counts, observation references and five distinct-category cards.
+   Counts exclude categories declared non-applicable for each Room.
+4. Room records: one Evidence photo per page, stable Evidence reference and
+   category, proportional photo, device capture and location claims, linked
+   Finding panels with complete notes, and explicit coverage gaps.
+5. Professional analysis, conclusions and references, when supplied.
+6. Integrity appendix: Report identity and QR, Manifest and original digests,
+   installation key ID, layout version and detached receipt instructions.
+   Explicit author acknowledgments are separate from sharing and QR scans.
 
-Use restrained branding, whitespace, black body text, a navy accent, consistent
-margins and embedded/local font resources when required. Body/captions should
-be comfortably legible in A4 print; complete digests can use compact monospaced
-text. Use 12 pt body text, 30 mm left/top and 20 mm right/bottom margins.
-Number textual sections and show declared references; smaller captions and
-source/footer text remain measured. A logical outline with physical page
-references is emitted for navigation; native PDF bookmarks are exposed only
-where the writer supports outlines (current Android/iOS writers do not embed
-them, so the contents page stays the portable surface). Manual print/layout review is user-owned
-after this code-only delivery. See [editorial scope](report_authorship_contract.md).
+Layout v5 follows the Habimetria demonstration's A4 visual system. Use pine,
+warm paper, sage panels, local Manrope fonts and matching left and right
+margins of about 30 mm. Main body is 12 pt, with smaller measured metadata
+and larger section titles. The page footer prints the Report ID and physical
+page/total. Section numbers and the printed Room index provide portable
+navigation. The logical outline points to physical pages. The Android and
+iOS writers expose no native PDF bookmarks. Manual print and layout
+acceptance remains user-owned. See [editorial scope](report_authorship_contract.md).
 Keep all Portuguese accents and all original notes; do not use `.take()` to
 silently discard Report content. Separate technical identifiers into appendix
 where they do not help the reader understand an observation.
@@ -120,7 +120,8 @@ or the specific reason it is unavailable. A professional can report a manual
 address correction as a separate claim before seal. GPS does not prove that
 the scene itself is at those coordinates. Never stamp GPS onto the original:
 the short on-photo stamp (capture time, reported place, coordinates or the
-unavailability reason) is drawn on the PDF page over the photo rect only.
+unavailability reason) is drawn within the photo rectangle when it fits.
+Full device claims remain in the text under the photo.
 
 ## Sealing, generation and independent verification
 

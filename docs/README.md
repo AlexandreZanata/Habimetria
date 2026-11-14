@@ -10,7 +10,8 @@ All product, architecture, and execution docs. Small files, one topic each.
 
 - `02-product/capture-flow.md` — entry/exit guided flow
 - `02-product/ux-principles.md` — radical simplicity rules
-- `02-product/paywall.md` — sell protection, not PDF
+- `02-product/paywall.md` — hosted-service offer; historical per-seal proposal superseded
+- [02-product/service_monetization.md](02-product/service_monetization.md) — all local features free; admin-priced monthly hosted services
 - `02-product/local_navigation_ux.md` — planned header, global navigation, white/green light theme and accessibility
 
 ## 03 Architecture
@@ -21,16 +22,28 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `03-architecture/api-surface.md` — REST surface for MVP
 - `03-architecture/storage-media.md` — originals, previews, signed URLs, video limits
 - `03-architecture/client-processing.md` — app does the work, server keeps trust
-- `03-architecture/payments.md` — Stripe + Asaas seam, off by default in MVP
+- `03-architecture/payments.md` — legacy payment seam and target store-subscription boundary
 - `03-architecture/local_validation_architecture.md` — planned local authority, immutable snapshots and offline verification
 - `03-architecture/offline-package.md` — L7 published package/verify format
 - `03-architecture/local_property_removal.md` — planned empty deletion, reversible archive and preservation of sealed history
 - `03-architecture/brazil_report_legal_requirements.md` — official Brazilian sources, tenancy/professional applicability and limits of legal claims
+- [03-architecture/commercial_domain.md](03-architecture/commercial_domain.md) — planned commercial vocabulary and authority
+- [03-architecture/hosted_entry_points.md](03-architecture/hosted_entry_points.md) — C02 API/panel/mobile/worker inventory and access/funding classifications
+- [03-architecture/subscription_lifecycle.md](03-architecture/subscription_lifecycle.md) — verified purchase, entitlement and recovery states
+- [03-architecture/account_lifecycle.md](03-architecture/account_lifecycle.md) — connected identity, sessions, recovery and deletion
+- [03-architecture/cloud_sync_contract.md](03-architecture/cloud_sync_contract.md) — paid hosted snapshots, changes and clean-device restore
+- [03-architecture/commercial_privacy.md](03-architecture/commercial_privacy.md) — commercial processing, retention and immutable evidence
 
 ## 04 Backend
 
 - `04-backend/go-layout.md` — Go project layout
 - `04-backend/database.md` — tables, states, invariants
+- `04-backend/web_panel.md` — web setup, authorization and report access
+- [04-backend/subscription_api.md](04-backend/subscription_api.md) — planned account, purchase and entitlement HTTP contracts
+- [04-backend/subscription_storage.md](04-backend/subscription_storage.md) — incremental commercial schema and transaction constraints
+- [04-backend/cost_pricing.md](04-backend/cost_pricing.md) — average customer cost, margin and admin store-price publication
+- [04-backend/commercial_admin.md](04-backend/commercial_admin.md) — commercial screens, capabilities and user web controls
+- [04-backend/commercial_operations.md](04-backend/commercial_operations.md) — finance, support, alerts and recovery runbooks
 
 ## 05 Mobile
 
@@ -47,6 +60,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 - [05-mobile/assets/README.md](05-mobile/assets/README.md) — source brand vectors
 - `05-mobile/design-system.md` — L2 Material 3 tokens, Manrope, components, pt-BR
 - [05-mobile/home_artwork.md](05-mobile/home_artwork.md) — generated Brazilian house art and Home presentation
+- [05-mobile/subscription_experience.md](05-mobile/subscription_experience.md) — free local journey and native monthly-service UX
 
 ## 06 Roadmap
 
@@ -64,6 +78,7 @@ All product, architecture, and execution docs. Small files, one topic each.
 - `06-roadmap/local_pdf_execution.md` — implementation results, native synthetic proof and remaining release gates
 - `06-roadmap/local_pdf_acceptance.md` — planned orientation, completeness, offline integrity and professional-release proof
 - `06-roadmap/enterprise_assurance_plan.md` — enterprise test/scale/LGPD plan for municipal use (planning only)
+- [06-roadmap/commercial/README.md](06-roadmap/commercial/README.md) — complete 64-slice execution plan for free local and monthly hosted services; requirements, store sources, progress and release gates
 
 ## 07 AI Ops
 

@@ -7,3 +7,4 @@ build/
 local.properties
 *.hprof
 audit-pack-*.txt
+__pycache__/

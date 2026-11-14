@@ -1,6 +1,13 @@
 # Brand and report authorship UI
 
-- [brand/HabimetriaBrand.kt](brand/HabimetriaBrand.kt): geometric H mark and lowercase wordmark from the brand vectors.
+- [account/README.md](account/README.md): connected account, recovery and device controls.
+
+- [brand/HabimetriaBrand.kt](brand/HabimetriaBrand.kt): geometric H mark from the brand vectors.
+- [ThemeColors.kt](ThemeColors.kt): complete Material color roles for the light and dark brand palettes.
+- [VaultModals.kt](VaultModals.kt): shared width for confirmation dialogs, forms and bottom sheets.
+- [inspection/InspectionDeleteDialog.kt](inspection/InspectionDeleteDialog.kt): removal confirmation with Property, Inspection status and destructive action.
+- [StatusBadge.kt](StatusBadge.kt): shared status badges for Properties and Inspections.
+- [inspection/InspectionStatusFilters.kt](inspection/InspectionStatusFilters.kt): status filters for the Inspection list and Property history.
 
 # Report authorship UI
 
@@ -18,31 +25,44 @@ The existing offline review → seal → PDF → share journey is unchanged.
 
 Contract: [report authorship](../../../../../../../docs/05-mobile/report_authorship_contract.md).
 
+# Loading states
+
+- [Skeleton.kt](Skeleton.kt): themed placeholder primitives, delayed visibility, and one shimmer and accessibility indicator per group.
+- [ListSkeletons.kt](ListSkeletons.kt): featured Property cards, list rows and record panels.
+- [DetailSkeletons.kt](DetailSkeletons.kt): address forms, details, settings, comparison and assistant placeholders.
+- [journey/JourneySkeletons.kt](journey/JourneySkeletons.kt): Room list, capture and coverage placeholders.
+- [review/ReviewSkeletons.kt](review/ReviewSkeletons.kt): review photo and option placeholders.
+
 # Home and properties
 
-- [Skeleton.kt](Skeleton.kt): shimmer loading placeholders shaped like the
-  real content (banner, property cards). Decorative; announcements stay
-  with `ProgressStatus`.
 - [property/HomeHeroBanner.kt](property/HomeHeroBanner.kt): compact mint banner with short native copy, Brazilian house art and Nova vistoria.
+- [property/HomeBannerState.kt](property/HomeBannerState.kt): shared Home and Settings state for the durable banner preference.
 - [property/PropertyCards.kt](property/PropertyCards.kt): property card rows driven by overviews.
 - [property/PropertyListCard.kt](property/PropertyListCard.kt): integrated open/restore actions for property management.
 - [property/PropertyListEmptyState.kt](property/PropertyListEmptyState.kt): distinct search, archive and first-use empty messages.
 - [property/PropertySearchField.kt](property/PropertySearchField.kt): rounded labeled search with clear and keyboard actions.
 - [property/PropertyCardRow.kt](property/PropertyCardRow.kt): text-first measurement with the cover constrained to the metadata height.
 - [property/PropertyCardMenu.kt](property/PropertyCardMenu.kt): overlaid property options with a full-sized touch target.
-- [property/PropertyCardVisuals.kt](property/PropertyCardVisuals.kt): cover thumbnail and rooms/status chips.
+- [property/PropertyCardVisuals.kt](property/PropertyCardVisuals.kt): cover thumbnail and room count chip.
 - [property/PropertyCoverPicker.kt](property/PropertyCoverPicker.kt): durable cover photo pick/capture/remove.
+- [property/PropertyDetailHeader.kt](property/PropertyDetailHeader.kt): wide cover, Property identity and cover actions.
 
 # Review
 
 - [review/ReviewCards.kt](review/ReviewCards.kt): status card with seal action and room cards in the Relatório PDF style.
   Sealed inspections have no Rooms destination, so the Cômodos segment scrolls to the rooms section in place.
+- [inspector/InspectorCards.kt](inspector/InspectorCards.kt): missing categories by Room and review reminders grouped by photo.
+- [inspector/InspectorStrings.kt](inspector/InspectorStrings.kt): assistant instructions and explicit actions for each reminder.
+- [review/ReviewInteractionScope.kt](review/ReviewInteractionScope.kt): shared hover, focus and press feedback for Review controls.
+- [report/PdfJourneySegments.kt](report/PdfJourneySegments.kt): contextual navigation with the Review segment selected.
+- [report/PdfReportCards.kt](report/PdfReportCards.kt): ready Report panel and grouped action rows shared with Review.
 
 # Room setup and capture
 
 - [journey/RoomSetup.kt](journey/RoomSetup.kt): scrollable setup intro, rounded input with keyboard add, presets and empty state.
 - [journey/RoomListRow.kt](journey/RoomListRow.kt): outlined Room cards with progress, photo count and management menu.
 - [journey/JourneyShortcuts.kt](journey/JourneyShortcuts.kt): secondary Rooms/Review shortcuts without a false active state during capture.
+- [journey/SealPanels.kt](journey/SealPanels.kt): pre-seal totals and coverage, signing details and local-time wording.
 - [journey/JourneyAction.kt](journey/JourneyAction.kt): prominent icon task action with an adaptive height.
 - [journey/JourneyStrings.kt](journey/JourneyStrings.kt): feature-owned pt-BR copy and accessible action labels.
 - [journey/RoomCaptureCard.kt](journey/RoomCaptureCard.kt): wrapping green category selectors and system-camera shutter.

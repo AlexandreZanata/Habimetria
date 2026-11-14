@@ -2,6 +2,7 @@ package localstore
 
 import (
 	"context"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -15,7 +16,12 @@ func TestLocalRoundtrip(t *testing.T) {
 	if err := s.PutOriginal(ctx, "originals/i1/e1", strings.NewReader("bytes-1"), "image/jpeg"); err != nil {
 		t.Fatalf("put: %v", err)
 	}
-	got, err := os.ReadFile(filepath.Join(s.dir, "originals", "i1", "e1"))
+	reader, err := s.OpenOriginal(ctx, "originals/i1/e1")
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	got, err := io.ReadAll(reader)
+	_ = reader.Close()
 	if err != nil || string(got) != "bytes-1" {
 		t.Fatalf("stored bytes mismatch: %q %v", got, err)
 	}
@@ -28,6 +34,9 @@ func TestLocalRoundtrip(t *testing.T) {
 	}
 	if err := s.Delete(ctx, "originals/i1/e1"); err != nil {
 		t.Fatalf("missing delete must succeed: %v", err)
+	}
+	if _, err := s.OpenOriginal(ctx, "originals/i1/e1"); err == nil {
+		t.Fatal("open accepted a missing original")
 	}
 }
 
@@ -42,6 +51,9 @@ func TestLocalRejectsTraversal(t *testing.T) {
 		}
 		if _, err := s.SignedGetURL(ctx, key, 0); err == nil {
 			t.Fatalf("url %q must fail", key)
+		}
+		if _, err := s.OpenOriginal(ctx, key); err == nil {
+			t.Fatalf("open %q must fail", key)
 		}
 		if err := s.Delete(ctx, key); err == nil {
 			t.Fatalf("delete %q must fail", key)

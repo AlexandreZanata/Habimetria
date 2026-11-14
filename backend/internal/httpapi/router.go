@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"vault/internal/httpapi/routepolicy"
 	"vault/internal/service"
 )
 
@@ -23,11 +24,39 @@ type Deps struct {
 	Occurrence *service.OccurrenceService
 	Compare    *service.CompareService
 	HMACKey    string
+	Panel      http.Handler
+	Account    *AccountHandler
+	Guard      func(string, http.HandlerFunc) http.HandlerFunc
 }
 
-// NewRouter wires MVP routes.
-func NewRouter(d Deps) *http.ServeMux {
-	mux := http.NewServeMux()
+// NewRouter binds API endpoints to reviewed transport policies.
+func NewRouter(d Deps) *routepolicy.Router {
+	mux := routepolicy.New(apiRoutePolicies, func(rule routepolicy.Rule, next http.Handler) http.Handler {
+		if rule.Class == routepolicy.AccountControl {
+			return d.Account.Guard(next)
+		}
+		if d.Guard == nil || rule.Class != routepolicy.HostedOwner || rule.Scope == "" {
+			return nil
+		}
+		protected := d.Guard(rule.Scope, next.ServeHTTP)
+		if protected == nil {
+			return nil
+		}
+		return protected
+	})
+	mux.HandleFunc("POST /api/v1/account/registrations", d.Account.Register)
+	mux.HandleFunc("POST /api/v1/account/verification", d.Account.Verify)
+	mux.HandleFunc("POST /api/v1/account/recovery", d.Account.Recover)
+	mux.HandleFunc("POST /api/v1/account/password", d.Account.ResetPassword)
+	mux.HandleFunc("POST /api/v1/account/sessions", d.Account.Login)
+	mux.HandleFunc("GET /api/v1/account/profile", d.Account.Profile)
+	mux.HandleFunc("DELETE /api/v1/account/sessions/current", d.Account.Logout)
+	mux.HandleFunc("POST /api/v1/account/sessions/refresh", d.Account.Refresh)
+	mux.HandleFunc("GET /api/v1/account/sessions", d.Account.Devices)
+	mux.HandleFunc("DELETE /api/v1/account/sessions/{id}", d.Account.RevokeDevice)
+	if d.Panel != nil {
+		mux.Handle("/painel/", d.Panel)
+	}
 	hh := NewHealthHandler(d.Health)
 	mux.HandleFunc("GET /healthz", hh.Live)
 	mux.HandleFunc("GET /readyz", hh.Ready)

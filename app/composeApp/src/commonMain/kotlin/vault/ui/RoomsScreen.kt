@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -18,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import vault.api.Room
@@ -37,6 +40,8 @@ fun RoomsScreen(
     var rooms by remember { mutableStateOf<List<Room>>(emptyList()) }
     var counts by remember { mutableStateOf(mapOf<String, Int>()) }
     var error by remember { mutableStateOf<String?>(null) }
+    var loading by remember(inspectionId) { mutableStateOf(true) }
+    val showSkeleton = rememberLoadingVisible(loading)
 
     LaunchedEffect(inspectionId) {
         try {
@@ -44,6 +49,8 @@ fun RoomsScreen(
             counts = container.api.coverage(inspectionId).rooms.associate { it.roomId to it.photos }
         } catch (e: Exception) {
             error = userErrorMessage(e)
+        } finally {
+            loading = false
         }
     }
 
@@ -52,7 +59,24 @@ fun RoomsScreen(
         ErrorText(error)
         BoxWithConstraints(modifier = Modifier.weight(1f)) {
             val cols = roomsColumns(windowClassFor(maxWidth.value.toInt()))
-            LazyVerticalGrid(
+            if (showSkeleton && rooms.isEmpty()) {
+                LoadingSkeleton(spacing = 4.dp) {
+                    repeat(3) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            repeat(cols) {
+                                Row(
+                                    modifier = Modifier.weight(1f).padding(8.dp).height(24.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    SkeletonLine(0.5f, 16.dp)
+                                    SkeletonBlock(Modifier.width(44.dp).height(14.dp))
+                                }
+                            }
+                        }
+                    }
+                }
+            } else LazyVerticalGrid(
                 columns = GridCells.Fixed(cols),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),

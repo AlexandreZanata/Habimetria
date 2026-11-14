@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -29,8 +32,10 @@ import vault.local.REPORT_READY
 import vault.local.ReportOverview
 import vault.ui.AppContainer
 import vault.ui.ErrorText
-import vault.ui.InspectionRowSkeleton
-import vault.ui.ProgressStatus
+import vault.ui.ReportRowSkeleton
+import vault.ui.LoadingSkeleton
+import vault.ui.RecordPanel
+import vault.ui.SkeletonLine
 import vault.ui.Strings
 import vault.ui.rememberLoadingVisible
 import vault.ui.VaultTextField
@@ -74,7 +79,7 @@ fun ReportListScreen(
 
     LaunchedEffect(local) { load() }
 
-    val showLoading = rememberLoadingVisible(reports == null || pending == null)
+    val showLoading = rememberLoadingVisible((reports == null || pending == null) && loadError == null)
 
     fun matches(label: String): Boolean {
         val q = query.trim().lowercase()
@@ -91,10 +96,14 @@ fun ReportListScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
+            RecordPanel(Icons.Outlined.Description, ReportStrings.listTitle, ReportStrings.listBody)
+        }
+        item {
             VaultTextField(
                 value = query,
                 onValueChange = { query = it },
                 label = ReportStrings.search,
+                leadingIcon = Icons.Outlined.Search,
             )
         }
         val done = feedback
@@ -109,19 +118,20 @@ fun ReportListScreen(
                 }
             }
             showLoading -> {
-                item {
-                    ProgressStatus(true)
-                    InspectionRowSkeleton()
+                item(key = "loading") {
+                    LoadingSkeleton {
+                        SkeletonLine(0.48f, 20.dp)
+                        SkeletonLine(0.39f, 18.dp)
+                        repeat(3) { ReportRowSkeleton() }
+                    }
                 }
-                item { InspectionRowSkeleton() }
-                item { InspectionRowSkeleton() }
             }
             reports == null || pending == null -> {
                 // Grace period: data is on its way, paint nothing yet.
             }
             ready.isEmpty() && awaiting.isEmpty() -> {
                 item {
-                    Text(if (query.isBlank()) ReportStrings.emptyAll else ReportStrings.emptySearch)
+                    Text(if (query.isBlank()) ReportStrings.emptyAll else ReportStrings.emptySearch, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
                 }
             }
             else -> {

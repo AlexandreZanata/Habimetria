@@ -1,0 +1,78 @@
+{{define "head"}}<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{if .Title}}{{.Title}} · {{end}}Habimetria</title>
+<link rel="icon" href="/painel/assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/painel/assets/base.css">
+<link rel="stylesheet" href="/painel/assets/components.css">
+<script src="/painel/assets/access.js" defer></script>
+</head>
+{{end}}
+{{define "brand"}}
+<a class="brand" href="/painel/" aria-label="Habimetria, início">
+  <svg class="brand-mark" viewBox="0 0 690 606" aria-hidden="true"><path fill="currentColor" d="M0 0H174V229H516V0H690V606H516V410H402V348H288V410H174V606H0Z"/></svg>
+  <span>habimetria</span>
+</a>
+{{end}}
+{{define "credit"}}
+<footer class="credit">Habimetria · Criado por <a href="https://github.com/AlexandreZanata">Alexandre Zanata (@AlexandreZanata)</a> · <a href="https://github.com/AlexandreZanata/Habimetria">Repositório original</a></footer>
+{{end}}
+{{define "nav"}}
+<nav aria-label="Navegação do painel">
+{{if ne .Actor.Role "user"}}
+  <p class="nav-section">Administração</p>
+  <a class="nav-item" href="/painel/administracao" {{if eq .Section "administracao"}}aria-current="page"{{end}}>Visão geral</a>
+  {{if .Actor.Can "accounts.read"}}
+  <a class="nav-item" href="/painel/usuarios" {{if eq .Section "usuarios"}}aria-current="page"{{end}}>Usuários</a>
+  <a class="nav-item" href="/painel/equipe" {{if eq .Section "equipe"}}aria-current="page"{{end}}>Equipe administrativa</a>
+  {{end}}
+  {{if .Actor.Can "reports.read"}}<a class="nav-item" href="/painel/disponibilizados" {{if eq .Section "disponibilizados"}}aria-current="page"{{end}}>Relatórios disponibilizados</a>{{end}}
+  {{if .Actor.Can "audit.read"}}<a class="nav-item" href="/painel/atividade" {{if eq .Section "atividade"}}aria-current="page"{{end}}>Atividade</a>{{end}}
+  {{if eq .Actor.Role "owner"}}<a class="nav-item" href="/painel/configuracoes" {{if eq .Section "configuracoes"}}aria-current="page"{{end}}>Configurações</a>{{end}}
+{{end}}
+  <p class="nav-section">Área do usuário</p>
+  <a class="nav-item" href="/painel/minha-area" {{if eq .Section "minha-area"}}aria-current="page"{{end}}>Minha área</a>
+  <a class="nav-item" href="/painel/imoveis" {{if eq .Section "imoveis"}}aria-current="page"{{end}}>Meus imóveis</a>
+  <a class="nav-item" href="/painel/vistorias" {{if eq .Section "vistorias"}}aria-current="page"{{end}}>Minhas vistorias</a>
+  <a class="nav-item" href="/painel/relatorios" {{if eq .Section "relatorios"}}aria-current="page"{{end}}>Meus relatórios</a>
+  <a class="nav-item" href="/painel/perfil" {{if eq .Section "perfil"}}aria-current="page"{{end}}>Minha conta</a>
+</nav>
+{{end}}
+{{define "shell"}}
+{{template "head" .}}
+<body>
+<a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+<div class="app-shell">
+  <aside class="sidebar">{{template "brand"}}{{template "nav" .}}</aside>
+  <div class="main-area">
+    <header class="topbar">
+      <details class="mobile-menu"><summary>Menu</summary>{{template "nav" .}}</details>
+      <span class="top-label">Cada detalhe, documentado.</span>
+      <div class="account">
+        <span><strong>{{if .Actor.Name}}{{.Actor.Name}}{{else}}{{.Actor.Email}}{{end}}</strong><small>{{role .Actor.Role}}</small></span>
+        <form action="/painel/sair" method="post"><button class="btn small">Sair</button></form>
+      </div>
+    </header>
+    <main class="main-content" id="conteudo" tabindex="-1">
+      <header class="page-heading"><p class="eyebrow">Habimetria</p><h1>{{.Title}}</h1><p>{{.Subtitle}}</p></header>
+      {{if .Error}}<p class="notice error" role="alert">{{.Error}}</p>{{end}}
+      {{if or (eq .Section "administracao") (eq .Section "minha-area")}}{{template "overview" .}}{{end}}
+      {{if or (eq .Section "usuarios") (eq .Section "equipe")}}{{template "accounts" .}}{{end}}
+      {{if eq .Section "configuracoes"}}{{template "settings" .}}{{end}}
+      {{if eq .Section "atividade"}}{{template "activity" .}}{{end}}
+      {{if eq .Section "imoveis"}}{{template "properties" .}}{{end}}
+      {{if eq .Section "vistorias"}}{{template "inspections" .}}{{end}}
+      {{if or (eq .Section "relatorios") (eq .Section "disponibilizados")}}{{template "reports" .}}{{end}}
+      {{if eq .Section "perfil"}}{{template "profile" .}}{{end}}
+      {{if or .Previous .Next}}<nav class="pagination" aria-label="Paginação">
+        {{if .Previous}}<a class="btn" href="{{.Previous}}">Página anterior</a>{{end}}
+        {{if .Next}}<a class="btn" href="{{.Next}}">Próxima página</a>{{end}}
+      </nav>{{end}}
+    </main>
+    {{template "credit"}}
+  </div>
+</div>
+</body></html>
+{{end}}

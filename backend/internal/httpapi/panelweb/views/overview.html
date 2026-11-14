@@ -1,0 +1,20 @@
+{{define "overview"}}
+<section class="welcome">
+  <div><p class="eyebrow">{{if eq .Section "administracao"}}Painel administrativo{{else}}Área do usuário{{end}}</p>
+  <h2>Cada detalhe, documentado.</h2>
+  <p>{{if eq .Section "administracao"}}Acompanhe os dados disponíveis para o seu perfil.{{else}}Organize imóveis e consulte a documentação disponível na web.{{end}}</p></div>
+  <svg class="building" viewBox="0 0 260 220" fill="none" stroke="currentColor" aria-hidden="true">
+    <path d="M15 62 90 25H242L167 62H15ZM15 62V202H167V62M167 202l75-37V25M15 132H167L242 95M35 80H142V117H35ZM61 80V117M88 80V117M115 80V117M25 125H151M25 117H151M25 117V132M67 117V132M109 117V132M151 117V132M185 68l39-19v43l-39 19ZM204 58V101M39 151H77V202M69 175V181M94 151H142V181H94ZM118 151V181M185 139l40-19v38l-40 20ZM205 129V168M0 202H260"/>
+  </svg>
+</section>
+<section class="stats-grid" aria-label="Indicadores">
+  {{if ne .Metrics.Accounts nil}}<article class="stat-card"><h2>Usuários cadastrados</h2><p class="stat-value">{{.Metrics.Accounts}}</p></article>{{end}}
+  {{if ne .Metrics.Staff nil}}<article class="stat-card"><h2>Equipe ativa</h2><p class="stat-value">{{.Metrics.Staff}}</p></article>{{end}}
+  {{if ne .Metrics.Properties nil}}<article class="stat-card"><h2>Imóveis</h2><p class="stat-value">{{.Metrics.Properties}}</p></article>{{end}}
+  {{if ne .Metrics.Inspections nil}}<article class="stat-card"><h2>Vistorias</h2><p class="stat-value">{{.Metrics.Inspections}}</p></article>{{end}}
+  {{if ne .Metrics.Reports nil}}<article class="stat-card"><h2>{{if eq .Section "administracao"}}Relatórios disponibilizados{{else}}Relatórios prontos{{end}}</h2><p class="stat-value">{{.Metrics.Reports}}</p></article>{{end}}
+</section>
+{{if eq .Section "minha-area"}}
+<section class="panel"><div class="panel-body"><h2>Seu acervo na web</h2><p>Esta área mostra os registros vinculados à sua conta no servidor. Registros mantidos apenas no dispositivo continuam disponíveis no aplicativo.</p><a class="btn primary" href="/painel/imoveis">Meus imóveis</a></div></section>
+{{end}}
+{{end}}

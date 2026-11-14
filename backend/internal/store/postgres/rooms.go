@@ -23,12 +23,14 @@ var DefaultRooms = []Room{
 // Returns ErrNotFound when the inspection does not exist.
 func CreateRoom(ctx context.Context, pool *pgxpool.Pool, inspectionID, key, label string) (Room, error) {
 	var r Room
-	err := pool.QueryRow(ctx,
-		`INSERT INTO rooms (inspection_id, key, label, sort)
+	err := roomWrite(ctx, pool, inspectionID, func(tx pgx.Tx) error {
+		return tx.QueryRow(ctx,
+			`INSERT INTO rooms (inspection_id, key, label, sort)
 		 VALUES ($1, $2, $3, COALESCE((SELECT MAX(sort)+1 FROM rooms WHERE inspection_id=$1), 1))
 		 RETURNING id::text, inspection_id::text, key, label, sort`,
-		inspectionID, key, label,
-	).Scan(&r.ID, &r.InspectionID, &r.Key, &r.Label, &r.Sort)
+			inspectionID, key, label,
+		).Scan(&r.ID, &r.InspectionID, &r.Key, &r.Label, &r.Sort)
+	})
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
@@ -72,26 +74,17 @@ func ListRooms(ctx context.Context, pool *pgxpool.Pool, inspectionID string) ([]
 // EnsureTemplate inserts DefaultRooms, skipping existing keys.
 // Returns the full ordered list afterwards.
 func EnsureTemplate(ctx context.Context, pool *pgxpool.Pool, inspectionID string) ([]Room, error) {
-	ok, err := InspectionExists(ctx, pool, inspectionID)
+	err := roomWrite(ctx, pool, inspectionID, func(tx pgx.Tx) error {
+		for _, d := range DefaultRooms {
+			if _, err := tx.Exec(ctx, `INSERT INTO rooms (inspection_id,key,label,sort)
+				VALUES ($1,$2,$3,$4) ON CONFLICT (inspection_id,key) DO NOTHING`, inspectionID, d.Key, d.Label, d.Sort); err != nil {
+				return fmt.Errorf("ensure room %s: %w", d.Key, err)
+			}
+		}
+		return nil
+	})
 	if err != nil {
 		return nil, err
-	}
-	if !ok {
-		return nil, fmt.Errorf("inspection %s: %w", inspectionID, ErrNotFound)
-	}
-	for _, d := range DefaultRooms {
-		_, err := pool.Exec(ctx,
-			`INSERT INTO rooms (inspection_id, key, label, sort)
-			 VALUES ($1, $2, $3, $4) ON CONFLICT (inspection_id, key) DO NOTHING`,
-			inspectionID, d.Key, d.Label, d.Sort,
-		)
-		if err != nil {
-			var pgErr *pgconn.PgError
-			if errors.As(err, &pgErr) && pgErr.Code == "23503" {
-				return nil, fmt.Errorf("inspection %s: %w", inspectionID, ErrNotFound)
-			}
-			return nil, fmt.Errorf("ensure room %s: %w", d.Key, err)
-		}
 	}
 	return ListRooms(ctx, pool, inspectionID)
 }

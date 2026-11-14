@@ -1,0 +1,12 @@
+# API receives the proof key only. SMTP credentials stay in the worker overlay.
+services:
+  api:
+    environment:
+      ACCOUNT_MAIL_PROOF_KEY_FILE: /run/secrets/account-api/proof-key
+    volumes:
+      - type: bind
+        source: ${ACCOUNT_API_PROOF_KEY_SOURCE_FILE:?explicit private proof file required}
+        target: /run/secrets/account-api/proof-key
+        read_only: true
+        bind:
+          create_host_path: false

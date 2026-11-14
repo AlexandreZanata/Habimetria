@@ -1,0 +1,27 @@
+{{define "reports"}}
+{{$owned := eq .Section "relatorios"}}
+<section class="panel">
+  <header class="panel-header"><div><h2>Relatórios de vistoria</h2>
+  {{if $owned}}<p>Ao disponibilizar um PDF, a equipe autorizada poderá ler todo o conteúdo, incluindo os dados pessoais que ele contiver.</p>{{else}}<p>Os documentos desta lista têm uma disponibilização vigente.</p>{{end}}</div></header>
+  {{if .Reports}}<div class="table-scroll" role="region" aria-label="Relatórios de vistoria" tabindex="0">
+  <table><thead><tr><th scope="col">Imóvel</th><th scope="col">Lacre no servidor</th><th scope="col">Disponibilidade</th><th scope="col">Documento</th></tr></thead><tbody>
+  {{range .Reports}}<tr>
+    <td><strong>{{.Address}}</strong></td><td>{{date .SealedAt}}</td>
+    <td>{{if not .Ready}}<span class="status pending">Aguardando PDF</span>{{else if .Granted}}<span class="status">Disponibilizado</span>{{else}}<span class="status neutral">Privado</span>{{end}}</td>
+    <td>{{if .Ready}}
+      <div class="heading-actions">
+      <a class="btn small primary" href="/painel/documentos/{{.ID}}">Visualizar PDF</a>
+      <a class="btn small" href="/painel/documentos/{{.ID}}?baixar=1">Baixar</a>
+      <a class="btn small" href="/v/{{.VerifyCode}}">Verificar lacre</a>
+      {{if $owned}}<form method="post" action="/painel/relatorios">
+        <input type="hidden" name="id" value="{{.ID}}">
+        {{if .Granted}}<button class="btn small danger" name="acao" value="revogar">Revogar acesso</button>
+        {{else}}<details><summary>Disponibilizar</summary><p>Permitir que a equipe autorizada leia este PDF?</p><button class="btn small" name="acao" value="disponibilizar">Confirmar disponibilização</button></details>{{end}}
+      </form>{{end}}
+      </div>
+    {{else}}<small>O PDF aparecerá após o envio pelo fluxo de geração.</small>{{end}}</td>
+  </tr>{{end}}
+  </tbody></table></div>
+  {{else}}<p class="empty">{{if $owned}}Nenhum relatório vinculado à sua conta.{{else}}Nenhum relatório disponibilizado pela pessoa titular.{{end}}</p>{{end}}
+</section>
+{{end}}

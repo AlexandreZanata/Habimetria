@@ -9,7 +9,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,12 +32,13 @@ import kotlinx.coroutines.launch
 import vault.local.RoomPreset
 import vault.ui.AppContainer
 import vault.ui.ErrorText
-import vault.ui.ProgressStatus
 import vault.ui.ScreenTitle
-import vault.ui.SkeletonLine
+import vault.ui.LoadingSkeleton
+import vault.ui.SettingsRowSkeleton
 import vault.ui.rememberLoadingVisible
 import vault.ui.VaultTextField
 import vault.ui.userErrorMessage
+import vault.ui.VaultAlertDialog
 
 // Cômodos padrão: preset room names managed once and copied into any
 // DRAFT inspection on demand. Whole-list edits here never touch rooms
@@ -64,7 +64,7 @@ fun RoomPresetsScreen(container: AppContainer) {
 
     LaunchedEffect(local) { load() }
 
-    val showLoading = rememberLoadingVisible(presets == null)
+    val showLoading = rememberLoadingVisible(presets == null && error == null)
 
     fun run(work: suspend () -> Unit) {
         scope.launch {
@@ -96,10 +96,9 @@ fun RoomPresetsScreen(container: AppContainer) {
         }
         item { ErrorText(error) }
         if (showLoading) {
-            item { ProgressStatus(true) }
-            item { SkeletonLine(0.5f, 20.dp) }
-            item { SkeletonLine(0.4f, 20.dp) }
-            item { SkeletonLine(0.6f, 20.dp) }
+            item(key = "loading") {
+                LoadingSkeleton(spacing = 8.dp) { repeat(3) { SettingsRowSkeleton(withSwitch = false) } }
+            }
         } else if (presets == null) {
             // Grace period: data is on its way, paint nothing yet.
         } else {
@@ -169,7 +168,7 @@ fun RoomPresetsScreen(container: AppContainer) {
     }
 
     renaming?.let { target ->
-        AlertDialog(
+        VaultAlertDialog(
             onDismissRequest = { renaming = null },
             title = { Text(SettingsStrings.renameRoomPresetTitle) },
             text = {

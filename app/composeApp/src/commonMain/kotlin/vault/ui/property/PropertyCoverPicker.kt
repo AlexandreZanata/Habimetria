@@ -1,15 +1,23 @@
 package vault.ui.property
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.outlined.DeleteOutline
+import androidx.compose.material.icons.outlined.PhotoCamera
+import androidx.compose.material.icons.outlined.PhotoLibrary
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,18 +25,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.FileSystem
 import okio.Path.Companion.toPath
-import org.jetbrains.compose.resources.painterResource
-import vault.composeapp.generated.resources.Res
-import vault.composeapp.generated.resources.home_brazil_house
 import vault.ui.AppContainer
 import vault.ui.CaptureResult
 import vault.ui.ErrorText
@@ -39,7 +42,7 @@ import vault.ui.userErrorMessage
 // Cover photo for a Property card: gallery pick or camera shot saved to
 // durable storage, path recorded on the row. Organizational only.
 @Composable
-fun PropertyCoverSection(
+internal fun PropertyCoverActions(
     container: AppContainer,
     propertyId: String,
     photoPath: String?,
@@ -47,41 +50,33 @@ fun PropertyCoverSection(
 ) {
     val scope = rememberCoroutineScope()
     var busy by remember(propertyId) { mutableStateOf(false) }
+    var expanded by remember(propertyId) { mutableStateOf(false) }
     var error by remember(propertyId) { mutableStateOf<String?>(null) }
     val session = container.local
     val picker = container.filePicker
 
-    val thumb = remember(photoPath) {
-        photoPath?.takeIf { it.isNotBlank() }?.let {
-            runCatching { vault.ui.decodeThumbnail(it) }.getOrNull()
+    val colors = MaterialTheme.colorScheme
+    Box {
+        TextButton(onClick = { expanded = true }, enabled = !busy) {
+            Icon(Icons.Outlined.PhotoLibrary, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.size(8.dp))
+            Text(if (busy) Strings.saving else PropertyStrings.coverTitle)
+            Icon(Icons.Filled.ExpandMore, contentDescription = null, modifier = Modifier.size(18.dp))
         }
-    }
-
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(PropertyStrings.coverTitle, style = MaterialTheme.typography.titleMedium)
-        if (thumb != null) {
-            Image(
-                bitmap = thumb,
-                contentDescription = null,
-                modifier = Modifier.size(84.dp).clip(RoundedCornerShape(12.dp))
-                    .clearAndSetSemantics {},
-                contentScale = ContentScale.Crop,
-            )
-        } else {
-            Image(
-                painter = painterResource(Res.drawable.home_brazil_house),
-                contentDescription = null,
-                modifier = Modifier.size(84.dp).clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer)
-                    .clearAndSetSemantics {},
-                contentScale = ContentScale.Fit,
-            )
-        }
-        ErrorText(error)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.widthIn(min = 184.dp),
+            shape = MaterialTheme.shapes.medium,
+            containerColor = colors.surface,
+            border = BorderStroke(1.dp, colors.outlineVariant),
+        ) {
             if (picker != null && session != null) {
-                OutlinedButton(
+                DropdownMenuItem(
+                    text = { Text(if (photoPath.isNullOrBlank()) PropertyStrings.coverPick else PropertyStrings.coverChange) },
+                    leadingIcon = { Icon(Icons.Outlined.PhotoLibrary, contentDescription = null) },
                     onClick = {
+                        expanded = false
                         busy = true
                         error = null
                         scope.launch {
@@ -113,13 +108,13 @@ fun PropertyCoverSection(
                             }
                         }
                     },
-                    enabled = !busy,
-                ) {
-                    Text(if (photoPath.isNullOrBlank()) PropertyStrings.coverPick else PropertyStrings.coverChange)
-                }
+                )
             }
-            OutlinedButton(
+            DropdownMenuItem(
+                text = { Text(Strings.photograph) },
+                leadingIcon = { Icon(Icons.Outlined.PhotoCamera, contentDescription = null) },
                 onClick = {
+                    expanded = false
                     busy = true
                     error = null
                     scope.launch {
@@ -152,11 +147,15 @@ fun PropertyCoverSection(
                         }
                     }
                 },
-                enabled = !busy,
-            ) { Text(Strings.photograph) }
+            )
             if (!photoPath.isNullOrBlank() && session != null) {
-                OutlinedButton(
+                HorizontalDivider(color = colors.outlineVariant)
+                DropdownMenuItem(
+                    text = { Text(PropertyStrings.coverRemove) },
+                    leadingIcon = { Icon(Icons.Outlined.DeleteOutline, contentDescription = null) },
+                    colors = MenuDefaults.itemColors(textColor = colors.error, leadingIconColor = colors.error),
                     onClick = {
+                        expanded = false
                         busy = true
                         error = null
                         scope.launch {
@@ -173,9 +172,9 @@ fun PropertyCoverSection(
                             }
                         }
                     },
-                    enabled = !busy,
-                ) { Text(PropertyStrings.coverRemove) }
+                )
             }
         }
     }
+    ErrorText(error)
 }

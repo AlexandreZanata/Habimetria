@@ -13,3 +13,9 @@ type Port interface {
 	SignedGetURL(ctx context.Context, key string, ttl time.Duration) (string, error)
 	Delete(ctx context.Context, key string) error
 }
+
+// Reader opens private bytes for an authorized request without issuing a
+// reusable storage URL.
+type Reader interface {
+	OpenOriginal(ctx context.Context, key string) (io.ReadCloser, error)
+}

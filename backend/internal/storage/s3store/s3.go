@@ -86,3 +86,11 @@ func (s *Store) Delete(ctx context.Context, key string) error {
 	}
 	return nil
 }
+
+func (s *Store) OpenOriginal(ctx context.Context, key string) (io.ReadCloser, error) {
+	out, err := s.client.GetObject(ctx, &s3.GetObjectInput{Bucket: &s.bucket, Key: &key})
+	if err != nil {
+		return nil, fmt.Errorf("read stored original: %w", err)
+	}
+	return out.Body, nil
+}

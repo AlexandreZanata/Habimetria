@@ -86,3 +86,15 @@ func (s *Store) Delete(_ context.Context, key string) error {
 	}
 	return nil
 }
+
+func (s *Store) OpenOriginal(_ context.Context, key string) (io.ReadCloser, error) {
+	path, err := s.resolveKey(key)
+	if err != nil {
+		return nil, err
+	}
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("open stored original: %w", err)
+	}
+	return file, nil
+}

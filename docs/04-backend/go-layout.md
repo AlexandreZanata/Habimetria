@@ -20,3 +20,14 @@ backend/
 ```
 
 Rules: handlers never touch `database/sql`. Stores never import `net/http`. Services own transactions and seal invariant.
+
+The optional [web panel](web_panel.md) follows the same handler, service and
+PostgreSQL boundaries. The Go binary embeds its templates and static assets.
+
+Planned monthly commerce follows the same boundaries; proposed package
+ownership is in [commercial domain](../03-architecture/commercial_domain.md).
+No provider calls in stores and no subscription dependency in local workflows.
+
+Classified transport registration uses `httpapi/routepolicy/`; its README and
+[hosted inventory](../03-architecture/hosted_entry_points.md) index the API/panel
+catalogs and tests. Classification does not replace service authorization.

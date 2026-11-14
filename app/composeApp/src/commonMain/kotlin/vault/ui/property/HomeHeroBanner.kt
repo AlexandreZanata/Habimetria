@@ -1,112 +1,96 @@
 package vault.ui.property
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import org.jetbrains.compose.resources.painterResource
-import vault.composeapp.generated.resources.Res
-import vault.composeapp.generated.resources.home_brazil_house
+import androidx.compose.ui.unit.sp
 import vault.ui.Strings
-import vault.ui.brand.HabimetriaWordmark
+import vault.ui.brand.FacadeDrawing
 
-// Short native copy and decorative Brazilian house art never overlap.
-// The content grows with font scale; Nova vistoria is the only action.
 @Composable
-fun HomeHeroBanner(enabled: Boolean, onNewInspection: () -> Unit) {
-    OutlinedCard(
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+internal fun HomeHeroBanner(
+    enabled: Boolean,
+    showLocalMode: Boolean,
+    onNewInspection: () -> Unit,
+    onDismiss: (() -> Unit)?,
+) {
+    val colors = MaterialTheme.colorScheme
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        color = colors.inverseSurface,
+        contentColor = colors.inverseOnSurface,
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            HabimetriaWordmark(markSize = 20.dp)
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(
-                    modifier = Modifier.weight(0.55f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+        Box(Modifier.clipToBounds()) {
+            FacadeDrawing(
+                modifier = Modifier.align(Alignment.CenterEnd).width(186.dp).height(164.dp),
+                ink = colors.inversePrimary.copy(alpha = 0.24f),
+            )
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(start = 22.dp, end = 10.dp, top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
+                    Box(Modifier.weight(1f)) {
+                        if (showLocalMode) {
+                            Surface(
+                                color = colors.inverseOnSurface,
+                                contentColor = colors.inverseSurface,
+                                shape = CircleShape,
+                            ) {
+                                Text(
+                                    Strings.localModeLabel,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                    style = MaterialTheme.typography.labelSmall,
+                                )
+                            }
+                        } else {
+                            HomeHeroEyebrow()
+                        }
+                    }
+                    IconButton(onClick = { onDismiss?.invoke() }, enabled = onDismiss != null) {
+                        Icon(Icons.Filled.Close, contentDescription = Strings.hideHomeBanner)
+                    }
+                }
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(start = 22.dp, end = 22.dp, top = 4.dp, bottom = 22.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    if (showLocalMode) HomeHeroEyebrow()
                     Text(
-                        Strings.homeHeroTitle,
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        Strings.tagline,
+                        style = MaterialTheme.typography.displaySmall,
                         modifier = Modifier.semantics { heading() },
                     )
-                    Text(
-                        Strings.homeHeroSubtitle,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    )
-                    HeroCheck(Strings.homeHeroValue)
-                }
-                Image(
-                    painter = painterResource(Res.drawable.home_brazil_house),
-                    contentDescription = null,
-                    modifier = Modifier.weight(0.45f).aspectRatio(1.5f),
-                    contentScale = ContentScale.Fit,
-                )
-            }
-            Surface(
-                onClick = onNewInspection,
-                enabled = enabled,
-                color = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(16.dp),
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(
-                        modifier = Modifier.size(40.dp).clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.onPrimary),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            Icons.Filled.Add,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                    Text(
-                        Strings.newInspection,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.weight(1f),
-                    )
-                    Icon(
-                        Icons.Filled.ChevronRight,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                    )
+                    Text(Strings.homeHeroSubtitle, style = MaterialTheme.typography.bodyMedium)
+                    HomeNewInspectionAction(enabled, onNewInspection, onBanner = true)
                 }
             }
         }
@@ -114,21 +98,36 @@ fun HomeHeroBanner(enabled: Boolean, onNewInspection: () -> Unit) {
 }
 
 @Composable
-private fun HeroCheck(text: String) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.Top,
+private fun HomeHeroEyebrow() {
+    Text(
+        Strings.appDescription.uppercase(),
+        color = MaterialTheme.colorScheme.inversePrimary,
+        style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 1.3.sp),
+    )
+}
+
+@Composable
+internal fun HomeNewInspectionAction(enabled: Boolean, onClick: () -> Unit, onBanner: Boolean = false) {
+    val colors = MaterialTheme.colorScheme
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+        shape = MaterialTheme.shapes.medium,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (onBanner) colors.inverseOnSurface else colors.inverseSurface,
+            contentColor = if (onBanner) colors.inverseSurface else colors.inverseOnSurface,
+        ),
+        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
     ) {
-        Icon(
-            Icons.Filled.CheckCircle,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-            modifier = Modifier.padding(top = 2.dp).size(16.dp),
-        )
-        Text(
-            text,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.Filled.Add, contentDescription = null)
+            Text(Strings.newInspection, modifier = Modifier.weight(1f))
+            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+        }
     }
 }

@@ -27,6 +27,8 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 
+internal const val ComparePhotoAspectRatio = 4f / 3f
+
 // Drag slider: exit photo full-frame, entry photo clipped to the left
 // portion. Dragging never mutates data; tagging happens below.
 @Composable
@@ -37,7 +39,7 @@ fun CompareSlider(
 ) {
     var fraction by remember { mutableFloatStateOf(0.5f) }
     BoxWithConstraints(
-        modifier = modifier.fillMaxWidth().aspectRatio(4f / 3f)
+        modifier = modifier.fillMaxWidth().aspectRatio(ComparePhotoAspectRatio)
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .pointerInput(Unit) {
                 detectHorizontalDragGestures { change, dragAmount ->

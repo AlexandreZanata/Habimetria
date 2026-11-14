@@ -2,8 +2,10 @@ package vault
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -29,6 +31,11 @@ import vault.ui.App
 import vault.ui.ServerConfig
 import vault.ui.UploadWorker
 import vault.ui.createContainer
+import vault.account.AccountApi
+import vault.account.AccountSessions
+import vault.account.AndroidSessionVault
+import vault.api.platformEngine
+import java.util.UUID
 
 // Primary flow is local-first (L3): rooms, capture, review and seal run
 // on-device with no account, payment or network. The API integration
@@ -53,7 +60,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
         AppContext.app = applicationContext
         photoCapture.attach(takePicture)
         filePicker.attach(openDocument)
@@ -76,6 +83,10 @@ class MainActivity : ComponentActivity() {
             local = session,
             planRenderer = AndroidPlanRenderer(),
             filePicker = filePicker,
+            accountSessions = AccountSessions(AccountApi(baseUrl, platformEngine()), AndroidSessionVault(applicationContext),
+                { UUID.randomUUID().toString() }, "android", "Android"),
+            accountFactory = { origin -> AccountSessions(AccountApi(origin, platformEngine()), AndroidSessionVault(applicationContext),
+                { UUID.randomUUID().toString() }, "android", "Android") },
         )
         val navigator = resumeNavigator(session)
         wireSystemBack(navigator)

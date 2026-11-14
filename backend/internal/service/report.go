@@ -5,6 +5,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -12,6 +13,7 @@ import (
 
 	"vault/internal/store/postgres"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -74,7 +76,7 @@ func (s *ReportService) Attach(ctx context.Context, in AttachInput) (postgres.Re
 	if err := checkUUID(in.ReportID, "report_id"); err != nil {
 		return postgres.Report{}, err
 	}
-	sha, size, tmp, err := bufferAndHash(in.Content)
+	sha, size, tmp, err := bufferAndHash(io.LimitReader(in.Content, MaxPDFBytes+1))
 	if err != nil {
 		return postgres.Report{}, err
 	}
@@ -96,14 +98,34 @@ func (s *ReportService) Attach(ctx context.Context, in AttachInput) (postgres.Re
 	if _, err := tmp.Seek(0, io.SeekStart); err != nil {
 		return postgres.Report{}, fmt.Errorf("rewind: %w", err)
 	}
-	key := "reports/" + in.ReportID + ".pdf"
+	current, err := s.store.Get(ctx, in.ReportID)
+	if err != nil {
+		return postgres.Report{}, err
+	}
+	if current.PDFReady {
+		if current.ReportSHA256 != nil && *current.ReportSHA256 == sha {
+			return current, nil
+		}
+		return postgres.Report{}, fmt.Errorf("report already has a different PDF: %w", postgres.ErrChanged)
+	}
+	key := "reports/" + in.ReportID + "/" + uuid.NewString() + ".pdf"
 	if err := s.storage.PutOriginal(ctx, key, tmp, "application/pdf"); err != nil {
 		return postgres.Report{}, err
 	}
 	rep, err := s.store.Attach(ctx, in.ReportID, sha, key)
 	if err != nil {
-		_ = s.storage.Delete(ctx, key)
+		// An interrupted database call may have committed. Only remove the
+		// staged bytes once the database confirms they are unreferenced.
+		current, lookupErr := s.store.Get(ctx, in.ReportID)
+		if (lookupErr == nil && current.PDFKey != key) || errors.Is(lookupErr, postgres.ErrNotFound) {
+			err = errors.Join(err, s.storage.Delete(ctx, key))
+		}
 		return postgres.Report{}, err
+	}
+	if rep.PDFKey != "" && rep.PDFKey != key {
+		if err := s.storage.Delete(ctx, key); err != nil {
+			return postgres.Report{}, fmt.Errorf("remove retried PDF staging object: %w", err)
+		}
 	}
 	return rep, nil
 }

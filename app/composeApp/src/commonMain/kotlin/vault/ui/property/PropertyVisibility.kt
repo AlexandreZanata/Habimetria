@@ -27,6 +27,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import vault.ui.BrandWhite
+import vault.ui.LocalHabimetriaDarkTheme
+import vault.ui.StatusBadge
 
 // U09 visibility: archived Properties leave active pickers/lists and
 // stay reachable through the Arquivados filter with restore. Restore
@@ -38,9 +41,11 @@ const val VISIBILITY_ARCHIVED = "ARCHIVED"
 // across rotation via the caller's saveable state.
 @Composable
 fun VisibilityFilterRow(selected: String, onSelect: (String) -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    val dark = LocalHabimetriaDarkTheme.current
     Row(
         modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+            .background(if (dark) colors.surfaceContainerHighest else colors.inverseSurface)
             .padding(4.dp).selectableGroup(),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
@@ -66,14 +71,26 @@ private fun RowScope.VisibilitySegment(
     selected: Boolean,
     onClick: () -> Unit,
 ) {
+    val colors = MaterialTheme.colorScheme
+    val dark = LocalHabimetriaDarkTheme.current
+    val background = when {
+        dark && selected -> colors.primaryContainer
+        dark -> colors.surfaceContainerHighest
+        selected -> BrandWhite
+        else -> colors.inverseSurface
+    }
+    val ink = when {
+        dark && selected -> colors.primary
+        dark -> colors.onSurfaceVariant
+        selected -> colors.inverseSurface
+        else -> BrandWhite
+    }
     Surface(
         modifier = Modifier.weight(1f).clip(RoundedCornerShape(24.dp))
             .selectable(selected = selected, role = Role.Tab, onClick = onClick),
         shape = RoundedCornerShape(24.dp),
-        color = if (selected) MaterialTheme.colorScheme.primaryContainer
-            else MaterialTheme.colorScheme.surfaceContainerHighest,
-        contentColor = if (selected) MaterialTheme.colorScheme.primary
-            else MaterialTheme.colorScheme.onSurfaceVariant,
+        color = background,
+        contentColor = ink,
     ) {
         Row(
             modifier = Modifier.heightIn(min = 48.dp).padding(horizontal = 8.dp, vertical = 10.dp),
@@ -93,11 +110,7 @@ private fun RowScope.VisibilitySegment(
 // Non-color cue that a row is archived (shape + text, never green alone).
 @Composable
 fun ArchivedBadge() {
-    Text(
-        PropertyStrings.archivedBadge,
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
+    StatusBadge(PropertyStrings.archivedBadge, Icons.Filled.Archive)
 }
 
 // Non-destructive by design: no confirmation dialog, busy-guarded

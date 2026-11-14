@@ -17,14 +17,19 @@
 - Room setup and capture share the PDF/Property pages' outlined cards,
   neutral surfaces and green actions. The shared header supplies the Room
   or page title; the body does not repeat it.
-- Room setup scrolls as one list, including the labeled rounded input,
-  optional presets, empty state and in-flow start action. Keyboard Done
-  invokes the same explicit add action. Draft name input is saveable.
+- Room setup uses `Cômodos` as its header title and keeps the form and
+  list in one scroll. The form asks for one Room name at a time, shows
+  examples below the field and provides a labeled `Adicionar cômodo`
+  button. Keyboard Done invokes the same action. Draft name input is
+  saveable. Optional presets stay secondary. The empty state explains
+  the first step, and `Iniciar vistoria` appears once a Room exists.
   Each Room card opens capture and shows its label, coverage bar and photo
-  count. Its labeled options menu retains rename, reorder and delete.
+  count, with a white house icon on Pinho. Its labeled options menu retains
+  rename, reorder and delete.
 - Capture shortcuts scroll with the content and show no false active
   destination. The first outlined section contains wrapping category
-  selectors (green plus a check for selection) and the prominent shutter.
+  selectors and the prominent shutter. The selected category shows a white
+  label and check on Pinho.
   Category selection, N/A edits and onward navigation are disabled while
   capture is busy. System camera and durable-save semantics are unchanged.
 - Coverage has its own card: repository percentage, distinct captured /
@@ -38,6 +43,24 @@
   actions. All content scrolls; controls retain 48 dp minimum targets and
   text can wrap as font scale increases. Device visual and accessibility
   acceptance remain manual checks.
+- Review uses a Pinho selection with white content in its navigation
+  segments. The seal prompt uses a Pinho icon on white. Report data and
+  inspection assistant use white icons on Pinho. Review controls use
+  the Material interaction layer for hover, focus and press. The photo
+  rotation choices wrap when space is limited.
+- The local seal screen separates the seal explanation, Room, photo and
+  Finding totals, and signing details. The seal is the primary action,
+  and creating an Occurrence is secondary. Explain that the seal time
+  comes from the device clock and lacks independent certification.
+  After sealing, the Report action appears with the confirmation and the
+  signing details come from the stored manifest.
+- The inspection assistant separates missing capture categories by Room
+  from review reminders grouped by photo. Each photo group shows the
+  sequence number, Room and capture category and opens the photo viewer.
+  A reminder asks the user to inspect a photo. A Finding is created only
+  when the user explicitly records a stain or crack. Ignoring a coverage
+  reminder leaves the underlying missing category visible. SEALED
+  Inspections display the assistant in read-only mode.
 - The rules above still hold, except "Camera view is the home screen"
   and "Camera pre-warmed on Home", which described the old embedded
   CameraX preview.

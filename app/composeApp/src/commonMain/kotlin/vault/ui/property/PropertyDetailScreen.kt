@@ -2,14 +2,14 @@ package vault.ui.property
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.FilterChip
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Assignment
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -21,8 +21,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import vault.local.STATUS_DRAFT
@@ -31,11 +32,12 @@ import vault.local.db.LocalInspection
 import vault.local.db.LocalProperty
 import vault.ui.AppContainer
 import vault.ui.ErrorText
-import vault.ui.InspectionRowSkeleton
-import vault.ui.ProgressStatus
-import vault.ui.SkeletonLine
-import vault.ui.SkeletonThumbnail
+import vault.ui.LoadingSkeleton
+import vault.ui.PropertyDetailSkeleton
+import vault.ui.RecordPanel
 import vault.ui.Strings
+import vault.ui.inspection.InspectionStatusFilters
+import vault.ui.journey.JourneyPrimaryAction
 import vault.ui.rememberLoadingVisible
 import vault.ui.userErrorMessage
 
@@ -64,6 +66,10 @@ fun PropertyDetailScreen(
         val repo = local?.repository ?: return
         try {
             property = repo.getProperty(propertyId)
+            if (property == null) {
+                loadError = PropertyStrings.propertyNotFound
+                return
+            }
             inspections = repo.inspectionsForProperty(propertyId, limit = 50)
             loadError = null
         } catch (e: Exception) {
@@ -73,11 +79,13 @@ fun PropertyDetailScreen(
 
     LaunchedEffect(local, propertyId) { load() }
 
-    val showLoading = rememberLoadingVisible(property == null || inspections == null)
+    val showLoading = rememberLoadingVisible((property == null || inspections == null) && loadError == null)
 
     if (chooseProfile) InspectionProfileDialog(container, propertyId, onNewInspection) { chooseProfile = false }
 
-    val visible = (inspections.orEmpty()).filter {
+    val current = property
+    val history = inspections
+    val visible = history.orEmpty().filter {
         when (filter) {
             "DRAFT" -> it.status == STATUS_DRAFT
             "SEALED" -> it.status == STATUS_SEALED
@@ -95,47 +103,13 @@ fun PropertyDetailScreen(
                 ErrorText(loadError)
                 OutlinedButton(onClick = { scope.launch { load() } }) { Text(Strings.retry) }
             }
-            showLoading -> {
-                ProgressStatus(true)
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    SkeletonThumbnail(88.dp)
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        SkeletonLine(0.6f, 22.dp)
-                        SkeletonLine(0.85f)
-                    }
-                }
-                InspectionRowSkeleton()
-                InspectionRowSkeleton()
-            }
-            property == null || inspections == null -> {
+            showLoading -> LoadingSkeleton { PropertyDetailSkeleton() }
+            current == null || history == null -> {
                 // Grace period: data is on its way, paint nothing yet.
             }
             else -> {
-                val current = property!!
-                Text(
-                    current.nickname.ifBlank { current.address },
-                    style = MaterialTheme.typography.titleLarge,
-                )
-                if (current.nickname.isNotBlank()) {
-                    Text(
-                        current.address,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                PropertyDataSection(
-                    container = container,
-                    property = current,
-                    onSaved = { scope.launch { load() } },
-                )
+                PropertyDetailHeader(container, current, onCoverSaved = { scope.launch { load() } })
                 if (current.archived) {
-                    ArchivedBadge()
                     Text(
                         PropertyStrings.archivedDetailNote,
                         style = MaterialTheme.typography.bodyMedium,
@@ -155,29 +129,38 @@ fun PropertyDetailScreen(
                             }
                         }
                     }
+                } else {
+                    JourneyPrimaryAction(
+                        Strings.newInspection,
+                        icon = Icons.Filled.Add,
+                        onClick = { chooseProfile = true },
+                        enabled = !busy,
+                    )
                 }
-                Text(PropertyStrings.history, style = MaterialTheme.typography.titleMedium)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(
-                        selected = filter == "ALL",
-                        onClick = { filter = "ALL" },
-                        label = { Text(PropertyStrings.filterAll) },
-                    )
-                    FilterChip(
-                        selected = filter == "DRAFT",
-                        onClick = { filter = "DRAFT" },
-                        label = { Text(PropertyStrings.filterDraft) },
-                    )
-                    FilterChip(
-                        selected = filter == "SEALED",
-                        onClick = { filter = "SEALED" },
-                        label = { Text(PropertyStrings.filterSealed) },
-                    )
+                ErrorText(actionError)
+                PropertyDataSection(
+                    container = container,
+                    property = current,
+                    onSaved = { scope.launch { load() } },
+                )
+                Text(
+                    PropertyStrings.history,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.semantics { heading() },
+                )
+                if (history.isNotEmpty()) {
+                    InspectionStatusFilters(selected = filter, onSelect = { filter = it })
                 }
                 if (visible.isEmpty()) {
-                    Text(
-                        if (inspections!!.isEmpty()) PropertyStrings.noInspections
-                        else PropertyStrings.noMatch,
+                    RecordPanel(
+                        icon = Icons.AutoMirrored.Outlined.Assignment,
+                        title = if (history.isEmpty()) PropertyStrings.noInspections else PropertyStrings.noMatch,
+                        body = when {
+                            history.isNotEmpty() -> PropertyStrings.historyFilterHint
+                            current.archived -> PropertyStrings.archivedHistoryHint
+                            else -> PropertyStrings.emptyHistoryHint
+                        },
                     )
                 }
                 visible.forEach { inspection ->
@@ -188,11 +171,6 @@ fun PropertyDetailScreen(
                         onReview = { onReview(inspection.id) },
                     )
                 }
-                ErrorText(actionError)
-                OutlinedButton(
-                    onClick = { chooseProfile = true },
-                    modifier = Modifier.fillMaxWidth(),
-                ) { Text(Strings.newInspection) }
             }
         }
     }

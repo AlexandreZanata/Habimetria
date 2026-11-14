@@ -35,7 +35,7 @@ internal fun LocalEvidence.reportClaimLines(): String = buildList {
 internal fun reportShotLabel(category: String?): String = when (category) {
     "OVERVIEW" -> "Visão geral"
     "WALLS" -> "Paredes"
-    "OPENINGS" -> "Aberturas"
+    "OPENINGS" -> "Portas / janelas"
     "FLOOR" -> "Piso"
     "CEILING" -> "Teto"
     null -> "não registrada"

@@ -4,6 +4,9 @@
 # toolchain in this workspace lacks the covdata tool, so run with
 # GOTOOLCHAIN=go1.25.13 (cached) when that happens; CI uses setup-go and
 # is unaffected.
+# Service floors include real seal integration. Set TEST_DATABASE_URL to a
+# disposable PostgreSQL 18.6 database (CI already does); skipped DB tests do
+# not supply integration coverage.
 set -eu
 out=$(go test -cover ./... 2>&1) || { printf '%s\n' "$out"; exit 1; }
 printf '%s\n' "$out" | grep -E '^FAIL' && exit 1 || true

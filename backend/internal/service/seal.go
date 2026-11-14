@@ -14,11 +14,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// SealInput carries the seal request. PaymentProof is accepted but only
-// checked by the provider; the stub approves everything until S6.
+// SealInput identifies the inspection to freeze. Sealing has no payment dependency.
 type SealInput struct {
 	InspectionID string
-	PaymentProof string
 }
 
 // SealOutput is the seal ack. The app embeds manifest_sha256,
@@ -27,24 +25,20 @@ type SealOutput = postgres.SealResult
 
 // SealService freezes DRAFT inspections into sealed evidence vaults.
 type SealService struct {
-	pool     *pgxpool.Pool
-	payments PaymentPort
-	hmacKey  string
+	pool    *pgxpool.Pool
+	hmacKey string
 }
 
 // NewSeal returns a SealService. hmacKey signs manifests; rotate via env.
-func NewSeal(pool *pgxpool.Pool, payments PaymentPort, hmacKey string) *SealService {
-	return &SealService{pool: pool, payments: payments, hmacKey: hmacKey}
+func NewSeal(pool *pgxpool.Pool, hmacKey string) *SealService {
+	return &SealService{pool: pool, hmacKey: hmacKey}
 }
 
-// Seal verifies payment, builds the manifest, signs it, and flips the
+// Seal builds the manifest, signs it, and flips the
 // inspection to SEALED atomically. Terminal: no SEALED -> DRAFT.
 func (s *SealService) Seal(ctx context.Context, in SealInput) (SealOutput, error) {
 	if err := checkUUID(in.InspectionID, "inspection_id"); err != nil {
 		return SealOutput{}, err
-	}
-	if err := s.payments.Verify(ctx, in.PaymentProof); err != nil {
-		return SealOutput{}, fmt.Errorf("payment: %w", err)
 	}
 	for attempt := 0; attempt < 3; attempt++ {
 		evidences, err := postgres.SealEvidences(ctx, s.pool, in.InspectionID)

@@ -18,6 +18,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -43,15 +44,23 @@ fun RoomScreen(
     val scope = rememberCoroutineScope()
     var queue by remember { mutableStateOf(container.store.load()) }
     var coverage by remember { mutableStateOf<Coverage?>(null) }
+    var loadingCoverage by remember(inspectionId) { mutableStateOf(true) }
+    val showCoverageSkeleton = rememberLoadingVisible(loadingCoverage)
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
 
     fun refresh() {
         scope.launch {
-            queue = withContext(Dispatchers.Default) { container.store.load() }
             try {
+                queue = withContext(Dispatchers.Default) { container.store.load() }
                 coverage = container.api.coverage(inspectionId)
-            } catch (_: Exception) { /* offline: keep last */ }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                // Keep the last confirmed coverage when offline.
+            } finally {
+                loadingCoverage = false
+            }
         }
     }
 
@@ -105,7 +114,7 @@ fun RoomScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             RoomControls(
-                roomId, mine, coverage,
+                roomId, mine, coverage, showCoverageSkeleton,
                 busy, error, capture, onOpenRoom, onReview, onBack,
             )
         }
@@ -117,6 +126,7 @@ private fun ColumnScope.RoomControls(
     roomId: String,
     mine: List<QueueItem>,
     coverage: Coverage?,
+    showCoverageSkeleton: Boolean,
     busy: Boolean,
     error: String?,
     onCapture: () -> Unit,
@@ -134,9 +144,17 @@ private fun ColumnScope.RoomControls(
     )
     ErrorText(error)
     Text("✓ $confirmed ${Strings.queueConfirmed} · ↑ $sending ${Strings.queueSending} · ! $failed ${Strings.queueWaiting}")
-    val total = coverage?.totalPercent ?: 0
-    LinearProgressIndicator(progress = { total / 100f }, modifier = Modifier.fillMaxWidth())
-    Text("${Strings.coverage}: $total%")
+    if (showCoverageSkeleton) {
+        LoadingSkeleton {
+            SkeletonLine(1f, 4.dp)
+            SkeletonLine(0.38f)
+            repeat(3) { SkeletonLine(0.54f) }
+        }
+    } else if (coverage != null) {
+        val total = coverage.totalPercent
+        LinearProgressIndicator(progress = { total / 100f }, modifier = Modifier.fillMaxWidth())
+        Text("${Strings.coverage}: $total%")
+    }
     coverage?.rooms?.forEach { room ->
         Text("${room.label}: ${room.percent}% (${room.photos} ${Strings.photosSuffix})")
     }

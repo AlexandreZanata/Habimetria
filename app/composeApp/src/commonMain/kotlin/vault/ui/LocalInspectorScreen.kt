@@ -1,14 +1,14 @@
 package vault.ui
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.FactCheck
+import androidx.compose.material.icons.outlined.Photo
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -17,151 +17,150 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import vault.local.InspectorGap
 import vault.local.LocalSession
-import vault.local.SuggestionKind
+import vault.local.LocalValidationException
+import vault.local.STATUS_DRAFT
 import vault.local.db.AiSuggestion
+import vault.local.db.LocalEvidence
+import vault.ui.inspector.InspectorGapCard
+import vault.ui.inspector.InspectorPhotoCard
+import vault.ui.inspector.InspectorStrings
+import vault.ui.journey.PhotoViewer
 
-// V1.4 inspector screen: coverage gaps plus possible stain/crack hints.
-// Every hint needs a user decision (Confirm creates a Finding, Ignore
-// dismisses). Nothing here assigns liability or writes findings alone.
+private data class InspectorViewData(
+    val editable: Boolean,
+    val gaps: List<InspectorGap>,
+    val coverageReminders: Map<String, List<AiSuggestion>>,
+    val photoReminders: Map<String, List<AiSuggestion>>,
+    val roomLabels: Map<String, String>,
+    val photos: Map<String, LocalEvidence>,
+)
+
 @Composable
-fun LocalInspectorScreen(
-    session: LocalSession,
-    inspectionId: String,
-    onBack: () -> Unit,
-) {
+fun LocalInspectorScreen(session: LocalSession, inspectionId: String) {
     val scope = rememberCoroutineScope()
-    var gaps by remember { mutableStateOf<List<InspectorGap>>(emptyList()) }
-    var pending by remember { mutableStateOf<List<AiSuggestion>>(emptyList()) }
-    var busy by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
-    var loaded by remember { mutableStateOf(false) }
+    var data by remember(inspectionId) { mutableStateOf<InspectorViewData?>(null) }
+    var busy by remember(inspectionId) { mutableStateOf(false) }
+    var runningCheck by remember(inspectionId) { mutableStateOf(false) }
+    var error by remember(inspectionId) { mutableStateOf<String?>(null) }
+    var viewing by remember(inspectionId) { mutableStateOf<LocalEvidence?>(null) }
 
-    fun refresh() {
+    suspend fun refresh() {
+        val repository = session.repository
+        val inspection = repository.getInspection(inspectionId)
+            ?: throw LocalValidationException("inspection not found")
+        val (coverage, photos) = session.inspector.pendingForInspection(inspectionId)
+            .partition { it.evidenceId.isBlank() }
+        data = InspectorViewData(
+            editable = inspection.status == STATUS_DRAFT,
+            gaps = session.inspector.coverageGaps(inspectionId),
+            coverageReminders = coverage.groupBy { it.roomId },
+            photoReminders = photos.groupBy { it.evidenceId },
+            roomLabels = repository.roomsFor(inspectionId).associate { it.id to it.label },
+            photos = repository.evidencesFor(inspectionId).associateBy { it.id },
+        )
+    }
+
+    fun perform(checking: Boolean = false, work: suspend () -> Unit = {}) {
+        if (busy) return
+        busy = true
+        runningCheck = checking
+        error = null
         scope.launch {
             try {
-                gaps = session.inspector.coverageGaps(inspectionId)
-                pending = session.inspector.pendingForInspection(inspectionId)
-                error = null
+                work()
+                refresh()
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (e: Exception) {
                 error = userErrorMessage(e)
             } finally {
-                loaded = true
+                busy = false
+                runningCheck = false
             }
         }
     }
 
-    LaunchedEffect(inspectionId) { refresh() }
+    LaunchedEffect(session, inspectionId) { perform() }
 
-    val showLoading = rememberLoadingVisible(!loaded)
+    val current = data
+    val editable = current?.editable == true
+    val showLoading = rememberLoadingVisible(current == null && error == null)
+    val ignore: (String) -> Unit = { id -> perform { session.inspector.ignore(id) } }
 
     ScreenColumn {
-        ScreenTitle(Strings.inspectorTitle)
-        BodyText(Strings.inspectorHint)
         ErrorText(error)
-        VaultButton(
-            text = if (busy) Strings.inspectorRunning else Strings.inspectorRun,
-            onClick = {
-                busy = true
-                scope.launch {
-                    try {
-                        session.inspector.runInspection(inspectionId)
-                        refresh()
-                    } catch (e: Exception) {
-                        error = userErrorMessage(e)
-                    } finally {
-                        busy = false
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            item(key = "overview") {
+                RecordPanel(
+                    icon = Icons.AutoMirrored.Outlined.FactCheck,
+                    title = InspectorStrings.title,
+                    body = if (current?.editable == false) InspectorStrings.readOnly else InspectorStrings.intro,
+                    action = if (!editable) null else if (runningCheck) InspectorStrings.running else InspectorStrings.run,
+                    actionEnabled = !busy,
+                    onAction = { perform(checking = true) { session.inspector.runInspection(inspectionId) } },
+                )
+            }
+            if (showLoading) {
+                item(key = "loading") {
+                    LoadingSkeleton {
+                        SkeletonLine(0.46f, 20.dp)
+                        repeat(2) { InspectorPhotoSkeleton() }
                     }
                 }
-            },
-            enabled = !busy,
-        )
-        LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            if (showLoading) {
-                item(key = "loading") { ProgressStatus(true) }
-                item(key = "skeleton-1") { SkeletonLine(0.5f, 20.dp) }
-                item(key = "skeleton-2") { SkeletonLine(0.8f) }
-                item(key = "skeleton-3") { SkeletonLine(0.6f) }
-                item(key = "skeleton-4") { SkeletonLine(0.8f) }
-            } else if (!loaded) {
-                // Grace period: data is on its way, paint nothing yet.
-            } else {
-            if (gaps.isNotEmpty()) {
-                item(key = "gaps-header") {
-                    Text(Strings.inspectorGaps, style = MaterialTheme.typography.titleMedium)
-                }
-                items(gaps, key = { "gap-${it.roomId}" }) { gap ->
-                    Text(
-                        "${gap.roomLabel}: ${gap.missing.joinToString { shotLabel(it) }}",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
+            }
+            if (error != null && current == null) {
+                item(key = "retry") {
+                    OutlinedButton(onClick = { perform() }, enabled = !busy) { Text(Strings.retry) }
                 }
             }
-            if (pending.isNotEmpty()) {
-                item(key = "pending-header") {
-                    Text(Strings.inspectorSuggestions, style = MaterialTheme.typography.titleMedium)
+            if (current != null) {
+                if (current.gaps.isNotEmpty()) {
+                    item(key = "gaps") { InspectorHeading(InspectorStrings.gaps) }
+                    items(current.gaps, key = { "gap-${it.roomId}" }) { gap ->
+                        InspectorGapCard(gap, current.coverageReminders[gap.roomId].orEmpty(), editable, busy, ignore)
+                    }
                 }
-                items(pending, key = { it.id }) { hint ->
-                    InspectorHintRow(
-                        hint = hint,
-                        onConfirm = {
-                            scope.launch {
-                                try {
-                                    session.inspector.confirm(hint.id)
-                                    refresh()
-                                } catch (e: Exception) {
-                                    error = userErrorMessage(e)
-                                }
-                            }
-                        },
-                        onIgnore = {
-                            scope.launch {
-                                try {
-                                    session.inspector.ignore(hint.id)
-                                    refresh()
-                                } catch (e: Exception) {
-                                    error = userErrorMessage(e)
-                                }
-                            }
-                        },
+                item(key = "suggestions") { InspectorHeading(InspectorStrings.suggestions) }
+                if (current.photoReminders.isEmpty()) {
+                    item(key = "empty") {
+                        RecordPanel(Icons.Outlined.Photo, InspectorStrings.emptyTitle, InspectorStrings.emptyBody)
+                    }
+                }
+                items(current.photoReminders.entries.toList(), key = { "photo-${it.key}" }) { (id, hints) ->
+                    InspectorPhotoCard(
+                        photo = current.photos[id],
+                        roomLabel = current.roomLabels[hints.first().roomId],
+                        hints = hints,
+                        editable = editable,
+                        busy = busy,
+                        onPreview = { viewing = it },
+                        onConfirm = { hintId -> perform { session.inspector.confirm(hintId) } },
+                        onIgnore = ignore,
                     )
                 }
-            } else {
-                item(key = "empty") {
-                    Text(Strings.inspectorEmpty, style = MaterialTheme.typography.bodyMedium)
-                }
-            }
             }
         }
-        VaultButton(text = Strings.back, onClick = onBack)
     }
+
+    viewing?.let { PhotoViewer(session, it, onClose = { viewing = null }) }
 }
 
 @Composable
-private fun InspectorHintRow(
-    hint: AiSuggestion,
-    onConfirm: () -> Unit,
-    onIgnore: () -> Unit,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        val label = when (hint.kind) {
-            SuggestionKind.POSSIBLE_STAIN.serial -> Strings.inspectorStain
-            SuggestionKind.POSSIBLE_CRACK.serial -> Strings.inspectorCrack
-            else -> "${Strings.inspectorGap}: ${hint.detail.lowercase()}"
-        }
-        val where = if (hint.evidenceId.isNotBlank()) "#${hint.evidenceId.takeLast(6)}" else ""
-        Text("$label $where".trim(), style = MaterialTheme.typography.bodyMedium)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            if (hint.kind != SuggestionKind.COVERAGE_GAP.serial) {
-                TextButton(onClick = onConfirm) { Text(Strings.inspectorConfirm) }
-            }
-            TextButton(onClick = onIgnore) { Text(Strings.inspectorIgnore) }
-        }
-    }
+private fun InspectorHeading(label: String) {
+    Text(
+        label,
+        style = MaterialTheme.typography.titleLarge,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.semantics { heading() },
+    )
 }

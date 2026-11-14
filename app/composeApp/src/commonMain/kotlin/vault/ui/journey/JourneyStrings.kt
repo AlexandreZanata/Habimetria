@@ -2,6 +2,12 @@ package vault.ui.journey
 
 // Feature-owned pt-BR copy for room setup and guided capture.
 internal object JourneyStrings {
+    const val roomSetupTitle = "Adicione os cômodos"
+    const val roomSetupHint = "Digite o nome de um cômodo por vez."
+    const val roomNameExample = "Ex.: Sala, cozinha ou quarto"
+    const val addRoom = "Adicionar cômodo"
+    const val roomsEmptyTitle = "Nenhum cômodo adicionado"
+    const val roomsEmptyHint = "Adicione o primeiro cômodo para começar a fotografar."
     const val captureHint = "Escolha o enquadramento da próxima foto."
     const val pending = "Falta fotografar"
     const val captured = "Fotografado"

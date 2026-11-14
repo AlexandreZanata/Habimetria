@@ -1,7 +1,7 @@
 package vault.ui.journey
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,7 +38,7 @@ fun OrientationCorrectionRow(
         }
         return
     }
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         listOf(0, 90, 180, 270).forEach { degrees ->
             FilterChip(
                 selected = evidence.displayRotation == degrees,

@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Apartment
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,8 +25,9 @@ import kotlinx.coroutines.launch
 import vault.local.PropertyOverview
 import vault.ui.AppContainer
 import vault.ui.ErrorText
-import vault.ui.ProgressStatus
+import vault.ui.LoadingSkeleton
 import vault.ui.PropertyCardSkeleton
+import vault.ui.RecordPanel
 import vault.ui.Strings
 import vault.ui.rememberLoadingVisible
 import vault.ui.userErrorMessage
@@ -91,6 +94,9 @@ fun PropertyListScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
+            RecordPanel(Icons.Outlined.Apartment, PropertyStrings.listTitle, PropertyStrings.listBody)
+        }
+        item {
             PropertySearchField(query = query, onQueryChange = { query = it })
         }
         item { VisibilityFilterRow(selected = visibility, onSelect = { visibility = it }) }
@@ -142,12 +148,9 @@ fun PropertyListScreen(
                 }
             }
             showLoading -> {
-                item {
-                    ProgressStatus(true)
-                    PropertyCardSkeleton()
+                item(key = "loading") {
+                    LoadingSkeleton { repeat(3) { PropertyCardSkeleton() } }
                 }
-                item { PropertyCardSkeleton() }
-                item { PropertyCardSkeleton() }
             }
             cards == null -> {
                 // Grace period: data is on its way, paint nothing yet.
