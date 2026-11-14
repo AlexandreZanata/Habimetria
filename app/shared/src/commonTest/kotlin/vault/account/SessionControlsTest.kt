@@ -6,6 +6,17 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.*
 
 class SessionControlsTest {
+    @Test fun savedSessionPresenceHonorsOriginWithoutNetwork() = runTest {
+        var calls = 0
+        val f = SessionFixture { calls++; respondPair() }
+        assertFalse(f.sessions.hasSavedSession())
+        f.vault.record = pair().stored(ORIGIN, DEVICE)
+        assertTrue(f.sessions.hasSavedSession())
+        f.vault.record = pair().stored("https://other.example.test", DEVICE)
+        assertEquals("origin_mismatch", assertFailsWith<SessionFailure> { f.sessions.hasSavedSession() }.code)
+        assertEquals(0, calls)
+        f.sessions.close()
+    }
     @Test fun staleCoordinatorCannotUseOrLogoutAnotherAccount() = runTest {
         var calls = 0
         val f = SessionFixture { calls++; respondPair() }

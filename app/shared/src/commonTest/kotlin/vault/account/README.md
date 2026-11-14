@@ -9,6 +9,8 @@
   remote revocation, scoped 401 cleanup and stale coordinator isolation.
 - `AccountEnrollmentTest.kt`: public enrollment/recovery transport, explicit
   acknowledgments, request bounds and HTTPS origin enforcement.
+- `AccountProfileTest.kt`: authenticated profile scope and revoked-session cleanup.
+- `AccountProofTest.kt`: bounded link extraction and proof-purpose separation.
 
 Run `:shared:jvmTest`. No production plaintext/JVM secret adapter is provided.
 Platform storage and owner acceptance require separate native evidence.

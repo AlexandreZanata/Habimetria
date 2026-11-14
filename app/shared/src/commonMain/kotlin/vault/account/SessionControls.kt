@@ -3,6 +3,19 @@ package vault.account
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.sync.withLock
 
+suspend fun AccountSessions.profile(): AccountProfile = guard.withLock {
+    val access = accessLocked()
+    val current = snapshot
+    try {
+        val profile = api.profile(access)
+        if (profile.id != current?.userId) throw SessionFailure("invalid_response")
+        profile
+    } catch (e: SessionFailure) {
+        if (e.code == "authentication_required") { if (current != null) vault.compareAndSet(current, null); clearMemory() }
+        throw e
+    }
+}
+
 suspend fun AccountSessions.devices(): List<DeviceSession> = guard.withLock {
     val access = accessLocked()
     val current = snapshot

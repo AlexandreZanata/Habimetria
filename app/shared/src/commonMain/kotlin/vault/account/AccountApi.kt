@@ -48,6 +48,12 @@ class AccountApi private constructor(
             throw SessionFailure("invalid_response")
         return response
     }
+    suspend fun profile(access: String): AccountProfile {
+        val profile = decode<AccountProfile>(send(HttpMethod.Get, "profile", access = access))
+        if (!ID.matches(profile.id) || profile.email.length !in 1..320 || profile.name.length > 320)
+            throw SessionFailure("invalid_response")
+        return profile
+    }
     suspend fun revoke(access: String, id: String) {
         if (!ID.matches(id)) throw SessionFailure("invalid_request")
         send(HttpMethod.Delete, "sessions/$id", access = access, expected = 204)

@@ -47,6 +47,14 @@ class AccountSessions(
 
     suspend fun accessToken(): String = guard.withLock { accessLocked() }
 
+    fun enrollment(): AccountEnrollment = AccountEnrollment(api)
+    fun validateOrigin() { api.origin }
+    suspend fun hasSavedSession(): Boolean = guard.withLock {
+        val saved = vault.read() ?: return@withLock false
+        requireOrigin(saved)
+        true
+    }
+
     internal suspend fun accessLocked(): String {
         val saved = vault.read() ?: run { clearMemory(); throw SessionFailure("authentication_required") }
         requireOrigin(saved)

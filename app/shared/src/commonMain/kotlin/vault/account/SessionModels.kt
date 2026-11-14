@@ -47,6 +47,8 @@ data class DeviceSession(
 )
 
 data class LogoutResult(val localForgotten: Boolean, val remoteRevoked: Boolean)
+@Serializable
+data class AccountProfile(val id: String, val email: String, val name: String)
 internal val ID = Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
 internal val ACCESS = Regex("[A-Za-z0-9_-]{43}")
 internal val REFRESH = Regex("hr1_[A-Za-z0-9_-]{43}")
